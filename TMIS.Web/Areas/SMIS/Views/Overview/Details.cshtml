@@ -1,0 +1,204 @@
+@section VendorStyles {
+    <link href="~/styles/kendo.common.min.css" rel="stylesheet" />
+    <link href="~/styles/kendo.metro.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/vendor/libs/apex-charts/apex-charts.css" />
+}
+
+@section VendorScripts {
+    <script src="~/kendo/jszip.min.js"></script>
+    <script src="~/kendo/kendo.all.min.js"></script>
+    <script src="~/vendor/libs/apex-charts/apexcharts.js"></script>
+}
+
+@section PageScripts {
+    <script src="~/custom/status-overview.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#configurator").kendoTabStrip();
+
+            $("#grid").kendoGrid({
+                toolbar: ["excel"],
+                excel: {
+                    allPages: true
+                },
+                columns: [
+                    { draggable: true },
+                    { field: "name" }
+                ],
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "/SMIS/Overview/GetAllDataList",
+                            dataType: "jsonp"
+                        }
+                    },
+                    pageSize: 15,
+                },
+                selectable: "multiple row",
+                sortable: true,
+                reorderable: true,
+                pageable: true,
+                filterable: {
+                    mode: "row"
+                },
+                pageable: {
+                    buttonCount: 5
+                },
+                // dataBound: function () {
+                //     for (var i = 0; i < this.columns.length; i++) {
+                //         this.autoFitColumn(i);
+                //     }
+                // },
+                scrollable: true,
+                groupable: true,
+                columns: [
+                    { field: "Id", title: "Qr Code", width: "150px", hidden: true },
+                    { field: "CurrentUnit", title: "Current Unit", width: "150px"  },
+                    { field: "Location", title: "Location", width: "150px" },
+                    { field: "QrCode", title: "Qr Code", width: "150px" },
+                    { field: "SerialNo", title: "Serial No", width: "150px" },
+                    { field: "FarCode", title: "Far Code", width: "150px" },
+                    { field: "Ownership", title: "Ownership", width: "150px" },
+                    { field: "DatePurchased", title: "Date Purchased", format: "{0:dd/MM/yy}", width: "150px" },
+                    { field: "DateBorrow", title: "Date Borrow", format: "{0:dd/MM/yy}", width: "150px" },
+                    { field: "DateDue", title: "Date Due", width: "150px" },
+                    { field: "ServiceSeq", title: "Service Seq", width: "150px" },
+                    { field: "MachineBrand", title: "Machine Brand", width: "150px" },
+                    { field: "MachineType", title: "Machine Type", width: "250px" },
+                    { field: "CompanyGroup", title: "Company Group", width: "150px" },
+                    { field: "OwnedCluster", title: "Owned Cluster", width: "150px" },
+                    { field: "OwnedUnit", title: "Owned Unit", width: "150px" },
+                    { field: "MachineModel", title: "Machine Model", width: "150px" },
+                    { field: "Supplier", title: "Supplier", width: "250px" },
+                    { field: "CostMethod", title: "Cost Method", width: "150px" },
+                    { field: "Cost", title: "Cost", width: "150px" },
+                    { field: "Comments", title: "Comments", width: "150px" },
+                    { field: "Status", title: "Status", width: "150px" },
+                    { field: "LastScanDateTime", title: "Last Scan", type: "date", format: "{0:dd/MM/yy H:mm:ss}", width: "150px" }
+                ],
+            });
+
+            // Handle double-click on table row
+            $("#grid").on("dblclick", "table tr", function (e) {
+                e.stopPropagation();
+
+                var rowData = $(this).children("td").map(function () {
+                    return $(this).text();
+                }).get();
+
+
+                // Set modal values based on row data
+                $("#modal-id").text(rowData[3]); // Assuming the QR Code is in the first column
+
+                var machineId = rowData[0];
+
+                $.ajax({
+                    url: '/SMIS/Overview/History',  // API endpoint
+                    type: 'GET',
+                    data: { id: machineId },  // Passing machineId as query parameter
+                    success: function (response) {
+                        // Assuming the response is a JSON object with logs
+                        if (response && response.logs) {
+
+                            // Clear any previous logs in the modal (if necessary)
+                            $("#modal-logs").empty();
+
+                            // Loop through the logs and append each log to the modal
+                            response.logs.forEach(function (log) {
+                                // Append each log to the modal's #modal-logs div or any container
+                                $("#modal-logs").append("<p>" + log + "</p>");
+                            });
+
+                            // Show the modal and center it on the screen
+                            var modalWindow = $("#modal").data("kendoWindow");
+                            modalWindow.center(); // Center the modal on the screen
+                            modalWindow.open();
+                        } else {
+                            // Handle the case where no logs are returned or some error
+                            alert('No logs found for this machine.');
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        // Handle the case where the AJAX request fails
+                        console.error("Error fetching data:", error);
+                        alert('An error occurred while fetching the data.');
+                    }
+                });
+            });
+
+            $("#modal").kendoWindow({
+                width: "600px",
+                height: "450px",
+                title: "History Details",
+                visible: false,
+                modal: true
+            });
+        });
+
+    </script>
+    <script src="~/custom/loading-hide.js"></script>
+}
+
+@section PageStyles {
+    <style>
+        #grid {
+            font-size: 12px;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr); /* 8 equal columns */
+            gap: 10px;
+        }
+
+        .grid-item {
+            padding: 20px;
+            border: 1px solid #ccc;
+            text-align: center;
+        }
+    </style>
+}
+
+<div>
+    <input type="hidden" id="selectUrl" value=@Url.Action("CostGetAll", "Overview")>
+</div>
+
+@* ************** Content ************** *@
+<!-- Ajax Sourced Server-side -->
+@await Html.PartialAsync("_Loading")
+
+<div class="panelDiv">
+
+    <div id="modal" style="display:none;">
+        <h3><span id="modal-id"></span></h3>
+        <div><span id="modal-logs"></span></div>
+    </div>
+    <div class="card">
+        <div class="row">
+            <div>
+                <!-- Transactions -->
+                <div class="col align-self-end">
+                    <div class="card-body">
+                        <div class="col-6">
+                            <h5 class="card-header page-header">Overall Current Status</h5>
+                        </div>
+
+                        <div id="salesOverviewChart"></div>
+
+                        <hr class="my-2">
+                        <div class="row">
+                            <div class="col-6">
+                                <h5 class="card-header page-header">Sewing Machine Details</h5>
+                            </div>
+                        </div>
+
+                        <div id="example">
+                            <div id="grid"></div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

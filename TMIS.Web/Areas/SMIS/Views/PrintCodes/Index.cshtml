@@ -1,0 +1,139 @@
+@model IEnumerable<string>
+
+@section VendorStyles {
+    <link rel="stylesheet" href="~/vendor/libs/select2/select2.css" />
+}
+
+@section VendorScripts {
+    <script src="~/vendor/libs/select2/select2.js"></script>
+}
+
+@section PageStyles {
+
+    <style>
+        .round {
+            border-radius: 10%;
+            width: 100px;
+            height: 50px;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 10px;
+        }
+    </style>
+}
+
+@section PageScripts {
+    <script src="~/js/form-layouts.js"></script>
+    <script>
+        document.getElementById('add-btn').addEventListener('click', function () {
+            // Get the selected QR code
+            const selectElement = document.getElementById('qr-code-select');
+            const selectedCode = selectElement.value;
+            const contentDiv = document.getElementById('content');
+
+            // Check if the code is selected
+            if (selectedCode && !isCodeAlreadyAdded(selectedCode)) {
+                // Create a new div to display the QR code
+                const newCodeDiv = document.createElement('div');
+                newCodeDiv.textContent = selectedCode;
+                newCodeDiv.classList.add('qr-code-item');
+                newCodeDiv.classList.add('round');
+
+                // Append the new QR code to the content div
+                contentDiv.appendChild(newCodeDiv);
+            } else if (!selectedCode) {
+                alert("Please select a QR code before adding.");
+            } else {
+                alert("This QR code is already added.");
+            }
+        });
+
+        // Function to check if the QR code is already added
+        function isCodeAlreadyAdded(code) {
+            const existingCodes = document.querySelectorAll('#content .qr-code-item');
+            return Array.from(existingCodes).some(item => item.textContent === code);
+        }
+    </script>
+
+    <script>
+        document.getElementById("generate-btn").addEventListener("click", function () {
+            const qrCodes = getSelectedQrCodes(); // Retrieve selected QR codes
+            if (qrCodes.length === 0) {
+                alert("Please add some QR codes to generate the PDF.");
+                return;
+            }
+
+            fetch("/SMIS/PrintCodes/GenerateQrPdf", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(qrCodes),
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Error generating QR PDF");
+                }
+                return response.blob();
+            })
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "TMIS_QR_CODES.pdf";
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("An error occurred while generating the QR codes PDF.");
+            });
+        });
+
+        function getSelectedQrCodes() {
+            // Get QR codes dynamically added to the #content div
+            const qrCodes = [];
+            document.querySelectorAll("#content .qr-code-item").forEach(item => {
+                qrCodes.push(item.textContent);
+            });
+            return qrCodes;
+        }
+    </script>
+
+
+}
+<div class="card mb-6">
+    <h5 class="card-header page-header">Generate QR Codes</h5>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-4">
+                <div class="form-floating form-floating-outline">
+                    <select class="select2 form-select" id="qr-code-select" data-allow-clear="true">
+                        <option disabled selected>- Select QR Code -</option>
+                        @foreach (var code in Model)
+                        {
+                            <option value="@code">@code</option>
+                        }
+                    </select>
+                    <label for="qr-code-select">QR Code</label>
+                </div>
+            </div>
+            <div class="col-4">
+                <button class="btn btn-primary h-100" id="add-btn">+</button>
+                <button class="btn btn-primary h-100" id="generate-btn">Download</button>
+            </div>
+   
+        </div>
+        <div class="row p-5">
+            <div id="content" class="m-3">
+                <!-- Added QR codes will appear here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+

@@ -1,0 +1,162 @@
+@model VMCluster
+
+@section VendorStyles {
+    <link href="~/styles/kendo.common.min.css" rel="stylesheet" />
+    <link href="~/styles/kendo.metro.min.css" rel="stylesheet" />
+}
+
+@section VendorScripts {
+    <script src="~/kendo/jszip.min.js"></script>
+    <script src="~/kendo/kendo.all.min.js"></script>
+}
+
+@section PageScripts {
+    <script>
+        $(document).ready(function () {
+            // Automatically select the first option
+            var clusterId = $("#OwnedClusterId option:first").val();
+
+            function getRequestParameters() {
+                return {
+                    cluster: clusterId,
+                };
+            }
+
+            // Initialize the Pivot Grid with the first Cluster ID
+            var pivotgrid = $("#pivotgrid").kendoPivotGrid({
+                filterable: true,
+                sortable: true,
+                columnWidth: 120,
+                height: 570,
+                toolbar: ["excel"],
+                excel: {
+                    fileName: "Machine-pivot-table.xlsx",
+                    proxyURL: "/proxy"
+                },
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: "/SMIS/Overview/GetPivotData", // Dynamically pass the first cluster ID
+                            data: getRequestParameters,
+                            dataType: "jsonp"
+                        }
+                    },
+                    schema: {
+                        model: {
+                            fields: {
+                                MachineType: { type: "string" },
+                                Location: { type: "string" },
+                                CurrentUnit: { type: "string" },
+                                OwnershipStatus: { type: "string" },
+                            }
+                        },
+                        cube: {
+                            dimensions: {
+                                MachineType: { caption: "MachineType" },
+                                Location: { caption: "Location" },
+                                CurrentUnit: { caption: "CurrentUnit" },
+                                OwnershipStatus: { caption: "Ownership" }
+                            },
+                            measures: {
+                                "Count": { field: "MachineType", format: "{0}", aggregate: "count" },
+                            }
+                        }
+                    },
+                    columns: [{ name: ["MachineType"], expand: true }],
+                    rows: [{ name: ["CurrentUnit"], expand: true }, { name: ["Location"], expand: true }],
+                    measures: ["Count"],
+
+                },
+            }).data("kendoPivotGrid");
+
+            // When the cluster changes, update the dataSource URL and reload the data
+            $('#OwnedClusterId').on('change', function () {
+                clusterId = $(this).val();
+
+                var currentConfig = pivotgrid.dataSource.options;
+                pivotgrid.setDataSource(new kendo.data.PivotDataSource(currentConfig));
+                pivotgrid.dataSource.read();
+
+            });
+
+            // Configure the export button
+            $("#export").kendoButton({
+                icon: "file-excel",
+                click: function () {
+                    pivotgrid.saveAsExcel();
+                }
+            });
+
+            // Configure the PivotConfigurator
+            $("#configurator").kendoPivotConfigurator({
+                dataSource: pivotgrid.dataSource,
+                filterable: true,
+                sortable: true,
+                height: 570
+            });
+
+            // Configure the PivotConfigurator button
+            $("#pivotbutton").kendoPivotConfiguratorButton({
+                configurator: "configurator"
+            });
+        });
+    </script>
+
+
+
+    <script src="~/custom/loading-hide.js"></script>
+}
+
+@section PageStyles {
+    <style>
+        #example {
+            font-size: 12px;
+        }
+
+        #pivotbutton{
+          z-index: 1000;
+          position: absolute;
+          bottom: 5px;
+          padding: 10px;
+
+        }
+
+        .k-chip-md{
+            background-color: #8def00;
+        }
+    </style>
+
+
+}
+
+
+@* ************** Content ************** *@
+<!-- Ajax Sourced Server-side -->
+@await Html.PartialAsync("_Loading")
+
+<div class="panelDiv">
+    <div class="card">
+        <h5 class="card-header page-header">Sewing Machine Pivot Table</h5>
+        <div class="row mb-3 mt-2 ms-2">
+            <div class="col-4">
+                <div class="form-floating form-floating-outline">
+                    <select asp-for="OwnedClusterId" asp-items="@Model.OwnedClusterList" class="select2 form-select" data-allow-clear="true">
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="row ms-1 me-1 pb-2">
+            <div id="example">
+                <button id="export">Export to Excel</button>
+                <hr class="k-hr" />
+                <div class="k-pivotgrid-wrapper">
+                    <div id="configurator"></div>
+                    <div id="pivotbutton">                </div>
+                    <div id="pivotgrid"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

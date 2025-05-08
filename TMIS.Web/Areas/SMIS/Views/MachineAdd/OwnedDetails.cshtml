@@ -1,0 +1,130 @@
+@model MachineOwnedVM
+
+<!-- Multi Column with Form Separator -->
+<div class="card mb-6">
+    <h5 class="card-header page-header">Owned Sewing Machine Details</h5>
+        <div class="row g-4 card-body">
+
+
+            <div class="col-md-4">
+                <div class="form-floating form-floating-outline">
+                    <input asp-for="QrCode" type="text" id="qrCode" class="form-control" placeholder="TSM00007" />
+                    <label for="qrCode">QR Code</label>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-floating form-floating-outline">
+                    <input asp-for="SerialNo" type="text" id="serialNo" class="form-control" placeholder="4DOFE05030" />
+                    <label for="serialNo">Serial No</label>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-floating form-floating-outline">
+                    <input asp-for="FarCode" type="text" id="farCode" class="form-control" placeholder="300000003227" />
+                    <label for="farCode">FAR Code</label>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-floating form-floating-outline">
+                    <input asp-for="ServiceSeq" type="number" id="ServiceSeq" class="form-control" placeholder="100" />
+                    <label for="ServiceSeq">Service Sequence (Days)</label>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="form-floating form-floating-outline">
+                    <input asp-for="MachineModel" type="text" id="MachineModel" class="form-control" placeholder="100" />
+                    <label for="MachineModel">Machine Model</label>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="form-floating form-floating-outline">
+
+                    <input asp-for="MachineBrand" type="text" id="MachineBrand" class="form-control" placeholder="100" />
+                    <label for="MachineBrand">Machine Brand</label>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-floating form-floating-outline">
+
+                    <input asp-for="MachineType" type="text" id="MachineType" class="form-control" placeholder="100" />
+                    <label for="MachineType">Machine Type</label>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-floating form-floating-outline">
+                    <input asp-for="CompanyGroup" type="text" id="CompanyGroup" class="form-control" placeholder="100" />
+
+                    <label for="CompanyGroup">Group</label>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-floating form-floating-outline">
+                    <input asp-for="OwnedCluster" type="text" id="OwnedCluster" class="form-control" placeholder="100" />
+
+                    <label for="OwnedCluster">Cluster</label>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-floating form-floating-outline">
+                    <input asp-for="OwnedUnit" type="text" id="OwnedUnit" class="form-control" placeholder="100" />
+
+                    <label for="OwnedUnit">Unit</label>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-floating form-floating-outline">
+                    <input asp-for="Location" type="text" id="Location" class="form-control" placeholder="100" />
+
+                    <label for="Location">Location</label>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-floating form-floating-outline">
+                    <input asp-for="DatePurchased" type="text" id="ServiceSeq" class="form-control" placeholder="100" />
+
+                    <label for="ServiceSeq">Purchased Date</label>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-floating form-floating-outline">
+                    <input asp-for="Cost" type="number" id="cost" class="form-control" placeholder="25000" />
+                    <label for="cost">Cost</label>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="image-preview">
+                    @if (Model.ImageFR != null && Model.ImageFR.Length > 0)
+                    {
+                        var base64Image = Convert.ToBase64String(Model.ImageFR);
+                        <img id="frontImg" src="data:image/jpeg;base64,@base64Image" alt="Image Preview" style="max-width: 100%; height: auto;" />
+                    }
+                    else
+                    {
+                        <img src="~/img/my-images/no-image.jpg" alt="No Image Available" style="max-width: 100px; height: auto;" />
+                    }
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="image-preview">
+                    @if (Model.ImageBK != null && Model.ImageBK.Length > 0)
+                    {
+                        var base64Image = Convert.ToBase64String(Model.ImageBK);
+                        <img id="bakcImg" src="data:image/jpeg;base64,@base64Image" alt="Image Preview" style="max-width: 100%; height: auto;" />
+                    }
+                    else
+                    {
+                        <img src="~/img/my-images/no-image.jpg" alt="No Image Available" style="max-width: 100px; height: auto;" />
+                    }
+                </div>
+            </div>
+            <div class="pt-6">
+                <a asp-controller="MachineAdd" asp-action="Index" class="btn btn-outline-secondary">Back to List</a>
+            </div>
+        </div>
+</div>
+
+
+

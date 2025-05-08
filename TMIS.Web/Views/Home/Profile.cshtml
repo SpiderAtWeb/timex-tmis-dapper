@@ -1,0 +1,55 @@
+@model PasswordChange
+
+@section PageScripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+
+<div class="card mb-6">
+    <h5 class="card-header">Change Password</h5>
+    <div class="card-body">
+        <form asp-action="Profile" method="post" class="form-horizontal">
+
+            <!-- Validation Summary -->
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="row g-6">
+                <!-- Old Password Input -->
+                <div class="col-md-4">
+                    <div class="form-floating form-floating-outline">
+                        <input asp-for="Password" type="password" id="oldPassword" class="form-control" placeholder="Old Password" />
+                        <label for="oldPassword">Old Password</label>
+                    </div>
+                    <span asp-validation-for="Password" class="text-danger"></span> <!-- Field-specific validation -->
+                </div>
+
+                <!-- New Password Input -->
+                <div class="col-md-4">
+                    <div class="form-floating form-floating-outline">
+                        <input asp-for="NewPassword" type="password" id="newPassword" class="form-control" placeholder="New Password" />
+                        <label for="newPassword">New Password</label>
+                    </div>
+                    <span asp-validation-for="NewPassword" class="text-danger"></span> <!-- Field-specific validation -->
+                </div>
+
+                <!-- Confirm Password Input -->
+                <div class="col-md-4">
+                    <div class="form-floating form-floating-outline">
+                        <input asp-for="ConfirmPassword" type="password" id="confirmPassword" class="form-control" placeholder="Confirm Password" />
+                        <label for="confirmPassword">Confirm Password</label>
+                    </div>
+                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span> <!-- Field-specific validation -->
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="row g-2 mt-2">
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary w-100">Change Password</button>
+                </div>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+

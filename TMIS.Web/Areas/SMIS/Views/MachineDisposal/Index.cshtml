@@ -1,0 +1,85 @@
+@model IEnumerable<TransMC>
+
+@section VendorStyles {
+    <link rel="stylesheet" href="~/vendor/libs/datatables-bs5/datatables.bootstrap5.css">
+}
+
+@section PageStyles {
+    <style>
+        .table td {
+            max-width: 100px; /* Set a suitable width for your columns */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    </style>
+}
+
+@section PageScripts {
+    <script src="~/js/form-layouts.js"></script>
+    <script src="~/custom/tables-datatables-mc-request.js"></script>
+    <script src="~/custom/loading-hide.js"></script>
+}
+
+@* ************** Content ************** *@
+<!-- Ajax Sourced Server-side -->
+@await Html.PartialAsync("_Loading")
+<div class="panelDiv">
+    <div class="card mb-6">
+        <div class="card-header px-0 pt-0">
+            <h5 class="card-header page-header">
+                Sewing Machine Disposals
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="card-datatable text-nowrap">
+                <table class="datatables-ajax table table-bordered" id="dashboard">
+                    <thead>
+                        <tr class="table-info">
+                            <th>
+                                QR Code
+                            </th>
+
+                            <th>
+                                Serial No
+                            </th>
+                            <th>
+                                Type
+                            </th>
+                            <th>
+                                Status
+                            </th>
+                            <th>
+                                Unit
+                            </th>
+                            <th>
+                                Location
+                            </th>
+                            <th>
+
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+
+                                <td>@item.QrCode</td>
+                                <td>@item.SerialNo</td>
+                                <td>@item.MachineType</td>
+                                <td>@item.CurrentStatus</td>
+                                <td>@item.CurrentUnit</td>
+                                <td>@item.Location</td>
+                                <td>
+                                    <a class="edit-record btn btn-primary btn-sm" asp-controller="MachineDisposal" asp-action="Details" asp-route-id="@item.Id"> <i class="ri-recycle-fill"></i> </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+

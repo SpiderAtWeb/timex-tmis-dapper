@@ -1,0 +1,128 @@
+@{
+    ViewData["Title"] = "MachineTypes";
+}
+
+@section VendorStyles {
+    <link rel="stylesheet" href="~/vendor/libs/datatables-bs5/datatables.bootstrap5.css">
+    <link rel="stylesheet" href="~/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css">
+    <link rel="stylesheet" href="~/vendor/libs/datatables-checkboxes-jquery/datatables.checkboxes.css">
+    <link rel="stylesheet" href="~/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.css">
+    <link rel="stylesheet" href="~/vendor/libs/flatpickr/flatpickr.css" />
+
+    <!-- sweetalert2 -->
+    <link rel="stylesheet" href="~/vendor/libs/animate-css/animate.css" />
+    <link rel="stylesheet" href="~/vendor/libs/sweetalert2/sweetalert2.css" />
+
+    <!-- Row Group CSS -->
+    <link rel="stylesheet" href="~/vendor/libs/datatables-rowgroup-bs5/rowgroup.bootstrap5.css">
+    <!-- Form Validation -->
+    <link rel="stylesheet" href="~/vendor/libs/&#64;form-validation/form-validation.css" />
+    <link href="~/css/input-text-upper.css" rel="stylesheet" />
+}
+
+@section VendorScripts {
+    <script src="~/vendor/libs/datatables-bs5/datatables-bootstrap5.js"></script>
+
+    <!-- sweetalert2 -->
+    <script src="~/vendor/libs/sweetalert2/sweetalert2.js"></script>
+    <!-- Flat Picker -->
+    <script src="~/vendor/libs/moment/moment.js"></script>
+    <script src="~/vendor/libs/flatpickr/flatpickr.js"></script>
+    <!-- Form Validation -->
+    <script src="~/vendor/libs/&#64;form-validation/popular.js"></script>
+    <script src="~/vendor/libs/&#64;form-validation/bootstrap5.js"></script>
+    <script src="~/vendor/libs/&#64;form-validation/auto-focus.js"></script>
+}
+
+@section PageScripts {
+    <script src="~/custom/tables-datatables-twofields.js"></script>
+    <script src="~/custom/loading-hide.js"></script>
+    <script src="~/custom/input-text-upper.js"></script>
+}
+
+<div>
+    <input type="hidden" id="selectUrl" value=@Url.Action("GroupGetAll", "MDataCompany")>
+    <input type="hidden" id="insertUrl" value=@Url.Action("GroupGetInsert", "MDataCompany")>
+    <input type="hidden" id="updateUrl" value=@Url.Action("GroupGetUpdate", "MDataCompany")>
+    <input type="hidden" id="deleteUrl" value=@Url.Action("GroupGetDelete", "MDataCompany")>
+    <input type="hidden" id="recordId" />
+</div>
+
+@await Html.PartialAsync("_Loading")
+
+<!-- DataTable with Buttons -->
+<div class="panelDiv">
+    <div class="card">
+        <h5 class="card-header page-header">Company Groups</h5>
+        <div class="card-body">
+            <div class="card-datatable table-responsive pt-0">
+                <table class="datatables-basic table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Group Name</th>
+                            <th>Group Desc</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+
+
+            <!-- Modal to add new record -->
+            <div class="offcanvas offcanvas-end" id="add-new-record">
+                <div class="offcanvas-header border-bottom">
+                    <h5 class="offcanvas-title" id="exampleModalLabel">New Record</h5>
+                    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                </div>
+                <div class="offcanvas-body flex-grow-1">
+                    <form class="add-new-record pt-0 row g-3" id="form-add-new-record">
+                        <div class="col-sm-12">
+                            <div class="input-group input-group-merge">
+                                <span id="propName2" class="input-group-text"><i class="ri-user-line ri-18px"></i></span>
+                                <div class="form-floating form-floating-outline">
+                                    <input type="text" id="propName" class="form-control dt-prop-name" name="propName" placeholder="GROUP 1" aria-label="GROUP 1" aria-describedby="propName2" />
+                                    <label for="propName">Group Name</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="input-group input-group-merge">
+                                <span class="input-group-text"><i class="ri-mail-line ri-18px"></i></span>
+                                <div class="form-floating form-floating-outline">
+                                    <input type="text" id="propDesc" name="propDesc" class="form-control dt-prop-desc" placeholder="GROUP DESCRIPTION" aria-label="GROUP DESCRIPTION" />
+                                    <label for="propDesc">Group Description</label>
+                                </div>
+                            </div>
+                            <div class="form-text">
+                                You can use letters, numbers & periods
+                            </div>
+                        </div>
+
+                        <div class="col-sm-12">
+                            <button type="submit" class="btn btn-primary data-submit me-sm-4 me-1">Submit</button>
+                            <button type="reset" class="btn btn-outline-secondary" data-bs-dismiss="offcanvas">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Deletion</h5>
+            </div>
+            <div class="modal-body">
+                <!-- Row details will be populated here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" id="confirm-delete-btn" class="btn btn-danger">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>

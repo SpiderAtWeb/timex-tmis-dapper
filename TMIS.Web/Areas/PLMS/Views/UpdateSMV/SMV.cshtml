@@ -1,0 +1,242 @@
+@model FeedbackVM
+
+@section VendorStyles {
+    <link rel="stylesheet" href="~/vendor/libs/datatables-bs5/datatables.bootstrap5.css">
+    <link href="~/vendor/libs/toastr/toastr.css" rel="stylesheet" />
+}
+
+@section PageScripts {
+    <script src="~/vendor/libs/toastr/toastr.js"></script>
+    <script src="~/custom/loading-hide.js"></script>
+    <script src="~/js/form-basic-inputs.js"></script>
+}
+
+@section PageStyles {
+    <link href="~/custom/plms/modal-popup.css" rel="stylesheet" />
+
+    <style>
+        .header-main {
+            font-weight: bold;
+            font-size: 20px;
+            text-align: center;
+            background-color: #f8f9fa;
+            border: 1px solid #9d9d9d;
+            border-radius: 5px;
+        }
+    </style>
+
+}
+
+
+
+@await Html.PartialAsync("_Loading")
+
+@* ************** Content ************** *@
+<!-- Ajax Sourced Server-side -->
+<div class="panelDiv">
+    <div class="card mb-6">
+
+        <div class="card-header px-0 pt-0">
+            <div class="row justify-content-center mt-3">
+                <div class="col-4">
+                    <div class="header-main">@Model.ShowInqDataVM.InquiryRef</div>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="tab-content p-0">
+                <div>
+                    <div class="row">
+                        <div class="col-4">
+                            <div class="form-floating form-floating-outline">
+                                <input asp-for="@Model.ShowInqDataVM.Customer" type="text" id="style-no" class="form-control" placeholder="TXMTLAN20209" />
+                                <label for="style-no">
+                                    Customer
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="form-floating form-floating-outline">
+                                <input asp-for="@Model.ShowInqDataVM.InquiryType" type="text" id="style-no" class="form-control" placeholder="TXMTLAN20209" />
+                                <label for="style-no">
+                                    Inquiry Type
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="form-floating form-floating-outline">
+                                <input asp-for="@Model.ShowInqDataVM.StyleNo" type="text" id="style-no" class="form-control" placeholder="TXMTLAN20209" />
+                                <label for="style-no">
+                                    Style #
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-4">
+                            <div class="form-floating form-floating-outline">
+                                <input asp-for="@Model.ShowInqDataVM.StyleDesc" type="text" id="style-no" class="form-control" placeholder="TXMTLAN20209" />
+                                <label for="style-no">
+                                    Style Desc
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="form-floating form-floating-outline">
+                                <input asp-for="@Model.ShowInqDataVM.ColorCode" type="text" id="style-no" class="form-control" placeholder="TXMTLAN20209" />
+                                <label for="style-no">
+                                    Color Code
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="col-4">
+                            <div class="form-floating form-floating-outline">
+                                <input asp-for="@Model.ShowInqDataVM.ResposeType" type="text" id="style-no" class="form-control" placeholder="TXMTLAN20209" />
+                                <label for="style-no">
+                                    Response Type
+                                </label>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-4">
+                            <div class="form-floating form-floating-outline">
+                                <input asp-for="@Model.ShowInqDataVM.Seasons" type="text" id="style-no" class="form-control" placeholder="TXMTLAN20209" />
+                                <label for="style-no">
+                                    Season
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="form-floating form-floating-outline">
+                                <input asp-for="@Model.ShowInqDataVM.SampleType" type="text" id="style-no" class="form-control" placeholder="TXMTLAN20209" />
+                                <label for="style-no">
+                                    Extend
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="form-floating form-floating-outline">
+                                <input asp-for="@Model.ShowInqDataVM.SampleStage" type="text" id="style-no" class="form-control" placeholder="TXMTLAN20209" />
+                                <label for="style-no">
+                                    Sub-Extend
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row justify-content-center">
+                        <div class="col-8">
+                            <div class="form-floating form-floating-outline">
+                                <input asp-for="@Model.ShowInqDataVM.InquiryComment" type="text" id="style-no" class="form-control" placeholder="TXMTLAN20209" />
+                                <label for="style-no">
+                                    Inquiry Comment
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                        </div>
+                    </div>
+                </div>
+
+
+                <div>
+                    <div class="table-responsive freeze-column">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>#</th>
+                                    <th class="freeze">Activity</th>
+                                    <th>Plan Date</th>
+                                    <th>Comp. Date</th>
+                                    <th>Due Dates</th>
+                                    <th>Done By</th>
+                                    <th>Plan Comments</th>
+                                    <th>Completed Comments</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{
+                                    int activityIndex = 1; // Initialize the activity index
+                                }
+                                @foreach (var activity in Model.ModalShowVM.ActivityList!)
+                                {
+                                    <tr>
+                                        <td>
+                                            <i class="fa @(activity.ActivityIsCompleted && activity.DueDates > 0 ? "fa-check-circle text-warning" :
+                                       activity.ActivityIsCompleted ? "fa-check-circle text-success" :
+                                       !activity.ActivityIsCompleted && activity.DueDates < 0 ? "fa-times-circle text-danger" : "")"
+                                               style="font-size: 18px;">
+                                            </i>
+                                        </td>
+                                        <td>@activityIndex</td>
+                                        <td class="freeze">@activity.ActivityText</td>
+                                        <td>@activity.ActivityRequiredDate</td>
+                                        <td>@activity.ActivityActualCmpltdDate</td>
+                                        <td>@(activity.DueDates > 0 ? activity.DueDates + " Days" : "")</td>
+                                        <td>@activity.ActivityDoneBy</td>
+                                        <td>@activity.ActivityComment</td>
+                                        <td>@activity.ActivityDoneComment</td>
+                                    </tr>
+                                    int subActivityIndex = 1; // Initialize the sub-activity index
+
+                                    @foreach (var subActivity in activity.SubActivityList!)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <i class="fa @(subActivity.ActivityIsCompleted && subActivity.DueDates > 0 ? "fa-check-circle text-warning" :
+                                           subActivity.ActivityIsCompleted ? "fa-check-circle text-success" :
+                                           !subActivity.ActivityIsCompleted && subActivity.DueDates < 0 ? "fa-times-circle text-danger" : "")"
+                                                   style="font-size: 18px;">
+                                                </i>
+                                            </td>
+                                            <td>@activityIndex.@subActivityIndex</td>
+                                            <td class="sub-task freeze">@subActivity.SubActivityText</td>
+                                            <td>@subActivity.ActivityRequiredDate</td>
+                                            <td>@subActivity.ActivityActualCmpltdDate</td>
+                                            <td>@(subActivity.DueDates > 0 ? subActivity.DueDates + " Days" : "")</td>
+                                            <td>@subActivity.ActivityDoneBy</td>
+                                            <td>@subActivity.ActivityComment</td>
+                                            <td>@subActivity.ActivityDoneComment</td>
+                                        </tr>
+                                        subActivityIndex++;
+                                    }
+                                    activityIndex++;
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                @using (Html.BeginForm("SaveSMV", "UpdateSMV", FormMethod.Post))
+                {
+                    <div class="row mt-5 g-1">                       
+                        <div class="col-2">
+                            <div class="form-floating form-floating-outline">
+                                <input asp-for="@Model.ShowInqDataVM.Id" type="hidden" name="id" id="id" />
+                                <input type="number" name="SmvValue" class="form-control" placeholder="0.00" step="0.01" min="0.01" />
+                                <label class="font-weight-bold text-danger">SMV</label>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-floating form-floating-outline">
+                                <input type="text" name="SmvComment" class="form-control" placeholder="SMV Comment" />
+                                <label class="font-weight-bold text-danger">SMV Comment</label>
+                            </div>
+                        </div>
+                        <div class="col-2 d-flex justify-content-end">
+                            <button type="submit" id="btnApprove" class="btn btn-success w-100">Save</button>
+                        </div>
+                        <div class="col-2 d-flex justify-content-end">
+                            <a asp-controller="UpdateSMV" asp-action="Index" class="btn btn-outline-secondary w-100">Back to List</a>
+                        </div>
+                    </div>                 
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+

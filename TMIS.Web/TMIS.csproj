@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>40641b5e-e3d3-4857-88a2-89aeb4e40031</UserSecretsId>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Log4Net.AspNetCore" Version="8.0.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.7" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
+    <PackageReference Include="System.Data.SQLite" Version="1.0.119" />
+    <ProjectReference Include="..\TMIS.DataAccess\TMIS.DataAccess.csproj" />
+    <ProjectReference Include="..\TMIS.Models\TMIS.Models.csproj" />
+    <ProjectReference Include="..\TMIS.Utility\TMIS.Utility.csproj" />
+     <None Update="AspnetCoreMvcStarterContext.db">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="wwwroot\custom\data-tabels\" />
+  </ItemGroup>
+</Project>

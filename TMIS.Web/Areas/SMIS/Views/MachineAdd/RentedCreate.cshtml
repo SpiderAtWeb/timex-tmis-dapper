@@ -1,0 +1,187 @@
+@model McCreatedRnVM
+
+@section VendorStyles {
+    <link rel="stylesheet" href="~/vendor/libs/flatpickr/flatpickr.css" />
+    <link rel="stylesheet" href="~/vendor/libs/select2/select2.css" />
+    <link href="~/css/input-text-upper.css" rel="stylesheet" />
+}
+
+@section VendorScripts {
+
+    <script src="~/vendor/libs/flatpickr/flatpickr.js"></script>
+    <script src="~/vendor/libs/select2/select2.js"></script>
+}
+
+@section PageScripts {
+    <script src="~/js/form-layouts.js"></script>
+    <script src="~/custom/input-text-upper.js"></script>
+}
+
+<!-- Multi Column with Form Separator -->
+
+<div class="card mb-6">
+    <h5 class="card-header page-header">Add New Rented Sewing Machine</h5>
+    <form asp-action="RentedCreate" method="post" class="card-body" enctype="multipart/form-data">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="form-floating form-floating-outline">
+                    <input asp-for="McInventory!.QrCode" type="text" id="qrCode" class="form-control" placeholder="TSM00007" />
+                    <label for="qrCode">QR Code</label>
+                    <span asp-validation-for="McInventory!.QrCode" class="text-warning"></span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-floating form-floating-outline">
+                    <input asp-for="McInventory!.SerialNo" type="text" id="serialNo" class="form-control" placeholder="4DOFE05030" />
+                    <label for="serialNo">Serial No</label>
+                    <span asp-validation-for="McInventory!.SerialNo" class="text-warning"></span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-floating form-floating-outline">
+                    <input asp-for="McInventory!.ServiceSeq" type="number" id="ServiceSeq" class="form-control" placeholder="100" />
+                    <label for="ServiceSeq">Service Sequence (Days)</label>
+                    <span asp-validation-for="McInventory!.ServiceSeq" class="text-warning"></span>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="form-floating form-floating-outline">
+                    <select asp-for="@Model.McInventory!.MachineModelId" asp-items="@Model.MachineModelList" class="select2 form-select" data-allow-clear="true">
+                        <option Disabled Selected>- Select Model -</option>
+                    </select>
+
+                    <label for="MachineModelId">Machine Model</label>
+                    <span asp-validation-for="McInventory!.MachineModelId" class="text-warning"></span>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="form-floating form-floating-outline">
+                    <select asp-for="@Model.McInventory!.MachineBrandId" asp-items="@Model.MachineBrandList" class="select2 form-select" data-allow-clear="true">
+                        <option Disabled Selected>- Select Brand -</option>
+                    </select>
+
+                    <label for="machineBrandId">Machine Brand</label>
+                    <span asp-validation-for="McInventory!.MachineBrandId" class="text-warning"></span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-floating form-floating-outline">
+
+                    <select asp-for="@Model.McInventory!.MachineTypeId" asp-items="@Model.MachineTypesList" class="select2 form-select" data-allow-clear="true">
+                        <option Disabled Selected>- Select Type -</option>
+                    </select>
+
+                    <label for="multicol-country">Machine Type</label>
+                    <span asp-validation-for="McInventory!.MachineTypeId" class="text-warning"></span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-floating form-floating-outline">
+                    <select asp-for="@Model.McInventory!.CompanyGroupId" asp-items="@Model.GroupList" class="select2 form-select" data-allow-clear="true">
+                        <option Disabled Selected>- Select Group -</option>
+                    </select>
+                    <label for="multicol-country">Group</label>
+                    <span asp-validation-for="McInventory!.CompanyGroupId" class="text-warning"></span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-floating form-floating-outline">
+                    <select asp-for="@Model.McInventory!.OwnedClusterId" asp-items="@Model.OwnedClusterList" class="select2 form-select" data-allow-clear="true">
+                        <option Disabled Selected>- Select Cluster -</option>
+                    </select>
+                    <label for="multicol-country">Cluster</label>
+                    <span asp-validation-for="McInventory!.OwnedClusterId" class="text-warning"></span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-floating form-floating-outline">
+                    <select asp-for="@Model.McInventory!.OwnedUnitId" asp-items="@Model.OwnedUnitList" class="select2 form-select" data-allow-clear="true">
+                        <option Disabled Selected>- Select Unit -</option>
+                    </select>
+                    <label for="multicol-country">Unit</label>
+                    <span asp-validation-for="McInventory!.OwnedUnitId" class="text-warning"></span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-floating form-floating-outline">
+                    <select asp-for="@Model.McInventory!.LocationId" asp-items="@Model.LocationsList" class="select2 form-select" data-allow-clear="true">
+                        <option Disabled Selected>- Select Location -</option>
+                    </select>
+                    <label for="multicol-country">Location</label>
+                    <span asp-validation-for="McInventory!.LocationId" class="text-warning"></span>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="form-floating form-floating-outline">
+                    <input asp-for="McInventory!.DateBorrow" type="date" id="dateBorrow" class="form-control dob-picker" placeholder="YYYY-MM-DD" />
+                    <label for="dateBorrow">Borrow Date</label>
+                    <span asp-validation-for="McInventory!.DateBorrow" class="text-warning"></span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-floating form-floating-outline">
+                    <input asp-for="McInventory!.DateDue" type="date" id="dateDue" class="form-control dob-picker" placeholder="YYYY-MM-DD" />
+                    <label for="dateDue">Due Date</label>
+                    <span asp-validation-for="McInventory!.DateDue" class="text-warning"></span>
+                </div>
+            </div>
+            <div class="col-4">
+            </div>
+            <div class="col-4">
+                <input class="form-control" type="file" name="imageFR">
+                <label for="formFile" class="form-label">Image 01</label>
+            </div>
+            <div class="col-4">
+                <input class="form-control" type="file" name="imageBK">
+                <label for="formFile" class="form-label">Image 02</label>
+            </div>
+        </div>
+
+        <h6>Renting Specific Attributes</h6>
+        <div class="row g-6">
+            <div class="col-md-4">
+                <div class="form-floating form-floating-outline">
+                    <select asp-for="@Model.McInventory!.SupplierId" asp-items="@Model.SupplierList" class="select2 form-select" data-allow-clear="true">
+                        <option Disabled Selected>- Select Supplier -</option>
+                    </select>
+
+                    <label for="supplierId">Renting Supplier</label>
+                    <span asp-validation-for="McInventory!.SupplierId" class="text-warning"></span>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="form-floating form-floating-outline">
+                    <input asp-for="McInventory!.Comments" type="text" id="comments" class="form-control" placeholder="No any damges on machine Bed" />
+                    <label for="comments">Comments</label>
+                    <span asp-validation-for="McInventory!.Comments" class="text-warning"></span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-floating form-floating-outline">
+                    <select asp-for="@Model.McInventory!.CostMethodId" asp-items="@Model.CostMethodsList" class="select2 form-select" data-allow-clear="true">
+                        <option Disabled Selected>- Select Cost Method -</option>
+                    </select>
+
+                    <label for="CostMethodId">Cost Method</label>
+                    <span asp-validation-for="McInventory!.CostMethodId" class="text-warning"></span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-floating form-floating-outline">
+                    <input asp-for="McInventory!.Cost" type="number" id="cost" class="form-control" placeholder="25000" />
+                    <label for="cost">Cost</label>
+                    <span asp-validation-for="McInventory!.Cost" class="text-warning"></span>
+                </div>
+            </div>
+
+            <div class="pt-3">
+                <button type="submit" class="btn btn-primary me-4">Submit</button>
+                <a asp-controller="MachineAdd" asp-action="Index" class="btn btn-outline-secondary">Back to List</a>
+            </div>
+        </div>
+    </form>
+
+</div>

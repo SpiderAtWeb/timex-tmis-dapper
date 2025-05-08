@@ -1,0 +1,84 @@
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+  .table th, .table td {
+    border: 1px solid #dee2e6;
+    padding: 8px;
+    text-align: left;
+  }
+
+  .table .highlight {
+    background-color: #f8f9fa; 
+  }
+
+  .table tbody tr:hover {
+    background-color: #e9ecef; 
+  }
+
+.table {
+  --bs-table-bg: inherit !important;
+}
+
+.freeze-column {
+  position: relative;
+  overflow-x: auto;
+  --bs-table-bg: #ffffff;
+}
+
+th.freeze,
+td.freeze {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  border-right: 1px solid #dee2e6;
+}
+
+.nowrap {
+  white-space: nowrap;
+  text-align: center;
+}
+
+#myTab {
+  width: 60% !important;
+}
+
+.header {
+  font-weight: bold;
+  padding: 3px;
+  padding-left: 10px;
+  background-color: #f8f9fa;
+  border: 1px solid #9d9d9d;
+  border-radius: 10px;
+  font-size: 12px;
+}
+
+.desc {
+  padding: 3px;
+  padding-left: 10px;
+  margin-top: 3px;
+  border: 1px solid #9d9d9d;
+  border-radius: 10px;
+  font-size: 11px;
+}
+
+.row {
+  margin-bottom: 10px;
+}
+
+.sub-task {
+  padding-left: 20px;
+  font-style: italic;
+}
+
+.table-responsive {
+  overflow-x: auto;
+  border-radius: 15px;
+}
+
+.table td,
+.table th {
+  white-space: nowrap;
+}

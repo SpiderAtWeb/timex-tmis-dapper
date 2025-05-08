@@ -1,0 +1,103 @@
+@section VendorStyles {
+    <link href="~/styles/kendo.common.min.css" rel="stylesheet" />
+    <link href="~/styles/kendo.metro.min.css" rel="stylesheet" />
+}
+
+@section PageScripts {
+    <script src="~/kendo/jszip.min.js"></script>
+    <script src="~/kendo/kendo.all.min.js"></script>
+    <script src="~/custom/loading-hide.js"></script>
+    <script src="~/custom/plms/modal-popup-overall.js"></script>
+}
+
+@section PageStyles {
+  <link href="~/custom/plms/modal-popup.css" rel="stylesheet" />
+      <style>
+        #grid{
+            font-size: 12px;
+        }
+    </style>
+}
+
+
+@await Html.PartialAsync("_Loading")
+
+
+<!-- Modal -->
+<div class="modal fade" id="rowModal" tabindex="-1" role="dialog" aria-labelledby="rowModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true">Profile</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button" role="tab" aria-controls="profile" aria-selected="false">Artwork</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact" type="button" role="tab" aria-controls="contact" aria-selected="false">History</button>
+                    </li>
+                </ul>
+                <h5 id="rowModalLabel" class="modal-title"></h5>
+            </div>
+
+            <div class="modal-body" id="modalContenvt">
+                <div class="tab-content" id="myTabContent">
+                    <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                    </div>
+                    <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+                        <img id="artwork" alt="Image Preview" style="max-width: 100%; height: auto;border-radius:10px" />
+                    </div>
+                    <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">...</div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary close" data-dismiss="modal" aria-label="Close">Close</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@* ************** Content ************** *@
+<!-- Ajax Sourced Server-side -->
+<div class="panelDiv">
+    <div class="card mb-6">
+
+        <div class="card-header px-0 pt-0">
+            <div class="nav-align-top">
+                <ul class="nav nav-pills nav-justified" role="tablist">
+                    <li class="nav-item">
+                        <button type="button" class="nav-link active" role="tab" data-bs-toggle="tab" data-bs-target="#ownedMachines" aria-controls="ownedMachines" aria-selected="true">Running Inquiries</button>
+                    </li>
+                    <li class="nav-item">
+                        <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#rentedMachines" aria-controls="rentedMachines" aria-selected="false">Completed Inquiries</button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="tab-content p-0">
+                <div class="tab-pane fade show active" id="ownedMachines" role="tabpanel">
+                    <div>
+                        <!-- Transactions -->
+                        <div class="col align-self-end">
+                            <div id="example">
+                                <div id="grid"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="tab-pane fade" id="rentedMachines" role="tabpanel">
+            </div>
+        </div>
+    </div>
+</div>
+
+

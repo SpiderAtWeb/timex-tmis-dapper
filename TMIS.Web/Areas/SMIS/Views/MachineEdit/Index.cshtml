@@ -1,0 +1,126 @@
+@model MachinesVM
+
+@section VendorStyles {
+        <link rel="stylesheet" href="~/vendor/libs/datatables-bs5/datatables.bootstrap5.css">
+        <link href="~/vendor/libs/toastr/toastr.css" rel="stylesheet" />
+}
+
+@section PageScripts {
+        <script src="~/custom/tables-datatables-basic.js"></script>
+        <script src="~/custom/loading-hide.js"></script>
+        <script src="~/vendor/libs/toastr/toastr.js"></script>
+
+    @if (TempData["success"] != null)
+    {
+                <script src="~/vendor/libs/toastr/toastr.js"></script>
+                <script type="text/javascript">
+                    toastr.success('@TempData["success"]');
+                </script>
+        TempData.Clear();
+    }
+}
+
+@await Html.PartialAsync("_Loading")
+
+@* ************** Content ************** *@
+<!-- Ajax Sourced Server-side -->
+<div class="panelDiv">
+    <div class="card mb-6">
+
+        <div class="card-header px-0 pt-0">
+            <div class="nav-align-top">
+                <ul class="nav nav-pills nav-justified" role="tablist">
+                    <li class="nav-item">
+                        <button type="button" class="nav-link active" role="tab" data-bs-toggle="tab" data-bs-target="#ownedMachines" aria-controls="ownedMachines" aria-selected="true">Owned Machines</button>
+                    </li>
+                    <li class="nav-item">
+                        <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#rentedMachines" aria-controls="rentedMachines" aria-selected="false">Rented Machines</button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="tab-content p-0">
+                <div class="tab-pane fade show active" id="ownedMachines" role="tabpanel">
+
+                    <table class="datatables-ajax table table-bordered dt-tbl">
+                        <thead>
+                            <tr class="table-info">
+                                <th>
+                                    QR Code
+                                </th>
+                                <th>
+                                    Serial No
+                                </th>
+                                <th>
+                                    Machine Brand
+                                </th>
+                                <th>
+                                    Machine Type
+                                </th>
+                                <th>
+                                    Action
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.McOwned!)
+                            {
+                                    <tr>
+                                        <td>@item.QrCode</td>
+                                        <td>@item.SerialNo</td>
+                                        <td>@item.MachineBrand</td>
+                                        <td>@item.MachineType</td>
+                                    <td>
+                                        <a class="edit-record btn btn-primary btn-sm" asp-controller="MachineEdit" asp-action="OwnedEdit" asp-route-id="@item.Id"> <i class="ri-pencil-fill"></i></a>
+                                    </td>
+                                    </tr>
+                            }
+                        </tbody>
+                    </table>
+
+                </div>
+
+                <div class="tab-pane fade" id="rentedMachines" role="tabpanel">
+
+                    <table class="datatables-ajax table table-bordered dt-tbl">
+                        <thead>
+                            <tr class="table-info">
+                                <th>
+                                    QR Code
+                                </th>
+                                <th>
+                                    Serial No
+                                </th>
+                                <th>
+                                    Date Borrow
+                                </th>
+                                <th>
+                                    Machine Type
+                                </th>
+                                <th>
+                                    Action
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.McRented!)
+                            {
+                                    <tr>
+                                        <td>@item.QrCode</td>
+                                        <td>@item.SerialNo</td>
+                                        <td>@DateTime.Parse(item.DateBorrow).ToString("yyyy-MM-dd")</td>
+                                        <td>@item.MachineType</td>
+                                    <td>
+                                        <a class="edit-record btn btn-primary btn-sm" asp-controller="MachineEdit" asp-action="RentedEdit" asp-route-id="@item.Id"> <i class="ri-pencil-fill"></i> </a>
+                                    </td>
+                                    </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

@@ -1,0 +1,122 @@
+@model IEnumerable<ShowInquiryDataVM>
+
+@section VendorStyles {
+    <link rel="stylesheet" href="~/vendor/libs/datatables-bs5/datatables.bootstrap5.css">
+    <link href="~/vendor/libs/toastr/toastr.css" rel="stylesheet" />
+}
+
+@section PageScripts {
+    <script src="~/custom/loading-hide.js"></script>
+    <script src="~/vendor/libs/toastr/toastr.js"></script>
+    <script src="~/custom/plms/modal-popup.js"></script>
+
+    @if (TempData["success"] != null)
+    {
+        <script src="~/vendor/libs/toastr/toastr.js"></script>
+        <script type="text/javascript">
+            toastr.success('@TempData["success"]');
+        </script>
+        TempData.Clear();
+    }
+}
+
+@section PageStyles {
+    <link href="~/custom/plms/modal-popup.css" rel="stylesheet" />
+}
+
+
+@await Html.PartialAsync("_Loading")
+
+<!-- Modal -->
+<div class="modal fade" id="rowModal" tabindex="-1" role="dialog" aria-labelledby="rowModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true">Profile</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button" role="tab" aria-controls="profile" aria-selected="false">Artwork</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact" type="button" role="tab" aria-controls="contact" aria-selected="false">History</button>
+                    </li>
+                </ul>
+                <h5 id="rowModalLabel" class="modal-title"></h5>
+            </div>
+
+            <div class="modal-body" id="modalContenvt">
+                <div class="tab-content" id="myTabContent">
+                    <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                    </div>
+                    <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+                        <img id="artwork" alt="Image Preview" style="max-width: 100%; height: auto;border-radius:10px" />
+                    </div>
+                    <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">...</div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary close" data-dismiss="modal" aria-label="Close">Close</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@* ************** Content ************** *@
+
+<!-- Ajax Sourced Server-side -->
+<div class="panelDiv">
+    <div class="card mb-6">
+        <div>
+            <h5 class="card-header page-header">Costing Update Pending</h5>
+        </div>
+
+        <div class="card-body">
+            <table class="datatables-ajax table table-bordered dt-tbl">
+                <thead>
+                    <tr class="table-info">
+                        <th class="d-none">Id</th>
+                        <th>Inquiry-Ref</th>
+                        <th>Customer</th>
+                        <th>Inquiry Type</th>
+                        <th>Style No</th>
+                        <th>Style Desc</th>
+                        <th>Color Code</th>
+                        <th>Response Type</th>
+                        <th class="d-none">Seasons</th>
+                        <th class="d-none">Extend</th>
+                        <th class="d-none">Sub-Extend</th>
+                        <th class="d-none"></th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="d-none">@item.Id</td>
+                            <td>@item.InquiryRef</td>
+                            <td>@item.Customer</td>
+                            <td>@item.InquiryType</td>
+                            <td>@item.StyleNo</td>
+                            <td>@item.StyleDesc</td>
+                            <td>@item.ColorCode</td>
+                            <td>@item.ResposeType</td>
+                            <td class="d-none">@item.Seasons</td>
+                            <td class="d-none">@item.SampleType</td>
+                            <td class="d-none">@item.SampleStage</td>
+                            <td class="d-none">@item.InquiryComment</td>
+                            <td> <a class="btn btn-primary btn-sm" asp-controller="UpdatePrice" asp-action="Costing" asp-route-id="@item.Id"><i class="ri-eye-fill"></i></a></td>
+
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+

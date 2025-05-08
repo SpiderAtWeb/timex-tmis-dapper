@@ -1,0 +1,87 @@
+@model IEnumerable<RespondVM>
+
+@section VendorStyles {
+    <link rel="stylesheet" href="~/vendor/libs/datatables-bs5/datatables.bootstrap5.css">
+}
+
+@section PageStyles {
+    <style>
+        .table td {
+            max-width: 100px; /* Set a suitable width for your columns */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .dt-tbl {
+            font-size: 10px; /* Adjust this value to your preferred size */
+        }
+    </style>
+}
+
+@section PageScripts {
+    <script src="~/custom/tables-datatables-mc-request.js"></script>
+    <script src="~/custom/loading-hide.js"></script>
+}
+
+@* ************** Content ************** *@
+<!-- Ajax Sourced Server-side -->
+@await Html.PartialAsync("_Loading")
+<div class="panelDiv">
+    <div class="card mb-6">
+        <h5 class="card-header page-header">Sewing Machine Request List </h5>
+        <div class="card-body">
+            <div class="tab-content p-0">
+                <div class="tab-pane fade show active" id="navs-top-home" role="tabpanel">
+                    <div class="card-datatable text-nowrap">
+                        <table class="datatables-ajax table table-bordered" id="dashboard">
+                            <thead>
+                                <tr class="table-info">
+                                    <th>
+                                        QR Code
+                                    </th>
+
+                                    <th>
+                                        Serial No
+                                    </th>
+                                    <th>
+                                        Type
+                                    </th>
+                                    <th>
+                                        Req.Unit
+                                    </th>
+                                    <th>
+                                        Req.Location
+                                    </th>
+                                    <th>
+                                        Remarks
+                                    </th>
+                                    <th>
+                                      Action
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td>@item.QrCode</td>
+                                        <td>@item.SerialNo</td>
+                                        <td>@item.MachineType</td>
+                                        <td>@item.ReqUnit</td>
+                                        <td>@item.ReqLocation</td>
+                                        <td>@item.ReqRemark</td>
+                                        <td>
+                                            <a class="edit-record btn btn-primary btn-sm" asp-controller="ApprovalRequest" asp-action="Details" asp-route-id="@item.Id"> <i class="ri-contract-fill"></i> </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
