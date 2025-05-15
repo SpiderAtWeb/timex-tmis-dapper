@@ -56,7 +56,6 @@ builder.Services.AddSession(options =>
 });
 
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-
 builder.Services.AddScoped<IDatabaseConnectionAdm, DatabaseConnectionAdm>();
 builder.Services.AddScoped<IDatabaseConnectionSys, DatabaseConnectionSys>();
 
