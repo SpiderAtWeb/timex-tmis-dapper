@@ -1,0 +1,54 @@
+using log4net;
+using Microsoft.AspNetCore.Mvc;
+using TMIS.Areas.PLMS.Controllers;
+using TMIS.DataAccess.COMON.IRpository;
+using TMIS.DataAccess.COMON.Rpository;
+using TMIS.DataAccess.ITIS.IRepository;
+using TMIS.Models.ITIS;
+
+namespace TMIS.Areas.ITIS.Controllers
+{
+  [Area("ITIS")]
+  public class DeviceTypeController(IDeviceTypeRepository deviceTypeRepository, ISessionHelper sessionHelper) : Controller
+  {
+    private readonly ILog _logger = LogManager.GetLogger(typeof(DeviceTypeController));
+    private readonly IDeviceTypeRepository _deviceTypeRepository = deviceTypeRepository;
+    private readonly ISessionHelper _iSessionHelper = sessionHelper;
+    public async Task<IActionResult> Index()
+    {
+      _logger.Info("[" + _iSessionHelper.GetUserName() + "] - PAGE VISIT TYPE INDEX");
+      var deviceTypes = await _deviceTypeRepository.GetAllAsync();
+      return View(deviceTypes);
+    }
+    public IActionResult Create()
+    {
+      _logger.Info("[" + _iSessionHelper.GetUserName() + "] - PAGE VISIT TYPE CREATE");
+      return View();
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Create(DeviceType obj, IFormFile? image)
+    {
+      if(await _deviceTypeRepository.CheckDeviceTypeExist(obj.DeviceTypeName))
+      {
+        ModelState.AddModelError("DeviceTypeName", "Device Type Already Available !");
+      }
+
+      // Check if the ModelState is valid
+      if (!ModelState.IsValid)
+      {
+        return View(obj);
+      }
+
+      // Insert machine data if everything is valid
+      await _deviceTypeRepository.AddAsync(obj, image);
+
+      // Show success message and redirect
+      TempData["success"] = "Record Created Successfully";
+
+      _logger.Info("DEVICE TYPE CREATED [" + obj.DeviceTypeName + "] - [" + _iSessionHelper.GetUserName() + "]");
+
+      return RedirectToAction("Index");    
+    }
+  }
+}

@@ -453,6 +453,8 @@
             </ul>
         </li>
 
+		
+
         @* GTPS *@
         <li class='menu-item@(currentPage.StartsWith("/GTPS") ? " active open" : "")'>
             <a href="javascript:void(0);" class="menu-link menu-toggle">
@@ -471,6 +473,41 @@
             </a>
         </li>
 
+		@* ITIS *@
+		<li class='menu-item@(currentPage.StartsWith("/ITIS") ? " active open" : "")'>
+			<a href="javascript:void(0);" class="menu-link menu-toggle">
+				<i class="menu-icon fa-solid fa-arrows-spin"></i>
+				<div>IT Inventory</div>
+			</a>
+
+			<ul class="menu-sub">
+				<li class='menu-item@(currentPage == "/ITIS/DeviceType" ? " active" : "")'>
+					<a asp-area="ITIS" asp-controller="DeviceType" asp-action="Index" class="menu-link">
+						<div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Device Types</div>
+					</a>
+				</li>
+				<li class='menu-item@(currentPage == "/ITIS/Attribute" ? " active" : "")'>
+					<a asp-area="ITIS" asp-controller="Attribute" asp-action="Index" class="menu-link">
+						<div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Device Attributes</div>
+					</a>
+				</li>
+				<li class='menu-item@(currentPage == "/ITIS" ? " active" : "")'>
+					<a asp-area="ITIS" asp-controller="DeviceType" asp-action="Index" class="menu-link">
+						<div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Devices</div>
+					</a>
+				</li>
+				<li class='menu-item@(currentPage == "/ITIS" ? " active" : "")'>
+					<a asp-area="ITIS" asp-controller="DeviceType" asp-action="Index" class="menu-link">
+						<div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Device Users</div>
+					</a>
+				</li>
+				<li class='menu-item@(currentPage == "/ITIS" ? " active" : "")'>
+					<a asp-area="ITIS" asp-controller="DeviceType" asp-action="Index" class="menu-link">
+						<div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Report</div>
+					</a>
+				</li>
+			</ul>
+		</li>
 
     </ul>
 
