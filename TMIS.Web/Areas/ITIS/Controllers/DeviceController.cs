@@ -1,21 +1,65 @@
 using log4net;
 using Microsoft.AspNetCore.Mvc;
+using Org.BouncyCastle.Asn1.Cms;
 using TMIS.DataAccess.COMON.IRpository;
 using TMIS.DataAccess.ITIS.IRepository;
+using TMIS.Models.ITIS.VM;
 
 namespace TMIS.Areas.ITIS.Controllers
 {
   [Area("ITIS")]
-  public class DeviceController(IDeviceTypeRepository deviceTypeRepository, ISessionHelper sessionHelper) : Controller
+  public class DeviceController(IDeviceRepository deviceRepository, ISessionHelper sessionHelper) : Controller
   {
     private readonly ILog _logger = LogManager.GetLogger(typeof(DeviceTypeController));
-    private readonly IDeviceTypeRepository _deviceTypeRepository = deviceTypeRepository;
+    private readonly IDeviceRepository _deviceRepository = deviceRepository;
     private readonly ISessionHelper _iSessionHelper = sessionHelper;
     public async Task<IActionResult> Index()
     {
       _logger.Info("[" + _iSessionHelper.GetUserName() + "] - PAGE VISIT DEVICE INDEX");
-      var deviceTypes = await _deviceTypeRepository.GetAllAsync();
-      return View(deviceTypes);
+      var devices = await _deviceRepository.GetAllAsync();
+      return View(devices);
+    }
+    public async Task<IActionResult> Create()
+    {
+      var createDeviceVM = await _deviceRepository.LoadDropDowns();
+      _logger.Info("[" + _iSessionHelper.GetUserName() + "] - PAGE VISIT DEVICE CREATE");
+
+      return View(createDeviceVM);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Create(CreateDeviceVM obj, IFormFile? image1, IFormFile? image2, IFormFile? image3, IFormFile? image4)
+    {
+      // Load the necessary lists before validation
+      var createDeviceVM = await _deviceRepository.LoadDropDowns();
+
+      // Check if the ModelState is valid
+      if (!ModelState.IsValid)
+      {
+        return View(createDeviceVM);
+      }
+
+      // Insert Device
+      bool record =  await _deviceRepository.AddAsync(obj, image1, image2, image3, image4);
+
+      if (!record)
+      {
+        return View(createDeviceVM);
+      }
+
+      // Show success message and redirect
+      TempData["success"] = "Record Created Successfully";
+
+      _logger.Info("DEVICE TYPE CREATED [" + obj.Device.SerialNumber + "] - [" + _iSessionHelper.GetUserName() + "]");
+
+      return RedirectToAction("Index");
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetAttributesByDeviceType(int deviceTypeId)
+    {
+      var attributes = await _deviceRepository.GetAllAttributes(deviceTypeId);
+      return Json(attributes);
     }
   }
 }

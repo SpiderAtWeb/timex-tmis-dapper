@@ -7,6 +7,7 @@ using Dapper;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using TMIS.DataAccess.COMON.IRpository;
 using TMIS.DataAccess.ITIS.IRepository;
+using TMIS.Models.ITIS.VM;
 
 namespace TMIS.DataAccess.ITIS.Repository
 {
@@ -27,5 +28,29 @@ namespace TMIS.DataAccess.ITIS.Repository
             var results = await _dbConnection.GetConnection().QueryAsync<SelectListItem>(query);
             return results;
         }
+
+        public async Task<IEnumerable<SelectListItem>> LoadLocations()
+        {
+            string query = @"select id as Value, LocationName AS Text from COMN_MasterTwoLocations 
+                            where IsDelete=0 ORDER BY Text";
+            var results = await _dbConnection.GetConnection().QueryAsync<SelectListItem>(query);
+            return results;
+        }
+        
+        public async Task<IEnumerable<SelectListItem>> LoadDeviceStatus()
+        {
+            string query = @"select Id as Value, PropName AS Text from ITIS_DeviceStatus 
+                            where IsDelete=0 ORDER BY Text";
+            var results = await _dbConnection.GetConnection().QueryAsync<SelectListItem>(query);
+            return results;
+        }
+        public async Task<IEnumerable<SelectListItem>> LoadVendors()
+        {
+            string query = @"select ID as Value, Name AS Text from ITIS_VendorTemp 
+                            where IsDelete=0 ORDER BY Text";
+            var results = await _dbConnection.GetConnection().QueryAsync<SelectListItem>(query);
+            return results;
+        }
+       
     }
 }

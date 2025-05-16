@@ -12,6 +12,6 @@ namespace TMIS.Models.ITIS.VM
         public AttributeModel? Attribute { get; set; }
         public List<AttributeListOption>? AttributeListOption { get; set; }      
         public IEnumerable<SelectListItem>? DeviceTypeList { get; set; }
-        public IEnumerable<SelectListItem>? AttributeTypeList { get; set; }
+        public IEnumerable<SelectListItem>? AttributeTypeList { get; set; }        
     }
 }

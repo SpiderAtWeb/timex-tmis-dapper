@@ -11,6 +11,10 @@ namespace TMIS.DataAccess.ITIS.IRepository
     {
         Task<IEnumerable<SelectListItem>> LoadAttributeTypes();
         Task<IEnumerable<SelectListItem>> LoadDeviceTypes();
+        Task<IEnumerable<SelectListItem>> LoadLocations();    
+        Task<IEnumerable<SelectListItem>> LoadDeviceStatus();
+        Task<IEnumerable<SelectListItem>> LoadVendors();
+
         
     }
 }

@@ -21,7 +21,7 @@ namespace TMIS.DataAccess.ITIS.Repository
         private readonly IDatabaseConnectionSys _dbConnection = dbConnection;
         private readonly ICommonList _icommonList = iCommonList;
         private readonly IITISLogdb _iITISLogdb = iITISLogdb;
-
+      
         public async Task<CreateAttributeVM> LoadDropDowns()
         {
             var objCreateAttributeVM = new CreateAttributeVM(); 
@@ -29,7 +29,7 @@ namespace TMIS.DataAccess.ITIS.Repository
             objCreateAttributeVM = new CreateAttributeVM
             {
                 AttributeTypeList = await _icommonList.LoadAttributeTypes(),
-                DeviceTypeList = await _icommonList.LoadDeviceTypes()                
+                DeviceTypeList = await _icommonList.LoadDeviceTypes()               
             };
            
             return objCreateAttributeVM;
