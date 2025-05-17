@@ -20,8 +20,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Areas\TGPS\Controllers\" />
-    <Folder Include="Areas\TGPS\Views\" />
     <Folder Include="wwwroot\custom\data-tabels\" />
   </ItemGroup>
 </Project>

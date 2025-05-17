@@ -1,0 +1,427 @@
+@section VendorStyles {
+    <link rel="stylesheet" href="~/vendor/libs/datatables-bs5/datatables.bootstrap5.css">
+    <link rel="stylesheet" href="~/vendor/libs/select2/select2.css" />
+}
+
+@section VendorScripts {
+    <script src="~/vendor/libs/select2/select2.js"></script>
+}
+
+@section PageScripts {
+    <script src="~/js/form-layouts.js"></script>
+
+    <script>
+        let gatepassCount = 1;
+
+        $('#gatepassAddress').on('click', function (e) {
+            const $target = $(e.target);
+            const $addBtn = $target.closest('.add-block');
+            const $removeBtn = $target.closest('.remove-block');
+
+            if ($addBtn.length) {
+                const $currentBlock = $target.closest('.row');
+                const $currentGatepassTo = $currentBlock.find('select[id^="gatepassTo"]');
+
+                if ($currentGatepassTo.length === 0 || $currentGatepassTo.prop('selectedIndex') === 0) {
+                    alert('Please select "Gatepass To" before adding another row.');
+                    return;
+                }
+
+                // Get the directly selected gatepassTo value and text from the clicked row
+                const selectedGatepassToValue = $currentGatepassTo.val();
+                const selectedGatepassToText = $currentGatepassTo.find('option:selected').text();
+
+                gatepassCount++;
+                const $newBlock = $currentBlock.clone();
+                $newBlock.attr('id', `gatepass-block${gatepassCount}`);
+
+                // Replace the gatepassFrom select with readonly input
+                const $gatepassFromSelect = $newBlock.find('select[id^="gatepassFrom"], input[id^="gatepassFrom"]');
+                if ($gatepassFromSelect.length) {
+                    // Create a new input element instead of modifying the cloned one
+                    const $input = $('<input>', {
+                        type: 'text',
+                        id: `gatepassFrom${gatepassCount}`,
+                        name: `gatepassFrom${gatepassCount}`,
+                        value: selectedGatepassToText, // Use the selected value from the current row
+                        readonly: true,
+                        class: 'form-control text-success',
+                        'data-value': selectedGatepassToValue
+                    });
+                    $gatepassFromSelect.replaceWith($input);
+                }
+
+                // Reset gatepassTo select
+                const $gatepassToSelect = $newBlock.find('select[id^="gatepassTo"]');
+                if ($gatepassToSelect.length) {
+                    $gatepassToSelect.attr({
+                        id: `gatepassTo${gatepassCount}`,
+                        name: `gatepassTo${gatepassCount}`
+                    }).prop('selectedIndex', 0);
+                }
+
+                // Update labels
+                const $labels = $newBlock.find('label');
+                if ($labels.length >= 2) {
+                    $labels.eq(0).attr('for', `gatepassFrom${gatepassCount}`);
+                    $labels.eq(1).attr('for', `gatepassTo${gatepassCount}`);
+                }
+
+                // Reset any error messages
+                $newBlock.find('.add-block, .remove-block').remove();
+
+                // We don't add buttons here anymore, they'll be handled by updateRemoveButtons()
+
+                $('#gpAddressContainer').append($newBlock);
+                updateRemoveButtons();
+            }
+
+            if ($removeBtn.length) {
+                $removeBtn.closest('.row').remove();
+                updateBlockIds();
+                updateRemoveButtons();
+            }
+        });
+
+        function updateBlockIds() {
+            const $blocks = $('#gpAddressContainer .row');
+            gatepassCount = $blocks.length;
+
+            // Iterate through all blocks to update IDs and preserve values
+            $blocks.each(function (index) {
+                const num = index + 1;
+                const $block = $(this);
+                $block.attr('id', `gatepass-block${num}`);
+
+                // For the first block, we don't need to update the source
+                if (index > 0) {
+                    // Get the "to" value from the previous block
+                    const prevIndex = index - 1;
+                    const $prevBlock = $blocks.eq(prevIndex);
+                    const $prevToSelect = $prevBlock.find('select[id^="gatepassTo"]');
+
+                    if ($prevToSelect.length && $prevToSelect.prop('selectedIndex') > 0) {
+                        const prevToText = $prevToSelect.find('option:selected').text();
+                        const prevToValue = $prevToSelect.val();
+
+                        // Update the current "from" input
+                        const $fromField = $block.find('input[id^="gatepassFrom"]');
+                        if ($fromField.length) {
+                            $fromField.val(prevToText).attr('data-value', prevToValue);
+                        }
+                    }
+                }
+
+                // Update IDs for all fields
+                const $fromField = $block.find('select[id^="gatepassFrom"], input[id^="gatepassFrom"]');
+                $fromField.attr({ id: `gatepassFrom${num}`, name: `gatepassFrom${num}` });
+
+                const $toSelect = $block.find('select[id^="gatepassTo"]');
+                $toSelect.attr({ id: `gatepassTo${num}`, name: `gatepassTo${num}` });
+
+                const $labels = $block.find('label');
+                if ($labels.length >= 2) {
+                    $labels.eq(0).attr('for', `gatepassFrom${num}`);
+                    $labels.eq(1).attr('for', `gatepassTo${num}`);
+                }
+
+                // Update button IDs separately
+                $block.find('.add-block').attr('id', `addRow${num}`);
+                $block.find('.remove-block').attr('id', `removeRow${num}`);
+            });
+        }
+
+        function updateRemoveButtons() {
+            const $blocks = $('#gpAddressContainer .row');
+
+            // Process all rows to update add/remove buttons
+            $blocks.each(function (index) {
+                const $block = $(this);
+                const isLastBlock = index === $blocks.length - 1;
+
+                // Handle add button
+                const $existingAddBtn = $block.find('.add-block');
+
+                // Handle remove button
+                const $existingRemoveBtn = $block.find('.btn-danger');
+
+                // Remove both buttons first
+                if (!isLastBlock) {
+                    $existingRemoveBtn.remove();
+                    $existingAddBtn.remove();
+                } else {
+
+                    // Ensure the last block has an add button
+                    if ($existingAddBtn.length === 0) {
+                        const $addBtn = $('<button>', {
+                            type: 'button',
+                            id: `addRow${index + 1}`,
+                            class: 'btn btn-primary h-100 me-2 add-block',
+                            html: '<i class="fa-solid fa-plus"></i>'
+                        });
+                        $block.find('.col-4:last').append($addBtn);
+                    }
+                    // This is the last block, ensure it has a remove button (if multiple blocks)
+                    if ($blocks.length > 1 && $existingRemoveBtn.length === 0) {
+                        const $removeBtn = $('<button>', {
+                            type: 'button',
+                            id: `removeRow${index + 1}`,
+                            class: 'btn btn-danger h-100 remove-block',
+                            html: '<i class="fa-solid fa-trash-can"></i>'
+                        });
+                        $block.find('.col-4:last').append($removeBtn);
+                    }
+                }
+            });
+        }
+
+        $(document).ready(updateRemoveButtons);
+    </script>
+
+    <script>
+        let itemRowCount = 1;
+
+        $('#gpDetailsContainer').on('click', function (e) {
+            const $target = $(e.target);
+            const $addBtn = $target.closest('.add-block');
+            const $removeBtn = $target.closest('.remove-block');
+
+            if ($addBtn.length) {
+                const $currentBlock = $target.closest('.row');
+                itemRowCount++;
+
+                const $newBlock = $currentBlock.clone();
+                $newBlock.attr('id', `item-block${itemRowCount}`);
+
+                // Update input/select IDs, names, and clear values
+                $newBlock.find('input, select').each(function () {
+                    const $el = $(this);
+                    const baseId = $el.attr('id')?.replace(/[0-9]+$/, '') || '';
+                    const newId = baseId + itemRowCount;
+                    $el.attr({ id: newId, name: newId });
+
+                    if ($el.is('select')) {
+                        $el.prop('selectedIndex', 0);
+                    } else {
+                        $el.val('');
+                    }
+                });
+
+                // Update labels
+                $newBlock.find('label').each(function () {
+                    const $label = $(this);
+                    const baseFor = $label.attr('for')?.replace(/[0-9]+$/, '') || '';
+                    $label.attr('for', baseFor + itemRowCount);
+                });
+
+                // Remove old buttons
+                $newBlock.find('.add-block, .remove-block').remove();
+
+                $('#gpDetailsContainer').append($newBlock);
+                updateItemRemoveButtons();
+            }
+
+            if ($removeBtn.length) {
+                $removeBtn.closest('.row').remove();
+                updateItemBlockIds();
+                updateItemRemoveButtons();
+            }
+        });
+
+        function updateItemBlockIds() {
+            const $blocks = $('#gpDetailsContainer .row');
+            itemRowCount = $blocks.length;
+
+            $blocks.each(function (index) {
+                const num = index + 1;
+                const $block = $(this).attr('id', `item-block${num}`);
+
+                $block.find('input, select').each(function () {
+                    const $el = $(this);
+                    const baseId = $el.attr('id')?.replace(/[0-9]+$/, '') || '';
+                    $el.attr({ id: baseId + num, name: baseId + num });
+                });
+
+                $block.find('label').each(function () {
+                    const $label = $(this);
+                    const baseFor = $label.attr('for')?.replace(/[0-9]+$/, '') || '';
+                    $label.attr('for', baseFor + num);
+                });
+
+                $block.find('.add-block').attr('id', `addRowDt${num}`);
+                $block.find('.remove-block').attr('id', `removeRowDt${num}`);
+            });
+        }
+
+        function updateItemRemoveButtons() {
+            const $blocks = $('#gpDetailsContainer .row');
+
+            $blocks.each(function (index) {
+                const $block = $(this);
+                const isLastBlock = index === $blocks.length - 1;
+
+                $block.find('.add-block, .remove-block').remove();
+
+                if (isLastBlock) {
+                    const $addBtn = $('<button>', {
+                        type: 'button',
+                        id: `addRowDt${index + 1}`,
+                        class: 'btn btn-primary add-block w-50 me-1',
+                        html: '<i class="fa-solid fa-plus"></i>'
+                    });
+                    $block.find('.col-1:last').append($addBtn);
+
+                    if ($blocks.length > 1) {
+                        const $removeBtn = $('<button>', {
+                            type: 'button',
+                            id: `removeRowDt${index + 1}`,
+                            class: 'btn btn-danger remove-block w-50',
+                            html: '<i class="fa-solid fa-trash-can"></i>'
+                        });
+                        $block.find('.col-1:last').append($removeBtn);
+                    }
+                }
+            });
+        }
+
+        $(document).ready(updateItemRemoveButtons);
+    </script>
+
+}
+
+
+@* ************** Content ************** *@
+<!-- Ajax Sourced Server-side -->
+
+<div class="card">
+    <h5 class="card-header page-header">Create New Goods GatePass</h5>
+
+    <form id="gatepassAddress" autocomplete="off">
+        <div class="card-body">
+          <div class="mb-1">
+                <small class="text-light fw-medium">Select the destination(s) to which the goods are to be dispatched.</small>
+          </div>          
+
+            <div id="gpAddressContainer">
+                <div class="row" id="gatepass-block1">
+                    <div class="col-4 g-1">
+                        <div class="form-floating form-floating-outline">
+                            <select id="gatepassFrom1" class="form-select">
+                                <option disabled selected>- Select From -</option>
+                                <option value="1">A</option>
+                                <option value="2">B</option>
+                                <option value="3">C</option>
+                                <option value="4">D</option>
+                            </select>
+                            <label for="gatepassFrom1">Goods From</label>
+                        </div>
+                    </div>
+                    <div class="col-4 g-1">
+                        <div class="form-floating form-floating-outline">
+                            <select id="gatepassTo1" class="form-select">
+                                <option disabled selected>- Select To -</option>
+                                <option value="1">A</option>
+                                <option value="2">B</option>
+                                <option value="3">C</option>
+                                <option value="4">D</option>
+                            </select>
+                            <label for="gatepassTo1">Goods To</label>
+                        </div>
+                    </div>
+                    <div class="col-4 g-1">
+                        <button type="button" id="addRow1" class="btn btn-primary add-block h-100" title="Add a new gatepass row">
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr class="m-0">
+
+        <div class="card-body">
+            <div class="mb-1">
+                <small class="text-light fw-medium">Fill the necessary details for the gate pass.</small>
+            </div>
+            <div class="row mb-3">
+                <div class="col-4 g-1">
+                    <div class="form-floating form-floating-outline">
+                        <input type="text" id="attention" class="form-control" placeholder="Mr.Silva" />
+                        <label for="attention">Attention</label>
+                    </div>
+                </div>
+                <div class="col-4 g-1">
+                    <div class="form-floating form-floating-outline">
+                        <select class="select2 form-select" data-allow-clear="true">
+                            <option Disabled Selected>- Select -</option>
+                        </select>
+
+                        <label for="machineBrandId">Send Approval To</label>
+                    </div>
+                </div>
+                <div class="col-4">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-8 g-1">
+                    <div class="form-floating form-floating-outline">
+                        <input type="text" id="remarks" class="form-control" placeholder="..." />
+                        <label for="remarks">Remarks</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+           <hr class="m-0">
+        <div class="card-body">
+            <div class="mb-1">
+                <small class="text-light fw-medium">Complete the items and their descriptions for the gate pass..</small>
+            </div>
+            <div id="gpDetailsContainer">
+                <div class="row" id="item-block1">
+                    <div class="col-3 g-1">
+                        <div class="form-floating form-floating-outline">
+                            <input type="text" id="itemName1" name="itemName1" class="form-control" placeholder="..." />
+                            <label for="itemName1">Item Name</label>
+                        </div>
+                    </div>
+                    <div class="col-4 g-1">
+                        <div class="form-floating form-floating-outline">
+                            <input type="text" id="itemDesc1" name="itemDesc1" class="form-control" placeholder="..." />
+                            <label for="itemDesc1">Item Description</label>
+                        </div>
+                    </div>
+                    <div class="col-2 g-1">
+                        <div class="form-floating form-floating-outline">
+                            <input type="text" id="Qty1" name="Qty1" class="form-control" placeholder="..." />
+                            <label for="Qty1">Quantity</label>
+                        </div>
+                    </div>
+                    <div class="col-2 g-1">
+                        <div class="form-floating form-floating-outline">
+                            <select id="uom1" name="uom1" class="select2 form-select" data-allow-clear="true">
+                                <option disabled selected>- Select -</option>
+                            </select>
+                            <label for="uom1">UOM</label>
+                        </div>
+                    </div>
+                    <div class="col-1 g-1 d-flex justify-content-between align-items-stretch">
+                        <button type="button" id="addRowDt1" class="btn btn-primary add-block w-50 me-1">
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+        @*   <button type="submit" class="btn btn-primary">
+        <i class="fa fa-plus"></i> Generate Gatepass
+        </button> *@
+    </form>
+</div>
+
+
+
