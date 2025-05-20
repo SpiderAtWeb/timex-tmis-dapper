@@ -95,6 +95,8 @@ builder.Services.AddScoped<IITISLogdb, ITISLogdb>();
 builder.Services.AddScoped<IAttributeRepository, AttributeRepository>();
 builder.Services.AddScoped<ICommonList, CommonList>();
 builder.Services.AddScoped<IDeviceRepository, DeviceRepository>();
+builder.Services.AddScoped<IDeviceUserRepository, DeviceUserRepository>();
+builder.Services.AddScoped<ILdapService, LdapService>();
 
 builder.Services.AddScoped<ISessionHelper, SessionHelper>();
 

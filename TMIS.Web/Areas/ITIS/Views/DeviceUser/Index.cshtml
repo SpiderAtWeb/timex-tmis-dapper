@@ -1,4 +1,6 @@
-@model IEnumerable<Device>
+@using TMIS.Models.ITIS.VM
+@model IEnumerable<DeviceUserVM>
+
 
 @section VendorStyles {
 	<link rel="stylesheet" href="~/vendor/libs/datatables-bs5/datatables.bootstrap5.css">
@@ -44,36 +46,38 @@
 <!-- Ajax Sourced Server-side -->
 <div class="panelDiv">
 	<div class="card mb-6">
-		<h5 class="card-header page-header">Devices</h5>
+		<h5 class="card-header page-header">Device Users</h5>
 		<div class="card-body">
 			<div class="tab-content p-0">
 				<div class="tab-pane fade show active" id="navs-top-home" role="tabpanel">
 					<div class="row">
 						<div class="col text-end">
-							<a asp-action="Create" class="btn btn-primary"> <i class="ri-add-line"></i> <span class="d-none d-sm-inline-block">Add New Device</span></a>
+							<a asp-action="Create" class="btn btn-primary"> <i class="ri-add-line"></i> <span class="d-none d-sm-inline-block">Assign Device</span></a>
 						</div>
 					</div>
 					<div class="card-datatable text-nowrap">
 						<table class="datatables-ajax table table-bordered" id="dashboard">
 							<thead>
 								<tr class="table-info">
+									<th class="d-none">AssignmentID</th>
 									<th class="d-none">DeviceID</th>
-									<th>Device Name</th>
-									<th>Serial#</th>
-									<th>Fixed Asset Code</th>
-									<th>Location</th>
-									<th>Action</th>									
+									<th>Device Serial#</th>
+									<th>Employee#</th>
+									<th>Employee Name</th>
+									<th>Designation</th>
+									<th></th>
 								</tr>
 							</thead>
 							<tbody>
 								@foreach (var item in Model)
 								{
 									<tr>
+										<td class="d-none">@item.AssignmentID</td>
 										<td class="d-none">@item.DeviceID</td>
-										<td>@item.DeviceName</td>
 										<td>@item.SerialNumber</td>
-										<td>@item.FixedAssetCode</td>
-										<td>@item.Location</td>
+										<td>@item.EmpNo</td>
+										<td>@item.EmpName</td>
+										<td>@item.Designation</td>
 										<td></td>
 									</tr>
 								}
@@ -85,7 +89,3 @@
 		</div>
 	</div>
 </div>
-
-
-
-

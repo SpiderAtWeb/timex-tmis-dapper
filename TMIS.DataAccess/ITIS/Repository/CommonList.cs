@@ -7,6 +7,7 @@ using Dapper;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using TMIS.DataAccess.COMON.IRpository;
 using TMIS.DataAccess.ITIS.IRepository;
+using TMIS.Models.ITIS;
 using TMIS.Models.ITIS.VM;
 
 namespace TMIS.DataAccess.ITIS.Repository
@@ -51,6 +52,55 @@ namespace TMIS.DataAccess.ITIS.Repository
             var results = await _dbConnection.GetConnection().QueryAsync<SelectListItem>(query);
             return results;
         }
-       
+
+        public async Task<IEnumerable<SelectListItem>> LoadInstoreSerialList()
+        {
+            string query = @"select DeviceID as Value , SerialNumber as Text from ITIS_Devices where DeviceStatusID=6";
+            //only get instore devices
+            var results = await _dbConnection.GetConnection().QueryAsync<SelectListItem>(query);
+            return results; 
+        }
+        public async Task<IEnumerable<SelectListItem>> LoadEmployeeList()
+        {
+            string query = @"select EmpNo as Value, CAST(EmpNo AS VARCHAR) + ' - ' + EmpName AS Text from ITIS_EmployeeTemp where EmpAct='A'";
+            //replace with real datasource
+            var results = await _dbConnection.GetConnection().QueryAsync<SelectListItem>(query);
+            return results;
+        }
+
+        public async Task<DeviceDetailVM> LoadDeviceDetail(int deviceID)
+        {
+            try
+            {
+                string query = @"select DeviceName, SerialNumber, FixedAssetCode, PurchasedDate,depreciation, IsRented, IsBrandNew 
+                             from ITIS_Devices where DeviceID=@DeviceID";
+
+                DeviceDetailVM deviceDetailVM = new DeviceDetailVM();
+                var deviceDetail = await _dbConnection.GetConnection().QueryFirstOrDefaultAsync<DeviceDetailVM>(query, new
+                {
+                    DeviceID = deviceID
+                });
+
+                deviceDetailVM = deviceDetail;
+
+                string attributeQuery = @"select a.Name, av.ValueText from ITIS_DeviceAttributeValues as av 
+                                     inner join ITIS_Attributes as a on a.AttributeID=av.AttributeID where av.DeviceID=@DeviceID";
+
+                var attributeValue = await _dbConnection.GetConnection().QueryAsync<AttributeValue>(attributeQuery, new
+                {
+                    DeviceID = deviceID
+                });
+
+                deviceDetailVM.AttributeValues = attributeValue.ToList();
+
+                return deviceDetailVM;
+            }
+            catch(Exception ex)  
+            {
+                return null;
+            }
+
+        }
+
     }
 }
