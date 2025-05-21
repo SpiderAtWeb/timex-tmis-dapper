@@ -102,5 +102,36 @@ namespace TMIS.DataAccess.ITIS.Repository
 
         }
 
+        public async Task<DeviceUserDetailVM> LoadUserDetail(int deviceID)
+        {
+            try
+            {
+                string query = @"select AssignmentID, EMPNo, EMPName, Designation, AssignedDate, AssignRemarks
+                            , ApproverEMPNo, ApproverResponseDate, ApproverRemark 
+                            from ITIS_DeviceAssignments where DeviceID=@DeviceID and AssignStatusID not in (4, 5)";
+
+                DeviceUserDetailVM? deviceUserDetail = await _dbConnection.GetConnection().QueryFirstOrDefaultAsync<DeviceUserDetailVM>(query, new
+                {
+                    DeviceID = deviceID
+                });
+
+                return deviceUserDetail;
+            }
+            catch (Exception ex) 
+            {
+                return null;
+            }
+
+           
+        }
+
+        public async Task<IEnumerable<SelectListItem>> LoadInUseSerialList()
+        {
+            string query = @"select DeviceID as Value , SerialNumber as Text from ITIS_Devices where DeviceStatusID=7";
+            //only get inuse devices
+            var results = await _dbConnection.GetConnection().QueryAsync<SelectListItem>(query);
+            return results;
+        }
+
     }
 }

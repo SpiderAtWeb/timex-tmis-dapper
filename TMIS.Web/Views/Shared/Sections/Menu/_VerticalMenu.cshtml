@@ -501,6 +501,11 @@
 						<div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Device Users</div>
 					</a>
 				</li>
+				<li class='menu-item@(currentPage == "/ITIS/ApproveDeviceUser" ? " active" : "")'>
+					<a asp-area="ITIS" asp-controller="ApproveDeviceUser" asp-action="Index" class="menu-link">
+						<div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Approve</div>
+					</a>
+				</li>
 				<li class='menu-item@(currentPage == "/ITIS" ? " active" : "")'>
 					<a asp-area="ITIS" asp-controller="DeviceType" asp-action="Index" class="menu-link">
 						<div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Report</div>

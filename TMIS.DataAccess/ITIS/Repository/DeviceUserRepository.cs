@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Dapper;
+using Microsoft.AspNetCore.Http;
 using TMIS.DataAccess.COMON.IRpository;
 using TMIS.DataAccess.ITIS.IRepository;
 using TMIS.Models.ITIS;
@@ -28,7 +29,8 @@ namespace TMIS.DataAccess.ITIS.Repository
                             dbo.ITIS_DeviceAssignments.AssignmentID, 
                                             dbo.ITIS_DeviceAssignments.Designation
                         FROM dbo.ITIS_DeviceAssignments INNER JOIN
-                        dbo.ITIS_Devices ON dbo.ITIS_DeviceAssignments.DeviceID = dbo.ITIS_Devices.DeviceID";
+                        dbo.ITIS_Devices ON dbo.ITIS_DeviceAssignments.DeviceID = dbo.ITIS_Devices.DeviceID
+                        where dbo.ITIS_DeviceAssignments.AssignStatusID not in (4,5)";
 
             return await _dbConnection.GetConnection().QueryAsync<DeviceUserVM>(sql);
         }
@@ -57,6 +59,61 @@ namespace TMIS.DataAccess.ITIS.Repository
             return objDeviceDetailVM;
         }
 
+        public async Task<bool> ReturnDevice(ReturnDeviceVM obj, IFormFile? image)
+        {
+            const string query = @"update ITIS_DeviceAssignments set AssignStatusID=5, ReturnedDate=GETDATE(), ReturnRemarks=@ReturnRemarks, 
+                         ReturnTimeImage= @ReturnTimeImag where AssignmentID=@AssignmentID";
+
+            try
+            {
+                byte[]? imageBytes = null;
+
+
+                if (image != null && image.Length > 0)
+                {
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        await image.CopyToAsync(memoryStream);
+                        imageBytes = memoryStream.ToArray();
+                    }
+                }
+
+                int rowsAffected = await _dbConnection.GetConnection().ExecuteAsync(query, new
+                {
+                    ReturnRemarks = obj.ReturnRemark,
+                    AssignmentID = obj.RecordID,
+                    ReturnTimeImag = imageBytes
+                });
+
+                if (rowsAffected > 0) 
+                {
+                    const string deviceQuery = @"update ITIS_DEVICES set DeviceStatusID=6 where DeviceID=@DeviceID";
+
+                    _dbConnection.GetConnection().Execute(deviceQuery, new
+                    {
+                        DeviceID = obj.Device
+                    });
+
+                    Logdb logdb = new()
+                    {
+                        TrObjectId = obj.RecordID,
+                        TrLog = "DEVICE RETURNED"
+
+                    };
+
+                    _iITISLogdb.InsertLog(_dbConnection, logdb);
+                }
+
+                return true;
+
+            }
+            catch (Exception ex)
+            { 
+                return false;
+            }
+        }
+
+
         public async Task<bool> AddAsync(CreateDeviceUserVM obj)
         {
             const string query = @"
@@ -75,13 +132,20 @@ namespace TMIS.DataAccess.ITIS.Repository
                     Designation = "",
                     AssignedBy = _iSessionHelper.GetUserName().ToUpper(),
                     AssignRemarks = "",
-                    ApproverEMPNo = "1306041",
+                    ApproverEMPNo = "1306041", // add actual approver empno
                     AssignStatusID = 2,
                     IsToUser = true
                 });
 
                 if (insertedId.HasValue)
                 {
+                    const string deviceQuery = @"update ITIS_DEVICES set DeviceStatusID=7 where DeviceID=@DeviceID";
+
+                    _dbConnection.GetConnection().Execute(deviceQuery, new
+                    {
+                        DeviceID = obj.AssignDevice.Device
+                    });
+
                     Logdb logdb = new()
                     {
                         TrObjectId = insertedId.Value,
@@ -99,6 +163,28 @@ namespace TMIS.DataAccess.ITIS.Repository
 
                 return false;
             }
+        }
+
+
+        public async Task<ReturnDeviceVM> LoadInUseDevices()
+        {
+            var objReturnDeviceVM = new ReturnDeviceVM();
+
+            objReturnDeviceVM = new ReturnDeviceVM
+            {            
+                DeviceSerialList = await _icommonList.LoadInUseSerialList()                              
+            };
+
+            return objReturnDeviceVM;
+        }
+
+        public async Task<DeviceUserDetailVM> LoadUserDetail(int deviceID)
+        {
+            var objDeviceUserDetailVM = new DeviceUserDetailVM();
+
+            objDeviceUserDetailVM = await _icommonList.LoadUserDetail(deviceID);
+
+            return objDeviceUserDetailVM;
         }
     }
 }

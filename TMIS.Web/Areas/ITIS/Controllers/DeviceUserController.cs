@@ -56,5 +56,45 @@ namespace TMIS.Areas.ITIS.Controllers
       return RedirectToAction("Index");
     }
 
+    public async Task<IActionResult> Return()
+    {
+      _logger.Info("[" + _iSessionHelper.GetUserName() + "] - PAGE VISIT DEVICEUSER RETURN");
+      var deviceUserVM = await _deviceUserRepository.LoadInUseDevices();
+      return View(deviceUserVM);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetUserDetails(int deviceId)
+    {
+      var deviceDetails = await _deviceUserRepository.LoadUserDetail(deviceId);
+      return Json(deviceDetails);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Return(ReturnDeviceVM obj, IFormFile? image)
+    {
+      var deviceUserVM = await _deviceUserRepository.LoadInUseDevices();
+
+      // Check if the ModelState is valid
+      if (!ModelState.IsValid)
+      {
+        deviceUserVM.Device = null;
+        return View(deviceUserVM);
+      }
+
+      bool returnedDevice = await _deviceUserRepository.ReturnDevice(obj, image);
+      if (returnedDevice)
+      {
+        TempData["success"] = "Returned Successfully";
+
+        _logger.Info("DEVICE RETURNED[" + obj.Device + "] - [" + _iSessionHelper.GetUserName() + "]");
+
+        return RedirectToAction("Index");
+      }
+
+      deviceUserVM.Device = null;
+      return View(deviceUserVM);
+    }
+
   }
 }

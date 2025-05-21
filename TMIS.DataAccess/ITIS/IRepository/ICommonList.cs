@@ -18,6 +18,7 @@ namespace TMIS.DataAccess.ITIS.IRepository
         Task<IEnumerable<SelectListItem>> LoadInstoreSerialList();
         Task<IEnumerable<SelectListItem>> LoadEmployeeList();
         Task<DeviceDetailVM> LoadDeviceDetail(int deviceID);
-
+        Task<IEnumerable<SelectListItem>> LoadInUseSerialList();
+        Task<DeviceUserDetailVM> LoadUserDetail(int deviceID);      
     }
 }

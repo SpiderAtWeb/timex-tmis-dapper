@@ -7,29 +7,9 @@
 	<link href="~/vendor/libs/toastr/toastr.css" rel="stylesheet" />
 }
 
-@section PageStyles {
-	<style>
-		.table td {
-			max-width: 100px; /* Set a suitable width for your columns */
-			white-space: nowrap;
-			overflow: hidden;
-			text-overflow: ellipsis;
-		}
-
-		.dt-tbl {
-			font-size: 10px; /* Adjust this value to your preferred size */
-		}
-	</style>
-}
-
 @section PageScripts {
-	@*   <script src="~/custom/tables-datatables-basic.js"></script>
-    <script src="~/custom/loading-hide.js"></script>
-    <script src="~/vendor/libs/toastr/toastr.js"></script> *@
-
-	<script src="~/custom/tables-datatables-mc-request.js"></script>
 	<script src="~/custom/loading-hide.js"></script>
-
+	<script src="~/custom/tables-datatables-basic.js"></script>
 	@if (TempData["success"] != null)
 	{
 		<script src="~/vendor/libs/toastr/toastr.js"></script>
@@ -50,35 +30,38 @@
 		<div class="card-body">
 			<div class="tab-content p-0">
 				<div class="tab-pane fade show active" id="navs-top-home" role="tabpanel">
-					<div class="row">
+					<div class="row p-1">
 						<div class="col text-end">
-							<a asp-action="Create" class="btn btn-primary"> <i class="ri-add-line"></i> <span class="d-none d-sm-inline-block">Assign Device</span></a>
+							<a asp-action="Create" class="btn btn-primary"> <i class="ri-add-line"></i> <span class="d-none d-sm-inline-block">Assign Device</span></a>							
+						</div>					
+					</div>
+					<div class="row p-1">
+						<div class="col text-end">
+							<a asp-action="Return" class="btn btn-primary"> <i class="ri-add-line"></i> <span class="d-none d-sm-inline-block">Unassign Device</span></a>
 						</div>
 					</div>
 					<div class="card-datatable text-nowrap">
-						<table class="datatables-ajax table table-bordered" id="dashboard">
+						<table class="datatables-ajax table table-bordered dt-tbl">
 							<thead>
-								<tr class="table-info">
-									<th class="d-none">AssignmentID</th>
-									<th class="d-none">DeviceID</th>
-									<th>Device Serial#</th>
+								<tr class="table-info">								
+									<th>Serial#</th>
 									<th>Employee#</th>
 									<th>Employee Name</th>
 									<th>Designation</th>
-									<th></th>
+									<th>Action</th>
 								</tr>
 							</thead>
 							<tbody>
 								@foreach (var item in Model)
 								{
-									<tr>
-										<td class="d-none">@item.AssignmentID</td>
-										<td class="d-none">@item.DeviceID</td>
+									<tr>					
 										<td>@item.SerialNumber</td>
 										<td>@item.EmpNo</td>
 										<td>@item.EmpName</td>
 										<td>@item.Designation</td>
-										<td></td>
+										<td>
+											<a> <i class="ri-contract-fill"></i> </a>
+										</td>
 									</tr>
 								}
 							</tbody>
