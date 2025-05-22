@@ -90,7 +90,7 @@
 			<div class="col-md-4">
 				<div class="form-floating form-floating-outline">
 					<select asp-for="@Model.Attribute!.DeviceTypeID" asp-items="@Model.DeviceTypeList" class="select2 form-select" data-allow-clear="true">
-						<option Disabled Selected>- Select Device Type -</option>
+						<option value="" Disabled Selected>- Select Device Type -</option>
 					</select>
 
 					<label asp-for="Attribute!.DeviceTypeID"></label>
@@ -108,7 +108,7 @@
 			<div class="col-md-4">
 				<div class="form-floating form-floating-outline">
 					<select id="dataTypeSelect" asp-for="@Model.Attribute!.DataType" asp-items="@Model.AttributeTypeList" class="select2 form-select" data-allow-clear="true">
-						<option Disabled Selected>- Select Attribute Type -</option>
+						<option value="" Disabled Selected>- Select Attribute Type -</option>
 					</select>
 
 					<label asp-for="Attribute!.DataType"></label>

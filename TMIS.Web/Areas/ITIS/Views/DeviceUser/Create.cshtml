@@ -88,17 +88,24 @@
 			<div class="col-md-4">
 				<div class="form-floating form-floating-outline">
 					<select asp-for="@Model.AssignDevice!.EmpNo" asp-items="@Model.EmployeeList" class="select2 form-select" data-allow-clear="true">
-						<option Disabled Selected>- Select Employee -</option>
+						<option value="" Disabled Selected>- Select Employee -</option>
 					</select>
 
 					<label asp-for="AssignDevice!.EmpNo"></label>
 					<span asp-validation-for="@Model.AssignDevice!.EmpNo" class="text-warning"></span>
 				</div>
-			</div>			
+			</div>
+			<div class="col-md-4">
+				<div class="form-floating form-floating-outline">
+					<input asp-for="AssignDevice.Designation" type="text" id="style-no" class="form-control" placeholder="Software Engineer" />
+					<label asp-for="AssignDevice.Designation"></label>
+					<span asp-validation-for="AssignDevice.Designation" class="customerError text-warning"></span>
+				</div>
+			</div>
 			<div class="col-md-4">
 				<div class="form-floating form-floating-outline">
 					<select asp-for="@Model.AssignDevice!.Device" asp-items="@Model.DeviceSerialList" class="select2 form-select" data-allow-clear="true">
-						<option Disabled Selected>- Select Device -</option>
+						<option value="" Disabled Selected>- Select Device -</option>
 					</select>
 
 					<label asp-for="AssignDevice!.Device"></label>
@@ -107,8 +114,8 @@
 			</div>
 			<div class="col-4">
 				<div class="form-floating form-floating-outline">
-					<select asp-for="@Model.AssignDevice!.Approver" asp-items="@Model.EmployeeList" class="select2 form-select" data-allow-clear="true">
-						<option Disabled Selected>- Select Approver -</option>
+					<select asp-for="@Model.AssignDevice!.Approver" asp-items="@Model.ApproverList" class="select2 form-select" data-allow-clear="true">
+						<option value="" Disabled Selected>- Select Approver -</option>
 					</select>
 
 					<label asp-for="AssignDevice!.Approver"></label>

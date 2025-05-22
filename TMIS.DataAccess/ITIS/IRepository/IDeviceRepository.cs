@@ -15,5 +15,6 @@ namespace TMIS.DataAccess.ITIS.IRepository
         Task<IEnumerable<Device>> GetAllAsync();
         Task<CreateDeviceVM> GetAllAttributes(int deviceTypeID);     
         Task<bool> AddAsync(CreateDeviceVM objCreateDevice, IFormFile? image1, IFormFile? image2, IFormFile? image3, IFormFile? image4);
+        Task<bool> CheckSerialNumberExist(string serialNumber);
     }
 }

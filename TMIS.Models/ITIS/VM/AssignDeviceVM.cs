@@ -19,5 +19,8 @@ namespace TMIS.Models.ITIS.VM
         [Required]
         [DisplayName("Approver")]
         public string Approver { get; set; }
+        [Required]
+        [DisplayName("Designation")]
+        public string? Designation { get; set; }
     }
 }

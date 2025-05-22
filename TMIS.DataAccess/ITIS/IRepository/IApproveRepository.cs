@@ -12,5 +12,7 @@ namespace TMIS.DataAccess.ITIS.IRepository
         Task<IEnumerable<ApproveDeviceUserVM>> GetAllAsync();
         Task <ApproveVM?> GetSelectedRecord(int assignmentID);
         Task <bool> AddAsync(ApproveVM obj);
+        Task <bool> Reject(ApproveVM obj);
+
     }
 }

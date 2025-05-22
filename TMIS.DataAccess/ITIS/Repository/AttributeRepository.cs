@@ -44,14 +44,14 @@ namespace TMIS.DataAccess.ITIS.Repository
             return await _dbConnection.GetConnection().QueryAsync<AttributeVM>(sql);
         }
 
-        public async Task<bool> CheckAttributeExist(string name)
+        public async Task<bool> CheckAttributeExist(string name, string deviceTypeID)
         {
             const string query = @"
             SELECT TOP 1 1
             FROM ITIS_Attributes
-            WHERE (Name = @Name)";
+            WHERE Name = @Name and DeviceTypeID=@DeviceTypeID";
 
-            var result = await _dbConnection.GetConnection().QueryFirstOrDefaultAsync<int?>(query, new { Name = name });
+            var result = await _dbConnection.GetConnection().QueryFirstOrDefaultAsync<int?>(query, new { Name = name, DeviceTypeID = deviceTypeID });
             return result.HasValue;
         }
 

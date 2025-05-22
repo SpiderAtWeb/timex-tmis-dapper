@@ -24,7 +24,7 @@ namespace TMIS.DataAccess.ITIS.Repository
             string sql = @"select da.AssignmentID, da.EmpName, da.ApproverEMPNo, CAST(da.AssignedDate AS DATE) AS AssignedDate,
                             d.SerialNumber from ITIS_DeviceAssignments as da 
                             inner join ITIS_Devices as d on d.DeviceID = da.DeviceID
-                            where da.AssignStatusID=2 and da.ApproverEMPNo='1306041'"; // replace with actual approver
+                            where da.AssignStatusID=2 and da.ApproverEMPNo=1"; // replace with actual approver
 
             return await _dbConnection.GetConnection().QueryAsync<ApproveDeviceUserVM>(sql);
         }
@@ -107,6 +107,47 @@ namespace TMIS.DataAccess.ITIS.Repository
                 return false;            
             }
            
+        }
+
+        public async Task<bool> Reject(ApproveVM approveVM)
+        {
+            try
+            {
+                string query = @"update ITIS_DeviceAssignments  set AssignStatusID=4, ApproverResponseDate=getDate(), ApproverRemark=@ApproveRemark
+                            where AssignmentID=@AssignmentID";
+
+                int rowsAffected = await _dbConnection.GetConnection().ExecuteAsync(query, new
+                {
+                    AssignmentID = approveVM.AssignmentID,
+                    ApproveRemark = approveVM.ApproverRemark
+                });
+
+                if (rowsAffected > 0)
+                {
+                    const string deviceQuery = @"update ITIS_DEVICES set DeviceStatusID=6 where DeviceID=@DeviceID";
+
+                    _dbConnection.GetConnection().Execute(deviceQuery, new
+                    {
+                        DeviceID = approveVM.DeviceID
+                    });
+
+                    Logdb logdb = new()
+                    {
+                        TrObjectId = approveVM.AssignmentID,
+                        TrLog = "DEVICE ASSIGNMENT REJECT"
+
+                    };
+
+                    _iITISLogdb.InsertLog(_dbConnection, logdb);
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+
         }
 
     }

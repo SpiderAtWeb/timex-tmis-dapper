@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Org.BouncyCastle.Asn1.Cms;
 using TMIS.DataAccess.COMON.IRpository;
 using TMIS.DataAccess.ITIS.IRepository;
+using TMIS.DataAccess.ITIS.Repository;
 using TMIS.Models.ITIS.VM;
 
 namespace TMIS.Areas.ITIS.Controllers
@@ -33,6 +34,25 @@ namespace TMIS.Areas.ITIS.Controllers
       // Load the necessary lists before validation
       var createDeviceVM = await _deviceRepository.LoadDropDowns();
 
+      if (obj.Device.SerialNumber != null)
+      {
+        if (await _deviceRepository.CheckSerialNumberExist(obj.Device.SerialNumber))
+        {
+          ModelState.AddModelError("Device.SerialNumber", "Serial Number Already Available !");
+        }
+      }
+      if(obj.Device.DeviceTypeID == null || obj.Device.DeviceTypeID == 0)
+      {
+        ModelState.AddModelError("Device.DeviceTypeID", "Device Type  field is required.");
+      }
+      if (image1 == null)
+      {
+        ModelState.AddModelError("Device.Image1Data", "Image 1 is required.");
+      }
+      if (obj.Device.DeviceStatusID == null || obj.Device.DeviceStatusID == 0)
+      {
+        ModelState.AddModelError("Device.DeviceStatusID", "Device Status  field is required.");
+      }
       // Check if the ModelState is valid
       if (!ModelState.IsValid)
       {

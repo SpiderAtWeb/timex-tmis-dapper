@@ -36,6 +36,20 @@ namespace TMIS.Areas.ITIS.Controllers
       // Load the necessary lists before validation
       var createAttributeVM = await _attributeRepository.LoadDropDowns();
 
+      if(obj.Attribute.Name != null && obj.Attribute.DeviceTypeID != null)
+      {
+        if (await _attributeRepository.CheckAttributeExist(obj.Attribute.Name, obj.Attribute.DeviceTypeID))
+        {
+          ModelState.AddModelError("Attribute.Name", "Label Already Available !");
+        }
+      }
+     
+      // Check if the ModelState is valid
+      if (!ModelState.IsValid)
+      {
+        return View(createAttributeVM);
+      }
+
       // Insert attribute if everything is valid
       await _attributeRepository.AddAsync(obj.Attribute, obj.AttributeListOption);
 

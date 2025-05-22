@@ -21,9 +21,10 @@
 
 		<div class="row g-4">
 			<input type="hidden" asp-for="@Model.AssignmentID" value="@Model.AssignmentID"/>
+			<input type="hidden" asp-for="@Model.DeviceID" value="@Model.DeviceID"/>
 			<div class="col-md-4">
 				<div class="form-floating form-floating-outline">
-					<input type="text" class="form-control" value="@Model.DeviceName" disabled />
+					<input asp-for="@Model.DeviceName" type="text" class="form-control" value="@Model.DeviceName" disabled />
 					<label asp-for="@Model.DeviceName"></label>
 				</div>
 			</div>
@@ -90,8 +91,8 @@
 				</div>
 			</div>
 			<div class="pt-1">
-				<button type="submit" class="btn btn-primary me-1">Approve</button>
-				<button type="button" class="btn btn-danger me-1">Reject</button>
+				<button type="submit" name="action" value="Approve" class="btn btn-primary me-1">Approve</button>
+				<button type="submit" name="action" value="Reject" class="btn btn-danger me-1">Reject</button>			
 				<a asp-controller="ApproveDeviceUser" asp-action="Index" class="btn btn-outline-secondary">Back to List</a>
 			</div>
 

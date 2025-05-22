@@ -12,9 +12,10 @@ using TMIS.Models.ITIS.VM;
 
 namespace TMIS.DataAccess.ITIS.Repository
 {
-    public class CommonList(IDatabaseConnectionSys dbConnection) : ICommonList
+    public class CommonList(IDatabaseConnectionSys dbConnection, IDatabaseConnectionAdm dbConnectionAdm) : ICommonList
     {
         private readonly IDatabaseConnectionSys _dbConnection = dbConnection;
+        private readonly IDatabaseConnectionAdm _dbConnectionAdm = dbConnectionAdm;
         public async Task<IEnumerable<SelectListItem>> LoadAttributeTypes()
         {
             string query = @"SELECT ID AS Value, 
@@ -65,6 +66,14 @@ namespace TMIS.DataAccess.ITIS.Repository
             string query = @"select EmpNo as Value, CAST(EmpNo AS VARCHAR) + ' - ' + EmpName AS Text from ITIS_EmployeeTemp where EmpAct='A'";
             //replace with real datasource
             var results = await _dbConnection.GetConnection().QueryAsync<SelectListItem>(query);
+            return results;
+        }
+
+        public async Task<IEnumerable<SelectListItem>> LoadApproverList()
+        {
+            string query = @"select Id as Value, UserName as Text from MasterUsers where ITISApprover=1";
+            //replace with real datasource
+            var results = await _dbConnectionAdm.GetConnection().QueryAsync<SelectListItem>(query);
             return results;
         }
 

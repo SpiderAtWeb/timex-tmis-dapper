@@ -16,6 +16,6 @@ namespace TMIS.DataAccess.ITIS.IRepository
         Task<bool> AddAsync(AttributeModel attribute, List<AttributeListOption>? attributeListOption);
         //Task UpdateAsync(DeviceType deviceType);
         //Task DeleteAsync(int id);
-        Task<bool> CheckAttributeExist(string deviceType);
+        Task<bool> CheckAttributeExist(string deviceType, string deviceTypeID);
     }
 }

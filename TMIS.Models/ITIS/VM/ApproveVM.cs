@@ -16,7 +16,7 @@ namespace TMIS.Models.ITIS.VM
         public DateTime AssignedDate { get; set; }
         [DisplayName("Assign Note")]
         public string? AssignRemarks {  get; set; }
-        [DisplayName("Assign Note")]
+        [DisplayName("Approver Note")]
         [Required]
         public string? ApproverRemark { get; set; }
 

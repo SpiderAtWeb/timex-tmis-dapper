@@ -39,10 +39,18 @@ namespace TMIS.Areas.ITIS.Controllers
     [HttpPost]
     public async Task<IActionResult> Create(CreateDeviceUserVM obj)
     {
+      // load dropdown list before validations
+      var deviceUserVM = await _deviceUserRepository.LoadDropDowns();
+
+      if (obj.AssignDevice.Device == null || obj.AssignDevice.Device == 0)
+      {
+        ModelState.AddModelError("AssignDevice.Device", "The Device field is required.");        
+      }
+
       // Check if the ModelState is valid
       if (!ModelState.IsValid)
       {
-        return View(obj);
+        return View(deviceUserVM);
       }
 
       // Insert machine data if everything is valid

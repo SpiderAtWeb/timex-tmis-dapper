@@ -79,7 +79,7 @@
 			<div class="col-md-4">
 				<div class="form-floating form-floating-outline">
 					<select asp-for="@Model.Device!.Location" asp-items="@Model.LocationList" class="select2 form-select" data-allow-clear="true">
-						<option Disabled Selected>- Select Location -</option>
+						<option value="" Disabled Selected>- Select Location -</option>
 					</select>
 
 					<label asp-for="Device!.Location"></label>
@@ -118,6 +118,7 @@
 				<div class="form-floating form-floating-outline">
 					<input class="form-control" type="file" name="image1">
 					<label asp-for="Device.Image1Data" class="form-label"></label>
+					<span asp-validation-for="Device.Image1Data" class="text-warning"></span>
 				</div>
 			</div>
 			<div class="col-4">
@@ -141,7 +142,7 @@
 			<div class="col-md-4">
 				<div class="form-floating form-floating-outline">
 					<select asp-for="@Model.Device!.VendorID" asp-items="@Model.VendorsList" class="select2 form-select" data-allow-clear="true">
-						<option Disabled Selected>- Select Vendor -</option>
+						<option value=""  Disabled Selected>- Select Vendor -</option>
 					</select>
 
 					<label asp-for="Device!.VendorID"></label>
@@ -151,7 +152,7 @@
 			<div class="col-md-4">
 				<div class="form-floating form-floating-outline">
 					<select asp-for="@Model.Device!.DeviceStatusID" asp-items="@Model.DeviceStatusList" class="select2 form-select" data-allow-clear="true">
-						<option Disabled Selected>- Select Status -</option>
+						<option value="" Disabled Selected>- Select Status -</option>
 					</select>
 
 					<label asp-for="Device!.DeviceStatusID"></label>
@@ -160,7 +161,7 @@
 			</div>
 			<div class="col-md-4">
 				<div class="form-floating form-floating-outline">
-					<input asp-for="@Model.Device!.Depreciation" type="text" id="style-no" class="form-control" placeholder="20% per year" />
+					<input asp-for="@Model.Device!.Depreciation" type="number" id="style-no" class="form-control" placeholder="Depreciation in months" min="0" />
 					<label asp-for="@Model.Device!.Depreciation"></label>
 					<span asp-validation-for="@Model.Device!.Depreciation" class="customerError text-warning"></span>
 				</div>
@@ -195,7 +196,7 @@
 			<div class="col-md-4">
 				<div class="form-floating form-floating-outline">
 					<select asp-for="@Model.Device!.DeviceTypeID" asp-items="@Model.DeviceTypeList" class="select2 form-select" data-allow-clear="true">
-						<option Disabled Selected>- Select Device Type -</option>
+						<option value="" Disabled Selected>- Select Device Type -</option>
 					</select>
 
 					<label asp-for="Device!.DeviceTypeID"></label>

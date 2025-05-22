@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using Dapper;
 using Microsoft.AspNetCore.Http;
 using Org.BouncyCastle.Asn1.Cms;
@@ -24,7 +25,8 @@ namespace TMIS.DataAccess.ITIS.Repository
 
         public async Task<IEnumerable<Device>> GetAllAsync()
         {
-            string sql = @"select DeviceID, DeviceName, SerialNumber, FixedAssetCode, Location from ITIS_Devices";
+            string sql = @"select d.DeviceID, d.DeviceName, d.SerialNumber, d.FixedAssetCode, l.LocationName as Location 
+                            from ITIS_Devices as d inner join COMN_MasterTwoLocations as l on l.Id=d.Location";
 
             return await _dbConnection.GetConnection().QueryAsync<Device>(sql);
         }
@@ -72,6 +74,17 @@ namespace TMIS.DataAccess.ITIS.Repository
             return objCreateDeviceVM;   
         }
 
+        public async Task<bool> CheckSerialNumberExist(string serialNumber)
+        {
+            const string query = @"
+            SELECT TOP 1 1
+            FROM ITIS_Devices
+            WHERE SerialNumber = @SerialNumber"
+            ;
+
+            var result = await _dbConnection.GetConnection().QueryFirstOrDefaultAsync<int?>(query, new { SerialNumber = serialNumber });
+            return result.HasValue;
+        }
         public async Task<bool> AddAsync(CreateDeviceVM obj, IFormFile? image1, IFormFile? image2, IFormFile? image3, IFormFile? image4)
         {
 

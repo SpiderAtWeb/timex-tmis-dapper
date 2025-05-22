@@ -43,7 +43,7 @@ namespace TMIS.DataAccess.ITIS.Repository
             {
                 LocationList = await _icommonList.LoadLocations(),
                 DeviceSerialList = await _icommonList.LoadInstoreSerialList(),
-               // EmployeeList = await _icommonList.LoadEmployeeList(),                
+                ApproverList = await _icommonList.LoadApproverList(),
                 EmployeeList = await _ldapService.GetEmployeesFromAD(),                
             };
 
@@ -129,10 +129,10 @@ namespace TMIS.DataAccess.ITIS.Repository
                     DeviceID = obj.AssignDevice.Device,
                     EMPNo = "",
                     EmpName = obj.AssignDevice.EmpNo,
-                    Designation = "",
+                    Designation = obj.AssignDevice.Designation,
                     AssignedBy = _iSessionHelper.GetUserName().ToUpper(),
                     AssignRemarks = "",
-                    ApproverEMPNo = "1306041", // add actual approver empno
+                    ApproverEMPNo = obj.AssignDevice.Approver, // add actual approver empno
                     AssignStatusID = 2,
                     IsToUser = true
                 });
