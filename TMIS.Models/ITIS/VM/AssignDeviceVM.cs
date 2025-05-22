@@ -22,5 +22,11 @@ namespace TMIS.Models.ITIS.VM
         [Required]
         [DisplayName("Designation")]
         public string? Designation { get; set; }
+        [Required]
+        [DisplayName("Location")]
+        public string? AssignLocation {  get; set; }
+        [Required]
+        [DisplayName("Department")]
+        public string? AssignDepartment {  get; set; }
     }
 }

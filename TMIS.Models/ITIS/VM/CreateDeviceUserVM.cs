@@ -13,6 +13,7 @@ namespace TMIS.Models.ITIS.VM
         public IEnumerable<SelectListItem>? LocationList { get; set; }
         public IEnumerable<SelectListItem>? EmployeeList { get; set; }
         public IEnumerable<SelectListItem>? ApproverList { get; set; }
+        public IEnumerable<SelectListItem>? DepartmentList { get; set; }
         public DeviceDetailVM? DeviceDetail { get; set; }
         public AssignDeviceVM? AssignDevice {  get; set; }   
 

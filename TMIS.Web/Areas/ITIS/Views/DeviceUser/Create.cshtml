@@ -97,6 +97,26 @@
 			</div>
 			<div class="col-md-4">
 				<div class="form-floating form-floating-outline">
+					<select asp-for="@Model.AssignDevice!.AssignLocation" asp-items="@Model.LocationList" class="select2 form-select" data-allow-clear="true">
+						<option value="" Disabled Selected>- Select Location -</option>
+					</select>
+
+					<label asp-for="AssignDevice!.AssignLocation"></label>
+					<span asp-validation-for="@Model.AssignDevice!.AssignLocation" class="text-warning"></span>
+				</div>
+			</div>
+			<div class="col-md-4">
+				<div class="form-floating form-floating-outline">
+					<select asp-for="@Model.AssignDevice!.AssignDepartment" asp-items="@Model.DepartmentList" class="select2 form-select" data-allow-clear="true">
+						<option value="" Disabled Selected>- Select Department -</option>
+					</select>
+
+					<label asp-for="AssignDevice!.AssignDepartment"></label>
+					<span asp-validation-for="@Model.AssignDevice!.AssignDepartment" class="text-warning"></span>
+				</div>
+			</div>		
+			<div class="col-md-4">
+				<div class="form-floating form-floating-outline">
 					<input asp-for="AssignDevice.Designation" type="text" id="style-no" class="form-control" placeholder="Software Engineer" />
 					<label asp-for="AssignDevice.Designation"></label>
 					<span asp-validation-for="AssignDevice.Designation" class="customerError text-warning"></span>

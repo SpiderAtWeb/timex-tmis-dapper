@@ -38,6 +38,15 @@ namespace TMIS.DataAccess.ITIS.Repository
             var results = await _dbConnection.GetConnection().QueryAsync<SelectListItem>(query);
             return results;
         }
+
+        public async Task<IEnumerable<SelectListItem>> LoadDepartments()
+        {
+            string query = @"select DepartmentID as Value, DepartmentName AS Text from COMN_Departments 
+                            where IsDelete=0 ORDER BY Text";
+
+            var results = await _dbConnection.GetConnection().QueryAsync<SelectListItem>(query);
+            return results;
+        }
         
         public async Task<IEnumerable<SelectListItem>> LoadDeviceStatus()
         {

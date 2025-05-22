@@ -42,6 +42,7 @@ namespace TMIS.DataAccess.ITIS.Repository
             objCreateDeviceUserVM = new CreateDeviceUserVM
             {
                 LocationList = await _icommonList.LoadLocations(),
+                DepartmentList = await _icommonList.LoadDepartments(),
                 DeviceSerialList = await _icommonList.LoadInstoreSerialList(),
                 ApproverList = await _icommonList.LoadApproverList(),
                 EmployeeList = await _ldapService.GetEmployeesFromAD(),                
@@ -118,8 +119,8 @@ namespace TMIS.DataAccess.ITIS.Repository
         {
             const string query = @"
             INSERT INTO ITIS_DeviceAssignments
-            (DeviceID,EMPNo,EmpName,Designation,AssignedBy,AssignRemarks,ApproverEMPNo,AssignStatusID,IsToUser)       
-            VALUES (@DeviceID,@EMPNo,@EmpName,@Designation,@AssignedBy,@AssignRemarks,@ApproverEMPNo,@AssignStatusID,@IsToUser);
+            (DeviceID,EMPNo,EmpName,Designation,AssignedBy,AssignRemarks,ApproverEMPNo,AssignStatusID,IsToUser, AssignLocation, AssignDepartment)       
+            VALUES (@DeviceID,@EMPNo,@EmpName,@Designation,@AssignedBy,@AssignRemarks,@ApproverEMPNo,@AssignStatusID,@IsToUser,@AssignLocation,@AssignDepartment);
              SELECT CAST(SCOPE_IDENTITY() AS INT) AS InsertedId;";
 
             try
@@ -134,7 +135,9 @@ namespace TMIS.DataAccess.ITIS.Repository
                     AssignRemarks = "",
                     ApproverEMPNo = obj.AssignDevice.Approver, // add actual approver empno
                     AssignStatusID = 2,
-                    IsToUser = true
+                    IsToUser = true,
+                    AssignLocation = obj.AssignDevice.AssignLocation,
+                    AssignDepartment = obj.AssignDevice.AssignDepartment
                 });
 
                 if (insertedId.HasValue)
