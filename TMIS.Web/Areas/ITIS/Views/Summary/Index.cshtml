@@ -1,0 +1,130 @@
+@section VendorStyles {
+	<link href="~/styles/kendo.common.min.css" rel="stylesheet" />
+	<link href="~/styles/kendo.metro.min.css" rel="stylesheet" />
+	<link rel="stylesheet" href="~/vendor/libs/apex-charts/apex-charts.css" />
+}
+
+@section VendorScripts {
+	<script src="~/kendo/jszip.min.js"></script>
+	<script src="~/kendo/kendo.all.min.js"></script>
+	<script src="~/vendor/libs/apex-charts/apexcharts.js"></script>
+}
+
+@section PageScripts {
+	<script src="~/custom/status-overview.js"></script>
+	<script>
+		$(document).ready(function () {
+			// $("#configurator").kendoTabStrip();
+
+			$("#grid").kendoGrid({
+				toolbar: ["excel"],
+				excel: {
+					allPages: true
+				},
+				columns: [
+					{ draggable: true },
+					{ field: "name" }
+				],
+				dataSource: {
+					transport: {
+						read: {
+							url: "/ITIS/Summary/GetAllDataList",
+							dataType: "jsonp"
+						}
+					},
+					pageSize: 15,
+				},
+				selectable: "multiple row",
+				sortable: true,
+				reorderable: true,
+				pageable: true,
+				filterable: {
+					mode: "row"
+				},
+				pageable: {
+					buttonCount: 5
+				},
+				// dataBound: function () {
+				//     for (var i = 0; i < this.columns.length; i++) {
+				//         this.autoFitColumn(i);
+				//     }
+				// },
+				scrollable: true,
+				groupable: true,
+				columns: [
+					{ field: "DeviceID", title: "Device ID", width: "150px", hidden: true },
+					{ field: "DeviceType", title: "Device Type", width: "150px" },
+					{ field: "SerialNumber", title: "Serial Number", width: "150px"  },
+					{ field: "FixedAssetCode", title: "Fixed Asset Code ", width: "150px" },
+					{ field: "DeviceName", title: "Device Name", width: "150px" },
+					{ field: "PurchasedDate", title: "Purchased Date", width: "150px" },
+					{ field: "LocationName", title: "Location Name", width: "150px" },									
+					{ field: "Status", title: "Status", width: "250px" },
+					{ field: "Vendor", title: "Vendor", width: "250px" }				
+				],
+			});
+
+			
+		});
+
+	</script>
+	<script src="~/custom/loading-hide.js"></script>
+}
+
+@section PageStyles {
+	<style>
+		#grid {
+			font-size: 12px;
+		}
+
+		.grid-container {
+			display: grid;
+			grid-template-columns: repeat(8, 1fr); /* 8 equal columns */
+			gap: 10px;
+		}
+
+		.grid-item {
+			padding: 20px;
+			border: 1px solid #ccc;
+			text-align: center;
+		}
+	</style>
+}
+
+<div>
+	<input type="hidden" id="selectUrl" value=@Url.Action("CostGetAll", "Overview")>
+</div>
+
+@* ************** Content ************** *@
+<!-- Ajax Sourced Server-side -->
+@await Html.PartialAsync("_Loading")
+
+<div class="panelDiv">
+
+	<div id="modal" style="display:none;">
+		<h3><span id="modal-id"></span></h3>
+		<div><span id="modal-logs"></span></div>
+	</div>
+	<div class="card">
+		<div class="row">
+			<div>
+				<!-- Transactions -->
+				<div class="col align-self-end">
+					<div class="card-body">						
+						<hr class="my-2">
+						<div class="row">
+							<div class="col-6">
+								<h5 class="card-header page-header">Device Summary</h5>
+							</div>
+						</div>
+
+						<div id="example">
+							<div id="grid"></div>
+						</div>
+					</div>
+
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

@@ -505,11 +505,19 @@
 					<a asp-area="ITIS" asp-controller="ApproveDeviceUser" asp-action="Index" class="menu-link">
 						<div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Approve</div>
 					</a>
-				</li>
-				<li class='menu-item@(currentPage == "/ITIS" ? " active" : "")'>
-					<a asp-area="ITIS" asp-controller="DeviceType" asp-action="Index" class="menu-link">
-						<div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Report</div>
+				</li>						
+				<li class='menu-item@(currentPage.StartsWith("/ITIS/Summary") ? " active open" : "")'>
+					<a href="javascript:void(0)" class="menu-link menu-toggle">
+						<i class="menu-icon fa-solid fa-binoculars"></i>
+						<div>Report</div>
 					</a>
+					<ul class="menu-sub">
+						<li class='menu-item@(currentPage == "/ITIS/Summary" ? " active" : "")'>
+							<a asp-area="ITIS" asp-controller="Summary" asp-action="Index" class="menu-link">
+								<div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Summary</div>
+							</a>
+						</li>
+					</ul>
 				</li>
 			</ul>
 		</li>

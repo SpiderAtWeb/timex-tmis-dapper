@@ -98,6 +98,7 @@ builder.Services.AddScoped<IDeviceRepository, DeviceRepository>();
 builder.Services.AddScoped<IDeviceUserRepository, DeviceUserRepository>();
 builder.Services.AddScoped<ILdapService, LdapService>();
 builder.Services.AddScoped<IApproveRepository, ApproveRepository>();
+builder.Services.AddScoped<IReportRepository, ReportRepository>();
 
 builder.Services.AddScoped<ISessionHelper, SessionHelper>();
 
