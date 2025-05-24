@@ -33,10 +33,10 @@
 }
 
 <div>
-    <input type="hidden" id="selectUrl" value=@Url.Action("TypeGetAll", "MDataMachine")>
-    <input type="hidden" id="insertUrl" value=@Url.Action("TypeGetInsert", "MDataMachine")>
-    <input type="hidden" id="updateUrl" value=@Url.Action("TypeGetUpdate", "MDataMachine")>
-    <input type="hidden" id="deleteUrl" value=@Url.Action("TypeGetDelete", "MDataMachine")>
+    <input type="hidden" id="selectUrl" value=@Url.Action("TypeGetAll", "MasterMachine")>
+    <input type="hidden" id="insertUrl" value=@Url.Action("TypeGetInsert", "MasterMachine")>
+    <input type="hidden" id="updateUrl" value=@Url.Action("TypeGetUpdate", "MasterMachine")>
+    <input type="hidden" id="deleteUrl" value=@Url.Action("TypeGetDelete", "MasterMachine")>
     <input type="hidden" id="recordId" />
 </div>
 @await Html.PartialAsync("_Loading")

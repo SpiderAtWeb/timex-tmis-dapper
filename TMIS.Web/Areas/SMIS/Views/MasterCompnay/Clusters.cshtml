@@ -41,10 +41,10 @@
 }
 
 <div>
-    <input type="hidden" id="selectUrl" value=@Url.Action("OwnedClusterGetAll", "MDataCompany")>
-    <input type="hidden" id="insertUrl" value=@Url.Action("OwnedClusterGetInsert", "MDataCompany")>
-    <input type="hidden" id="updateUrl" value=@Url.Action("OwnedClusterGetUpdate", "MDataCompany")>
-    <input type="hidden" id="deleteUrl" value=@Url.Action("OwnedClusterGetDelete", "MDataCompany")>
+    <input type="hidden" id="selectUrl" value=@Url.Action("OwnedClusterGetAll", "MasterCompany")>
+    <input type="hidden" id="insertUrl" value=@Url.Action("OwnedClusterGetInsert", "MasterCompany")>
+    <input type="hidden" id="updateUrl" value=@Url.Action("OwnedClusterGetUpdate", "MasterCompany")>
+    <input type="hidden" id="deleteUrl" value=@Url.Action("OwnedClusterGetDelete", "MasterCompany")>
     <input type="hidden" id="recordId" />
 </div>
 @await Html.PartialAsync("_Loading")

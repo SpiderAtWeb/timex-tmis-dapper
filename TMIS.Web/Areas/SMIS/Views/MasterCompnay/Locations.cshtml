@@ -41,10 +41,10 @@
 }
 
 <div>
-    <input type="hidden" id="selectUrl" value=@Url.Action("LocationsGetAll", "MDataCompany")>
-    <input type="hidden" id="insertUrl" value=@Url.Action("LocationsGetInsert", "MDataCompany")>
-    <input type="hidden" id="updateUrl" value=@Url.Action("LocationsGetUpdate", "MDataCompany")>
-    <input type="hidden" id="deleteUrl" value=@Url.Action("LocationsGetDelete", "MDataCompany")>
+    <input type="hidden" id="selectUrl" value=@Url.Action("LocationsGetAll", "MasterCompany")>
+    <input type="hidden" id="insertUrl" value=@Url.Action("LocationsGetInsert", "MasterCompany")>
+    <input type="hidden" id="updateUrl" value=@Url.Action("LocationsGetUpdate", "MasterCompany")>
+    <input type="hidden" id="deleteUrl" value=@Url.Action("LocationsGetDelete", "MDMasterCompanyataCompany")>
     <input type="hidden" id="recordId" />
 </div>
 @await Html.PartialAsync("_Loading")

@@ -5,10 +5,14 @@ using Microsoft.AspNetCore.DataProtection;
 using System.Security.Cryptography;
 using TMIS.DataAccess.COMON.IRpository;
 using TMIS.DataAccess.COMON.Rpository;
+using TMIS.DataAccess.GDRM.IRpository;
+using TMIS.DataAccess.GDRM.Rpository;
 using TMIS.DataAccess.PLMS.IRpository;
 using TMIS.DataAccess.PLMS.Rpository;
 using TMIS.DataAccess.SMIM.IRpository;
 using TMIS.DataAccess.SMIM.Repository;
+using TMIS.DataAccess.TGPS.IRpository;
+using TMIS.DataAccess.TGPS.Rpository;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -85,6 +89,13 @@ builder.Services.AddScoped<INextStages, NextStages>();
 builder.Services.AddScoped<ICosting, Costing>();
 builder.Services.AddScoped<ISMV, SMV>();
 builder.Services.AddScoped<IPLMSLogdb, PLMSLogdb>();
+
+//TGPS
+builder.Services.AddScoped<IGoodsGatePass, GoodsGatePass>();
+
+//GDRM
+builder.Services.AddScoped<IGRGoods, GRGoods>();
+
 
 
 builder.Services.AddScoped<ISessionHelper, SessionHelper>();

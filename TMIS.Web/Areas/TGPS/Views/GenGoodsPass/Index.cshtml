@@ -1,230 +1,101 @@
+@model IEnumerable<GoodsPassList>
+
 @section VendorStyles {
     <link rel="stylesheet" href="~/vendor/libs/datatables-bs5/datatables.bootstrap5.css">
     <link rel="stylesheet" href="~/vendor/libs/select2/select2.css" />
+    <link href="~/styles/kendo.common.min.css" rel="stylesheet" />
+    <link href="~/styles/kendo.metro.min.css" rel="stylesheet" />
+    <link href="~/vendor/libs/toastr/toastr.css" rel="stylesheet" />
 }
 
 @section VendorScripts {
+    <script src="~/custom/tables-datatables-autowidth.js"></script>
     <script src="~/vendor/libs/select2/select2.js"></script>
+    <script src="~/custom/loading-hide.js"></script>
+    <script src="~/kendo/jszip.min.js"></script>
+    <script src="~/kendo/kendo.all.min.js"></script>
+    <script src="~/vendor/libs/toastr/toastr.js"></script>
 }
 
 @section PageScripts {
     <script src="~/js/form-layouts.js"></script>
 
+    @if (TempData["success"] != null)
+    {
+        <script type="text/javascript">
+            toastr.success('@TempData["success"]');
+        </script>
+        TempData.Clear();
+    }
     <script>
-        /* --------------------------------------------------
-           1️⃣  Gatepass-Address section
-        -------------------------------------------------- */
-        let gatepassCount = 1;
+        $(document).ready(function () {
+            $('.btn-x-action').on('click', function () {
+                const $row = $(this).closest('tr'); // Get the row
+                const gpId = $(this).data('id');    // Get the ID from the button
+                const gatePassNo = $row.find('td').eq(1).text().trim(); // Get GatePassNo from 2nd <td>
 
-        function bindGatepassHandlers() {
-            $('#gatepassAddress').on('click', function (e) {
-                const $target = $(e.target);
-                const $addBtn = $target.closest('.add-gatepass');
-                const $removeBtn = $target.closest('.remove-gatepass');
+                // Show loading with GatePassNo
+                $("#loading-message").show().text(`Loading steps for Gate Pass: ${gatePassNo}...`);
 
-                /* ------ Add row ------ */
-                if ($addBtn.length) {
-                    const $block = $addBtn.closest('.row');
-                    const $currentTo = $block.find('select[id^="gatepassTo"]');
+                $.ajax({
+                    url: `/TGPS/GenGoodsPass/GetGatePassSteps?id=${gpId}`,
+                    type: "GET",
+                    success: function (data) {
+                        if (data && data.length > 0) {
+                            const steps = [];
+                            const dateList = [];
 
-                    if (!$currentTo.length || $currentTo.prop('selectedIndex') === 0) {
-                        alert('Please select "Gatepass To" before adding another row.');
-                        return;
-                    }
+                            data.forEach(step => {
+                                steps.push({
+                                    label: step.stepLabel,
+                                    icon: step.stepUpdate === 1 ? "check" : "preview",
+                                    selected: step.stepUpdate === 1
+                                });
 
-                    const selText = $currentTo.find('option:selected').text();
-                    const selValue = $currentTo.val();
+                                dateList.push({
+                                    Date: step.stepDateTime
+                                        ? new Date(step.stepDateTime).toLocaleString()
+                                        : "",
+                                    status: step.stepText || ""
+                                });
+                            });
 
-                    gatepassCount++;
-                    const $new = $block.clone().attr('id', `gatepass-block${gatepassCount}`);
+                            initStepper(steps);
+                            appendDateTimeToSteps(dateList);
 
-                    /* replace "from" select with readonly input */
-                    $new.find('select[id^="gatepassFrom"], input[id^="gatepassFrom"]')
-                        .replaceWith(
-                            $('<input>', {
-                                type: 'text',
-                                id: `gatepassFrom${gatepassCount}`,
-                                name: `gatepassFrom${gatepassCount}`,
-                                value: selText,
-                                class: 'form-control text-success',
-                                readonly: true,
-                                'data-value': selValue
-                            })
-                        );
-
-                    /* reset new "to" select */
-                    $new.find('select[id^="gatepassTo"]')
-                        .attr({ id: `gatepassTo${gatepassCount}`, name: `gatepassTo${gatepassCount}` })
-                        .prop('selectedIndex', 0);
-
-                    updateLabels($new, 'gatepassFrom', 'gatepassTo', gatepassCount);
-                    $new.find('.add-gatepass, .remove-gatepass').remove();
-
-                    $('#gpAddressContainer').append($new);
-                    updateButtons('#gpAddressContainer', 'gatepass', updateGatepassIds);
-                }
-
-                /* ------ Remove row ------ */
-                if ($removeBtn.length) {
-                    $removeBtn.closest('.row').remove();
-                    updateGatepassIds();
-                    updateButtons('#gpAddressContainer', 'gatepass', updateGatepassIds);
-                }
-            });
-        }
-
-        function updateGatepassIds() {
-            const $rows = $('#gpAddressContainer .row');
-            gatepassCount = $rows.length;
-
-            $rows.each(function (i) {
-                const idx = i + 1;
-                const $row = $(this).attr('id', `gatepass-block${idx}`);
-
-                /* carry over previous "to" -> current "from" */
-                if (idx > 1) {
-                    const $prevTo = $rows.eq(i - 1).find('select[id^="gatepassTo"]');
-                    if ($prevTo.prop('selectedIndex') > 0) {
-                        $row.find('input[id^="gatepassFrom"]')
-                            .val($prevTo.find('option:selected').text())
-                            .attr('data-value', $prevTo.val());
-                    }
-                }
-
-                $row.find('[id^="gatepassFrom"]').attr({ id: `gatepassFrom${idx}`, name: `gatepassFrom${idx}` });
-                $row.find('[id^="gatepassTo"]').attr({ id: `gatepassTo${idx}`, name: `gatepassTo${idx}` });
-                updateLabels($row, 'gatepassFrom', 'gatepassTo', idx);
-                $row.find('.add-gatepass').attr('id', `addGatepass${idx}`);
-                $row.find('.remove-gatepass').attr('id', `removeGatepass${idx}`);
-            });
-        }
-
-        /* --------------------------------------------------
-           2️⃣  GP-Details section (items)
-        -------------------------------------------------- */
-        let itemRowCount = 1;
-
-        function bindItemHandlers() {
-            $('#gpDetailsContainer').on('click', function (e) {
-                const $target = $(e.target);
-                const $addBtn = $target.closest('.add-item');
-                const $removeBtn = $target.closest('.remove-item');
-
-                /* ------ Add item row ------ */
-                if ($addBtn.length) {
-                    const $block = $addBtn.closest('.row');
-
-                    const itemName = $block.find('input[id^="itemName"]').val();
-                    const itemQty = $block.find('input[id^="itemQty"]').val();
-                    const itemUnit = $block.find('select[id^="itemUnit"]').val();
-
-                    if (!itemName || !itemQty || !itemUnit) {
-                        alert('Please fill in Item Name, Quantity and Unit before adding another row.');
-                        return;
-                    }
-
-                    itemRowCount++;
-                    const $new = $block.clone().attr('id', `item-block${itemRowCount}`);
-
-                    $new.find('input, select').each(function () {
-                        const $el = $(this);
-                        const base = $el.attr('id').replace(/\d+$/, '');
-                        $el.attr({ id: `${base}${itemRowCount}`, name: `${base}${itemRowCount}` });
-
-                        if ($el.is('select')) {
-                            /* keep the same select element BUT clear any selected value */
-                            $el.prop('selectedIndex', 0).trigger('change');   // ensures visual reset
+                            // Show GatePassNo after load
+                            $("#loading-message").text("Gate Pass: " + gatePassNo);
                         } else {
-                            $el.val('');                                      // clear input
+                            $("#loading-message").text("No steps found for Gate Pass: " + gatePassNo);
                         }
-                    });
-
-                    updateLabels($new, 'itemName', 'itemQty', itemRowCount);
-                    $new.find('.add-item, .remove-item').remove();
-
-                    $('#gpDetailsContainer').append($new);
-                    updateButtons('#gpDetailsContainer', 'item', updateItemIds);
-                }
-
-                /* ------ Remove item row ------ */
-                if ($removeBtn.length) {
-                    $removeBtn.closest('.row').remove();
-                    updateItemIds();
-                    updateButtons('#gpDetailsContainer', 'item', updateItemIds);
-                }
-            });
-        }
-
-        function updateItemIds() {
-            const $rows = $('#gpDetailsContainer .row');
-            itemRowCount = $rows.length;
-
-            $rows.each(function (i) {
-                const idx = i + 1;
-                const $row = $(this).attr('id', `item-block${idx}`);
-
-                $row.find('input,select').each(function () {
-                    const $el = $(this);
-                    const base = $el.attr('id').replace(/\d+$/, '');
-                    $el.attr({ id: `${base}${idx}`, name: `${base}${idx}` });
+                    },
+                    error: function () {
+                        $("#loading-message").text("Failed to load step data.");
+                    }
                 });
 
-                updateLabels($row, 'itemName', 'itemQty', idx);
-                $row.find('.add-item').attr('id', `addItem${idx}`);
-                $row.find('.remove-item').attr('id', `removeItem${idx}`);
-            });
-        }
+                function initStepper(steps) {
+                    $("#stepper").kendoStepper({
+                        orientation: "vertical",
+                        steps: steps,
+                        select: function (e) {
+                            e.preventDefault(); // Read-only
+                        }
+                    }).data("kendoStepper");
+                }
 
-        /* --------------------------------------------------
-           🔧  Shared helpers
-        -------------------------------------------------- */
-        function updateLabels($row, firstId, secondId, idx) {
-            const $labels = $row.find('label');
-            if ($labels.length >= 2) {
-                $labels.eq(0).attr('for', `${firstId}${idx}`);
-                $labels.eq(1).attr('for', `${secondId}${idx}`);
-            }
-        }
-
-        function updateButtons(container, prefix, updateIdsFn) {
-            const $rows = $(`${container} .row`);
-            $rows.each(function (i) {
-                const $row = $(this);
-                const last = i === $rows.length - 1;
-                const isItem = prefix === 'item';
-
-                /* clear old buttons */
-                $row.find(`.add-${prefix}, .remove-${prefix}`).remove();
-
-                if (last) {
-                    /* add button */
-                    $('<button>', {
-                        type: 'button',
-                        class: `btn btn-primary ${isItem ? 'w-50 me-1' : 'h-100 me-2'} add-${prefix}`,
-                        html: '<i class="fa-solid fa-plus"></i>'
-                    }).appendTo($row.find(isItem ? '.col-1:last' : '.col-4:last'));
-
-                    /* remove button if >1 rows */
-                    if ($rows.length > 1) {
-                        $('<button>', {
-                            type: 'button',
-                            class: `btn btn-danger ${isItem ? 'w-50' : 'h-100'} remove-${prefix}`,
-                            html: '<i class="fa-solid fa-trash-can"></i>'
-                        }).appendTo($row.find(isItem ? '.col-1:last' : '.col-4:last'));
-                    }
+                function appendDateTimeToSteps(dateList) {
+                    $("#stepper .k-step-label").each(function (index) {
+                        if (!$(this).find(".step-date").length && dateList[index]) {
+                            $(this).append(
+                                `<div class="step-date" style="font-size: 10px; color: gray;">
+                                        ${dateList[index].Date}<br>${dateList[index].status}
+                                     </div>`
+                            );
+                        }
+                    });
                 }
             });
-            updateIdsFn();
-        }
-
-        /* --------------------------------------------------
-           🚀  Init on DOM ready
-        -------------------------------------------------- */
-        $(function () {
-            bindGatepassHandlers();
-            bindItemHandlers();
-            updateButtons('#gpAddressContainer', 'gatepass', updateGatepassIds);
-            updateButtons('#gpDetailsContainer', 'item', updateItemIds);
         });
     </script>
 
@@ -234,133 +105,69 @@
 
 
 @* ************** Content ************** *@
-<!-- Ajax Sourced Server-side -->
 
-<div class="card">
-    <h5 class="card-header page-header">Create Goods Gate Pass</h5>
-
-    <form id="gatepassAddress" autocomplete="off">
+@await Html.PartialAsync("_Loading")
+<div class="panelDiv">
+    <div class="card">
+        <h5 class="card-header page-header">Generated Goods Gate Passes</h5>
         <div class="card-body">
-          <div class="mb-1">
-                <small class="text-light fw-medium">Select the destination(s) to which the goods are to be dispatched.</small>
-          </div>          
-
-            <div id="gpAddressContainer">
-                <div class="row mb-2" id="gatepass-block1">
-                    <div class="col-4 g-1">
-                        <div class="form-floating form-floating-outline">
-                            <select id="gatepassFrom1" class="form-select">
-                                <option disabled selected>- Select From -</option>
-                                <option value="1">A</option>
-                                <option value="2">B</option>
-                                <option value="3">C</option>
-                                <option value="4">D</option>
-                            </select>
-                            <label for="gatepassFrom1">Goods From</label>
-                        </div>
-                    </div>
-                    <div class="col-4 g-1">
-                        <div class="form-floating form-floating-outline">
-                            <select id="gatepassTo1" class="form-select">
-                                <option disabled selected>- Select To -</option>
-                                <option value="1">A</option>
-                                <option value="2">B</option>
-                                <option value="3">C</option>
-                                <option value="4">D</option>
-                            </select>
-                            <label for="gatepassTo1">Goods To</label>
-                        </div>
-                    </div>
-                    <div class="col-4 g-1">                      
-                    </div>
+            <div class="row mb-2">
+                <div class="col text-end">
+                    <a asp-action="Create" class="btn btn-primary"> <i class="ri-add-line"></i> <span class="d-none d-sm-inline-block">Create New</span></a>
                 </div>
             </div>
-        </div>
-
-        <hr class="m-0">
-
-        <div class="card-body">
-            <div class="mb-1">
-                <small class="text-light fw-medium">Fill the necessary details for the gate pass.</small>
-            </div>
-            <div class="row mb-3">
-                <div class="col-4 g-1">
-                    <div class="form-floating form-floating-outline">
-                        <input type="text" id="attention" class="form-control" placeholder="Mr.Silva" />
-                        <label for="attention">Attention</label>
-                    </div>
-                </div>
-                <div class="col-4 g-1">
-                    <div class="form-floating form-floating-outline">
-                        <select class="select2 form-select" data-allow-clear="true">
-                            <option Disabled Selected>- Select -</option>
-                        </select>
-
-                        <label for="machineBrandId">Send Approval To</label>
-                    </div>
-                </div>
-                <div class="col-4">
-                </div>
-            </div>
-
             <div class="row">
-                <div class="col-8 g-1">
-                    <div class="form-floating form-floating-outline">
-                        <input type="text" id="remarks" class="form-control" placeholder="..." />
-                        <label for="remarks">Remarks</label>
+                <div class="col-9">
+                    <div class="mb-1">
+                        <small class="text-light fw-medium">Previous generated Gate passes and the status.</small>
+                    </div>
+                    <table class="datatables-ajax table table-bordered dt-tbl">
+                        <thead>
+                            <tr class="table-info">
+                                <th class="d-none">Id</th>
+                                <th>Gatepass #</th>
+                                <th>GP Subject</th>
+                                <th>Date/Time</th>
+                                <th>To</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="d-none">@item.Id</td>
+                                    <td>@item.GatePassNo</td>
+                                    <td>@item.GpSubject</td>
+                                    <td>@item.GenDateTime</td>
+                                    <td>@item.GenGPassTo</td>
+                                    <td>@item.PassStatus</td>
+                                    <td>
+                                        <span class="btn btn-primary btn-x-action" data-id="@item.Id"><i class="fa-solid fa-circle-info"></i></span>
+                                        <span class="btn btn-primary"><i class="fa-solid fa-eye"></i></span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+
+                </div>
+                <div class="col-3">
+                    <div class="mb-1">
+                        <small class="text-light fw-medium">Gate pass to show the Live status.</small>
+                    </div>
+                    <div id="example">
+                        <div id="loading-message" style="display:none; text-align:center; color: blue; font-size: 14px; margin-bottom: 10px;" >
+                            Loading step data, please wait...
+                        </div>
+                        <div class="demo-section k-content wide">
+                            <nav id="stepper"></nav>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-
-           <hr class="m-0">
-        <div class="card-body">
-            <div class="mb-1">
-                <small class="text-light fw-medium">Complete the items and their descriptions for the gate pass..</small>
-            </div>
-            <div id="gpDetailsContainer">
-                <div class="row mb-2" id="item-block1">
-                    <div class="col-3 g-1">
-                        <div class="form-floating form-floating-outline">
-                            <input type="text" id="itemName1" name="itemName1" class="form-control" placeholder="..." />
-                            <label for="itemName1">Item Name</label>
-                        </div>
-                    </div>
-                    <div class="col-4 g-1">
-                        <div class="form-floating form-floating-outline">
-                            <input type="text" id="itemDesc1" name="itemDesc1" class="form-control" placeholder="..." />
-                            <label for="itemDesc1">Item Description</label>
-                        </div>
-                    </div>
-                    <div class="col-2 g-1">
-                        <div class="form-floating form-floating-outline">
-                            <input type="text" id="itemQty1" name="Qty1" class="form-control" placeholder="..." />
-                            <label for="Qty1">Quantity</label>
-                        </div>
-                    </div>
-                    <div class="col-2 g-1">
-                        <div class="form-floating form-floating-outline">
-                            <select id="itemUnit1" name="itemUnit1" class="form-select" data-allow-clear="true">
-                                <option disabled selected>- Select -</option>
-                                <option value="1">A</option>
-                            </select>
-                            <label for="uom1">UOM</label>
-                        </div>
-                    </div>
-                    <div class="col-1 g-1 d-flex justify-content-between align-items-stretch">                       
-                       
-                    </div>
-                </div>
-            </div>
-
-
-        </div>
-
-        @*   <button type="submit" class="btn btn-primary">
-        <i class="fa fa-plus"></i> Generate Gatepass
-        </button> *@
-    </form>
+    </div>
 </div>
-
-
 

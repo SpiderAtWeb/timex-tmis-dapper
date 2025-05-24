@@ -12,7 +12,6 @@
 
     @if (TempData["success"] != null)
     {
-                <script src="~/vendor/libs/toastr/toastr.js"></script>
                 <script type="text/javascript">
                     toastr.success('@TempData["success"]');
                 </script>

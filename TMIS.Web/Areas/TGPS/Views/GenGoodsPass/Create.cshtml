@@ -1,14 +1,19 @@
+@model GoodPassVM
+
 @section VendorStyles {
     <link rel="stylesheet" href="~/vendor/libs/datatables-bs5/datatables.bootstrap5.css">
     <link rel="stylesheet" href="~/vendor/libs/select2/select2.css" />
+    <link href="~/vendor/libs/toastr/toastr.css" rel="stylesheet" />
 }
 
 @section VendorScripts {
     <script src="~/vendor/libs/select2/select2.js"></script>
+    <script src="~/vendor/libs/toastr/toastr.js"></script>
 }
 
 @section PageScripts {
     <script src="~/js/form-layouts.js"></script>
+
 
     <script>
         /* --------------------------------------------------
@@ -17,7 +22,7 @@
         let gatepassCount = 1;
 
         function bindGatepassHandlers() {
-            $('#gatepassAddress').on('click', function (e) {
+            $('#gpAddressContainer').on('click', function (e) {
                 const $target = $(e.target);
                 const $addBtn = $target.closest('.add-gatepass');
                 const $removeBtn = $target.closest('.remove-gatepass');
@@ -28,7 +33,7 @@
                     const $currentTo = $block.find('select[id^="gatepassTo"]');
 
                     if (!$currentTo.length || $currentTo.prop('selectedIndex') === 0) {
-                        alert('Please select "Gatepass To" before adding another row.');
+                        toastr.error('Please select "Gatepass To" before adding another row.');
                         return;
                     }
 
@@ -38,7 +43,7 @@
                     gatepassCount++;
                     const $new = $block.clone().attr('id', `gatepass-block${gatepassCount}`);
 
-                    /* replace "from" select with readonly input */
+                    // Replace gatepassFrom <select> with readonly <input>
                     $new.find('select[id^="gatepassFrom"], input[id^="gatepassFrom"]')
                         .replaceWith(
                             $('<input>', {
@@ -52,15 +57,32 @@
                             })
                         );
 
-                    /* reset new "to" select */
-                    $new.find('select[id^="gatepassTo"]')
-                        .attr({ id: `gatepassTo${gatepassCount}`, name: `gatepassTo${gatepassCount}` })
-                        .prop('selectedIndex', 0);
+                    // Reset new "to" select
+                    $new.find('select[id^="gatepassTo"]').each(function () {
+                        $(this)
+                            .attr({
+                                id: `gatepassTo${gatepassCount}`,
+                                name: `gatepassTo${gatepassCount}`
+                            })
+                            .prop('selectedIndex', 0)
+                            .prop('disabled', false) // ensure not disabled
+                            .removeClass('select2-hidden-accessible') // clean up old select2
+                            .next('.select2-container').remove(); // remove select2 UI wrapper if cloned
+                    });
 
-                    updateLabels($new, 'gatepassFrom', 'gatepassTo', gatepassCount);
-                    $new.find('.add-gatepass, .remove-gatepass').remove();
+                    // Add new buttons
+                    const $buttons = $('<div class="d-flex gap-1 mt-2">' +
+                        '<button type="button" class="btn btn-sm btn-success add-gatepass">+</button>' +
+                        '<button type="button" class="btn btn-sm btn-danger remove-gatepass">−</button>' +
+                        '</div>');
 
+                    $new.find('.col-4:last').html($buttons);
+
+                    // Append to container and reinit select2
                     $('#gpAddressContainer').append($new);
+                    $new.find('select.select2').select2(); // reinit select2
+
+                    updateGatepassIds();
                     updateButtons('#gpAddressContainer', 'gatepass', updateGatepassIds);
                 }
 
@@ -119,7 +141,7 @@
                     const itemUnit = $block.find('select[id^="itemUnit"]').val();
 
                     if (!itemName || !itemQty || !itemUnit) {
-                        alert('Please fill in Item Name, Quantity and Unit before adding another row.');
+                        toastr.error('Please fill in Item Name, Quantity and Unit before adding another row.');
                         return;
                     }
 
@@ -228,10 +250,150 @@
         });
     </script>
 
+    <script>
+        const returnableCheckbox = document.getElementById('returnable');
+        const returnDaysInput = document.getElementById('returnDays');
+
+        returnableCheckbox.addEventListener('change', function () {
+            if (this.checked) {
+                returnDaysInput.readOnly = false;
+            } else {
+                returnDaysInput.value = '';
+                returnDaysInput.readOnly = true;
+            }
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            $('#submitGatepass').on('click', function (e) {
+                e.preventDefault();
+
+                let data = {};
+
+                // 1. Dynamic Gatepass Address rows
+                data.GatepassAddresses = [];
+
+                let isValid = true;
+                let toValues = [];
+
+                $('#gpAddressContainer .row').each(function () {
+                    const from = $(this).find('[id^="gatepassFrom"]').val()?.trim();
+                    const to = $(this).find('[id^="gatepassTo"]').val()?.trim();
 
 
+                    //from and to same
+                    if (from && to && from === to) {
+                        isValid = false; // duplicate "From" and "To" values
+                        toastr.error("Please ensure 'From' and 'To' are not the same.");
+                        return; // skip this iteration
+                    }    
+
+                    if (!from || !to) {
+                        isValid = false; // missing field
+                        toastr.error("Please ensure all 'From' and 'To' fields.");
+                        return; // skip this iteration
+                    }
+
+                    if (toValues.includes(to)) {
+                        isValid = false; // duplicate "To" value
+                        toastr.error("Please ensure 'To' numbers are not duplicated.");
+                        return;
+                    }
+
+                    toValues.push(to);
+
+                    data.GatepassAddresses.push({
+                        From: from,
+                        To: to
+                    });
+                });
+
+                if (!isValid) {
+                    return;
+                }
+
+
+                // 2. Static fields
+                data.Attention = $('#Attention').val();
+                data.GpSubject = $('#GpSubject').val();
+                data.SendApprovalTo = $('#SendApprovalTo').val();
+                data.IsReturnable = $('#returnable').is(':checked');
+                data.ReturnDays = $('#returnDays').val();
+                data.Remarks = $('#remarks').val();
+
+
+
+                  if (!data.GpSubject) {
+                    toastr.error("Please ensure 'Gatepass Subject' fields is filled.");
+                    return;
+                }
+
+                if (!data.Attention) {
+                    toastr.error("Please ensure 'Attention' fields is filled.");
+                    return;
+                }
+
+                if (!data.SendApprovalTo) {
+                    toastr.error("Please ensure 'SendApprovalTo' fields is filled.");
+                    return;
+                }
+
+                if (!data.Remarks) {
+                    toastr.error("Please ensure 'Remarks' fields is filled.");
+                    return;
+                }
+
+                // 3. Dynamic Item rows
+                data.Items = [];
+                $('#gpDetailsContainer .row').each(function () {
+                    const itemName = $(this).find('[id^="itemName"]').val();
+                    const itemDesc = $(this).find('[id^="itemDesc"]').val();
+                    const qty = $(this).find('[id^="itemQty"]').val();
+                    const uom = $(this).find('[id^="itemUnit"]').val();
+
+                    if (!itemName || !itemDesc || !qty || !uom) {
+                        isValid = false; // missing field
+                        toastr.error("Please ensure all item fields are filled.");
+                        return; // skip this iteration
+                    }
+
+                    // Check if itemName is already in the array
+                    if (itemName && qty && uom) {
+                        data.Items.push({
+                            ItemName: itemName,
+                            ItemDesc: itemDesc,
+                            Quantity: qty,
+                            ItemUnit: uom
+                        });
+                    }
+                });
+
+                if (!isValid) {
+                    return;
+                }
+
+                // 4. Send AJAX to ASP.NET MVC controller
+                $.ajax({
+                    url: '/TGPS/GenGoodsPass/Create',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(data),
+                    success: function (response) {
+                        // Redirect on success
+                        window.location.href = '@Url.Action("Index", "GenGoodsPass")';
+                    },
+                    error: function (xhr) {
+                        // Try to get server-sent error message
+                        var errorMsg = xhr.responseText || 'An error occurred while submitting the form.';
+                        toastr.error(errorMsg);
+                        console.log("Error details:", errorMsg);
+                    }
+                });
+            });
+        });
+    </script>
 }
-
 
 @* ************** Content ************** *@
 <!-- Ajax Sourced Server-side -->
@@ -239,34 +401,26 @@
 <div class="card">
     <h5 class="card-header page-header">Create Goods Gate Pass</h5>
 
-    <form id="gatepassAddress" autocomplete="off">
+    <form asp-action="Create" method="post">
+
         <div class="card-body">
             <div class="mb-1">
                 <small class="text-light fw-medium">Select the destination(s) to which the goods are to be dispatched.</small>
             </div>
-
             <div id="gpAddressContainer">
                 <div class="row mb-2" id="gatepass-block1">
                     <div class="col-4 g-1">
                         <div class="form-floating form-floating-outline">
-                            <select id="gatepassFrom1" class="form-select">
+                            <select asp-items="@Model.GoodsFrom" id="gatepassFrom1" name="gatepassFrom1" class="form-select">
                                 <option disabled selected>- Select From -</option>
-                                <option value="1">A</option>
-                                <option value="2">B</option>
-                                <option value="3">C</option>
-                                <option value="4">D</option>
                             </select>
                             <label for="gatepassFrom1">Goods From</label>
                         </div>
                     </div>
                     <div class="col-4 g-1">
                         <div class="form-floating form-floating-outline">
-                            <select id="gatepassTo1" class="form-select">
+                            <select asp-items="@Model.GoodsTo" id="gatepassTo1" name="SendApprovalTo" class="select2 form-select">
                                 <option disabled selected>- Select To -</option>
-                                <option value="1">A</option>
-                                <option value="2">B</option>
-                                <option value="3">C</option>
-                                <option value="4">D</option>
                             </select>
                             <label for="gatepassTo1">Goods To</label>
                         </div>
@@ -278,7 +432,6 @@
         </div>
 
         <hr class="m-0">
-
         <div class="card-body">
             <div class="mb-1">
                 <small class="text-light fw-medium">Fill the necessary details for the gate pass.</small>
@@ -286,27 +439,47 @@
             <div class="row mb-3">
                 <div class="col-4 g-1">
                     <div class="form-floating form-floating-outline">
-                        <input type="text" id="attention" class="form-control" placeholder="Mr.Silva" />
-                        <label for="attention">Attention</label>
+                        <input type="text" id="GpSubject" class="form-control" placeholder="New Order Threads" />
+                        <label for="GpSubject">Gate pass Subject</label>
                     </div>
                 </div>
                 <div class="col-4 g-1">
+                        <div class="form-floating form-floating-outline">
+                            <input type="text" id="Attention" class="form-control" placeholder="Mr.Silva" />
+                            <label for="Attention">Attention</label>
+                        </div>
+                </div>
+                <div class="col-4 g-1">
                     <div class="form-floating form-floating-outline">
-                        <select class="select2 form-select" data-allow-clear="true">
+                        <select asp-items="@Model.ApprovalList" id="SendApprovalTo" class="select2 form-select" data-allow-clear="true">
                             <option Disabled Selected>- Select -</option>
                         </select>
 
                         <label for="machineBrandId">Send Approval To</label>
                     </div>
                 </div>
-                <div class="col-4">
-                </div>
             </div>
 
-            <div class="row">
+            <div class="row mb-3">
+                <div class="col-4 g-1">
+                    <div class="row">
+                        <div class="col d-flex align-items-center justify-content-center">
+                            <span class="form-check">
+                                <input class="form-check-input me-2" type="checkbox" id="returnable" name="IsReturnable" value="false">
+                                <label class="form-check-label" for="returnable">Returnable</label>
+                            </span>
+                        </div>
+                        <div class="col">
+                            <div class="form-floating form-floating-outline">
+                                <input type="number" id="returnDays" class="form-control" name="ReturnDays" placeholder="Max 365" max="365" />
+                                <label for="returnDays">Return Days</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="col-8 g-1">
-                    <div class="form-floating form-floating-outline">
-                        <input type="text" id="remarks" class="form-control" placeholder="..." />
+                  <div class="form-floating form-floating-outline">
+                        <input type="text" id="remarks" name="Remarks" class="form-control" placeholder="..." />
                         <label for="remarks">Remarks</label>
                     </div>
                 </div>
@@ -322,27 +495,26 @@
                 <div class="row mb-2" id="item-block1">
                     <div class="col-3 g-1">
                         <div class="form-floating form-floating-outline">
-                            <input type="text" id="itemName1" name="itemName1" class="form-control" placeholder="..." />
+                            <input type="text" id="itemName1" name="itemName1" class="form-control" placeholder="SN#123456" />
                             <label for="itemName1">Item Name</label>
                         </div>
                     </div>
                     <div class="col-4 g-1">
                         <div class="form-floating form-floating-outline">
-                            <input type="text" id="itemDesc1" name="itemDesc1" class="form-control" placeholder="..." />
+                            <input type="text" id="itemDesc1" name="itemDesc1" class="form-control" placeholder="TKT160 THREAD" />
                             <label for="itemDesc1">Item Description</label>
                         </div>
                     </div>
                     <div class="col-2 g-1">
                         <div class="form-floating form-floating-outline">
-                            <input type="text" id="itemQty1" name="Qty1" class="form-control" placeholder="..." />
+                            <input type="text" id="itemQty1" name="Qty1" class="form-control" placeholder="12" />
                             <label for="Qty1">Quantity</label>
                         </div>
                     </div>
                     <div class="col-2 g-1">
                         <div class="form-floating form-floating-outline">
-                            <select id="itemUnit1" name="itemUnit1" class="form-select" data-allow-clear="true">
+                            <select asp-items="@Model.Units" id="itemUnit1" name="itemUnit1" class="form-select" data-allow-clear="true">
                                 <option disabled selected>- Select -</option>
-                                <option value="1">A</option>
                             </select>
                             <label for="uom1">UOM</label>
                         </div>
@@ -352,12 +524,12 @@
                 </div>
             </div>
 
+            <div class="pt-1">
+                <button id="submitGatepass" type="button" class="btn btn-primary me-1">Submit</button>
+                <a asp-controller="GenGoodsPass" asp-action="Index" class="btn btn-outline-secondary">Back to List</a>
+            </div>
 
         </div>
-
-        @*   <button type="submit" class="btn btn-primary">
-        <i class="fa fa-plus"></i> Generate Gatepass
-        </button> *@
     </form>
 </div>
 

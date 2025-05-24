@@ -1,8 +1,5 @@
 @{
     TempData.Keep();
-
-
-
     string? currentPage = ViewContext.HttpContext.Request.Path;
 }
 
@@ -98,6 +95,7 @@
                 </li>
 
                 @if (User.IsInRole("admin"))
+
                 {
                     <li class='menu-item@(currentPage.Contains("/SMIS/ApprovalRequest") ||
                               currentPage.Contains("/SMIS/MachineEdit")||
@@ -188,6 +186,7 @@
                 </li>
 
                 @if (User.IsInRole("admin"))
+
                 {
                     <li class="menu-header">
                         <span class="menu-header-text">Master Data</span>
@@ -565,16 +564,21 @@
             </ul>
         </li>
 
-        @* TRPT *@
-        <li class='menu-item@(currentPage.StartsWith("/TRPT") ? " active open" : "")'>
+        @* GDRM *@
+        <li class='menu-item@(currentPage.StartsWith("/GDRM") ? " active open" : "")'>
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon fa-solid fa-bus"></i>
-                <div>Trasnport</div>
-                <div class="badge bg-secondary rounded-pill ms-auto">CS</div>
+                <div>Guard Room</div>
             </a>
+
+            <ul class="menu-sub">
+                <li class='menu-item@(currentPage == "/GDRM/GoodsPass" ? " active" : "")'>
+                    <a asp-area="GDRM" asp-controller="GoodsPass" asp-action="Index" class="menu-link">
+                        <div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Goods Pass</div>
+                    </a>
+                </li>
+            </ul>
         </li>
-
-
     </ul>
 
 </aside>
