@@ -14,12 +14,13 @@ namespace TMIS.Models.ITIS
         [Required]
         [MaxLength(50)]
         [DisplayName("Device Type")]
-        public string DeviceTypeName { get; set; }
+        public string? DeviceTypeName { get; set; }
         public DateTime? CreatedDate { get; set; }
         [DisplayName("Remark")]
         public string? Remarks { get; set; }
         [DisplayName("Image")]
         public byte[]? DefaultImage { get; set; }
+        public bool RemoveImage { get; set; }
         public bool IsDelete {  get; set; }
     }
 }

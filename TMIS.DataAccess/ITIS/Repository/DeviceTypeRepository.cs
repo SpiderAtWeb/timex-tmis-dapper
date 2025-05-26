@@ -66,11 +66,69 @@ namespace TMIS.DataAccess.ITIS.Repository
                 return false;
             }
 
-        }
-
-        public Task DeleteAsync(int id)
+        }     
+        
+        public async Task<bool> UpdateDeviceType(DeviceType obj, IFormFile? image)
         {
-            throw new NotImplementedException();
+            //const string query = @"
+            //UPDATE ITIS_DeviceTypes SET ";
+            //where DeviceTypeID=@DeviceTypeID;";
+
+            var updateFields = new List<string>
+            {
+                "DeviceType = @DeviceType",
+                "Remarks=@Remarks"                
+            };
+
+            try
+            {
+                byte[]? imageBytes = null;
+               
+                if (image != null && image.Length > 0)
+                {
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        await image.CopyToAsync(memoryStream);
+                        imageBytes = memoryStream.ToArray();
+                    }
+
+                    updateFields.Add("DefaultImage = @DefaultImage");
+                }
+                else if (obj.RemoveImage)
+                {
+                    updateFields.Add("DefaultImage = NULL");
+                }
+
+                var query = $@"UPDATE ITIS_DeviceTypes SET {string.Join(", ", updateFields)} where DeviceTypeID=@DeviceTypeID;";
+
+                int rowsAffected = await _dbConnection.GetConnection().ExecuteAsync(query, new
+                {
+                    DeviceType = obj.DeviceTypeName,
+                    Remarks = obj.Remarks,
+                    DefaultImage = imageBytes,
+                    DeviceTypeID = obj.DeviceTypeID
+                });
+
+                if (rowsAffected > 0)
+                {
+                    Logdb logdb = new()
+                    {
+                        TrObjectId = obj.DeviceTypeID,
+                        TrLog = "DEVICE TYPE UPDATED"
+
+                    };
+
+                    _iITISLogdb.InsertLog(_dbConnection, logdb);
+                }
+
+                return true;
+            }
+            catch (Exception)
+            {
+
+                return false;
+            }
+
         }
 
         public async Task<IEnumerable<DeviceType>> GetAllAsync()
@@ -85,16 +143,6 @@ namespace TMIS.DataAccess.ITIS.Repository
             return await _dbConnection.GetConnection().QueryAsync<DeviceType>(sql);
         }
 
-        public Task<DeviceType> GetByIdAsync(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task UpdateAsync(DeviceType deviceType)
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task<bool> CheckDeviceTypeExist(string deviceType)
         {
             const string query = @"
@@ -104,6 +152,25 @@ namespace TMIS.DataAccess.ITIS.Repository
 
             var result = await _dbConnection.GetConnection().QueryFirstOrDefaultAsync<int?>(query, new { DeviceType = deviceType });
             return result.HasValue;
+        }
+
+        public async Task<bool> CheckDeviceTypeExist(DeviceType obj)
+        {
+            const string query = @"
+            SELECT TOP 1 1
+            FROM ITIS_DeviceTypes
+            WHERE (DeviceType = @DeviceType and DeviceTypeID != @DeviceTypeID)";
+
+            var result = await _dbConnection.GetConnection().QueryFirstOrDefaultAsync<int?>(query, new { DeviceType = obj.DeviceTypeName, DeviceTypeID = obj.DeviceTypeID});
+            return result.HasValue;
+        }
+
+        public async Task<DeviceType?> LoadDeviceType(int id) 
+        {
+            const string query = @"select DeviceTypeID, DeviceType as DeviceTypeName, Remarks, DefaultImage from ITIS_DeviceTypes where DeviceTypeID=@DeviceTypeID";
+
+            var deviceType = await _dbConnection.GetConnection().QueryFirstOrDefaultAsync<DeviceType>(query, new { DeviceTypeID = id});
+            return deviceType;
         }
     }
 }

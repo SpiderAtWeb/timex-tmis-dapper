@@ -1,5 +1,6 @@
 using log4net;
 using Microsoft.AspNetCore.Mvc;
+using Mono.TextTemplating;
 using TMIS.Areas.PLMS.Controllers;
 using TMIS.DataAccess.COMON.IRpository;
 using TMIS.DataAccess.COMON.Rpository;
@@ -20,10 +21,50 @@ namespace TMIS.Areas.ITIS.Controllers
       var deviceTypes = await _deviceTypeRepository.GetAllAsync();
       return View(deviceTypes);
     }
+
+    public async Task<IActionResult> Edit(int id)
+    {
+      var deviceEditVM = await _deviceTypeRepository.LoadDeviceType(id);
+
+      if (deviceEditVM == null)
+      {
+        return NotFound();
+      }
+
+      _logger.Info("[" + _iSessionHelper.GetUserName() + "] - PAGE VISIT DEVICE TYPE EDIT [" + deviceEditVM.DeviceTypeID + "]");
+      return View(deviceEditVM);
+    }
     public IActionResult Create()
     {
       _logger.Info("[" + _iSessionHelper.GetUserName() + "] - PAGE VISIT TYPE CREATE");
       return View();
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Edit(DeviceType obj, IFormFile? image)
+    {
+      var deviceEditVM = await _deviceTypeRepository.LoadDeviceType(obj.DeviceTypeID);
+
+      if (await _deviceTypeRepository.CheckDeviceTypeExist(obj))
+      {
+        ModelState.AddModelError("DeviceTypeName", "Device Type Already Available !");
+      }
+
+      // Check if the ModelState is valid
+      if (!ModelState.IsValid)
+      {    
+        return View(deviceEditVM);
+      }
+
+      // Update machine data if everything is valid
+      await _deviceTypeRepository.UpdateDeviceType(obj, image);
+
+      // Show success message and redirect
+      TempData["success"] = "Record Updated Successfully";
+
+      _logger.Info("DEVICE TYPE UPDATED [" + obj.DeviceTypeName + "] - [" + _iSessionHelper.GetUserName() + "]");
+
+      return RedirectToAction("Index");
     }
 
     [HttpPost]

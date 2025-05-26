@@ -11,10 +11,10 @@ namespace TMIS.DataAccess.ITIS.IRepository
     public interface IDeviceTypeRepository
     {
         Task<IEnumerable<DeviceType>> GetAllAsync();
-        Task<DeviceType> GetByIdAsync(int id);
         Task<bool> AddAsync(DeviceType deviceType, IFormFile? image);
-        Task UpdateAsync(DeviceType deviceType);
-        Task DeleteAsync(int id);
+        Task<bool> UpdateDeviceType(DeviceType deviceType, IFormFile? image);
         Task<bool> CheckDeviceTypeExist(string deviceType);
+        Task<bool> CheckDeviceTypeExist(DeviceType obj);
+        Task<DeviceType?> LoadDeviceType(int id);
     }
 }
