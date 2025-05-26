@@ -7,6 +7,6 @@
         public string GeneratedBy { get; set; } = string.Empty;
         public string Attention { get; set; } = string.Empty;
         public string Remarks { get; set; } = string.Empty;
-        public List<GrGatepassDetails> DpDetailsList { get; set; } = [];
+        public List<GrGatepassDetails> grGatepassDetails { get; set; } = [];
     }
 }

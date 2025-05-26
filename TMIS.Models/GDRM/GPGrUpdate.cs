@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace TMIS.Models.GDRM
 {
-    public class Dispatching
+    public class GPGrUpdate
     {
         public int SelectedGpId { get; set; }
 
@@ -15,6 +15,10 @@ namespace TMIS.Models.GDRM
 
         public bool ActionType { get; set; }
 
-        public List<DispatchingDetail> DispatchingDetails { get; set; } = [];
+        public int GRId { get; set; }
+
+        public int  IsOut { get; set; }
+
+        public List<GPGrUpdateDetail> GPGrUpdateDetailList { get; set; } = [];
     }
 }

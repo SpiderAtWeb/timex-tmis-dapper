@@ -2,23 +2,26 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Data;
 using TMIS.DataAccess.COMON.IRpository;
+using TMIS.DataAccess.COMON.Rpository;
 using TMIS.DataAccess.TGPS.IRpository;
+using TMIS.Models.Auth;
 using TMIS.Models.TGPS;
 using TMIS.Models.TGPS.VM;
 
 namespace TMIS.DataAccess.TGPS.Rpository
 {
-    public class GoodsGatePass(IDatabaseConnectionSys dbConnection) : IGoodsGatePass
+    public class GoodsGatePass(IDatabaseConnectionSys dbConnection, ISessionHelper sessionHelper) : IGoodsGatePass
     {
         private readonly IDatabaseConnectionSys _dbConnection = dbConnection;
+        private readonly ISessionHelper _iSessionHelper = sessionHelper;
 
         public async Task<IEnumerable<GoodsPassList>> GetList()
         {
             string sql = @"SELECT [Id], [GatePassNo], [GenDateTime], [GenGPassTo], [GpSubject], [PassStatus]  
-            FROM [TMIS].[dbo].[TGPS_VwGGPassSmry] WHERE (GeneratedUserId = @GenUser)
+            FROM [TGPS_VwGGPassSmry] WHERE (GeneratedUserId = @GenUser)
             ORDER BY GatePassNo DESC";
 
-            return await _dbConnection.GetConnection().QueryAsync<GoodsPassList>(sql, new { GenUser = "1" });
+            return await _dbConnection.GetConnection().QueryAsync<GoodsPassList>(sql, new { GenUser = _iSessionHelper.GetUserId() });
         }
 
         public async Task<string> GenerateGatePass(GatepassVM model)
@@ -79,7 +82,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
                         GGpReference = referenceNumber,
                         GGpFromId = model.GatepassAddresses.FirstOrDefault()?.From ?? string.Empty,
                         model.GpSubject,
-                        GeneratedUserId = "1",
+                        GeneratedUserId = _iSessionHelper.GetUserId(),
                         model.Attention,
                         ApprovedTo = model.SendApprovalTo,
                         model.IsReturnable,
@@ -176,13 +179,13 @@ namespace TMIS.DataAccess.TGPS.Rpository
             FROM            ADMIN.dbo._MasterUsers INNER JOIN
                                      ADMIN.dbo._TrPermissionLocation ON ADMIN.dbo._MasterUsers.Id = ADMIN.dbo._TrPermissionLocation.UserId INNER JOIN
                                      dbo.COMN_MasterTwoLocations ON ADMIN.dbo._TrPermissionLocation.LocationId = dbo.COMN_MasterTwoLocations.Id
-            WHERE        (ADMIN.dbo._MasterUsers.Id = 1) ORDER BY Text";
+            WHERE        (ADMIN.dbo._MasterUsers.Id = @UserId) ORDER BY Text";
 
             var goodsToSql = "SELECT Id, LocationName AS Text FROM COMN_MasterTwoLocations ORDER BY LocationName";
             var approvalListSql = "SELECT Id, UserShortName AS Text FROM [ADMIN].dbo._MasterUsers  WHERE (IsActive = 1) AND (IsGpAppUser = 1)";
             var unitsSql = "SELECT Id, PropName AS Text FROM TGPS_MasterTwoGpGoodsUOM ORDER BY PropName";
 
-            var goodsFrom = await GetDataFromTable(goodsFromSql, dbConnection);
+            var goodsFrom = await GetDataFromTable(goodsFromSql,  dbConnection);
             var goodsTo = await GetDataFromTable(goodsToSql, dbConnection);
             var approvalList = await GetDataFromTable(approvalListSql, dbConnection);
             var units = await GetDataFromTable(unitsSql, dbConnection);
@@ -198,7 +201,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
 
         private async Task<List<SelectListItem>> GetDataFromTable(string sql, IDbConnection dbConnection)
         {
-            var results = await dbConnection.QueryAsync(sql);
+            var results = await dbConnection.QueryAsync(sql, new { UserId = _iSessionHelper.GetUserId() });
             var items = results.Select(x => new SelectListItem
             {
                 Value = x.Id.ToString(),
@@ -213,10 +216,8 @@ namespace TMIS.DataAccess.TGPS.Rpository
             int currentYear = DateTime.Now.Year;
 
             // 1. Try to get the generator for the current year
-            var selectSql = @"
-            SELECT TOP 1 [Id], [GenYear], [GenNo], [LastGeneratedDate]
-            FROM [dbo].[TGPS_XysGenerateNumber]
-            WHERE GenYear = @Year";
+            var selectSql = @"SELECT TOP 1 [Id], [GenYear], [GenNo], [LastGeneratedDate]
+            FROM [dbo].[TGPS_XysGenerateNumber] WHERE GenYear = @Year";
 
             var generator = await connection.QuerySingleOrDefaultAsync<dynamic>(
                 selectSql, new { Year = currentYear }, transaction);
@@ -229,17 +230,13 @@ namespace TMIS.DataAccess.TGPS.Rpository
                 // 2. No record for this year — insert new
                 genNo = 1;
 
-                var insertSql = @"
-                INSERT INTO [dbo].[TGPS_XysGenerateNumber]
-                    (GenYear, GenNo, LastGeneratedDate)
-                VALUES
-                    (@GenYear, @GenNo, GETDATE());
+                var insertSql = @"INSERT INTO [dbo].[TGPS_XysGenerateNumber]
+                    (GenYear, GenNo, LastGeneratedDate) VALUES (@GenYear, @GenNo, GETDATE());
+                    SELECT CAST(SCOPE_IDENTITY() AS INT);";
 
-                SELECT CAST(SCOPE_IDENTITY() AS INT);";
-
-                id = await connection.ExecuteScalarAsync<int>(
+                await connection.ExecuteScalarAsync<int>(
                     insertSql,
-                    new { GenYear = currentYear, GenNo = genNo + 1 }, // GenNo starts at 1, insert as 2 for next
+                    new { GenYear = currentYear, GenNo = genNo + 1 }, 
                     transaction
                 );
             }
@@ -253,7 +250,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
                 UPDATE [dbo].[TGPS_XysGenerateNumber]
                 SET GenNo = @NewGenNo,
                     LastGeneratedDate = GETDATE()
-                WHERE Id = @Id;            ";
+                WHERE Id = @Id;";
 
                 await connection.ExecuteAsync(
                     updateSql,
@@ -264,7 +261,6 @@ namespace TMIS.DataAccess.TGPS.Rpository
 
             // 4. Format final reference number
             string reference = $"TGP/{currentYear}/{genNo.ToString("D5")}";
-
             return reference;
         }
 

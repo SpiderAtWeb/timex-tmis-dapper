@@ -30,9 +30,9 @@ namespace TMIS.Areas.Auth.Controllers
         // Fetch the user from the database using Dapper
         var user = await _userAccess.GetUserByUsernameAsync(inputModel.Email, inputModel.Password);
 
-        if (user.UserRole != "")
+        if (user.UserRolesList.Length >0)
         {
-          if (user.AccessPlants!.Length <= 0)
+          if (user.UserLocationList.Length <= 0)
           {
             ModelState.AddModelError(string.Empty, "No units have been assigned to the user. !! Contact System Admin");
             _logger.Error("NO UNITS ASSIGN -  [" + inputModel.Email + "] – user password [" + inputModel.Password + "]");
@@ -42,10 +42,14 @@ namespace TMIS.Areas.Auth.Controllers
           // Create claims and claims identity
           var claims = new List<Claim>
             {
-                new(ClaimTypes.Name, user.NameWi),
-                new(ClaimTypes.Role,user.UserRole),
+                new(ClaimTypes.Name, user.ShortName!),
                 new(ClaimTypes.Email, inputModel.Email)
             };
+
+          foreach (var role in user.UserRolesList)
+          {
+            claims.Add(new Claim(ClaimTypes.Role, role));
+          }
 
           var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 

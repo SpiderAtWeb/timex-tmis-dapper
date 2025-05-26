@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TMIS.Models.GDRM
 {
-    public class DispatchResult
+    public class GPGrUpdateResult
     {
         public bool IsSuccess { get; set; }
         public string? Message { get; set; }

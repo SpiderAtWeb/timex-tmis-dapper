@@ -14,21 +14,21 @@ namespace TMIS.Areas.GDRM.Controllers
 
     public async Task<IActionResult> Index()
     {
-      var oDispaching = await _db.GetDispachingList();
-      return View(oDispaching);
+      var oPedings = await _db.GetPendingList();
+      return View(oPedings);
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetGatepassDetails(int id)
+    public async Task<IActionResult> GetGatepassDetails(int id, bool isOut)
     {
-      var gatepass = await _db.GetGatepassByIdAsync(id);
+      var gatepass = await _db.GetGatepassByIdAsync(id, isOut);
       return Json(gatepass);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Dispatching([FromBody] Dispatching dispatch)
+    public async Task<IActionResult> GPUpdate([FromBody] GPGrUpdate gPGrUpdate)
     {
-      var result = await _db.DispatchingGoods(dispatch);
+      var result = await _db.GatePassUpdating(gPGrUpdate);
       return Json(result);
     }
 

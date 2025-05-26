@@ -1,4 +1,4 @@
-@model GPDispatchShow
+@model GPPendingListShow
 
 @section VendorStyles {
     <link rel="stylesheet" href="~/vendor/libs/datatables-bs5/datatables.bootstrap5.css">
@@ -24,8 +24,11 @@
             $(".gp-btn").on("click", function () {
                 const gpId = $(this).data("id");
                 const baseout = $(this).data("baseout")
+                const isOut = $(this).data("isout");
 
+                $("#slectedGpId").val(gpId);
                 $("#slectedGpIdType").val(baseout);
+                $("#slectedGpIsOut").val(isOut);
 
                 // Highlight the selected button
                 $(".gp-btn").removeClass("btn-primary").addClass("btn-secondary");
@@ -35,11 +38,10 @@
                 $.ajax({
                     url: '/GDRM/GoodsPass/GetGatepassDetails',
                     method: 'GET',
-                    data: { id: gpId },
+                    data: { id: gpId, isOut: isOut },
                     success: function (data) {
-                        // Update hidden GRId
-                        $("#slectedGpId").val(data.id);
-
+                        // Update hidden GPID
+                      
 
                         // Fill alert blocks
                         $("#gpSubject").text(data.gpSubject);
@@ -54,7 +56,7 @@
 
 
                         tbody.empty();
-                        $.each(data.dpDetailsList, function (index, item) {
+                        $.each(data.grGatepassDetails, function (index, item) {
                             let row = `
                                                             <div class="row sp-row dispatching-row">
                                                         <div class="col-2 g-1">
@@ -78,13 +80,13 @@
                                                             </div>
                                                         </div>
                                                         <div class="col-4 g-1">
-                                                            <select id="DispatchingDetails[${index}].ReasonId" class="form-select reason-select">
+                                                            <select id="grGatepassDetails[${index}].ReasonId" class="form-select reason-select">
                                                                 <option disabled selected>- Select -</option>
                                                                 ${item.grDispReasonList.map(reason => `
                                                                     <option value="${reason.value}">${reason.text}</option>
                                                                 `).join('')}
                                                             </select>
-                                                            <input type="hidden" id="DispatchingDetails[${index}].ID" class="dispatching-id" value="${item.id}" />
+                                                            <input type="hidden" id="grGatepassDetails[${index}].ID" class="dispatching-id" value="${item.id}" />
                                                         </div>
                                                     </div>`;
                             tbody.append(row);
@@ -179,32 +181,36 @@
                 const action = $(this).data('action'); // "approve" or "reject"
 
                 // Collect data for Approve
-                const data = {
+                const data = {                 
+                    gRId: parseInt($('#gRId').val()) || 0,
+                    isOut: $('#slectedGpIsOut').val() == 'True' ? 1 : 0,
                     selectedGpId: parseInt($('#slectedGpId').val()) || 0,
                     selectedGpIdType: parseInt($('#slectedGpIdType').val()) || 0,
                     vehicleNoId: parseInt($('#vehicleNoId').val()) || 0,
                     driverNameId: parseInt($('#driverNameId').val()) || 0,
-                    dispatchingDetails: [],
+                    gPGrUpdateDetailList: [],
                     actionType: action // send the action type
                 };
+
+               console.log($('#slectedGpIsOut').val());
+                console.log(data);
 
                 $('.dispatching-row').each(function () {
                     const id = parseInt($(this).find('.dispatching-id').val()) || 0;
                     const reasonId = parseInt($(this).find('.reason-select').val()) || 0;
 
                     if (id > 0 && reasonId > 0) {
-                        data.dispatchingDetails.push({
+                        data.gPGrUpdateDetailList.push({
                             id: id,
                             reasonId: reasonId
                         });
                     }
                 });
 
-                console.log(data.dispatchingDetails);
 
                 $.ajax({
                     type: 'POST',
-                    url: '/GDRM/GoodsPass/Dispatching',
+                    url: '/GDRM/GoodsPass/GPUpdate',
                     contentType: 'application/json',
                     data: JSON.stringify(data),
                     success: function (result) {
@@ -285,7 +291,7 @@
 
                             @foreach (var item in Model.GPNumbersList.Where(x => x.IsOut).Take(5))
                             {
-                                <button type="button" class="btn rounded-pill btn-secondary m-1 gp-btn" data-baseout="@item.BaseOUT" data-id="@item.GPId">
+                                <button type="button" class="btn rounded-pill btn-secondary m-1 gp-btn" data-isout="@item.IsOut" data-baseout="@item.BaseOUT" data-id="@item.GPId">
                                     @item.GPNumber
                                 </button>
                             }
@@ -307,7 +313,7 @@
 
                             @foreach (var item in Model.GPNumbersList.Where(x => !x.IsOut).Take(5))
                             {
-                            <button type="button" class="btn rounded-pill btn-secondary m-1 gp-btn" data-baseout="@item.BaseOUT" data-id="@item.GPId">
+                            <button type="button" class="btn rounded-pill btn-secondary m-1 gp-btn" data-isout="@item.IsOut" data-baseout="@item.BaseOUT" data-id="@item.GPId">
                             @item.GPNumber
                             </button>
                             }
@@ -322,6 +328,7 @@
         <div class="card-body">
             <input type="hidden" id="slectedGpId" />
             <input type="hidden" id="slectedGpIdType" />
+            <input type="hidden" id="slectedGpIsOut" />
 
             <div id="example">
                 <div id="loading-message" style="display:none; text-align:center; color: blue; font-size: 14px; margin-bottom: 10px;">
@@ -417,6 +424,8 @@
                                 data-bs-placement="top"
                                 title="@item.GpTo"
                                 class="btn rounded-pill @buttonClass m-1 gp-btn"
+                                data-isout="@item.IsOut"
+                                data-baseout="@item.BaseOUT"
                                 data-no="@item.GPNumber"
                                 data-id="@item.GPId">
                             @item.GPNumber
@@ -435,6 +444,7 @@
                     <div class="alert alert-primary" role="alert">
                         @Model.GRName
                     </div>
+                    <input type="hidden" asp-for="@Model.GRId" id="gRId" />
                 </div>
 
                 <div class="col-3 g-1">
