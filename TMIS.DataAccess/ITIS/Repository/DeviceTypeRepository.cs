@@ -70,10 +70,7 @@ namespace TMIS.DataAccess.ITIS.Repository
         
         public async Task<bool> UpdateDeviceType(DeviceType obj, IFormFile? image)
         {
-            //const string query = @"
-            //UPDATE ITIS_DeviceTypes SET ";
-            //where DeviceTypeID=@DeviceTypeID;";
-
+          
             var updateFields = new List<string>
             {
                 "DeviceType = @DeviceType",

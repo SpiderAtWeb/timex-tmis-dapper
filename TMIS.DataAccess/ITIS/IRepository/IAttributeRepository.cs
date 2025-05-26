@@ -11,11 +11,11 @@ namespace TMIS.DataAccess.ITIS.IRepository
 {
     public interface IAttributeRepository
     {
-        Task<CreateAttributeVM> LoadDropDowns();
+        Task<CreateAttributeVM> LoadDropDowns(int? id);
         Task<IEnumerable<AttributeVM>> GetAllAsync();
-        Task<bool> AddAsync(AttributeModel attribute, List<AttributeListOption>? attributeListOption);
-        //Task UpdateAsync(DeviceType deviceType);
-        //Task DeleteAsync(int id);
+        Task<bool> AddAsync(AttributeModel attribute, List<AttributeListOption>? attributeListOption);       
         Task<bool> CheckAttributeExist(string deviceType, string deviceTypeID);
+        Task<bool> CheckAttributeExist(CreateAttributeVM obj);
+        Task<bool> UpdateAttribute(AttributeModel attribute, List<AttributeListOption>? attributeListOption);
     }
 }

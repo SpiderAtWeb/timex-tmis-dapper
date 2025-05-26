@@ -76,7 +76,10 @@
 										<td>@item.DataType</td>
 										<td class="d-none">@item.DeviceTypeID</td>
 										<td>@item.DeviceTypeName</td>
-										<td></td>
+										<td>
+											<a class="btn btn-primary btn-sm" asp-controller="Attribute" asp-action="Edit" asp-route-id="@item.AttributeID"><i class="ri-pencil-fill"></i></a>
+											<a class="btn btn-primary btn-sm" asp-controller="Attribute" asp-action="View" asp-route-id="@item.AttributeID"><i class="ri-eye-fill"></i></a>
+										</td>
 									</tr>
 								}
 							</tbody>
