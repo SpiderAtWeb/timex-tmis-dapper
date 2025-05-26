@@ -34,6 +34,19 @@ namespace TMIS.Areas.ITIS.Controllers
       _logger.Info("[" + _iSessionHelper.GetUserName() + "] - PAGE VISIT DEVICE TYPE EDIT [" + deviceEditVM.DeviceTypeID + "]");
       return View(deviceEditVM);
     }
+
+    public async Task<IActionResult> View(int id)
+    {
+      var deviceEditVM = await _deviceTypeRepository.LoadDeviceType(id);
+
+      if (deviceEditVM == null)
+      {
+        return NotFound();
+      }
+
+      _logger.Info("[" + _iSessionHelper.GetUserName() + "] - PAGE VISIT DEVICE TYPE VIEW [" + deviceEditVM.DeviceTypeID + "]");
+      return View(deviceEditVM);
+    }
     public IActionResult Create()
     {
       _logger.Info("[" + _iSessionHelper.GetUserName() + "] - PAGE VISIT TYPE CREATE");

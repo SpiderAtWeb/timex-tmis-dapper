@@ -1,0 +1,71 @@
+@model DeviceType
+
+@section VendorStyles {
+		<link rel="stylesheet" href="~/vendor/libs/flatpickr/flatpickr.css" />
+		<link rel="stylesheet" href="~/vendor/libs/select2/select2.css" />
+		<link href="~/css/input-text-upper.css" rel="stylesheet" />
+}
+
+@section VendorScripts {
+		<script src="~/vendor/libs/flatpickr/flatpickr.js"></script>
+		<script src="~/vendor/libs/select2/select2.js"></script>
+}
+
+@section PageScripts {
+	<script src="~/js/form-layouts.js"></script>
+	<script src="~/custom/input-text-upper.js"></script>
+}
+
+<!-- Multi Column with Form Separator -->
+<div class="card mb-6">
+	<h5 class="card-header page-header">
+	   Device Type Details
+	</h5>
+	<form class="card-body" id="myForm" enctype="multipart/form-data">
+
+		<div class="row g-4">
+			<input asp-for="@Model.DeviceTypeID" type="hidden"/>		
+			<div class="col-md-4">
+				<div class="form-floating form-floating-outline">
+					<input asp-for="DeviceTypeName" type="text" id="style-no" class="form-control requiredField" placeholder="Enter device type (e.g., Laptop, Printer)" disabled/>
+					<label asp-for="DeviceTypeName"></label>
+					<span asp-validation-for="DeviceTypeName" class="customerError text-warning"></span>
+				</div>
+			</div>
+
+			<div class="col-md-4">
+				<div class="form-floating form-floating-outline">
+					<input asp-for="Remarks" type="text" id="style-no" class="form-control" placeholder="Add any additional information (optional)" disabled/>
+					<label asp-for="Remarks"></label>
+					<span asp-validation-for="Remarks" class="customerError text-warning"></span>
+				</div>
+			</div>		
+			<div class="col-md-4">
+				<div class="image-preview">
+					@if (Model!.DefaultImage != null && Model!.DefaultImage.Length > 0)
+					{
+						var base64Image = Convert.ToBase64String(Model.DefaultImage);
+						<img id="bakcImg" src="data:image/jpeg;base64,@base64Image" alt="Image Preview" style="max-width: 100%; height: auto;" />						
+					}
+					else
+					{
+						<img src="~/img/my-images/no-image.jpg" alt="No Image Available" style="max-width: 100px; height: auto;" />
+					}					
+				</div>
+			</div>
+
+			<div class="col-md-3">
+			</div>
+
+			<div id="activityContainer">
+			</div>
+
+			<div class="pt-1">				
+				<a asp-controller="DeviceType" asp-action="Index" class="btn btn-outline-secondary">Back to List</a>
+			</div>
+
+		</div>
+	</form>
+
+</div>
+
