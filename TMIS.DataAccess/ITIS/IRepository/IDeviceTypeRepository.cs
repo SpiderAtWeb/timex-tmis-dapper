@@ -15,6 +15,7 @@ namespace TMIS.DataAccess.ITIS.IRepository
         Task<bool> UpdateDeviceType(DeviceType deviceType, IFormFile? image);
         Task<bool> CheckDeviceTypeExist(string deviceType);
         Task<bool> CheckDeviceTypeExist(DeviceType obj);
+        Task<bool> DeleteDeviceType(int id);
         Task<DeviceType?> LoadDeviceType(int id);
     }
 }

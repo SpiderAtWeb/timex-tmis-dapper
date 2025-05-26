@@ -71,9 +71,10 @@
 										<td class="d-none">@item.DeviceTypeID</td>
 										<td>@item.DeviceTypeName</td>
 										<td>@item.Remarks</td>
-										<td>
-											<a class="btn btn-primary btn-sm" asp-controller="DeviceType" asp-action="Edit" asp-route-id="@item.DeviceTypeID"><i class="ri-pencil-fill"></i></a>
+										<td>																						
 											<a class="btn btn-primary btn-sm" asp-controller="DeviceType" asp-action="View" asp-route-id="@item.DeviceTypeID"><i class="ri-eye-fill"></i></a>
+											<a class="btn btn-primary btn-sm" asp-controller="DeviceType" asp-action="Edit" asp-route-id="@item.DeviceTypeID"><i class="ri-pencil-fill"></i></a>
+											<a class="btn btn-primary btn-sm" asp-controller="DeviceType" asp-action="Delete" asp-route-id="@item.DeviceTypeID"><i class="ri-delete-bin-fill"></i></a>
 										</td>
 										<td class="d-none">@item.DefaultImage</td>
 									</tr>

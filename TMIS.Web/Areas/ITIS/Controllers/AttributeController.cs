@@ -37,6 +37,13 @@ namespace TMIS.Areas.ITIS.Controllers
       return View(attributeDetails);
     }
 
+    public async Task<IActionResult> View(int id)
+    {
+      var attributeDetails = await _attributeRepository.LoadDropDowns(id);
+      _logger.Info("[" + _iSessionHelper.GetUserName() + "] - PAGE VISIT ATTRIBUTE EDIT");
+      return View(attributeDetails);
+    }
+
     [HttpPost]
     public async Task<IActionResult> Edit(CreateAttributeVM obj)
     {

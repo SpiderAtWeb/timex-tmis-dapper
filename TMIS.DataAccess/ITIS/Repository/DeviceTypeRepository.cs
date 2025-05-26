@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Dapper;
 using Microsoft.AspNetCore.Http;
+using Org.BouncyCastle.Asn1.Cms;
 using TMIS.DataAccess.COMON.IRpository;
 using TMIS.DataAccess.ITIS.IRepository;
 using TMIS.Models.ITIS;
@@ -68,6 +69,22 @@ namespace TMIS.DataAccess.ITIS.Repository
 
         }     
         
+        public async Task<bool> DeleteDeviceType(int id)
+        {
+            const string attributeQuery = @"Update ITIS_DeviceTypes SET
+                                        IsDelete=1 where DeviceTypeID=@DeviceTypeID;";
+
+            int rowsAffected = await _dbConnection.GetConnection().ExecuteAsync(attributeQuery, new
+            {
+                DeviceTypeID=id
+            });
+            if (rowsAffected > 0) 
+            { 
+                return true;
+            }
+            return false;
+        }
+
         public async Task<bool> UpdateDeviceType(DeviceType obj, IFormFile? image)
         {
           
@@ -145,7 +162,7 @@ namespace TMIS.DataAccess.ITIS.Repository
             const string query = @"
             SELECT TOP 1 1
             FROM ITIS_DeviceTypes
-            WHERE (DeviceType = @DeviceType)";
+            WHERE DeviceType = @DeviceType and IsDelete = 0";
 
             var result = await _dbConnection.GetConnection().QueryFirstOrDefaultAsync<int?>(query, new { DeviceType = deviceType });
             return result.HasValue;
@@ -156,7 +173,7 @@ namespace TMIS.DataAccess.ITIS.Repository
             const string query = @"
             SELECT TOP 1 1
             FROM ITIS_DeviceTypes
-            WHERE (DeviceType = @DeviceType and DeviceTypeID != @DeviceTypeID)";
+            WHERE (DeviceType = @DeviceType and DeviceTypeID != @DeviceTypeID and IsDelete = 0)";
 
             var result = await _dbConnection.GetConnection().QueryFirstOrDefaultAsync<int?>(query, new { DeviceType = obj.DeviceTypeName, DeviceTypeID = obj.DeviceTypeID});
             return result.HasValue;

@@ -35,6 +35,35 @@ namespace TMIS.Areas.ITIS.Controllers
       return View(deviceEditVM);
     }
 
+    public async Task<IActionResult> Delete(int id)
+    {
+      var deviceEditVM = await _deviceTypeRepository.LoadDeviceType(id);
+
+      if (deviceEditVM == null)
+      {
+        return NotFound();
+      }
+
+      _logger.Info("[" + _iSessionHelper.GetUserName() + "] - PAGE VISIT DEVICE TYPE DELETE [" + deviceEditVM.DeviceTypeID + "]");
+      return View(deviceEditVM);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Delete(DeviceType obj)
+    {
+      // Update machine data if everything is valid
+      bool isdelete = await _deviceTypeRepository.DeleteDeviceType(obj.DeviceTypeID);
+
+      if (isdelete)
+      {
+        // Show success message and redirect
+        TempData["success"] = "Record Deleted Successfully";
+        _logger.Info("DEVICE TYPE DELETED [" + obj.DeviceTypeName + "] - [" + _iSessionHelper.GetUserName() + "]");
+      }
+           
+      return RedirectToAction("Index");
+    }
+
     public async Task<IActionResult> View(int id)
     {
       var deviceEditVM = await _deviceTypeRepository.LoadDeviceType(id);
