@@ -133,7 +133,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
                     GGpToId,
                     ROrder,                   
                     IsReceived,
-                    IsCompleted
+                    IsSend
                 )
                 VALUES
                 (

@@ -5,10 +5,10 @@ namespace TMIS.DataAccess.GDRM.IRpository
 {
     public interface IGRGoods
     {
-        public Task<GPDispatchingVM> GetDispachingList();
+        public Task<GPDispatchShow> GetDispachingList();
 
         public Task<GrGatepass?> GetGatepassByIdAsync(int id);
 
-        public Task<bool> DispatchingGoods(Dispatching dispatch);
+        public Task<DispatchResult> DispatchingGoods(Dispatching dispatch);
     }
 }

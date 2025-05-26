@@ -2,6 +2,7 @@ using log4net;
 using Microsoft.AspNetCore.Mvc;
 using TMIS.DataAccess.GDRM.IRpository;
 using TMIS.Models.GDRM;
+using TMIS.Models.GDRM.VM;
 
 namespace TMIS.Areas.GDRM.Controllers
 {
@@ -25,14 +26,10 @@ namespace TMIS.Areas.GDRM.Controllers
     }
 
     [HttpPost]
-    public IActionResult Dispatching(Dispatching dispatch)
+    public async Task<IActionResult> Dispatching([FromBody] Dispatching dispatch)
     {
-      if (ModelState.IsValid)
-      {
-        _db.DispatchingGoods(dispatch);        
-      }     
-
-      return RedirectToAction("Index");
+      var result = await _db.DispatchingGoods(dispatch);
+      return Json(result);
     }
 
   }

@@ -25,12 +25,14 @@ namespace TMIS.DataAccess.COMON.Rpository
                     SELECT Id FROM VwUsers WHERE UserName = @Username AND Password = @Password
                 )";
 
-            var user = await _dbConnection.GetConnection().QueryFirstOrDefaultAsync<User>(sqlUserDetails, new { Username = username, Password = password });
+
+            using var connection = _dbConnection.GetConnection();
+            var user = await connection.QueryFirstOrDefaultAsync<User>(sqlUserDetails, new { Username = username, Password = password });
 
             if (user == null)
                 return new User();
 
-            var accessPlants = await _dbConnection.GetConnection().QueryAsync<int>(sqlAccessPlants, new { Username = username, Password = password });
+            var accessPlants = await connection.QueryAsync<int>(sqlAccessPlants, new { Username = username, Password = password });
             user.AccessPlants = accessPlants.ToArray();
 
             _iSessionHelper.SetUserSession(user.Id.ToString(), user.NameWi, user.UserRole, user.AccessPlants);

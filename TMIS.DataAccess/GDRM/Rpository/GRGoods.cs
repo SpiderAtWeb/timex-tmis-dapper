@@ -56,11 +56,11 @@ namespace TMIS.DataAccess.GDRM.Rpository
 
 
 
-        public async Task<GPDispatchingVM> GetDispachingList()
+        public async Task<GPDispatchShow> GetDispachingList()
         {
-            var oGrDispatchingVM = new GPDispatchingVM
+            var oGPDispatchShow = new GPDispatchShow
             {
-                GRId = 1,
+                GRId = 3,
                 GRName = "G.ROOM FRONT",
                 GRLocation = "UNIT-03"
             };
@@ -73,33 +73,43 @@ namespace TMIS.DataAccess.GDRM.Rpository
              SELECT   Id AS Value, PropName AS Text
             FROM TGPS_MasterTwoGpVehicles WHERE (IsDelete = 0)";
 
-            int id = 1; //
+            int id = 3; //
             var gpNumbersList = (await _dbConnection.GetConnection()
                 .QueryAsync<GPNumbers>("TGPS_SpDispatchList", new { GpLocId = id }, commandType: CommandType.StoredProcedure))
                 .ToList();
             var gpDriverList = (await _dbConnection.GetConnection().QueryAsync<SelectListItem>(sqlDriver)).ToList();
             var gpVehiclesList = (await _dbConnection.GetConnection().QueryAsync<SelectListItem>(sqlVehicles)).ToList();
 
-            oGrDispatchingVM.GPNumbersList = gpNumbersList;
-            oGrDispatchingVM.GPDriversList = gpDriverList;
-            oGrDispatchingVM.GPVehicleNoList = gpVehiclesList;
+            oGPDispatchShow.GPNumbersList = gpNumbersList;
+            oGPDispatchShow.GPDriversList = gpDriverList;
+            oGPDispatchShow.GPVehicleNoList = gpVehiclesList;
 
-            return oGrDispatchingVM;
+            return oGPDispatchShow;
         }
 
-        public Task<bool> DispatchingGoods(Dispatching dispatch)
+        public async Task<DispatchResult> DispatchingGoods(Dispatching dispatch)
         {
+            if (dispatch.SelectedGpId <= 0)
+                return await Task.FromResult(new DispatchResult { IsSuccess = false, Message = "Gatepass not found!", ErrorFieldId = "" });
+
+            if (dispatch.VehicleNoId <= 0)
+                return await Task.FromResult(new DispatchResult { IsSuccess = false, Message = "Vehicle number is required.", ErrorFieldId = "vehicleNoId" });
+
+            if (dispatch.DriverNameId <= 0)
+                return await Task.FromResult(new DispatchResult { IsSuccess = false, Message = "Driver name is required.", ErrorFieldId = "driverNameId" });
+
+
             var connection = _dbConnection.GetConnection();
             var transaction = connection.BeginTransaction();
 
             try
             {
 
-                if (dispatch.SlectedGpIdType > 0)
+                if (dispatch.SelectedGpIdType > 0)
                 {
                     // Update from sql query
                     string sqlUpdateM = @"UPDATE [dbo].[TGPS_TrGpGoodsHeader]
-                      SET [IsSend] = 1
+                      SET  [IsSend] = @IsSend
                           ,[SendGRId] = 1
                           ,[SendGRUserId] = 1
                           ,[SendGRDateTime] = GETDATE()
@@ -111,7 +121,8 @@ namespace TMIS.DataAccess.GDRM.Rpository
                         sqlUpdateM,
                         new
                         {
-                            GpId = dispatch.SlectedGpId,
+                            GpId = dispatch.SelectedGpId,
+                            @IsSend = dispatch.ActionType ? 1 : 0,
                             dispatch.VehicleNoId,
                             dispatch.DriverNameId
                         },
@@ -147,16 +158,18 @@ namespace TMIS.DataAccess.GDRM.Rpository
 
                     // Update from sql query
                     string sqlUpdateM = @"UPDATE [dbo].[TGPS_TrGpGoodsRoutes]
-                       SET [SendGRId] =1
-                          ,[SendGRUserId] = 1
-                          ,[SendGRDateTime] =  GETDATE()
+                       SET  [IsSend] = @IsSend
+                           ,[SendGRId] = 1
+                           ,[SendGRUserId] = 1
+                           ,[SendGRDateTime] =  GETDATE()
                      WHERE Id=@GpId";
 
                     connection.Execute(
                         sqlUpdateM,
                         new
                         {
-                            GpId = dispatch.SlectedGpId    
+                            @IsSend = dispatch.ActionType ? 1 : 0,
+                            GpId = dispatch.SelectedGpId    
                         },
                         transaction: transaction,
                         commandType: CommandType.Text);
@@ -187,12 +200,12 @@ namespace TMIS.DataAccess.GDRM.Rpository
                 }
 
                 transaction.Commit();
-                return Task.FromResult(true);
+                return await Task.FromResult(new DispatchResult { IsSuccess = true, Message = "Dispatching completed successfully." });
             }
             catch (Exception ex)
             {
                 transaction.Rollback();
-                throw;
+                return await Task.FromResult(new DispatchResult { IsSuccess = false, Message = "An error occurred: " + ex.Message });
             }
 
         }

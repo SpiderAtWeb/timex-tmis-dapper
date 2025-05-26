@@ -2,7 +2,7 @@
 
 namespace TMIS.Models.GDRM.VM
 {
-    public class GPDispatchingVM
+    public class GPDispatchShow
     {
         public int GRId { get; set; }
         public string GRName { get; set; } = string.Empty;

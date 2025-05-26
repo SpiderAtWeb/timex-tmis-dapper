@@ -9,6 +9,7 @@ namespace TMIS.DataAccess.COMON.IRpository
     public interface ISessionHelper
     {
         void SetUserSession(string userId, string nameWi, string userRole, int[] accessPlants);
+
         string GetUserId();
 
         string GetUserName();
