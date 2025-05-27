@@ -21,7 +21,7 @@ namespace TMIS.Areas.SMIS.Controllers
     {
       ViewBag.today = DateTime.Now;
       IEnumerable<TransMC> trlist = await _db.GetList();
-      _logger.Info("[ " + _iSessionHelper.GetUserName() + " ] - PAGE VISIT INDEX");
+      _logger.Info("[ " + _iSessionHelper.GetShortName() + " ] - PAGE VISIT INDEX");
 
       return View(trlist);
     }
@@ -39,7 +39,7 @@ namespace TMIS.Areas.SMIS.Controllers
       {
         return NotFound();
       }
-      _logger.Info("[ " + _iSessionHelper.GetUserName() + " ] - PAGE VISIT DETAILS");
+      _logger.Info("[ " + _iSessionHelper.GetShortName() + " ] - PAGE VISIT DETAILS");
       return View(oDetails);
     }
 
@@ -58,7 +58,7 @@ namespace TMIS.Areas.SMIS.Controllers
 
       TempData["Success"] = "Record Created Successfully";
 
-      _logger.Info("[ " + _iSessionHelper.GetUserName() + " ] - REQUEST CREATED [" + mcRequestDetailsVM!.oMcData!.QrCode + "]");
+      _logger.Info("[ " + _iSessionHelper.GetShortName() + " ] - REQUEST CREATED [" + mcRequestDetailsVM!.oMcData!.QrCode + "]");
       return RedirectToAction("Index");
     }
 

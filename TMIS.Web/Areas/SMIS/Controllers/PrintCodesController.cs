@@ -17,7 +17,7 @@ namespace TMIS.Areas.SMIS.Controllers
     public IActionResult Index()
     {
       var qrCodes = _db.GetQrCode().Result;
-      _logger.Info("[ " + _iSessionHelper.GetUserName() + " ] - PAGE VISIT INDEX");
+      _logger.Info("[ " + _iSessionHelper.GetShortName() + " ] - PAGE VISIT INDEX");
 
       return View(qrCodes);
     }
@@ -36,7 +36,7 @@ namespace TMIS.Areas.SMIS.Controllers
         qrList += item + ",";
       }
 
-      _logger.Info("[ " + _iSessionHelper.GetUserName() + " ] - [" + qrList + "] QR PRINTS");
+      _logger.Info("[ " + _iSessionHelper.GetShortName() + " ] - [" + qrList + "] QR PRINTS");
 
       // Generate the PDF using the utility
       byte[] pdfFile = GenerateQR.GenerateQRCode(qrCodes);

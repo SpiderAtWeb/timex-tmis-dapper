@@ -18,7 +18,7 @@ namespace TMIS.Areas.SMIS.Controllers
     public async Task<IActionResult> Index()
     {
       MachinesVM machinesVM = await _db.GetList();
-      _logger.Info("[" + _iSessionHelper.GetUserName() + "] - PAGE VISIT INDEX");
+      _logger.Info("[" + _iSessionHelper.GetShortName() + "] - PAGE VISIT INDEX");
 
       return View(machinesVM);
     }
@@ -27,7 +27,7 @@ namespace TMIS.Areas.SMIS.Controllers
     {
       var mcCreateVM = await _db.LoadInventoryDropDowns(null);
 
-      _logger.Info("[" + _iSessionHelper.GetUserName() + "] - PAGE VISIT OW CREATE");
+      _logger.Info("[" + _iSessionHelper.GetShortName() + "] - PAGE VISIT OW CREATE");
 
       return View(mcCreateVM);
     }
@@ -76,7 +76,7 @@ namespace TMIS.Areas.SMIS.Controllers
       // Show success message and redirect
       TempData["success"] = "Record Created Successfully";
 
-      _logger.Info("OWNED MC CREATED [" + mcCreateVM.McInventory.SerialNo + "] - [" + _iSessionHelper.GetUserName() + "]");
+      _logger.Info("OWNED MC CREATED [" + mcCreateVM.McInventory.SerialNo + "] - [" + _iSessionHelper.GetShortName() + "]");
 
       return RedirectToAction("Index");
     }
@@ -96,7 +96,7 @@ namespace TMIS.Areas.SMIS.Controllers
     {
       var mcCreatedRnVM = await _db.LoadRentInventoryDropDowns(null);
 
-      _logger.Info("[" + _iSessionHelper.GetUserName() + "] - PAGE VISIT RN CREATE");
+      _logger.Info("[" + _iSessionHelper.GetShortName() + "] - PAGE VISIT RN CREATE");
 
       return View(mcCreatedRnVM);
     }
@@ -142,7 +142,7 @@ namespace TMIS.Areas.SMIS.Controllers
       await _db.InsertRentMachineAsync(mcCreatedRnVM.McInventory, imageFR, imageBK);
 
       TempData["success"] = "Record Created Successfully";
-      _logger.Info("[" + _iSessionHelper.GetUserName() + "] - RENTED MC CREATED [" + mcCreatedRnVM.McInventory.SerialNo + "]");
+      _logger.Info("[" + _iSessionHelper.GetShortName() + "] - RENTED MC CREATED [" + mcCreatedRnVM.McInventory.SerialNo + "]");
 
       return RedirectToAction("Index");
     }

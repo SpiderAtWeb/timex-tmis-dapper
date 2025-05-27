@@ -66,7 +66,7 @@ namespace TMIS.Controllers
         // Show success message and redirect
         TempData["success"] = "Password Updated successfully";
 
-        _logger.Info("PASSWORD UPDATE SUCCEFULLY - [" + _iSessionHelper.GetUserName() + "]");
+        _logger.Info("PASSWORD UPDATE SUCCEFULLY - [" + _iSessionHelper.GetShortName() + "]");
 
         return RedirectToAction("Index");
       }

@@ -13,6 +13,6 @@ namespace TMIS.DataAccess.PLMS.IRpository
     {
         public Task InsertLog(IDatabaseConnectionSys dbConnection, Logdb log);
 
-        public Task InsertLogTrans(IDbConnection connection, IDbTransaction transaction, Logdb log);
+        public Task<int> InsertLogTrans(IDbConnection connection, IDbTransaction transaction, Logdb log);
     }
 }

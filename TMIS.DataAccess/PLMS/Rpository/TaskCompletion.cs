@@ -68,7 +68,7 @@ namespace TMIS.DataAccess.PLMS.Rpository
                             {
                                 Id = activity.TaskId,
                                 activity.Comment,
-                                User = _iSessionHelper.GetUserName().ToUpper() // Replace with actual username
+                                User = _iSessionHelper.GetShortName().ToUpper() // Replace with actual username
                             }, transaction);
 
                             await UpdateTaskLogAsync(connection, transaction, inquiryId, activity.TaskId, true);
@@ -89,7 +89,7 @@ namespace TMIS.DataAccess.PLMS.Rpository
                             {
                                 Id = activity.TaskId,
                                 activity.Comment,
-                                User = _iSessionHelper.GetUserName().ToUpper() // Replace with actual username
+                                User = _iSessionHelper.GetShortName().ToUpper() // Replace with actual username
                             }, transaction);
 
                             await UpdateTaskLogAsync(connection, transaction, inquiryId, activity.TaskId, false);

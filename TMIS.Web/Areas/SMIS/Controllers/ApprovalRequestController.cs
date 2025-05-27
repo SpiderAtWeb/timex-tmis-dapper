@@ -17,7 +17,7 @@ namespace TMIS.Areas.SMIS.Controllers
     public IActionResult Index()
     {
       IEnumerable<RespondVM> trlist = _db.GetRequestList();
-      _logger.Info("[ " + _iSessionHelper.GetUserName() + " ] - PAGE VISIT INDEX");
+      _logger.Info("[ " + _iSessionHelper.GetShortName() + " ] - PAGE VISIT INDEX");
 
       return View(trlist);
     }
@@ -25,7 +25,7 @@ namespace TMIS.Areas.SMIS.Controllers
     public IActionResult Details(int Id)
     {
       RespondDetailsVM dtlist = _db.GetReqDetailsList(Id);
-      _logger.Info("[ " + _iSessionHelper.GetUserName() + " ] - PAGE VISIT DETAILS");
+      _logger.Info("[ " + _iSessionHelper.GetShortName() + " ] - PAGE VISIT DETAILS");
 
       return View(dtlist);
     }
@@ -44,13 +44,13 @@ namespace TMIS.Areas.SMIS.Controllers
 
       if (updateRecord[0] == "1")
       {
-        _logger.Info("[ " + _iSessionHelper.GetUserName() + " ] - REQUEST [" + action + "]");
+        _logger.Info("[ " + _iSessionHelper.GetShortName() + " ] - REQUEST [" + action + "]");
 
         TempData["Success"] = "Record updated successfully.";
       }
       else
       {
-        _logger.Info("[ " + _iSessionHelper.GetUserName() + " ] - ERROR [" + action + "]");
+        _logger.Info("[ " + _iSessionHelper.GetShortName() + " ] - ERROR [" + action + "]");
         TempData["Error"] = "An error occurred while updating the record.";
       }
 

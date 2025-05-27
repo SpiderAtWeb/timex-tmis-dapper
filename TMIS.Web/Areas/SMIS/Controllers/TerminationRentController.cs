@@ -17,7 +17,7 @@ namespace TMIS.Areas.SMIS.Controllers
     public async Task<IActionResult> Index()
     {
       IEnumerable<TransMC> trlist = await _db.GetList();
-      _logger.Info("[ " + _iSessionHelper.GetUserName() + " ] - PAGE VISIT INDEX");
+      _logger.Info("[ " + _iSessionHelper.GetShortName() + " ] - PAGE VISIT INDEX");
 
       return View(trlist);
     }
@@ -53,7 +53,7 @@ namespace TMIS.Areas.SMIS.Controllers
 
       TempData["Success"] = "Record created Updated";
 
-      _logger.Info("[ " + _iSessionHelper.GetUserName() + " ] - REQUEST CREATED [" + oMachinesData!.QrCode + "]");
+      _logger.Info("[ " + _iSessionHelper.GetShortName() + " ] - REQUEST CREATED [" + oMachinesData!.QrCode + "]");
       return RedirectToAction("Index");
     }
 
