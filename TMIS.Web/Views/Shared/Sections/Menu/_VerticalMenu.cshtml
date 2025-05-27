@@ -448,6 +448,8 @@
             </ul>
         </li>
 
+		
+
         @* GTPS *@
         <li class='menu-item@(currentPage.StartsWith("/TGPS") ? " active open" : "")'>
             <a href="javascript:void(0);" class="menu-link menu-toggle">
@@ -557,21 +559,70 @@
             </ul>
         </li>
 
-        @* GDRM *@
-        <li class='menu-item@(currentPage.StartsWith("/GDRM") ? " active open" : "")'>
-            <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon fa-solid fa-bus"></i>
-                <div>Guard Room</div>
-            </a>
+			  @* GDRM *@
+			  <li class='menu-item@(currentPage.StartsWith("/GDRM") ? " active open" : "")'>
+				  <a href="javascript:void(0);" class="menu-link menu-toggle">
+					  <i class="menu-icon fa-solid fa-bus"></i>
+					  <div>Guard Room</div>
+				  </a>
 
-            <ul class="menu-sub">
-                <li class='menu-item@(currentPage == "/GDRM/GoodsPass" ? " active" : "")'>
-                    <a asp-area="GDRM" asp-controller="GoodsPass" asp-action="Index" class="menu-link">
-                        <div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Goods Pass</div>
-                    </a>
-                </li>
-            </ul>
-        </li>
+				  <ul class="menu-sub">
+					  <li class='menu-item@(currentPage == "/GDRM/GoodsPass" ? " active" : "")'>
+						  <a asp-area="GDRM" asp-controller="GoodsPass" asp-action="Index" class="menu-link">
+							  <div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Goods Pass</div>
+						  </a>
+					  </li>
+				  </ul>
+			  </li>
+			  @* ITIS *@
+			  <li class='menu-item@(currentPage.StartsWith("/ITIS") ? " active open" : "")'>
+				  <a href="javascript:void(0);" class="menu-link menu-toggle">
+					  <i class="menu-icon fa-solid fa-arrows-spin"></i>
+					  <div>IT Inventory</div>
+				  </a>
+
+				  <ul class="menu-sub">
+					  <li class='menu-item@(currentPage == "/ITIS/DeviceType" ? " active" : "")'>
+						  <a asp-area="ITIS" asp-controller="DeviceType" asp-action="Index" class="menu-link">
+							  <div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Device Types</div>
+						  </a>
+					  </li>
+					  <li class='menu-item@(currentPage == "/ITIS/Attribute" ? " active" : "")'>
+						  <a asp-area="ITIS" asp-controller="Attribute" asp-action="Index" class="menu-link">
+							  <div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Device Attributes</div>
+						  </a>
+					  </li>
+					  <li class='menu-item@(currentPage == "/ITIS/Device" ? " active" : "")'>
+						  <a asp-area="ITIS" asp-controller="Device" asp-action="Index" class="menu-link">
+							  <div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Devices</div>
+						  </a>
+					  </li>
+					  <li class='menu-item@(currentPage == "/ITIS/DeviceUser" ? " active" : "")'>
+						  <a asp-area="ITIS" asp-controller="DeviceUser" asp-action="Index" class="menu-link">
+							  <div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Device Users</div>
+						  </a>
+					  </li>
+					  <li class='menu-item@(currentPage == "/ITIS/ApproveDeviceUser" ? " active" : "")'>
+						  <a asp-area="ITIS" asp-controller="ApproveDeviceUser" asp-action="Index" class="menu-link">
+							  <div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Approve</div>
+						  </a>
+					  </li>						
+					  <li class='menu-item@(currentPage.StartsWith("/ITIS/Summary") ? " active open" : "")'>
+						  <a href="javascript:void(0)" class="menu-link menu-toggle">
+							  <i class="menu-icon fa-solid fa-binoculars"></i>
+							  <div>Report</div>
+						  </a>
+						  <ul class="menu-sub">
+							  <li class='menu-item@(currentPage == "/ITIS/Summary" ? " active" : "")'>
+								  <a asp-area="ITIS" asp-controller="Summary" asp-action="Index" class="menu-link">
+									  <div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Summary</div>
+								  </a>
+							  </li>
+						  </ul>
+					  </li>
+				  </ul>
+			  </li>
+      
     </ul>
 
 </aside>

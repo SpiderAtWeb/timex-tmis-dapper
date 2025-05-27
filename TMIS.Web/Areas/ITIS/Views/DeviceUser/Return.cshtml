@@ -1,0 +1,195 @@
+@using TMIS.Models.ITIS.VM
+@model ReturnDeviceVM
+
+@section VendorStyles {
+	<link rel="stylesheet" href="~/vendor/libs/flatpickr/flatpickr.css" />
+	<link rel="stylesheet" href="~/vendor/libs/select2/select2.css" />
+	<link href="~/css/input-text-upper.css" rel="stylesheet" />
+}
+
+@section VendorScripts {
+	<script src="~/vendor/libs/flatpickr/flatpickr.js"></script>
+	<script src="~/vendor/libs/select2/select2.js"></script>
+}
+
+@section PageScripts {
+	<script src="~/js/form-layouts.js"></script>
+	<script src="~/custom/input-text-upper.js"></script>
+	<script>
+		$('#selectedDevice').val(null).trigger('change');
+		$('#selectedDevice').on('change', function () {
+
+			$('#deviceDetailContainer').empty();
+			$('#userDetailContainer').empty();
+			const deviceId = $(this).val();
+
+			if (!deviceId) return;
+
+			$.get(`/ITIS/DeviceUser/GetDeviceDetails?deviceId=${deviceId}`, function (data) {
+				let allHtml =  '<div class="row g-4">'; // Wrap with Bootstrap row;
+
+				allHtml += `<div class="col-md-4">
+							  <div class="form-floating form-floating-outline">
+									<input type="text" class="form-control" value="${data.deviceName}" disabled/>
+									<label>Device Name</label>
+							  </div>
+							</div>
+							<div class="col-md-4">
+							  <div class="form-floating form-floating-outline">
+											<input type="text" class="form-control" value="${data.serialNumber}" disabled/>
+											<label>Serial Number</label>
+							  </div>
+							</div>
+							<div class="col-md-4">
+							  <div class="form-floating form-floating-outline">
+											<input type="text" class="form-control" value="${data.fixedAssetCode}" disabled/>
+											<label>FA Code</label>
+							  </div>
+							</div>
+							<div class="col-md-4">
+							  <div class="form-floating form-floating-outline">
+											<input type="text" class="form-control" value="${data.purchasedDate}" disabled/>
+											<label>Purchased Date</label>
+							  </div>
+							</div>
+							<div class="col-md-4">
+							  <div class="form-floating form-floating-outline">
+											<input type="text" class="form-control" value="${data.depreciation}" disabled/>
+											<label>Depreciation</label>
+							  </div>
+							</div>`;
+
+				  data.attributeValues.forEach(attr => {
+					let html = `<div class="col-md-4">
+								  <div class="form-floating form-floating-outline">`;
+							html += `<input type="text" class="form-control" value="${attr.valueText}" disabled />`;
+						html += `<label>${attr.name}</label>
+									  </div>
+								</div>`;
+					allHtml += html; // Add to the main HTML variable
+				  });
+
+				allHtml += '</div>'; // Close the row
+				$('#deviceDetailContainer').html(allHtml);
+
+			});
+			
+			$.get(`/ITIS/DeviceUser/GetUserDetails?deviceId=${deviceId}`, function (data){
+				let allHtml2 =  '<div class="row g-4">';
+				allHtml2 += `<div class="col-md-4">
+							  <div class="form-floating form-floating-outline">							  
+								  <input type="text" class="form-control" value="${data.empNo}" disabled/>						
+									  <input name="RecordID" type="hidden" value="${data.assignmentID}" />
+								  <label>Employee #</label>
+							  </div>
+							</div>
+							<div class="col-md-4">
+							  <div class="form-floating form-floating-outline">
+											<input type="text" class="form-control" value="${data.empName}" disabled/>
+											<label>Employee Email</label>
+							  </div>
+							</div>
+							<div class="col-md-4">
+							  <div class="form-floating form-floating-outline">
+											<input type="text" class="form-control" value="${data.desigation}" disabled/>
+											<label>Desigation</label>
+							  </div>
+							</div>
+							<div class="col-md-4">
+							  <div class="form-floating form-floating-outline">
+											<input type="text" class="form-control" value="${data.assignedDate}" disabled/>
+											<label>Assigned Date</label>
+							  </div>
+							</div>
+							<div class="col-md-4">
+							  <div class="form-floating form-floating-outline">
+											<input type="text" class="form-control" value="${data.assignRemarks}" disabled/>
+											<label>Assigner Comment</label>
+							  </div>
+							</div>
+							<div class="col-md-4">
+							  <div class="form-floating form-floating-outline">
+											<input type="text" class="form-control" value="${data.approverEMPNO}" disabled/>
+											<label>Approver</label>
+							  </div>
+							</div>
+							<div class="col-md-4">
+							  <div class="form-floating form-floating-outline">
+											<input type="text" class="form-control" value="${data.approverResponseDate}" disabled/>
+											<label>Approved Date</label>
+							  </div>
+							</div>
+							<div class="col-md-4">
+							  <div class="form-floating form-floating-outline">
+											<input type="text" class="form-control" value="${data.approverRemark}" disabled/>
+											<label>Approver Comment</label>
+							  </div>
+							</div>`;
+				allHtml2 += '</div>'; // Close the row
+				$('#userDetailContainer').html(allHtml2);
+			});
+
+		});
+	</script>
+}
+
+<!-- Multi Column with Form Separator -->
+<div class="card mb-6">
+	<h5 class="card-header page-header">
+		Unassign Device
+	</h5>
+	<form asp-action="Return" method="post" class="card-body" id="myForm" enctype="multipart/form-data">
+		<div class="row g-4">			
+			<div class="col-md-4">
+				<div class="form-floating form-floating-outline">
+					<select asp-for="Device" asp-items="@Model.DeviceSerialList" id="selectedDevice" class="select2 form-select" data-allow-clear="true">
+						<option value="" Disabled Selected>- Select Device -</option>
+					</select>
+
+					<label asp-for="Device"></label>
+					<span asp-validation-for="Device" class="text-warning"></span>
+				</div>
+			</div>			
+			<div class="card" id="deviceDetailsField">
+				<div class="card-header fw-bold">
+					Device Details
+				</div>
+				<div class="card-body">
+					<div class="row g-4" id="deviceDetailContainer">
+						<!-- Dynamic content will go here -->
+					</div>
+				</div>
+			</div>
+			<div class="card" id="userDetailsField">
+				<div class="card-header fw-bold">
+					User Details
+				</div>
+				<div class="card-body">
+					<div class="row g-4" id="userDetailContainer">
+						<!-- Dynamic content will go here -->
+					</div>
+				</div>
+			</div>
+			<div class="col-4">
+				<div class="form-floating form-floating-outline">
+					<input class="form-control" type="file" name="image">
+					<label asp-for="@Model.ReturnTimeImage" class="form-label"></label>
+				</div>
+			</div>
+			<div class="col-md-8">
+				<div class="form-floating form-floating-outline">
+					<input type="text" class="form-control" asp-for="@Model.ReturnRemark"/>
+					<label>Comment</label>
+					<span asp-validation-for="@Model.ReturnRemark" class="customerError text-warning"></span>
+				</div>
+			</div>
+			<div class="pt-1">
+				<button type="submit" class="btn btn-primary me-1">Unassign</button>
+				<a asp-controller="DeviceUser" asp-action="Index" class="btn btn-outline-secondary">Back to List</a>
+			</div>
+
+		</div>
+	</form>
+
+</div>
+

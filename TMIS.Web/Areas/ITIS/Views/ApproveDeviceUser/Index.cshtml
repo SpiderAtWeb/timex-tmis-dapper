@@ -1,0 +1,66 @@
+@using TMIS.Models.ITIS.VM
+@model IEnumerable<ApproveDeviceUserVM>
+
+
+@section VendorStyles {
+	<link rel="stylesheet" href="~/vendor/libs/datatables-bs5/datatables.bootstrap5.css">
+	<link href="~/vendor/libs/toastr/toastr.css" rel="stylesheet" />
+}
+
+@section PageScripts {
+	<script src="~/custom/loading-hide.js"></script>
+	<script src="~/custom/tables-datatables-basic.js"></script>
+	@if (TempData["success"] != null)
+	{
+		<script src="~/vendor/libs/toastr/toastr.js"></script>
+		<script type="text/javascript">
+			toastr.success('@TempData["success"]');
+		</script>
+		TempData.Clear();
+	}
+}
+
+	@await Html.PartialAsync("_Loading")
+
+	@* ************** Content ************** *@
+	<!-- Ajax Sourced Server-side -->
+<div class="panelDiv">
+	<div class="card mb-6">
+		<h5 class="card-header page-header">Approve Device Request</h5>
+		<div class="card-body">
+			<div class="tab-content p-0">
+				<div class="tab-pane fade show active" id="navs-top-home" role="tabpanel">					
+					<div class="card-datatable text-nowrap">
+						<table class="datatables-ajax table table-bordered dt-tbl">
+							<thead>
+								<tr class="table-info">
+									<th>Serial#</th>
+									<th>Employee</th>
+									<th>Assigned Date</th>
+									<th>Approver</th>
+									<th>Action</th>
+								</tr>
+							</thead>
+							<tbody>
+								@foreach (var item in Model)
+								{
+								  <tr>									
+									  <td>@item.SerialNumber</td>
+									  <td>@item.EmpName</td>
+									  <td>@item.AssignedDate</td>
+									  <td>@item.ApproverEMPNo</td>									
+									  <td>
+										  <a class="edit-record btn btn-primary btn-sm" asp-controller="ApproveDeviceUser" asp-action="Approve" asp-route-assignmentID="@item.AssignmentID"> <i class="ri-contract-fill"></i> </a>
+									  </td>
+								  </tr>
+								}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+

@@ -1,0 +1,60 @@
+@model DeviceType
+
+@section VendorStyles {
+    <link rel="stylesheet" href="~/vendor/libs/flatpickr/flatpickr.css" />
+    <link rel="stylesheet" href="~/vendor/libs/select2/select2.css" />
+    <link href="~/css/input-text-upper.css" rel="stylesheet" />
+}
+
+@section VendorScripts {
+    <script src="~/vendor/libs/flatpickr/flatpickr.js"></script>
+    <script src="~/vendor/libs/select2/select2.js"></script>
+}
+
+<!-- Multi Column with Form Separator -->
+<div class="card mb-6">
+	<h5 class="card-header page-header">
+		New Device Type
+	</h5>
+	<form asp-action="Create" method="post" class="card-body" id="myForm" enctype="multipart/form-data">
+
+		<div class="row g-4">
+
+			<div class="col-md-4">
+				<div class="form-floating form-floating-outline">
+					<input asp-for="DeviceTypeName" type="text" id="style-no" class="form-control requiredField" placeholder="Enter device type (e.g., Laptop, Printer)" />
+					<label asp-for="DeviceTypeName"></label>
+					<span asp-validation-for="DeviceTypeName" class="customerError text-warning"></span>
+				</div>
+			</div>
+
+			<div class="col-md-4">
+				<div class="form-floating form-floating-outline">
+					<input asp-for="Remarks" type="text" id="style-no" class="form-control" placeholder="Add any additional information (optional)" />
+					<label asp-for="Remarks"></label>
+					<span asp-validation-for="Remarks" class="customerError text-warning"></span>
+				</div>
+			</div>
+			 <div class="col-4">
+				 <div class="form-floating form-floating-outline">
+					 <input class="form-control" type="file" name="image">
+					 <label asp-for="DefaultImage" class="form-label"></label>
+				 </div>                
+            </div>
+
+			<div class="col-md-3">
+			</div>
+
+			<div id="activityContainer">
+			</div>
+
+			<div class="pt-1">
+				<button type="submit" class="btn btn-primary me-1">Submit</button>
+				<a asp-controller="DeviceType" asp-action="Index" class="btn btn-outline-secondary">Back to List</a>
+			</div>
+
+		</div>
+	</form>
+
+</div>
+

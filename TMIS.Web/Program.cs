@@ -7,6 +7,8 @@ using TMIS.DataAccess.COMON.IRpository;
 using TMIS.DataAccess.COMON.Rpository;
 using TMIS.DataAccess.GDRM.IRpository;
 using TMIS.DataAccess.GDRM.Rpository;
+using TMIS.DataAccess.ITIS.IRepository;
+using TMIS.DataAccess.ITIS.Repository;
 using TMIS.DataAccess.PLMS.IRpository;
 using TMIS.DataAccess.PLMS.Rpository;
 using TMIS.DataAccess.SMIM.IRpository;
@@ -90,6 +92,16 @@ builder.Services.AddScoped<ICosting, Costing>();
 builder.Services.AddScoped<ISMV, SMV>();
 builder.Services.AddScoped<IPLMSLogdb, PLMSLogdb>();
 
+//ITIS
+builder.Services.AddScoped<IDeviceTypeRepository, DeviceTypeRepository>();
+builder.Services.AddScoped<IITISLogdb, ITISLogdb>();
+builder.Services.AddScoped<IAttributeRepository, AttributeRepository>();
+builder.Services.AddScoped<ICommonList, CommonList>();
+builder.Services.AddScoped<IDeviceRepository, DeviceRepository>();
+builder.Services.AddScoped<IDeviceUserRepository, DeviceUserRepository>();
+builder.Services.AddScoped<ILdapService, LdapService>();
+builder.Services.AddScoped<IApproveRepository, ApproveRepository>();
+builder.Services.AddScoped<IReportRepository, ReportRepository>();
 //TGPS
 builder.Services.AddScoped<IGoodsGatePass, GoodsGatePass>();
 builder.Services.AddScoped<IAddressBank, AddressBank>();

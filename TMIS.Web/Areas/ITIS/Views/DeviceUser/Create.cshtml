@@ -1,0 +1,164 @@
+@using TMIS.Models.ITIS.VM
+@model CreateDeviceUserVM
+
+@section VendorStyles {
+	<link rel="stylesheet" href="~/vendor/libs/flatpickr/flatpickr.css" />
+	<link rel="stylesheet" href="~/vendor/libs/select2/select2.css" />
+	<link href="~/css/input-text-upper.css" rel="stylesheet" />
+}
+
+@section VendorScripts {
+	<script src="~/vendor/libs/flatpickr/flatpickr.js"></script>
+	<script src="~/vendor/libs/select2/select2.js"></script>
+}
+
+@section PageScripts{
+	<script src="~/js/form-layouts.js"></script>
+	<script src="~/custom/input-text-upper.js"></script>
+
+<script>
+	$('#AssignDevice_Device').on('change', function () {
+			
+		$('#deviceDetailContainer').empty();
+		const deviceId = $(this).val();		
+
+		if (!deviceId) return;
+		
+		$.get(`/ITIS/DeviceUser/GetDeviceDetails?deviceId=${deviceId}`, function (data) {
+			let allHtml =  '<div class="row g-4">'; // Wrap with Bootstrap row;			
+
+			allHtml += `<div class="col-md-4">
+						  <div class="form-floating form-floating-outline">
+								<input type="text" class="form-control" value="${data.deviceName}" disabled/>
+								<label>Device Name</label>
+						  </div>
+						</div>
+						<div class="col-md-4">
+						  <div class="form-floating form-floating-outline">
+										<input type="text" class="form-control" value="${data.serialNumber}" disabled/>
+										<label>Serial Number</label>
+						  </div>
+						</div>
+						<div class="col-md-4">
+						  <div class="form-floating form-floating-outline">
+										<input type="text" class="form-control" value="${data.fixedAssetCode}" disabled/>
+										<label>FA Code</label>
+						  </div>
+						</div>
+						<div class="col-md-4">
+						  <div class="form-floating form-floating-outline">
+										<input type="text" class="form-control" value="${data.purchasedDate}" disabled/>
+										<label>Purchased Date</label>
+						  </div>
+						</div>
+						<div class="col-md-4">
+						  <div class="form-floating form-floating-outline">
+										<input type="text" class="form-control" value="${data.depreciation}" disabled/>
+										<label>Depreciation</label>
+						  </div>
+						</div>`;
+
+			  data.attributeValues.forEach(attr => {
+				let html = `<div class="col-md-4">
+							  <div class="form-floating form-floating-outline">`;
+						html += `<input type="text" class="form-control" value="${attr.valueText}" disabled />`;
+					html += `<label>${attr.name}</label>
+								  </div>
+							</div>`;
+				allHtml += html; // Add to the main HTML variable			
+			  });
+
+			allHtml += '</div>'; // Close the row
+			$('#deviceDetailContainer').html(allHtml);
+
+		});
+	});
+</script>
+}
+
+<!-- Multi Column with Form Separator -->
+<div class="card mb-6">
+	<h5 class="card-header page-header">
+		Assign Device 
+	</h5>
+	<form asp-action="Create" method="post" class="card-body" id="myForm" enctype="multipart/form-data">
+
+		<div class="row g-4">
+
+			<div class="col-md-4">
+				<div class="form-floating form-floating-outline">
+					<select asp-for="@Model.AssignDevice!.EmpNo" asp-items="@Model.EmployeeList" class="select2 form-select" data-allow-clear="true">
+						<option value="" Disabled Selected>- Select Employee -</option>
+					</select>
+
+					<label asp-for="AssignDevice!.EmpNo"></label>
+					<span asp-validation-for="@Model.AssignDevice!.EmpNo" class="text-warning"></span>
+				</div>
+			</div>
+			<div class="col-md-4">
+				<div class="form-floating form-floating-outline">
+					<select asp-for="@Model.AssignDevice!.AssignLocation" asp-items="@Model.LocationList" class="select2 form-select" data-allow-clear="true">
+						<option value="" Disabled Selected>- Select Location -</option>
+					</select>
+
+					<label asp-for="AssignDevice!.AssignLocation"></label>
+					<span asp-validation-for="@Model.AssignDevice!.AssignLocation" class="text-warning"></span>
+				</div>
+			</div>
+			<div class="col-md-4">
+				<div class="form-floating form-floating-outline">
+					<select asp-for="@Model.AssignDevice!.AssignDepartment" asp-items="@Model.DepartmentList" class="select2 form-select" data-allow-clear="true">
+						<option value="" Disabled Selected>- Select Department -</option>
+					</select>
+
+					<label asp-for="AssignDevice!.AssignDepartment"></label>
+					<span asp-validation-for="@Model.AssignDevice!.AssignDepartment" class="text-warning"></span>
+				</div>
+			</div>		
+			<div class="col-md-4">
+				<div class="form-floating form-floating-outline">
+					<input asp-for="AssignDevice.Designation" type="text" id="style-no" class="form-control" placeholder="Software Engineer" />
+					<label asp-for="AssignDevice.Designation"></label>
+					<span asp-validation-for="AssignDevice.Designation" class="customerError text-warning"></span>
+				</div>
+			</div>
+			<div class="col-md-4">
+				<div class="form-floating form-floating-outline">
+					<select asp-for="@Model.AssignDevice!.Device" asp-items="@Model.DeviceSerialList" class="select2 form-select" data-allow-clear="true">
+						<option value="" Disabled Selected>- Select Device -</option>
+					</select>
+
+					<label asp-for="AssignDevice!.Device"></label>
+					<span asp-validation-for="@Model.AssignDevice!.Device" class="text-warning"></span>
+				</div>
+			</div>
+			<div class="col-4">
+				<div class="form-floating form-floating-outline">
+					<select asp-for="@Model.AssignDevice!.Approver" asp-items="@Model.ApproverList" class="select2 form-select" data-allow-clear="true">
+						<option value="" Disabled Selected>- Select Approver -</option>
+					</select>
+
+					<label asp-for="AssignDevice!.Approver"></label>
+					<span asp-validation-for="@Model.AssignDevice!.Approver" class="text-warning"></span>
+				</div>
+			</div>
+			<div class="card" id="deviceDetailsField">
+				<div class="card-header fw-bold">
+					Device Details
+				</div>
+				<div class="card-body">
+					<div class="row g-4" id="deviceDetailContainer">
+						<!-- Dynamic content will go here -->
+					</div>
+				</div>
+			</div>					
+			<div class="pt-1">
+				<button type="submit" class="btn btn-primary me-1">Assign</button>
+				<a asp-controller="DeviceUser" asp-action="Index" class="btn btn-outline-secondary">Back to List</a>
+			</div>
+
+		</div>
+	</form>
+
+</div>
+
