@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.DataProtection;
 using System.Security.Cryptography;
 using TMIS.DataAccess.COMON.IRpository;
 using TMIS.DataAccess.COMON.Rpository;
+using TMIS.DataAccess.GDRM.IRpository;
+using TMIS.DataAccess.GDRM.Rpository;
 using TMIS.DataAccess.ITIS.IRepository;
 using TMIS.DataAccess.ITIS.Repository;
 using TMIS.DataAccess.PLMS.IRpository;
