@@ -1,0 +1,93 @@
+@model IEnumerable<DeviceType>
+
+@section VendorStyles {
+    <link rel="stylesheet" href="~/vendor/libs/datatables-bs5/datatables.bootstrap5.css">
+    <link href="~/vendor/libs/toastr/toastr.css" rel="stylesheet" />	
+}
+
+@section PageStyles {
+	<style>
+		.table td {
+			max-width: 100px; /* Set a suitable width for your columns */
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+
+		.dt-tbl {
+			font-size: 10px; /* Adjust this value to your preferred size */
+		}
+	</style>
+}
+
+@section PageScripts {
+  @*   <script src="~/custom/tables-datatables-basic.js"></script>
+    <script src="~/custom/loading-hide.js"></script>
+    <script src="~/vendor/libs/toastr/toastr.js"></script> *@
+
+	<script src="~/custom/tables-datatables-mc-request.js"></script>
+	<script src="~/custom/loading-hide.js"></script>
+
+    @if (TempData["success"] != null)
+    {
+        <script src="~/vendor/libs/toastr/toastr.js"></script>
+        <script type="text/javascript">
+            toastr.success('@TempData["success"]');
+        </script>
+        TempData.Clear();
+    }
+}
+
+@await Html.PartialAsync("_Loading")
+
+@* ************** Content ************** *@
+<!-- Ajax Sourced Server-side -->
+<div class="panelDiv">
+	<div class="card mb-6">
+		<h5 class="card-header page-header">Device Types</h5>
+		<div class="card-body">
+			<div class="tab-content p-0">
+				<div class="tab-pane fade show active" id="navs-top-home" role="tabpanel">
+					<div class="row">
+						<div class="col text-end">
+							<a asp-action="Create" class="btn btn-primary"> <i class="ri-add-line"></i> <span class="d-none d-sm-inline-block">Add New Device Type</span></a>
+						</div>
+					</div>
+					<div class="card-datatable text-nowrap">
+						<table class="datatables-ajax table table-bordered" id="dashboard">
+							<thead>
+								<tr class="table-info">
+									<th class="d-none">Id</th>
+									<th>Device Type</th>
+									<th>Remark</th>
+									<th>Action</th>
+									<th class="d-none">Image</th>
+								</tr>
+							</thead>
+							<tbody>
+								@foreach (var item in Model)
+								{
+									<tr>
+										<td class="d-none">@item.DeviceTypeID</td>
+										<td>@item.DeviceTypeName</td>
+										<td>@item.Remarks</td>
+										<td>																						
+											<a class="btn btn-primary btn-sm" asp-controller="DeviceType" asp-action="View" asp-route-id="@item.DeviceTypeID"><i class="ri-eye-fill"></i></a>
+											<a class="btn btn-primary btn-sm" asp-controller="DeviceType" asp-action="Edit" asp-route-id="@item.DeviceTypeID"><i class="ri-pencil-fill"></i></a>
+											<a class="btn btn-primary btn-sm" asp-controller="DeviceType" asp-action="Delete" asp-route-id="@item.DeviceTypeID"><i class="ri-delete-bin-fill"></i></a>
+										</td>
+										<td class="d-none">@item.DefaultImage</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+	
+

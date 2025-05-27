@@ -1,0 +1,102 @@
+@using TMIS.Models.ITIS.VM
+@model ApproveVM
+
+@section VendorStyles {
+<link rel="stylesheet" href="~/vendor/libs/flatpickr/flatpickr.css" />
+<link rel="stylesheet" href="~/vendor/libs/select2/select2.css" />
+<link href="~/css/input-text-upper.css" rel="stylesheet" />
+}
+
+@section VendorScripts {
+<script src="~/vendor/libs/flatpickr/flatpickr.js"></script>
+<script src="~/vendor/libs/select2/select2.js"></script>
+}
+
+<!-- Multi Column with Form Separator -->
+<div class="card mb-6">
+	<h5 class="card-header page-header">
+		Approve Device Assignment
+	</h5>
+	<form asp-action="Approve" method="post" class="card-body" id="myForm" enctype="multipart/form-data">
+
+		<div class="row g-4">
+			<input type="hidden" asp-for="@Model.AssignmentID" value="@Model.AssignmentID"/>
+			<input type="hidden" asp-for="@Model.DeviceID" value="@Model.DeviceID"/>
+			<div class="col-md-4">
+				<div class="form-floating form-floating-outline">
+					<input asp-for="@Model.DeviceName" type="text" class="form-control" value="@Model.DeviceName" disabled />
+					<label asp-for="@Model.DeviceName"></label>
+				</div>
+			</div>
+			<div class="col-md-4">
+				<div class="form-floating form-floating-outline">
+					<input type="text" class="form-control" value="@Model.FixedAssetCode" disabled />
+					<label asp-for="@Model.FixedAssetCode"></label>
+				</div>
+			</div>
+			<div class="col-md-4">
+				<div class="form-floating form-floating-outline">
+					<input type="text" class="form-control" value="@Model.Depreciation" disabled />
+					<label asp-for="@Model.Depreciation"></label>
+				</div>
+			</div>
+			<div class="col-md-4">
+				<div class="form-floating form-floating-outline">
+					<input type="text" class="form-control" value="@(Model.PurchasedDate.HasValue ? Model.PurchasedDate.Value.ToString("yyyy-MM-dd") : "")" disabled />
+					<label asp-for="@Model.PurchasedDate"></label>
+				</div>
+			</div>
+			<div class="col-md-4">
+				<div class="form-floating form-floating-outline">
+					<input type="text" class="form-control" value="@Model.Remark" disabled />
+					<label asp-for="@Model.Remark"></label>
+				</div>
+			</div>
+			<div class="col-md-4">
+				<div class="form-floating form-floating-outline">
+					<input type="text" class="form-control" value="@Model.AssignedDate" disabled />
+					<label asp-for="@Model.AssignedDate"></label>
+				</div>
+			</div>
+			<div class="col-md-4">
+				<div class="form-floating form-floating-outline">
+					<input type="text" class="form-control" value="@Model.EmpName" disabled />
+					<label asp-for="@Model.EmpName"></label>
+				</div>
+			</div>
+			<div class="col-md-4">
+				<div class="form-floating form-floating-outline">
+					<input asp-for="@Model.AssignRemarks" type="text" class="form-control" value="@Model.AssignRemarks" disabled />
+					<label asp-for="@Model.AssignRemarks"></label>
+				</div>
+			</div>
+			@if(Model.AttributeValues != null && Model.AttributeValues.Count > 0)
+			{
+				@foreach(var attr in Model.AttributeValues)
+				{
+				<div class="col-md-4">
+					<div class="form-floating form-floating-outline">
+						<input type="text" class="form-control" value="@attr.ValueText" disabled />
+						<label>@attr.Name</label>
+					</div>
+				</div>
+				}
+			}
+
+			<div class="col-md-8">
+				<div class="form-floating form-floating-outline">
+					<input type="text" class="form-control" asp-for="@Model.ApproverRemark" />
+					<label asp-for="@Model.ApproverRemark"></label>
+					<span asp-validation-for="@Model.ApproverRemark" class="customerError text-warning"></span>
+				</div>
+			</div>
+			<div class="pt-1">
+				<button type="submit" name="action" value="Approve" class="btn btn-primary me-1">Approve</button>
+				<button type="submit" name="action" value="Reject" class="btn btn-danger me-1">Reject</button>			
+				<a asp-controller="ApproveDeviceUser" asp-action="Index" class="btn btn-outline-secondary">Back to List</a>
+			</div>
+
+		</div>
+	</form>
+
+</div>

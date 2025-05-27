@@ -1,0 +1,181 @@
+@using TMIS.Models.ITIS.VM
+@model CreateAttributeVM
+
+@section VendorStyles {
+<link rel="stylesheet" href="~/vendor/libs/flatpickr/flatpickr.css" />
+<link rel="stylesheet" href="~/vendor/libs/select2/select2.css" />
+<link href="~/css/input-text-upper.css" rel="stylesheet" />
+}
+
+@section VendorScripts {
+<script src="~/vendor/libs/flatpickr/flatpickr.js"></script>
+<script src="~/vendor/libs/select2/select2.js"></script>
+}
+
+@section PageScripts {
+<script src="~/js/form-layouts.js"></script>
+<script src="~/custom/input-text-upper.js"></script>
+
+<script>
+	let pickListIndex = $('#pickListTable tbody tr').length || 0;
+
+	$(document).ready(function () {
+		const $dataTypeSelect = $('#dataTypeSelect');
+		const $pickListOptions = $('#pickListOptions');
+		const $addBtnDiv = $('#addbtndiv');
+		const $pickListTable = $('#pickListTable');
+		const $pickListInput = $('#pickListInput');
+		const $pickListTbody = $('#pickListTable tbody');
+
+		// Show/hide on load if editing
+		if ($dataTypeSelect.find("option:selected").text().trim() === "Pick List") {
+			$pickListOptions.show();
+			$addBtnDiv.show();
+			$pickListTable.show();
+		}
+
+		$dataTypeSelect.on('change', function () {
+			var selectedText = $dataTypeSelect.find("option:selected").text().trim();
+			if (selectedText === "Pick List") {
+				$pickListOptions.show();
+				$addBtnDiv.show();
+				$pickListTable.show();
+			} else {
+				$pickListOptions.hide();
+				$addBtnDiv.hide();
+				$pickListTable.hide();
+			}
+		});
+
+		$('#addPickListItem').on('click', function () {
+			const text = $pickListInput.val().trim();
+			if (text !== "") {
+				const row = `
+					<tr>
+						<td>
+							<input type="hidden" name="AttributeListOption[${pickListIndex}].OptionText" value="${text}" />
+							${text}
+						</td>
+						<td>
+							<button type="button" class="btn btn-danger removeRow">Remove</button>
+						</td>
+					</tr>`;
+				$pickListTbody.append(row);
+				$pickListInput.val("");
+				reindexPickListInputs();
+				pickListIndex++;
+			}
+		});
+
+		// Remove row
+		$pickListTable.on('click', '.removeRow', function () {
+			$(this).closest('tr').remove();
+			reindexPickListInputs();
+			pickListIndex = $('#pickListTable tbody tr').length;
+		});
+
+		function reindexPickListInputs() {
+			$('#pickListTable tbody tr').each(function (index) {
+				const input = $(this).find('input[type="hidden"]');
+				const text = input.val();
+				input.attr('name', `AttributeListOption[${index}].OptionText`);
+			});
+		}
+	});
+</script>
+
+}
+
+<!-- Multi Column with Form Separator -->
+<div class="card mb-6">
+	<h5 class="card-header page-header">
+		Edit Attribute
+	</h5>
+	<form asp-action="Edit" method="post" class="card-body" id="myForm" enctype="multipart/form-data">
+		<input asp-for="@Model.Attribute!.AttributeID" type="hidden" />
+		<div class="row g-4">
+
+			<div class="col-md-4">
+				<div class="form-floating form-floating-outline">				
+					<select asp-for="@Model.Attribute!.DeviceTypeID" asp-items="@Model.DeviceTypeList" class="select2 form-select" data-allow-clear="true">
+						<option Disabled Selected>- Select Model -</option>
+					</select>
+
+					<label asp-for="Attribute!.DeviceTypeID"></label>
+					<span asp-validation-for="@Model.Attribute!.DeviceTypeID" class="text-warning"></span>
+				</div>
+			</div>
+
+			<div class="col-md-4">
+				<div class="form-floating form-floating-outline">
+					<input asp-for="@Model.Attribute!.Name" type="text" id="style-no" class="form-control" placeholder="Brand" />
+					<label asp-for="@Model.Attribute!.Name"></label>
+					<span asp-validation-for="@Model.Attribute!.Name" class="customerError text-warning"></span>
+				</div>
+			</div>
+			<div class="col-md-4">
+				<div class="form-floating form-floating-outline">
+					<select id="dataTypeSelect" asp-for="@Model.Attribute!.DataType" asp-items="@Model.AttributeTypeList" class="select2 form-select" data-allow-clear="true">
+						<option value="" Disabled Selected>- Select Attribute Type -</option>
+					</select>
+
+					<label asp-for="Attribute!.DataType"></label>
+					<span asp-validation-for="Attribute!.DataType" class="text-warning"></span>
+				</div>
+			</div>			
+			<div class="col-md-4">
+				<div id="pickListOptions" style="display: none;" class="form-floating form-floating-outline">
+					<input type="text" id="pickListInput" class="form-control" placeholder="Add items to your pick list" />
+					<label>Option</label>
+				</div>
+			</div>
+			<div class="col-md-4">
+				<div id="addbtndiv" style="display: none;">
+					<button type="button" class="btn btn-secondary" id="addPickListItem">ADD</button>
+				</div>
+			</div>
+			<div class="col-md-6">
+				<table class="table mt-3" id="pickListTable" style="display: none;">
+					<thead>
+						<tr>
+							<th>Pick List Item</th>
+							<th>Action</th>
+						</tr>
+					</thead>
+					<tbody>
+						@if (Model.AttributeListOption != null)
+						{
+							var index = 0;
+							foreach (var item in Model.AttributeListOption)
+							{
+								<tr>
+									<td>
+										<input type="hidden" name="AttributeListOption[@index].OptionText" value="@item.OptionText" />
+										@item.OptionText
+									</td>
+									<td>
+										<button type="button" class="btn btn-danger removeRow">Remove</button>
+									</td>
+								</tr>
+								index++;
+							}
+						}
+					</tbody>
+				</table>
+			</div>
+			<div class="col-md-3">
+			</div>
+
+			<div id="activityContainer">
+			</div>
+
+			<div class="pt-1">
+				<button type="submit" class="btn btn-primary me-1">Update</button>
+				<a asp-controller="Attribute" asp-action="Index" class="btn btn-outline-secondary">Back to List</a>
+			</div>
+
+		</div>
+	</form>
+
+</div>
+
