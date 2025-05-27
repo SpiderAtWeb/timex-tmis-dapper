@@ -15,7 +15,7 @@ namespace TMIS.DataAccess.PLMS.Rpository
         public async Task<IEnumerable<ShowInquiryDataVM>> GetInquiriesAsync()
         {
             string sql = @"SELECT Id, CONCAT(InquiryRef, '-', CycleNo) AS InquiryRef, CycleNo, StyleNo, StyleDesc, ColorCode, 
-                          InquiryType, ResposeType, Customer, Seasons, SampleType, SampleStage, InquiryComment
+                          InquiryType, ResponseType, Customer, Seasons, SampleType, SampleStage, InquiryComment
                    FROM PLMS_VwInqCostPending WHERE (IsPriceStageAv = 1) AND (IsPriceUpdate = 0)";
 
             return await _dbConnection.GetConnection().QueryAsync<ShowInquiryDataVM>(sql);
@@ -24,7 +24,7 @@ namespace TMIS.DataAccess.PLMS.Rpository
         public async Task<FeedbackVM> GetInquiryAsync(string id)
         {
             string sql = @"SELECT Id, CONCAT(InquiryRef, '-', CycleNo) AS InquiryRef, CycleNo, StyleNo, StyleDesc, ColorCode, 
-                          InquiryType, ResposeType, Customer, Seasons, SampleType, SampleStage, InquiryComment
+                          InquiryType, ResponseType, Customer, Seasons, SampleType, SampleStage, InquiryComment
                    FROM PLMS_VwInqListPending WHERE Id = @Id";
 
             try

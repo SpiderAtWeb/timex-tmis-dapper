@@ -1,0 +1,173 @@
+@model IEnumerable<GoodsPassList>
+
+@section VendorStyles {
+    <link rel="stylesheet" href="~/vendor/libs/datatables-bs5/datatables.bootstrap5.css">
+    <link rel="stylesheet" href="~/vendor/libs/select2/select2.css" />
+    <link href="~/styles/kendo.common.min.css" rel="stylesheet" />
+    <link href="~/styles/kendo.metro.min.css" rel="stylesheet" />
+    <link href="~/vendor/libs/toastr/toastr.css" rel="stylesheet" />
+}
+
+@section VendorScripts {
+    <script src="~/custom/tables-datatables-autowidth.js"></script>
+    <script src="~/vendor/libs/select2/select2.js"></script>
+    <script src="~/custom/loading-hide.js"></script>
+    <script src="~/kendo/jszip.min.js"></script>
+    <script src="~/kendo/kendo.all.min.js"></script>
+    <script src="~/vendor/libs/toastr/toastr.js"></script>
+}
+
+@section PageScripts {
+    <script src="~/js/form-layouts.js"></script>
+
+    @if (TempData["success"] != null)
+    {
+        <script type="text/javascript">
+            toastr.success('@TempData["success"]');
+        </script>
+        TempData.Clear();
+    }
+    <script>
+        $(document).ready(function () {
+            $('.btn-x-action').on('click', function () {
+                const $row = $(this).closest('tr'); // Get the row
+                const gpId = $(this).data('id');    // Get the ID from the button
+                const gatePassNo = $row.find('td').eq(1).text().trim(); // Get GatePassNo from 2nd <td>
+
+                // Show loading with GatePassNo
+                $("#loading-message").show().text(`Loading steps for Gate Pass: ${gatePassNo}...`);
+
+                $.ajax({
+                    url: `/TGPS/GenGoodsPass/GetGatePassSteps?id=${gpId}`,
+                    type: "GET",
+                    success: function (data) {
+                        if (data && data.length > 0) {
+                            const steps = [];
+                            const dateList = [];
+
+                            data.forEach(step => {
+                                steps.push({
+                                    label: step.stepLabel,
+                                    icon: step.stepUpdate === 1 ? "check" : "preview",
+                                    selected: step.stepUpdate === 1
+                                });
+
+                                dateList.push({
+                                    Date: step.stepDateTime
+                                        ? new Date(step.stepDateTime).toLocaleString()
+                                        : "",
+                                    status: step.stepText || ""
+                                });
+                            });
+
+                            initStepper(steps);
+                            appendDateTimeToSteps(dateList);
+
+                            // Show GatePassNo after load
+                            $("#loading-message").text("Gate Pass: " + gatePassNo);
+                        } else {
+                            $("#loading-message").text("No steps found for Gate Pass: " + gatePassNo);
+                        }
+                    },
+                    error: function () {
+                        $("#loading-message").text("Failed to load step data.");
+                    }
+                });
+
+                function initStepper(steps) {
+                    $("#stepper").kendoStepper({
+                        orientation: "vertical",
+                        steps: steps,
+                        select: function (e) {
+                            e.preventDefault(); // Read-only
+                        }
+                    }).data("kendoStepper");
+                }
+
+                function appendDateTimeToSteps(dateList) {
+                    $("#stepper .k-step-label").each(function (index) {
+                        if (!$(this).find(".step-date").length && dateList[index]) {
+                            $(this).append(
+                                `<div class="step-date" style="font-size: 10px; color: gray;">
+                                        ${dateList[index].Date}<br>${dateList[index].status}
+                                     </div>`
+                            );
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+
+
+
+}
+
+
+@* ************** Content ************** *@
+
+@await Html.PartialAsync("_Loading")
+<div class="panelDiv">
+    <div class="card">
+        <h5 class="card-header page-header">Generated Goods Gate Passes</h5>
+        <div class="card-body">
+            <div class="row mb-2">
+                <div class="col text-end">
+                    <a asp-action="Create" class="btn btn-primary"> <i class="ri-add-line"></i> <span class="d-none d-sm-inline-block">Create New</span></a>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-9">
+                    <div class="mb-1">
+                        <small class="text-light fw-medium">Previous generated Gate passes and the status.</small>
+                    </div>
+                    <table class="datatables-ajax table table-bordered dt-tbl">
+                        <thead>
+                            <tr class="table-info">
+                                <th class="d-none">Id</th>
+                                <th>Gatepass #</th>
+                                <th>GP Subject</th>
+                                <th>Date/Time</th>
+                                <th>To</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="d-none">@item.Id</td>
+                                    <td>@item.GatePassNo</td>
+                                    <td>@item.GpSubject</td>
+                                    <td>@item.GenDateTime</td>
+                                    <td>@item.GenGPassTo</td>
+                                    <td>@item.PassStatus</td>
+                                    <td>
+                                        <span class="btn btn-primary btn-x-action" data-id="@item.Id"><i class="fa-solid fa-circle-info"></i></span>
+                                        <span class="btn btn-primary"><i class="fa-solid fa-eye"></i></span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+
+                </div>
+                <div class="col-3">
+                    <div class="mb-1">
+                        <small class="text-light fw-medium">Gate pass to show the Live status.</small>
+                    </div>
+                    <div id="example">
+                        <div id="loading-message" style="display:none; text-align:center; color: blue; font-size: 14px; margin-bottom: 10px;" >
+                            Loading step data, please wait...
+                        </div>
+                        <div class="demo-section k-content wide">
+                            <nav id="stepper"></nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

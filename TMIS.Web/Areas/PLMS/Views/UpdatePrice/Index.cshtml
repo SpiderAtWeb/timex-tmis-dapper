@@ -83,13 +83,13 @@
                         <th>Inquiry-Ref</th>
                         <th>Customer</th>
                         <th>Inquiry Type</th>
-                        <th>Style No</th>
-                        <th>Style Desc</th>
-                        <th>Color Code</th>
+                        <th class="d-none">Style No</th>
+                        <th class="d-none">Style Desc</th>
+                        <th class="d-none">Color Code</th>
                         <th>Response Type</th>
                         <th class="d-none">Seasons</th>
-                        <th class="d-none">Extend</th>
-                        <th class="d-none">Sub-Extend</th>
+                        <th>Extend</th>
+                        <th>Sub-Extend</th>
                         <th class="d-none"></th>
                         <th>Action</th>
                     </tr>
@@ -102,13 +102,13 @@
                             <td>@item.InquiryRef</td>
                             <td>@item.Customer</td>
                             <td>@item.InquiryType</td>
-                            <td>@item.StyleNo</td>
-                            <td>@item.StyleDesc</td>
-                            <td>@item.ColorCode</td>
-                            <td>@item.ResposeType</td>
+                            <td class="d-none">@item.StyleNo</td>
+                            <td class="d-none">@item.StyleDesc</td>
+                            <td class="d-none">@item.ColorCode</td>
+                            <td>@item.ResponseType</td>
                             <td class="d-none">@item.Seasons</td>
-                            <td class="d-none">@item.SampleType</td>
-                            <td class="d-none">@item.SampleStage</td>
+                            <td>@item.SampleStage</td>
+                            <td>@item.SampleType</td>
                             <td class="d-none">@item.InquiryComment</td>
                             <td> <a class="btn btn-primary btn-sm" asp-controller="UpdatePrice" asp-action="Costing" asp-route-id="@item.Id"><i class="ri-eye-fill"></i></a></td>
 

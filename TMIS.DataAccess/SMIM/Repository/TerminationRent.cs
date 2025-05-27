@@ -15,7 +15,7 @@ namespace TMIS.DataAccess.SMIM.Repository
         public async Task<IEnumerable<TransMC>> GetList()
         {
             string query = "SELECT [Id], [QrCode], [SerialNo], [MachineType], [CurrentUnit], [CurrentStatus], [Location] FROM [VwMcInventory] WHERE [CurrentStatus] IN (1,2) AND (IsOwned = 0) AND CurrentUnitId IN @AccessPlants ORDER BY QrCode;";
-            return await _dbConnection.GetConnection().QueryAsync<TransMC>(query, new { AccessPlants = _iSessionHelper.GetAccessPlantsArray() });
+            return await _dbConnection.GetConnection().QueryAsync<TransMC>(query, new { AccessPlants = _iSessionHelper.GetLocationList() });
         }
 
         public async Task<MachineRentedVM?> GetRentedMcById(int id)

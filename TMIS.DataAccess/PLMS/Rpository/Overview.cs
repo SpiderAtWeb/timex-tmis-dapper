@@ -20,7 +20,7 @@ namespace TMIS.DataAccess.PLMS.Rpository
                   ,[StyleDesc]
 	              ,[ColorCode]
                   ,[InquiryType]
-                  ,[ResposeType]
+                  ,[ResponseType]
                   ,[Seasons]
                   ,[SampleType]
                   ,[SampleStage]

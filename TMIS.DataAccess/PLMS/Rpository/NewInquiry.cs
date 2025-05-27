@@ -72,7 +72,7 @@ namespace TMIS.DataAccess.PLMS.Rpository
                 var subActivityGroups = subActivities.GroupBy(sa => sa.ActivityId).ToDictionary(g => g.Key, g => g.ToList());
                 int actDays = 0;
 
-                int dateIndex = GetSelectedDateIndex(Convert.ToDateTime(inqParas.SelectedDate));
+                int dateIndex = GetSelectedDateIndex(Convert.ToDateTime(inqParas.SelectedDate))- 1;
 
                 foreach (var activity in activities)
                 {
@@ -112,7 +112,7 @@ namespace TMIS.DataAccess.PLMS.Rpository
         {
             companyDateList = [];
 
-            var query = "SELECT CalendarDate FROM MasterCompanyCalendar";
+            var query = "SELECT CalendarDate FROM COMN_MasterCompCalendar";
 
             using (var connection = _dbConnection.GetConnection())
             {
@@ -120,6 +120,11 @@ namespace TMIS.DataAccess.PLMS.Rpository
             }
 
             int selectedIndex = companyDateList.FindIndex(d => d == selectedDate);
+
+            if (selectedIndex == -1)
+            {
+                selectedIndex = companyDateList.FindIndex(d => d > selectedDate);
+            }
 
             return selectedIndex;
         }
@@ -169,13 +174,15 @@ namespace TMIS.DataAccess.PLMS.Rpository
             }
         }
 
-        private static async Task<int> InsertInquiryHeaderAsync(IDbConnection connection, IDbTransaction transaction, InquiryVM inquiryVM)
+        private async Task<int> InsertInquiryHeaderAsync(IDbConnection connection, IDbTransaction transaction, InquiryVM inquiryVM)
         {
 
-            var inquiryRef = await connection.QuerySingleAsync<string>(
-                "GenerateAndUpdateAutoNumber",
-                commandType: CommandType.StoredProcedure,
-                transaction: transaction);
+            //var inquiryRef = await connection.QuerySingleAsync<string>(
+            //    "GenerateAndUpdateAutoNumber",
+            //    commandType: CommandType.StoredProcedure,
+            //    transaction: transaction);
+
+            var inquiryRef = await GenerateRefAsync(connection, transaction);
 
             var sqlHeader = @"INSERT INTO [dbo].[PLMS_TrInqHeader]
                ([InquiryRef], [CustomerId], [InquiryTypeId], [StyleNo], 
@@ -196,6 +203,59 @@ namespace TMIS.DataAccess.PLMS.Rpository
                 inquiryVM.Inquiry.InquiryRecDate,
 
             }, transaction);
+        }
+
+        private async Task<string> GenerateRefAsync(IDbConnection connection, IDbTransaction transaction)
+        {
+            int currentYear = DateTime.Now.Year;
+
+            // 1. Try to get the generator for the current year
+            var selectSql = @"SELECT TOP 1 [Id], [GenYear], [GenNo], [LastGeneratedDate]
+            FROM [dbo].[PLMS_XysGenerateNumber] WHERE GenYear = @Year";
+
+            var generator = await connection.QuerySingleOrDefaultAsync<dynamic>(
+                selectSql, new { Year = currentYear }, transaction);
+
+            int genNo;
+            int id;
+
+            if (generator == null)
+            {
+                // 2. No record for this year — insert new
+                genNo = 1;
+
+                var insertSql = @"INSERT INTO [dbo].[PLMS_XysGenerateNumber]
+                    (GenYear, GenNo, LastGeneratedDate) VALUES (@GenYear, @GenNo, GETDATE());
+                    SELECT CAST(SCOPE_IDENTITY() AS INT);";
+
+                await connection.ExecuteScalarAsync<int>(
+                    insertSql,
+                    new { GenYear = currentYear, GenNo = genNo + 1 },
+                    transaction
+                );
+            }
+            else
+            {
+                // 3. Record exists — increment and update
+                genNo = generator.GenNo;
+                id = generator.Id;
+
+                var updateSql = @"
+                UPDATE [dbo].[PLMS_XysGenerateNumber]
+                SET GenNo = @NewGenNo,
+                    LastGeneratedDate = GETDATE()
+                WHERE Id = @Id;";
+
+                await connection.ExecuteAsync(
+                    updateSql,
+                    new { NewGenNo = genNo + 1, Id = id },
+                    transaction
+                );
+            }
+
+            // 4. Format final reference number
+            string reference = $"PLM/{currentYear}/{genNo.ToString("D5")}";
+            return reference;
         }
 
         private static async Task<int> InsertInquiryDetailsAsync(IDbConnection connection, IDbTransaction transaction, int inquiryHeaderId, InquiryVM inquiryVM, IFormFile? artwork)

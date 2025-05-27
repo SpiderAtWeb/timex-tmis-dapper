@@ -41,10 +41,10 @@
 }
 
 <div>
-    <input type="hidden" id="selectUrl" value=@Url.Action("RentSupGetAll", "MDRenting")>
-    <input type="hidden" id="insertUrl" value=@Url.Action("RentSupGetInsert", "MDRenting")>
-    <input type="hidden" id="updateUrl" value=@Url.Action("RentSupGetUpdate", "MDRenting")>
-    <input type="hidden" id="deleteUrl" value=@Url.Action("RentSupGetDelete", "MDRenting")>
+    <input type="hidden" id="selectUrl" value=@Url.Action("RentSupGetAll", "MasterRenting")>
+    <input type="hidden" id="insertUrl" value=@Url.Action("RentSupGetInsert", "MasterRenting")>
+    <input type="hidden" id="updateUrl" value=@Url.Action("RentSupGetUpdate", "MasterRenting")>
+    <input type="hidden" id="deleteUrl" value=@Url.Action("RentSupGetDelete", "MasterRenting")>
     <input type="hidden" id="recordId" />
 </div>
 @await Html.PartialAsync("_Loading")

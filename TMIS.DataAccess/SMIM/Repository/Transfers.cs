@@ -19,7 +19,7 @@ namespace TMIS.DataAccess.SMIM.Repository
         {
 
             string query = "SELECT [Id], [QrCode], [SerialNo], [MachineType], [CurrentUnit], [CurrentStatus], [Location] FROM [VwMcInventory] WHERE [CurrentStatus] IN (1,2) AND (IsOwned = 1) AND CurrentUnitId IN @AccessPlants ORDER BY QrCode;";
-            return await _dbConnection.GetConnection().QueryAsync<TransMC>(query, new { AccessPlants = _iSessionHelper.GetAccessPlantsArray() });
+            return await _dbConnection.GetConnection().QueryAsync<TransMC>(query, new { AccessPlants = _iSessionHelper.GetLocationList() });
         }
 
         public async Task<IEnumerable<TransMCUser>> GetListUser(string pDate)
@@ -52,7 +52,7 @@ namespace TMIS.DataAccess.SMIM.Repository
         {
             var query = "SELECT Id, PropName FROM SMIM_MdCompanyUnits WHERE IsDelete = 0 AND Id NOT IN @AccessPlants ORDER BY PropName";
 
-            var units = await _dbConnection.GetConnection().QueryAsync(query, new { AccessPlants = _iSessionHelper.GetAccessPlantsArray() });
+            var units = await _dbConnection.GetConnection().QueryAsync(query, new { AccessPlants = _iSessionHelper.GetLocationList() });
             return units.Select(unit => new SelectListItem
             {
                 Value = unit.Id.ToString(),

@@ -141,7 +141,7 @@ namespace TMIS.Areas.SMIS.Controllers
 
       await _db.InsertRentMachineAsync(mcCreatedRnVM.McInventory, imageFR, imageBK);
 
-      TempData["Success"] = "Record Created Successfully";
+      TempData["success"] = "Record Created Successfully";
       _logger.Info("[" + _iSessionHelper.GetUserName() + "] - RENTED MC CREATED [" + mcCreatedRnVM.McInventory.SerialNo + "]");
 
       return RedirectToAction("Index");

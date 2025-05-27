@@ -99,7 +99,7 @@ namespace TMIS.DataAccess.SMIM.Repository
             SELECT Id ,QrCode, SerialNo, MachineBrand, MachineType FROM VwMcInventory WHERE IsOwned = 1 AND CurrentUnitId IN @AccessPlants ORDER BY QrCode;
             SELECT Id ,QrCode, SerialNo, DateBorrow, MachineType FROM VwMcInventory WHERE IsOwned = 0 AND CurrentUnitId  IN @AccessPlants ORDER BY QrCode;";
 
-            using var multi = await _dbConnection.GetConnection().QueryMultipleAsync(sql, new { AccessPlants = _iSessionHelper.GetAccessPlantsArray() });
+            using var multi = await _dbConnection.GetConnection().QueryMultipleAsync(sql, new { AccessPlants = _iSessionHelper.GetLocationList() });
             var mcOwned = await multi.ReadAsync<McOwned>();
             var mcRented = await multi.ReadAsync<McRented>();
 

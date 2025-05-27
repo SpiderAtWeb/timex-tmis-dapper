@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using log4net;
+using Microsoft.AspNetCore.Http;
 using System.Text;
-using log4net;
 using TMIS.DataAccess.COMON.IRpository;
 
 namespace TMIS.DataAccess.COMON.Rpository
@@ -10,7 +10,7 @@ namespace TMIS.DataAccess.COMON.Rpository
         private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
         private readonly ILog _logger = LogManager.GetLogger(typeof(SessionHelper));
 
-        public void SetUserSession(string userId, string nameWi, string userRole, int[] accessPlants)
+        public void SetUserSession(string userId, string shortName, string[] userRoles, int[] userLocList)
         {
             var httpContext = _httpContextAccessor.HttpContext;
 
@@ -18,15 +18,15 @@ namespace TMIS.DataAccess.COMON.Rpository
             {
                 // Log the action of setting the session values
                 _logger.Info($"Setting user session for UserId: {userId}");
-                _logger.Info($"Setting user session for NameWi: {nameWi}");
-                _logger.Info($"Setting user session for UserRole: {userRole}");
-                _logger.Info($"Setting user session for AccessPlants: {string.Join(",", accessPlants)}");
+                _logger.Info($"Setting user session for ShortName: {shortName}");
+                _logger.Info($"Setting user session for UserLocation: {string.Join(",", userLocList)}");
+                _logger.Info($"Setting user session for UserRoles: {string.Join(",", userRoles)}");
 
                 // Set each session value
                 httpContext?.Session.SetString("UserId", userId);
-                httpContext?.Session.SetString("NameWi", nameWi);
-                httpContext?.Session.SetString("UserRole", userRole);
-                httpContext?.Session.SetString("AccessPlants", string.Join(",", accessPlants));
+                httpContext?.Session.SetString("ShortName", shortName);
+                httpContext?.Session.SetString("UserLocations", string.Join(",", userLocList));
+                httpContext?.Session.SetString("UserRoles", string.Join(",", userRoles));
 
                 // Log success
                 _logger.Info("User session successfully set.");
@@ -46,21 +46,23 @@ namespace TMIS.DataAccess.COMON.Rpository
         public string GetUserName()
         {
             var httpContext = _httpContextAccessor.HttpContext;
-            return httpContext?.Session.GetString("NameWi") ?? string.Empty;
+            return httpContext?.Session.GetString("ShortName") ?? string.Empty;
         }
 
-        public string GetUserRole()
+        public string[] GetUserRolesList()
         {
             var httpContext = _httpContextAccessor.HttpContext;
-            return httpContext?.Session.GetString("UserRole") ?? string.Empty;
+            var userLocList = httpContext?.Session.GetString("UserLocations");
+
+            return userLocList?.Split(',') ?? [];
         }
 
-        public string[] GetAccessPlantsArray()
+        public string[] GetLocationList()
         {
             var httpContext = _httpContextAccessor.HttpContext;
-            var accessPlantsString = httpContext?.Session.GetString("AccessPlants");
+            var userRoles = httpContext?.Session.GetString("UserRoles");
 
-            return accessPlantsString?.Split(',') ?? [];
+            return userRoles?.Split(',') ?? [];
         }
 
         //clear session
@@ -69,5 +71,7 @@ namespace TMIS.DataAccess.COMON.Rpository
             var httpContext = _httpContextAccessor.HttpContext;
             httpContext?.Session.Clear();
         }
+
+
     }
 }
