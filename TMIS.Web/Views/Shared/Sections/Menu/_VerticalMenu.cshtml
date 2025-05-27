@@ -545,22 +545,20 @@
                     <span class="menu-header-text">Master Data</span>
                 </li>
 
-                <li class='menu-item@(currentPage.Contains("/PLMS/MasterInquiries") ? " active open" : "")'>
+                <li class='menu-item@(currentPage.Contains("/TGPS/MasterGoodsPass") ? " active open" : "")'>
                     <a href="javascript:void(0);" class="menu-link menu-toggle">
                         <i class="menu-icon fa-solid fa-fax"></i>
-                        <div>Inquiry Data</div>
+                        <div>Goods Pass</div>
                     </a>
 
                     <ul class="menu-sub">
-                        <li class='menu-item@(currentPage == "/PLMS/MasterInquiries/InquiryTypes" ? " active" : "")'>
-                            <a asp-area="PLMS" asp-controller="MasterInquiries" asp-action="InquiryTypes" class="menu-link">
-                                <div> <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Inquiry Types</div>
+                        <li class='menu-item@(currentPage == "/TGPS/MasterGoodsPass/NewAddress" ? " active" : "")'>
+                            <a asp-area="TGPS" asp-controller="MasterGoodsPass" asp-action="NewAddress" class="menu-link">
+                                <div> <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>New Address</div>
                             </a>
                         </li>
                     </ul>
-
                 </li>
-
             </ul>
         </li>
 

@@ -181,7 +181,13 @@ namespace TMIS.DataAccess.TGPS.Rpository
                                      dbo.COMN_MasterTwoLocations ON ADMIN.dbo._TrPermissionLocation.LocationId = dbo.COMN_MasterTwoLocations.Id
             WHERE        (ADMIN.dbo._MasterUsers.Id = @UserId) ORDER BY Text";
 
-            var goodsToSql = "SELECT Id, LocationName AS Text FROM COMN_MasterTwoLocations ORDER BY LocationName";
+            var goodsToSql = @"SELECT Id, LocationName AS Text 
+            FROM COMN_MasterTwoLocations
+            UNION
+            SELECT Id, AddressName AS Text 
+            FROM TGPS_MasterGpGoodsAddress 
+            WHERE IsDeleted = 0
+            ORDER BY Text";
             var approvalListSql = "SELECT Id, UserShortName AS Text FROM [ADMIN].dbo._MasterUsers  WHERE (IsActive = 1) AND (IsGpAppUser = 1)";
             var unitsSql = "SELECT Id, PropName AS Text FROM TGPS_MasterTwoGpGoodsUOM ORDER BY PropName";
 

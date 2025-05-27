@@ -92,6 +92,7 @@ builder.Services.AddScoped<IPLMSLogdb, PLMSLogdb>();
 
 //TGPS
 builder.Services.AddScoped<IGoodsGatePass, GoodsGatePass>();
+builder.Services.AddScoped<IAddressBank, AddressBank>();
 
 //GDRM
 builder.Services.AddScoped<IGRGoods, GRGoods>();

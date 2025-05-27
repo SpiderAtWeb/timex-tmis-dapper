@@ -64,74 +64,70 @@
                                 customerId: selectedCustomerId,
                                 sampleTypeId: selectedSampTypeId,
                                 sampleStageId: selectedSampStageId,
-                                selectedDate :designRequiredDate
+                                selectedDate: designRequiredDate
                             }),
                             success: function (data) {
                                 var container = $('#activityContainer');
                                 container.empty();
 
+                                var tableHtml = `<div class="table-wrapper"><div class="table-responsive">
+                                            <table class="table table table-rounded align-middle">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Activity</th>
+                                                <th>User Category</th>
+                                                <th>Plan Date</th>
+                                                <th>Comments</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>`;
+
                                 $.each(data, function (index, activity) {
-                                    // Create a new row for each main activity and its sub-activities
-                                    var rowHtml = `<div class="row mt-1">`;
+                                    tableHtml += `<tr>
+                                    <td>${index + 1}</td>
+                                    <td><strong>${activity.activiytName}</strong></td>
+                                    <td>${activity.userCategoryText}</td>
+                                    <td>
+                                        <input type="hidden" name="ActivityList[${index}].UserCategoryId" value="${activity.userCategoryId}" />
+                                        <input type="hidden" name="ActivityList[${index}].ActivityId" value="${activity.activityId}" />
+                                        <input type="date" id="${activity.activityId}" class="form-control dob-picker flatpickr-input"
+                                               name="ActivityList[${index}].ActiviytValue" value="${activity.activiytValue}" />
+                                    </td>
+                                    <td>
+                                        <textarea class="form-control rounded-2" id="commentTextarea-${activity.activityId}"
+                                                  name="ActivityList[${index}].ActivityComment" rows="2"></textarea>
+                                    </td>
+                                  </tr>`;
 
-                                    // Create HTML for the main activity
-                                    rowHtml += `<div class="col-4 mt-1 rounded-3 mn-activity">
-                                                <div class="row mt-1">
-                                                   <h5 class="fw-bold mt-3">(${index + 1}). ${activity.activiytName} </h5>
-                                                     <h6 class="fw-bold">[${activity.userCategoryText}]</h6>
-                                                     <div class="col-6 d-flex align-items-center justify-content-end">
-                                                          <label for="${activity.activityId}" class="form-label">Plan Date</label>
-                                                      </div>
-                                                  <div class="col-6">
-                                                             <input type="hidden" name="ActivityList[${index}].UserCategoryId" value="${activity.userCategoryId}" />
-                                                     <input type="hidden" name="ActivityList[${index}].ActivityId" value="${activity.activityId}" />
-                                                     <input type="date" id="${activity.activityId}"  class="form-control dob-picker flatpickr-input" name="ActivityList[${index}].ActiviytValue"  value="${activity.activiytValue}" placeholder="YYYY-MM-DD" />
-                                                  </div>
-                                                </div>
-                                                <div class="row mt-1">
-                                                  <div>
-                                                    <div class="mb-3">
-                                                     <label for="commentTextarea-${activity.activityId}" class="form-label">Comments</label>
-                                                         <textarea class="form-control rounded-2" id="commentTextarea-${activity.activityId}" name="ActivityList[${index}].ActivityComment" rows="2"></textarea>
-                                                    </div>
-                                                  </div>
-                                                </div>
-                                              </div>`;
-
-                                    // Iterate over sub-activities and create HTML for each
+                                    // Sub-activities
                                     $.each(activity.subActivityList, function (subIndex, subActivity) {
-                                        rowHtml += `<div class="col-4 mt-1 rounded-3 ms-2 sub-activity">
-                                                        <div class="row mt-1">
-                                                           <h6 class="fw-bold mt-3">[${subIndex + 1}]. ${subActivity.activiytName} </h6>
-                                                           <h6 class="fw-bold">[${subActivity.userCategoryText}] </h6>
-                                                              <div class="col-6 d-flex align-items-center justify-content-end">
-                                                                          <label for="${subActivity.activityId}" class="form-label">Plan Date</label>
-                                                              </div>                                                     
-                                                            <div class="col-6">
-                                                             <input type="hidden" name="ActivityList[${index}].SubActivityList[${subIndex}].UserCategoryId" value="${subActivity.userCategoryId}" />
-                                                             <input type="hidden" name="ActivityList[${index}].SubActivityList[${subIndex}].ActivityId" value="${subActivity.activityId}" />
-                                                             <input type="date" id="subactivity-${subActivity.activityId}"  class="form-control dob-picker flatpickr-input" name="ActivityList[${index}].SubActivityList[${subIndex}].ActiviytValue"  value="${subActivity.activiytValue}" placeholder="YYYY-MM-DD" />
-                                                          </div>                                                         
-                                                        </div>
-                                                        <div class="row mt-1">
-                                                          <div>
-                                                            <div class="mb-3">
-                                                              <label for="SubcommentTextarea-${subActivity.activityId}" class="form-label">Comments</label>
-                                                              <textarea class="form-control rounded-2" id="SubcommentTextarea-${subActivity.activityId}" name="ActivityList[${index}].SubActivityList[${subIndex}].ActivityComment" rows="2"></textarea>
-                                                            </div>
-                                                          </div>
-                                                        </div>
-                                                     </div>`;
+                                        tableHtml += `<tr>
+                                        <td>${index + 1}.${subIndex + 1}</td>
+                                        <td class="ps-4">${subActivity.activiytName}</td>
+                                        <td>${subActivity.userCategoryText}</td>
+                                        <td>
+                                            <input type="hidden" name="ActivityList[${index}].SubActivityList[${subIndex}].UserCategoryId" value="${subActivity.userCategoryId}" />
+                                            <input type="hidden" name="ActivityList[${index}].SubActivityList[${subIndex}].ActivityId" value="${subActivity.activityId}" />
+                                            <input type="date" id="subactivity-${subActivity.activityId}" class="form-control dob-picker flatpickr-input"
+                                                   name="ActivityList[${index}].SubActivityList[${subIndex}].ActiviytValue" value="${subActivity.activiytValue}" />
+                                        </td>
+                                        <td>
+                                            <textarea class="form-control rounded-2" id="SubcommentTextarea-${subActivity.activityId}"
+                                                      name="ActivityList[${index}].SubActivityList[${subIndex}].ActivityComment" rows="2"></textarea>
+                                        </td>
+                                      </tr>`;
                                     });
-                                    rowHtml += `</div>`;
-                                    container.append(rowHtml);
                                 });
+
+                                tableHtml += `</tbody></table></div></div>`;
+                                container.append(tableHtml);
                             },
                             error: function (xhr, status, error) {
                                 console.error("Error:", xhr);
-                                console.error("Error:", status);
+                                console.error("Status:", status);
                                 console.error("Error:", error);
-                              }
+                            }
                         });
 
                     }
@@ -187,13 +183,41 @@
 
 @section PageStyles {
     <style>
-        .mn-activity {
-            background-color: rgba(115,140,171, 0.3)
+
+        /* Outer container for rounded corners */
+        .table-wrapper {
+            border: 1px solid #dee2e6;
+            border-radius: 15px;
+            overflow: hidden; /* Ensures inner elements stay within rounded border */
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 15px;
         }
 
-        .sub-activity {
-            background-color: rgba(177,192,216, 0.1)
+        /* Table styling */
+        .table-rounded {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
         }
+
+            .table-rounded th,
+            .table-rounded td {
+                padding: 12px;
+                vertical-align: middle;
+                border-bottom: 1px solid #dee2e6;
+            }
+
+            .table-rounded thead {
+                background-color: #f8f9fa;
+                font-weight: 600;
+            }
+
+            /* Optional row hover effect */
+            .table-rounded tbody tr:hover {
+                background-color: #f1f1f1;
+            }
+
+      
 
         .list-group {
             flex-direction: row !important

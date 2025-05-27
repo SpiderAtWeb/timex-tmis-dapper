@@ -1,0 +1,246 @@
+@section VendorStyles {
+    <link rel="stylesheet" href="~/vendor/libs/datatables-bs5/datatables.bootstrap5.css">
+    <link rel="stylesheet" href="~/vendor/libs/select2/select2.css" />
+    <link href="~/vendor/libs/toastr/toastr.css" rel="stylesheet" />
+}
+
+@section VendorScripts {
+    <script src="~/vendor/libs/select2/select2.js"></script>
+    <script src="~/vendor/libs/toastr/toastr.js"></script>
+}
+
+@section PageScripts {
+    <script src="~/js/form-layouts.js"></script>
+    <script src="~/custom/loading-hide.js"></script>
+    <script src="~/custom/tables-datatables-basic.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            loadAddresses();
+
+            $("#btnSave").click(function () {
+                const model = {
+                    AddressName: $("#AddressName").val(),
+                    AddressAddressLane1: $("#AddressLane1").val(),
+                    AddressAddressLane2: $("#AddressLane2").val(),
+                    AddressAddressLane3: $("#AddressLane3").val(),
+                    ContactNos: $("#ContactNo").val()
+                };
+
+               $.ajax({
+    type: "POST",
+    url: "/TGPS/MasterGoodsPass/SaveAddress",
+    contentType: "application/json",
+    data: JSON.stringify(model),
+    success: function (response) {
+        if (response.success) {
+            toastr.success(response.message || "Saved successfully!");
+            loadAddresses();
+        }
+    },
+    error: function (xhr) {
+        if (xhr.status === 400 && xhr.responseJSON && xhr.responseJSON.errors) {
+            const errors = xhr.responseJSON.errors;
+            for (const key in errors) {
+                if (errors.hasOwnProperty(key)) {
+                    errors[key].forEach(msg => toastr.error(msg));
+                }
+            }
+        } else {
+            toastr.error("An unexpected error occurred.");
+        }
+    }
+});
+
+            });
+
+            $(document).on("click", ".btn-edit", function () {
+                const id = $(this).data("id");
+                $.get(`/TGPS/MasterGoodsPass/GetAddress?id=${id}`, function (data) {
+                    $("#editId").val(data.id);
+                    $("#editAddressName").val(data.addressName);
+                    $("#editLane1").val(data.addressAddressLane1);
+                    $("#editLane2").val(data.addressAddressLane2);
+                    $("#editLane3").val(data.addressAddressLane3);
+                    $("#editContact").val(data.contactNos);
+                    $("#editAddressModal").modal("show");
+                });
+            });
+
+            $("#btnUpdate").click(function () {
+                const model = {
+                    Id: $("#editId").val(),
+                    AddressName: $("#editAddressName").val(),
+                    AddressAddressLane1: $("#editLane1").val(),
+                    AddressAddressLane2: $("#editLane2").val(),
+                    AddressAddressLane3: $("#editLane3").val(),
+                    ContactNos: $("#editContact").val()
+                };
+
+                $.ajax({
+                    type: "POST",
+                    url: "/TGPS/MasterGoodsPass/SaveAddress",
+                    contentType: "application/json",
+                    data: JSON.stringify(model),
+                    success: function () {
+                        toastr.success("Updated successfully!");
+                        $("#editAddressModal").modal("hide");
+                        loadAddresses();
+                    }
+                });
+            });
+
+            $(document).on("click", ".btn-delete", function () {
+                if (confirm("Are you sure to delete?")) {
+                    const id = $(this).data("id");
+                    $.post("/TGPS/MasterGoodsPass/DeleteAddress", { id }, function () {
+                        toastr.success("Deleted successfully!");
+                        loadAddresses();
+                    });
+                }
+            });
+
+            function loadAddresses() {
+                $.get("/TGPS/MasterGoodsPass/GetAllAddresses", function (data) {
+                    const tbody = $("#gatePassTable tbody");
+                    tbody.empty();
+                    data.forEach(row => {
+                        tbody.append(`
+                                <tr>
+                                    <td class="d-none">${row.id}</td>
+                                    <td>${row.addressName}</td>
+                                    <td>${row.addressAddressLane1}</td>
+                                    <td>${row.addressAddressLane2}</td>
+                                    <td>${row.addressAddressLane3}</td>
+                                    <td>${row.contactNos}</td>
+                                    <td>
+                                                                        <span class="btn btn-sm btn-info btn-edit" data-id="${row.id}"><i class="fa-solid fa-pen-to-square"></i></span>
+                                                                        <span class="btn btn-sm btn-danger btn-delete" data-id="${row.id}"><i class="fa-solid fa-trash"></i></span>
+                                            </td>
+                                </tr>
+                            `);
+                    });
+                });
+            }
+        });
+    </script>
+
+}
+
+
+@await Html.PartialAsync("_Loading")
+
+<div class="modal fade" id="editAddressModal" tabindex="-1" aria-labelledby="editAddressModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editAddressModalLabel">Edit Address</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editId" />
+                <div class="form-floating mb-2"><input type="text" id="editAddressName" class="form-control" /><label>Address Name</label></div>
+                <div class="form-floating mb-2"><input type="text" id="editLane1" class="form-control" /><label>Address Lane1</label></div>
+                <div class="form-floating mb-2"><input type="text" id="editLane2" class="form-control" /><label>Address Lane2</label></div>
+                <div class="form-floating mb-2"><input type="text" id="editLane3" class="form-control" /><label>Address Lane3</label></div>
+                <div class="form-floating mb-2"><input type="text" id="editContact" class="form-control" /><label>Contact Nos</label></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnUpdate" class="btn btn-success">Update</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="panelDiv">
+
+    <div class="card mb-2">
+        <h5 class="card-header page-header">Address List</h5>
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-4 g-1">
+                    <div class="form-floating form-floating-outline">
+                        <input type="text" id="AddressName" class="form-control" placeholder="Timex Garments" />
+                        <label for="AddressName">Address Name</label>
+                    </div>
+                </div>
+
+                <div class="col-4 g-1">
+                    <div class="form-floating form-floating-outline">
+                        <input type="text" id="AddressLane1" class="form-control" placeholder="New Order Threads" />
+                        <label for="AddressLane1">Address Lane 1</label>
+                    </div>
+                </div>
+
+                <div class="col-4 g-1">
+                    <div class="form-floating form-floating-outline">
+                        <input type="text" id="AddressLane2" class="form-control" placeholder="New Order Threads" />
+                        <label for="AddressLane2">Address Lane 2</label>
+                    </div>
+                </div>              
+
+            </div>
+            <div class="row">
+                <div class="col-4 g-1">
+                    <div class="form-floating form-floating-outline">
+                        <input type="text" id="AddressLane3" class="form-control" placeholder="New Order Threads" />
+                        <label for="AddressLane3">Address Lane 3</label>
+                    </div>
+                </div>
+
+                <div class="col-4 g-1">
+                    <div class="form-floating form-floating-outline">
+                        <input type="text" id="ContactNo" class="form-control" placeholder="New Order Threads" />
+                        <label for="ContactNo">Contact No</label>
+                    </div>
+                </div>
+
+                <div class="col-3">
+                    <button type="button" class="btn btn-primary mt-4" id="btnSave">Save</button>
+                </div>
+
+
+            </div>
+
+
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered dt-tbl" id="gatePassTable">
+                    <thead>
+                        <tr>
+                            <th class="d-none">Id</th>
+                            <th>Address Name</th>
+                            <th>Address Lane1</th>
+                            <th>Address Lane2</th>
+                            <th>Address Lane3</th>
+                            <th>Contact Nos</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @*  @foreach (var item in Model)
+                        {
+                        <tr>
+                        <td>
+                        <button class="btn btn-primary btn-x-action" data-id="@item.Id">View Steps</button>
+                        </td>
+                        <td>@item.GatePassNo</td>
+                        <td>@item.VendorName</td>
+                        <td>@item.VendorAddress</td>
+                        <td>@item.VehicleNo</td>
+                        <td>@item.DriverName</td>
+                        <td>@item.DriverMobileNo</td>
+                        </tr>
+                        } *@
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

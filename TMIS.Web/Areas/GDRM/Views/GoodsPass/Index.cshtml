@@ -169,10 +169,43 @@
         });
 
         // ✅ Auto-click the first gatepass button on page load
-        setTimeout(function () {
-            $(".gp-btn").first().trigger("click");
-        }, 500);
+        // setTimeout(function () {
+        //     $(".gp-btn").first().trigger("click");
+        // }, 500);
     </script>
+
+    <script>
+    $(document).ready(function () {
+
+        function clearGatepassDetails() {
+            $("#gpSubject, #gpFrom, #generatedBy, #generatedDate, #attention, #remarks").text("...");
+            $("#dispatchingTable").empty();
+            $("#stepper").empty();
+            $("#vehicleNoId").val(null).trigger("change");
+            $("#driverNameId").val(null).trigger("change");
+            $("#slectedGpId, #slectedGpIdType, #slectedGpIsOut").val("");
+        }
+
+        // Handle tab switching
+        $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
+            const targetTabId = $(e.target).attr('data-bs-target'); // #Dispatching or #Receiving
+
+            clearGatepassDetails();
+
+            // Remove highlights from all gp-btns
+            $('.gp-btn').removeClass('btn-primary').addClass('btn-secondary');
+
+            // Auto-click first gp-btn inside the activated tab
+            $(targetTabId).find('.gp-btn').first().trigger('click');
+        });
+
+        // Auto-trigger Dispatching tab's first .gp-btn on initial load
+        setTimeout(function () {
+            $("#Dispatching").find(".gp-btn").first().trigger("click");
+        }, 500);
+    });
+</script>
+
 
     <script>
         $(document).ready(function () {

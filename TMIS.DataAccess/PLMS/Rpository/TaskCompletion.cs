@@ -17,7 +17,7 @@ namespace TMIS.DataAccess.PLMS.Rpository
         public async Task<IEnumerable<ShowInquiryDataVM>> GetTasksListAsync()
         {
             string sql = @"SELECT Id, CONCAT(InquiryRef, '-', CycleNo) AS InquiryRef, CycleNo, StyleNo, StyleDesc, ColorCode, 
-                          InquiryType, ResposeType, Customer, Seasons, SampleType, SampleStage, InquiryComment
+                          InquiryType, ResponseType, Customer, Seasons, SampleType, SampleStage, InquiryComment
                    FROM PLMS_VwPendActivityList";
 
             return await _dbConnection.GetConnection().QueryAsync<ShowInquiryDataVM>(sql);

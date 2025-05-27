@@ -15,7 +15,7 @@ namespace TMIS.Models.PLMS
         public string StyleDesc { get; set; } = string.Empty;
         public string ColorCode { get; set; } = string.Empty;
         public string InquiryType { get; set; } = string.Empty;
-        public string ResposeType { get; set; } = string.Empty;
+        public string ResponseType { get; set; } = string.Empty;
         public string Seasons { get; set; } = string.Empty;
         public string SampleType { get; set; } = string.Empty;
         public string SampleStage { get; set; } = string.Empty;

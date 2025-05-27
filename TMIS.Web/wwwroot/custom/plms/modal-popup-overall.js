@@ -76,7 +76,7 @@ $(document).ready(function () {
       width: "250px"
     },
     {
-      field: "ResposeType",
+      field: "ResponseType",
       title: "Response Type",
       width: "250px"
     },

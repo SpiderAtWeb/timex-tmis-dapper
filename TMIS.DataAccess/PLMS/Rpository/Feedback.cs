@@ -15,7 +15,7 @@ namespace TMIS.DataAccess.PLMS.Rpository
         public async Task<FeedbackVM> GetInquiryAsync(string id)
         {
             string sql = @"SELECT Id, CONCAT(InquiryRef, '-', CycleNo) AS InquiryRef, CycleNo, StyleNo, StyleDesc, ColorCode, 
-                          InquiryType, ResposeType, Customer, Seasons, SampleType, SampleStage, InquiryComment
+                          InquiryType, ResponseType, Customer, Seasons, SampleType, SampleStage, InquiryComment
                    FROM PLMS_VwInqListPending WHERE Id = @Id";
             try
             {

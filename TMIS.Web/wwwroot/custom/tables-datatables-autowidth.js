@@ -17,8 +17,7 @@ $(document).ready(function () {
             return `<span title="${data.replace(/"/g, '&quot;')}">${truncated}</span>`;
           }
           return `<span title="${data.replace(/"/g, '&quot;')}">${data}</span>`;
-        }
-      }
-    ]
+        }      
+      }]
   });
 });
