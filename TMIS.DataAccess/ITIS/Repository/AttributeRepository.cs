@@ -61,7 +61,7 @@ namespace TMIS.DataAccess.ITIS.Repository
 
         public async Task<AttributeModel?> LoadAttributeDetails(int? id)
         {
-            string sql = @"select AttributeID, DeviceTypeID, Name, DataType from ITIS_Attributes Where AttributeID=@AttributeID";
+            string sql = @"select AttributeID, DeviceTypeID, Name, DataType from ITIS_Attributes Where AttributeID=@AttributeID and IsDelete=0";
 
             return await _dbConnection.GetConnection().QueryFirstOrDefaultAsync<AttributeModel>(sql, new
             {
@@ -73,7 +73,8 @@ namespace TMIS.DataAccess.ITIS.Repository
         {
             string sql = @"select att.AttributeID, att.DeviceTypeID, att.Name, ty.AttributeType as DataType, att.IsRequired, dt.DeviceType as DeviceTypeName from ITIS_Attributes as att 
                             inner join ITIS_DeviceTypes as dt on dt.DeviceTypeID=att.DeviceTypeID
-	                        inner join ITIS_AttributeType as ty on ty.ID=att.DataType";
+	                        inner join ITIS_AttributeType as ty on ty.ID=att.DataType
+                            where dt.IsDelete=0 and att.IsDelete=0";
 
             return await _dbConnection.GetConnection().QueryAsync<AttributeVM>(sql);
         }
@@ -83,7 +84,7 @@ namespace TMIS.DataAccess.ITIS.Repository
             const string query = @"
             SELECT TOP 1 1
             FROM ITIS_Attributes
-            WHERE Name = @Name and DeviceTypeID=@DeviceTypeID";
+            WHERE Name = @Name and DeviceTypeID=@DeviceTypeID and IsDelete=0";
 
             var result = await _dbConnection.GetConnection().QueryFirstOrDefaultAsync<int?>(query, new { Name = name, DeviceTypeID = deviceTypeID });
             return result.HasValue;
@@ -94,7 +95,7 @@ namespace TMIS.DataAccess.ITIS.Repository
             const string query = @"
             SELECT TOP 1 1
             FROM ITIS_Attributes
-            WHERE Name = @Name and DeviceTypeID=@DeviceTypeID and AttributeID!=@AttributeID";
+            WHERE Name = @Name and DeviceTypeID=@DeviceTypeID and AttributeID!=@AttributeID and IsDelete=0";
 
             var result = await _dbConnection.GetConnection().QueryFirstOrDefaultAsync<int?>(query, new {
                 Name = obj.Attribute!.Name,
@@ -224,6 +225,46 @@ namespace TMIS.DataAccess.ITIS.Repository
                 return false;
             }
 
+        }
+
+        public async Task<bool> DeleteAttribute(AttributeModel attribute)
+        {
+            using (var trns = _dbConnection.GetConnection().BeginTransaction())
+            {
+                try
+                {
+                    const string attributeQuery = @"Update ITIS_Attributes SET
+                                                IsDelete=1 where AttributeID=@AttributeID;";
+
+                    int rowsAffected = await _dbConnection.GetConnection().ExecuteAsync(attributeQuery, new
+                    {
+                        AttributeID = attribute.AttributeID
+                    }, trns);
+
+                    if (rowsAffected > 0)
+                    {                                               
+                        // Commit the transaction
+                        trns.Commit();
+                    }
+
+                    Models.ITIS.Logdb logdb = new()
+                    {
+                        TrObjectId = attribute.AttributeID,
+                        TrLog = "ATTRIBUTE DELETED"
+
+                    };
+
+                    _iITISLogdb.InsertLog(_dbConnection, logdb);
+
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    // Rollback the transaction if any command fails
+                    trns.Rollback();
+                    return false;
+                }
+            }
         }
     }
 }

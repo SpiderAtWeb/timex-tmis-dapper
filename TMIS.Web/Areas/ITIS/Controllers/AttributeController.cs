@@ -40,8 +40,33 @@ namespace TMIS.Areas.ITIS.Controllers
     public async Task<IActionResult> View(int id)
     {
       var attributeDetails = await _attributeRepository.LoadDropDowns(id);
-      _logger.Info("[" + _iSessionHelper.GetUserName() + "] - PAGE VISIT ATTRIBUTE EDIT");
+      _logger.Info("[" + _iSessionHelper.GetUserName() + "] - PAGE VISIT ATTRIBUTE VIEW");
       return View(attributeDetails);
+    }
+
+    public async Task<IActionResult> Delete(int id)
+    {
+      var attributeDetails = await _attributeRepository.LoadDropDowns(id);
+      _logger.Info("[" + _iSessionHelper.GetUserName() + "] - PAGE VISIT ATTRIBUTE DELETE");
+      return View(attributeDetails);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Delete(CreateAttributeVM obj)
+    {
+      bool attributeDelete = await _attributeRepository.DeleteAttribute(obj.Attribute);
+
+      if (!attributeDelete)
+      {
+        return NotFound();
+      }
+
+      // Show success message and redirect
+      TempData["success"] = "Record Deleted Successfully";
+
+      _logger.Info("ATTRIBUTE DELETED [" + obj.Attribute.AttributeID + "] - [" + _iSessionHelper.GetUserName() + "]");
+
+      return RedirectToAction("Index");
     }
 
     [HttpPost]

@@ -17,5 +17,6 @@ namespace TMIS.DataAccess.ITIS.IRepository
         Task<bool> CheckAttributeExist(string deviceType, string deviceTypeID);
         Task<bool> CheckAttributeExist(CreateAttributeVM obj);
         Task<bool> UpdateAttribute(AttributeModel attribute, List<AttributeListOption>? attributeListOption);
+        Task<bool> DeleteAttribute(AttributeModel attribute);
     }
 }
