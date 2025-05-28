@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TMIS.Models.TGPS
+namespace TMIS.Models.TGPS.VM
 {
     public class GatepassVM
     {

@@ -1,5 +1,6 @@
 ﻿using TMIS.Models.GDRM;
 using TMIS.Models.GDRM.VM;
+using TMIS.Models.TGPS.VM;
 
 namespace TMIS.DataAccess.GDRM.IRpository
 {
@@ -7,8 +8,10 @@ namespace TMIS.DataAccess.GDRM.IRpository
     {
         public Task<GPPendingListShow> GetPendingList();
 
-        public Task<GrGatepass?> GetGatepassByIdAsync(int id, bool isOut);
+        public Task<GrGatepass?> GetGatepassByIdAsync(int id);
 
         public Task<GPGrUpdateResult> GatePassUpdating(GPGrUpdate dispatch);
+
+        public Task<List<GpHistoryVM>> GetGDHistoryData(int id);
     }
 }

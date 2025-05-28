@@ -277,10 +277,14 @@
                 let isValid = true;
                 let toValues = [];
 
-                $('#gpAddressContainer .row').each(function () {
-                    const from = $(this).find('[id^="gatepassFrom"]').val()?.trim();
-                    const to = $(this).find('[id^="gatepassTo"]').val()?.trim();
+                const from = $('[id="gatepassFrom1"]').val()?.trim();
+                data.GatepassAddresses.push({
+                    LocId: from
+                });
 
+                $('#gpAddressContainer .row').each(function () {
+                   
+                    const to = $(this).find('[id^="gatepassTo"]').val()?.trim();                 
 
                     //from and to same
                     if (from && to && from === to) {
@@ -304,8 +308,7 @@
                     toValues.push(to);
 
                     data.GatepassAddresses.push({
-                        From: from,
-                        To: to
+                        LocId: to
                     });
                 });
 

@@ -1,0 +1,99 @@
+@model ShowGPListVM
+
+<h5>Gatepass #: @Model.GGpReference</h5>
+
+<div class="card-body">
+    <div class="mb-1">
+        <small class="text-light fw-medium">Gatepass details</small>
+    </div>
+    <div class="row mb-1">
+        <div class="col-4 g-1">
+            <div class="form-floating form-floating-outline">
+                <input type="text" asp-for="GpSubject" class="form-control" />
+                <label for="Attention">Subject</label>
+            </div>
+        </div>
+        <div class="col-4 g-1">
+            <div class="form-floating form-floating-outline">
+                <input type="text" asp-for="GeneratedUser" class="form-control" />
+                <label for="Attention">Generated User</label>
+            </div>
+        </div>
+        <div class="col-4 g-1">
+            <div class="form-floating form-floating-outline">
+                <input type="text" asp-for="GeneratedDateTime" class="form-control" />
+                <label for="Attention">Generated Date\Time</label>
+            </div>
+        </div>
+    </div>
+    <div class="row mb-1">
+        <div class="col-4 g-1">
+            <div class="form-floating form-floating-outline">
+                <input type="text" asp-for="Attention" class="form-control" />
+                <label for="Attention">Attention</label>
+            </div>
+        </div>
+        <div class="col-4 g-1">
+            <div class="form-floating form-floating-outline">
+                <input type="text" asp-for="ApprovedBy" class="form-control" />
+                <label for="Attention">Approved By</label>
+            </div>
+        </div>
+        <div class="col-4 g-1">
+            <div class="form-floating form-floating-outline">
+                <input type="text" asp-for="ApprovedDateTime" class="form-control" />
+                <label for="Attention">Approved Date\Time</label>
+            </div>
+        </div>
+    </div>
+    <div class="row mb-1">
+        <div class="col g-1">
+            <div class="form-floating form-floating-outline">
+                <input type="text" asp-for="GGPRemarks" class="form-control" />
+                <label for="Attention">Remarks</label>
+            </div>
+        </div>
+    </div>
+
+    <table>
+
+        <thead>
+            <tr class="table-info">
+                <th>Item Name</th>
+                <th>Item Description</th>
+                <th>Quantity</th>
+                <th>UOM</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.ShowGPItemVMList)
+            {
+                <tr>
+                    <td>@item.ItemName</td>
+                    <td>@item.ItemDescription</td>
+                    <td>@item.Quantity</td>
+                    <td>@item.UOM</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <table>
+      @foreach (var item in Model.ShowGPRoutesList)
+        {
+            <tr>
+                <td>@item.LocationName</td>
+                <td>@item.RecGRName</td>
+                <td>@item.RecUser</td>
+                <td>@item.RecGRDateTime</td>
+                <td>@item.RecVehicle</td>
+                <td>@item.RecDriver</td>
+                <td>@item.SendGRName</td>
+                <td>@item.SendUser</td>
+                <td>@item.SendGRDateTime</td>
+                <td>@item.SendVehicle</td>
+                <td>@item.SendDriver</td>
+            </tr>
+        }
+    </table>
+</div>
+

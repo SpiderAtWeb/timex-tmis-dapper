@@ -39,7 +39,6 @@ namespace TMIS.DataAccess.TGPS.Rpository
                 INSERT INTO [dbo].[TGPS_TrGpGoodsHeader]
                 (
                     GGpReference,
-                    GGpFromId,
                     GpSubject,
                     GeneratedUserId,
                     GeneratedDateTime,
@@ -49,14 +48,11 @@ namespace TMIS.DataAccess.TGPS.Rpository
                     IsReturnable,
                     ReturnDays,
                     GGPRemarks,
-                    IsCompleted,
-                    IsSend,
-                    IsManyLoc
+                    IsCompleted
                 )
                 VALUES
                 (
                     @GGpReference,
-                    @GGpFromId,
                     @GpSubject,
                     @GeneratedUserId,
                     GETDATE(),
@@ -66,9 +62,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
                     @IsReturnable,
                     @ReturnDays,
                     @GGPRemarks,
-                    0,
-                    0,
-                    @IsManyLoc
+                    0                    
                 );
                 SELECT CAST(SCOPE_IDENTITY() AS INT);
             ";
@@ -78,15 +72,13 @@ namespace TMIS.DataAccess.TGPS.Rpository
                     new
                     {
                         GGpReference = referenceNumber,
-                        GGpFromId = model.GatepassAddresses.FirstOrDefault()?.From ?? string.Empty,
                         model.GpSubject,
                         GeneratedUserId = _iSessionHelper.GetUserId(),
                         model.Attention,
                         ApprovedTo = model.SendApprovalTo,
                         model.IsReturnable,
                         model.ReturnDays,
-                        GGPRemarks = model.Remarks,
-                        IsManyLoc = model.GatepassAddresses.Count > 1 ? 1 : 0
+                        GGPRemarks = model.Remarks
                     },
                     transaction
                 );
@@ -131,18 +123,22 @@ namespace TMIS.DataAccess.TGPS.Rpository
                 INSERT INTO [dbo].[TGPS_TrGpGoodsRoutes]
                 (
                     GGpPassId,
-                    GGpToId,
-                    ROrder,                   
+                    GGpLocId,
+                    ROrder,                 
                     IsReceived,
-                    IsSend
+                    IsSend,
+                    IsSender,
+                    IsDest
                 )
                 VALUES
                 (
                     @GGpPassId,
-                    @GGpToId,
+                    @GGpLocId,
                     @ROrder,
                     0,
-                    0
+                    0,
+                    @IsSender,  
+                    @IsDest
                 );";
 
 
@@ -154,8 +150,10 @@ namespace TMIS.DataAccess.TGPS.Rpository
                         new
                         {
                             GGpPassId = ggpPassId,
-                            GGpToId = address.To,
-                            ROrder = routeOrder++
+                            GGpLocId = address.LocId,
+                            @IsSender = routeOrder == 1 ? 1 : 0,
+                            ROrder = routeOrder++,
+                            @IsDest = routeOrder == (model.GatepassAddresses.Count + 1) ? 1 : 0,
                         },
                         transaction
                     );
@@ -277,6 +275,59 @@ namespace TMIS.DataAccess.TGPS.Rpository
                     new { GpId = gpId },
                     commandType: CommandType.StoredProcedure);
                 return result.ToList();
+            }
+        }
+        public async Task<ShowGPListVM?> LoadShowGPDataAsync(int id)
+        {
+            using (var connection = _dbConnection.GetConnection())
+            {
+                var sql = @"
+            SELECT [Id], [GGpReference], [GpSubject], [GeneratedUser], [GeneratedDateTime],
+                   [Attention], [GGPRemarks], [ApprovedBy], [ApprovedDateTime],
+                   [ItemName], [ItemDescription], [Quantity], [UOM]
+            FROM [TMIS].[dbo].[TGPS_VwGatePassList] 
+            WHERE [Id] = @GPID;
+
+            SELECT [GGpPassId], [Id], [LocationName], [ROrder], [RecGRName], [RecUser], [RecGRDateTime],
+                   [RecVehicle], [RecDriver], [SendGRName], [SendUser], [SendGRDateTime], 
+                   [SendVehicle], [SendDriver]
+            FROM [TMIS].[dbo].[TGPS_VwGatePassRoutes] 
+            WHERE [GGpPassId] = @GPID;";
+
+                using (var multi = await connection.QueryMultipleAsync(sql, new { GPID = id }))
+                {
+                    var flatList = (await multi.ReadAsync<dynamic>()).ToList();
+                    var routes = (await multi.ReadAsync<ShowGPRoutesVM>()).ToList();
+
+                    if (!flatList.Any())
+                        return null;
+
+                    var g = flatList;
+                    var first = g.First();
+
+                    var result = new ShowGPListVM
+                    {
+                        Id = first.Id,
+                        GGpReference = first.GGpReference,
+                        GpSubject = first.GpSubject,
+                        GeneratedUser = first.GeneratedUser,
+                        GeneratedDateTime = first.GeneratedDateTime?.ToString("yyyy-MM-dd HH:mm:ss") ?? "",
+                        Attention = first.Attention,
+                        GGPRemarks = first.GGPRemarks,
+                        ApprovedBy = first.ApprovedBy,
+                        ApprovedDateTime = first.ApprovedDateTime?.ToString("yyyy-MM-dd HH:mm:ss") ?? "",
+                        ShowGPItemVMList = g.Select(i => new ShowGPItemVM
+                        {
+                            ItemName = i.ItemName,
+                            ItemDescription = i.ItemDescription,
+                            Quantity = i.Quantity?.ToString() ?? "",
+                            UOM = i.UOM
+                        }).ToList(),
+                        ShowGPRoutesList = routes
+                    };
+
+                    return result;
+                }
             }
         }
 

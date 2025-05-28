@@ -23,11 +23,9 @@
         $(document).ready(function () {
             $(".gp-btn").on("click", function () {
                 const gpId = $(this).data("id");
-                const baseout = $(this).data("baseout")
                 const isOut = $(this).data("isout");
 
                 $("#slectedGpId").val(gpId);
-                $("#slectedGpIdType").val(baseout);
                 $("#slectedGpIsOut").val(isOut);
 
                 // Highlight the selected button
@@ -39,9 +37,7 @@
                     url: '/GDRM/GoodsPass/GetGatepassDetails',
                     method: 'GET',
                     data: { id: gpId, isOut: isOut },
-                    success: function (data) {
-                        // Update hidden GPID
-                      
+                    success: function (data) {                      
 
                         // Fill alert blocks
                         $("#gpSubject").text(data.gpSubject);
@@ -108,7 +104,7 @@
                 $("#loading-message").show().text(`Loading steps for Gate Pass: ${gatePassNo}...`);
 
                 $.ajax({
-                    url: `/TGPS/GenGoodsPass/GetGatePassSteps?id=${gpId}`,
+                    url: `/GDRM/GoodsPass/GetGatePassSteps?id=${gpId}`,
                     type: "GET",
                     success: function (data) {
                         if (data && data.length > 0) {
@@ -168,10 +164,6 @@
             });
         });
 
-        // ✅ Auto-click the first gatepass button on page load
-        // setTimeout(function () {
-        //     $(".gp-btn").first().trigger("click");
-        // }, 500);
     </script>
 
     <script>
@@ -183,7 +175,7 @@
             $("#stepper").empty();
             $("#vehicleNoId").val(null).trigger("change");
             $("#driverNameId").val(null).trigger("change");
-            $("#slectedGpId, #slectedGpIdType, #slectedGpIsOut").val("");
+            $("#slectedGpId, #slectedGpIsOut").val("");
         }
 
         // Handle tab switching
@@ -217,8 +209,7 @@
                 const data = {                 
                     gRId: parseInt($('#gRId').val()) || 0,
                     isOut: $('#slectedGpIsOut').val() == 'True' ? 1 : 0,
-                    selectedGpId: parseInt($('#slectedGpId').val()) || 0,
-                    selectedGpIdType: parseInt($('#slectedGpIdType').val()) || 0,
+                    selectedGpId: parseInt($('#slectedGpId').val()) || 0, 
                     vehicleNoId: parseInt($('#vehicleNoId').val()) || 0,
                     driverNameId: parseInt($('#driverNameId').val()) || 0,
                     gPGrUpdateDetailList: [],
@@ -226,7 +217,7 @@
                 };
 
                console.log($('#slectedGpIsOut').val());
-                console.log(data);
+               console.log(data);
 
                 $('.dispatching-row').each(function () {
                     const id = parseInt($(this).find('.dispatching-id').val()) || 0;
@@ -324,7 +315,7 @@
 
                             @foreach (var item in Model.GPNumbersList.Where(x => x.IsOut).Take(5))
                             {
-                                <button type="button" class="btn rounded-pill btn-secondary m-1 gp-btn" data-isout="@item.IsOut" data-baseout="@item.BaseOUT" data-id="@item.GPId">
+                                <button type="button" class="btn rounded-pill btn-secondary m-1 gp-btn" data-isout="@item.IsOut" data-id="@item.GPRouteId">
                                     @item.GPNumber
                                 </button>
                             }
@@ -346,7 +337,7 @@
 
                             @foreach (var item in Model.GPNumbersList.Where(x => !x.IsOut).Take(5))
                             {
-                            <button type="button" class="btn rounded-pill btn-secondary m-1 gp-btn" data-isout="@item.IsOut" data-baseout="@item.BaseOUT" data-id="@item.GPId">
+                                <button type="button" class="btn rounded-pill btn-secondary m-1 gp-btn" data-isout="@item.IsOut" data-id="@item.GPRouteId">
                             @item.GPNumber
                             </button>
                             }
@@ -360,7 +351,6 @@
     <div class="card mb-2">
         <div class="card-body">
             <input type="hidden" id="slectedGpId" />
-            <input type="hidden" id="slectedGpIdType" />
             <input type="hidden" id="slectedGpIsOut" />
 
             <div id="example">
@@ -458,9 +448,8 @@
                                 title="@item.GpTo"
                                 class="btn rounded-pill @buttonClass m-1 gp-btn"
                                 data-isout="@item.IsOut"
-                                data-baseout="@item.BaseOUT"
                                 data-no="@item.GPNumber"
-                                data-id="@item.GPId">
+                                data-id="@item.GPRouteId">
                             @item.GPNumber
                         </button>
                     }

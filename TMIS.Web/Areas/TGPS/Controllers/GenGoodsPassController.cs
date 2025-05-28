@@ -1,7 +1,7 @@
 using log4net;
 using Microsoft.AspNetCore.Mvc;
 using TMIS.DataAccess.TGPS.IRpository;
-using TMIS.Models.TGPS;
+using TMIS.Models.TGPS.VM;
 
 namespace TMIS.Areas.TGPS.Controllers;
 
@@ -89,5 +89,17 @@ public class GenGoodsPassController(IGoodsGatePass db) : Controller
   {
     var result = await _db.GetHistoryData(id);
     return Json(result);
+  }
+
+  [HttpGet]
+  public async Task<IActionResult> GetGatePassDetails(int id)
+  {
+    var result = await _db.LoadShowGPDataAsync(id);
+    if (result == null)
+    {
+      _logger.Error($"No gatepass found with ID: {id}");
+      return NotFound("Gatepass not found.");
+    }
+    return PartialView("_GatePassDetailsPartial", result);
   }
 }
