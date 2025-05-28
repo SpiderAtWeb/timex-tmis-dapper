@@ -16,14 +16,14 @@ namespace TMIS.Areas.ITIS.Controllers
     private readonly ISessionHelper _iSessionHelper = sessionHelper;
     public async Task<IActionResult> Index()
     {
-      _logger.Info("[" + _iSessionHelper.GetUserName() + "] - PAGE VISIT DEVICE INDEX");
+      _logger.Info("[" + _iSessionHelper.GetShortName() + "] - PAGE VISIT DEVICE INDEX");
       var devices = await _deviceRepository.GetAllAsync();
       return View(devices);
     }
     public async Task<IActionResult> Create()
     {
       var createDeviceVM = await _deviceRepository.LoadDropDowns();
-      _logger.Info("[" + _iSessionHelper.GetUserName() + "] - PAGE VISIT DEVICE CREATE");
+      _logger.Info("[" + _iSessionHelper.GetShortName() + "] - PAGE VISIT DEVICE CREATE");
 
       return View(createDeviceVM);
     }
@@ -34,14 +34,14 @@ namespace TMIS.Areas.ITIS.Controllers
       // Load the necessary lists before validation
       var createDeviceVM = await _deviceRepository.LoadDropDowns();
 
-      if (obj.Device.SerialNumber != null)
+      if (obj.Device!.SerialNumber != null)
       {
         if (await _deviceRepository.CheckSerialNumberExist(obj.Device.SerialNumber))
         {
           ModelState.AddModelError("Device.SerialNumber", "Serial Number Already Available !");
         }
       }
-      if(obj.Device.DeviceTypeID == null || obj.Device.DeviceTypeID == 0)
+      if(obj.Device.DeviceTypeID == 0)
       {
         ModelState.AddModelError("Device.DeviceTypeID", "Device Type  field is required.");
       }
@@ -49,7 +49,7 @@ namespace TMIS.Areas.ITIS.Controllers
       {
         ModelState.AddModelError("Device.Image1Data", "Image 1 is required.");
       }
-      if (obj.Device.DeviceStatusID == null || obj.Device.DeviceStatusID == 0)
+      if (obj.Device.DeviceStatusID == 0)
       {
         ModelState.AddModelError("Device.DeviceStatusID", "Device Status  field is required.");
       }
@@ -70,7 +70,7 @@ namespace TMIS.Areas.ITIS.Controllers
       // Show success message and redirect
       TempData["success"] = "Record Created Successfully";
 
-      _logger.Info("DEVICE TYPE CREATED [" + obj.Device.SerialNumber + "] - [" + _iSessionHelper.GetUserName() + "]");
+      _logger.Info("DEVICE TYPE CREATED [" + obj.Device.SerialNumber + "] - [" + _iSessionHelper.GetShortName() + "]");
 
       return RedirectToAction("Index");
     }

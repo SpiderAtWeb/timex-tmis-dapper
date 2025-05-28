@@ -108,7 +108,7 @@ namespace TMIS.DataAccess.ITIS.Repository
                 return true;
 
             }
-            catch (Exception ex)
+            catch
             { 
                 return false;
             }
@@ -127,11 +127,11 @@ namespace TMIS.DataAccess.ITIS.Repository
             {
                 var insertedId = await _dbConnection.GetConnection().QuerySingleOrDefaultAsync<int?>(query, new
                 {
-                    DeviceID = obj.AssignDevice.Device,
+                    DeviceID = obj.AssignDevice!.Device,
                     EMPNo = "",
                     EmpName = obj.AssignDevice.EmpNo,
                     Designation = obj.AssignDevice.Designation,
-                    AssignedBy = _iSessionHelper.GetUserName().ToUpper(),
+                    AssignedBy = _iSessionHelper.GetShortName().ToUpper(),
                     AssignRemarks = "",
                     ApproverEMPNo = obj.AssignDevice.Approver, // add actual approver empno
                     AssignStatusID = 2,

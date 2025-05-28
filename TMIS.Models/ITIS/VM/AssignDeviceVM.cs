@@ -12,13 +12,13 @@ namespace TMIS.Models.ITIS.VM
     {
         [Required]
         [DisplayName("Employee")]
-        public string EmpNo { get; set; }
+        public string EmpNo { get; set; } = string.Empty;
         [Required]
         [DisplayName("Device")]
-        public int Device {  get; set; }
+        public int Device {  get; set; } 
         [Required]
         [DisplayName("Approver")]
-        public string Approver { get; set; }
+        public string? Approver { get; set; }
         [Required]
         [DisplayName("Designation")]
         public string? Designation { get; set; }

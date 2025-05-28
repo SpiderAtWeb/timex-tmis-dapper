@@ -13,7 +13,7 @@ namespace TMIS.Models.ITIS
         [Key]
         public int OptionID { get; set; }
         public int AttributeID {  get; set; }
-        [Required]        
-        public string OptionText{ get; set; }
+        [Required]
+        public string OptionText { get; set; } = string.Empty;
     }
 }

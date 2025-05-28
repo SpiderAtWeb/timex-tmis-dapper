@@ -48,7 +48,7 @@ namespace TMIS.DataAccess.ITIS.Repository
 
             var attributeValue = await _dbConnection.GetConnection().QueryAsync<AttributeValue>(attributeQuery, new
             {
-                DeviceID = deviceDetails.DeviceID
+                DeviceID = deviceDetails!.DeviceID
             });
 
             ApproveVM approveVM = new ApproveVM()
@@ -102,7 +102,7 @@ namespace TMIS.DataAccess.ITIS.Repository
 
                 return true;
             }
-            catch (Exception ex) 
+            catch
             { 
                 return false;            
             }
@@ -143,7 +143,7 @@ namespace TMIS.DataAccess.ITIS.Repository
 
                 return true;
             }
-            catch (Exception ex)
+            catch
             {
                 return false;
             }

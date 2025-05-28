@@ -16,14 +16,14 @@ namespace TMIS.Areas.ITIS.Controllers
     private readonly IApproveRepository _approveRepository = approveRepository;
     public async Task<IActionResult> Index()
     {
-      _logger.Info("[" + _iSessionHelper.GetUserName() + "] - PAGE VISIT APPROVEDEVICEUSER INDEX");
+      _logger.Info("[" + _iSessionHelper.GetShortName() + "] - PAGE VISIT APPROVEDEVICEUSER INDEX");
       var deviceUserVM = await _approveRepository.GetAllAsync();
       return View(deviceUserVM);
     }
 
     public async Task<IActionResult> Approve(int assignmentID)
     {
-      _logger.Info("[" + _iSessionHelper.GetUserName() + "] - PAGE VISIT APPROVEDEVICEUSER APPROVE");
+      _logger.Info("[" + _iSessionHelper.GetShortName() + "] - PAGE VISIT APPROVEDEVICEUSER APPROVE");
       var selectedRecord = await _approveRepository.GetSelectedRecord(assignmentID);
       return View(selectedRecord);
     }
@@ -45,7 +45,7 @@ namespace TMIS.Areas.ITIS.Controllers
         // Show success message and redirect
         TempData["success"] = "Record Approved Successfully";
 
-        _logger.Info("DEVICE APPROVED [" + obj.DeviceID + "] - [" + _iSessionHelper.GetUserName() + "]");
+        _logger.Info("DEVICE APPROVED [" + obj.DeviceID + "] - [" + _iSessionHelper.GetShortName() + "]");
        
       }
       else if (action == "Reject")
@@ -56,7 +56,7 @@ namespace TMIS.Areas.ITIS.Controllers
         // Show success message and redirect
         TempData["success"] = "Record Rejected Successfully";
 
-        _logger.Info("DEVICE REJECTED [" + obj.DeviceID + "] - [" + _iSessionHelper.GetUserName() + "]");
+        _logger.Info("DEVICE REJECTED [" + obj.DeviceID + "] - [" + _iSessionHelper.GetShortName() + "]");
 
         
       }

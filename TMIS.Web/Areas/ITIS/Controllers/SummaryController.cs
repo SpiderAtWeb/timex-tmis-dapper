@@ -12,9 +12,9 @@ namespace TMIS.Areas.ITIS.Controllers
     private readonly ILog _logger = LogManager.GetLogger(typeof(SummaryController));
     private readonly ISessionHelper _iSessionHelper = sessionHelper;
     private readonly IReportRepository _reportRepository = reportRepository;
-    public async Task<IActionResult> Index()
+    public IActionResult Index()
     {
-      _logger.Info("[ " + _iSessionHelper.GetUserName() + " ] - PAGE VISIT INDEX");
+      _logger.Info("[ " + _iSessionHelper.GetShortName() + " ] - PAGE VISIT INDEX");
       return View();
     }
 

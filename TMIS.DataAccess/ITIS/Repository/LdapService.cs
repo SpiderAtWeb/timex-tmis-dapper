@@ -14,10 +14,10 @@ namespace TMIS.DataAccess.ITIS.Repository
 {
     public class LdapService(): ILdapService
     {
-        private readonly string _ldapServer = "timex.local"; // e.g., dc01.domain.local
-        private readonly string _ldapUser = "servicedesk";
-        private readonly string _ldapPassword = "T9#vLp@72k!QzM$w";
-        private readonly string _ldapBaseDn = "DC=timex.local,DC=com"; // Update to match your domain
+        //private readonly string _ldapServer = "timex.local"; // e.g., dc01.domain.local
+        //private readonly string _ldapUser = "servicedesk";
+        //private readonly string _ldapPassword = "T9#vLp@72k!QzM$w";
+        //private readonly string _ldapBaseDn = "DC=timex.local,DC=com"; // Update to match your domain
 
         //public async Task<IEnumerable<SelectListItem>> GetEmployeesFromAD()
         //{
@@ -108,7 +108,7 @@ namespace TMIS.DataAccess.ITIS.Repository
                 var searchFilter = "(&(objectClass=user)(mail=*))";
                 var attributesToLoad = new[] { "displayName", "mail" };
 
-                byte[] cookie = null;
+                byte[]? cookie = null; // Cookie for pagination
                 int pageCount = 0;
                 int totalCount = 0;
 

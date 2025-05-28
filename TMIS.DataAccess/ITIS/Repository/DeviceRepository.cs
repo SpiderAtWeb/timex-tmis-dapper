@@ -149,7 +149,7 @@ namespace TMIS.DataAccess.ITIS.Repository
                     {
                         var insertedId = await _dbConnection.GetConnection().QuerySingleOrDefaultAsync<int?>(query, new
                         {
-                            DeviceTypeID = obj.Device.DeviceTypeID,
+                            DeviceTypeID = obj.Device!.DeviceTypeID,
                             DeviceName = obj.Device.DeviceName,
                             SerialNumber = obj.Device.SerialNumber,
                             FixedAssetCode = obj.Device.FixedAssetCode,
@@ -159,7 +159,7 @@ namespace TMIS.DataAccess.ITIS.Repository
                             Image3Data = image3Bytes,
                             Image4Data = image4Bytes,
                             PurchasedDate = obj.Device.PurchasedDate,
-                            AddedBy = _iSessionHelper.GetUserName().ToUpper(),
+                            AddedBy = _iSessionHelper.GetShortName().ToUpper(),
                             DeviceStatusID = obj.Device.DeviceStatusID,
                             Remark = obj.Device.Remark,
                             Depreciation = obj.Device.Depreciation,
@@ -202,7 +202,7 @@ namespace TMIS.DataAccess.ITIS.Repository
 
                         return insertedId > 0;
                     }
-                    catch (Exception ex) 
+                    catch
                     {
                         // Rollback the transaction if any command fails
                         trns.Rollback();

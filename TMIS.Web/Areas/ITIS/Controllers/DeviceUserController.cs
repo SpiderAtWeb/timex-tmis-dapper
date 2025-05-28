@@ -17,14 +17,14 @@ namespace TMIS.Areas.ITIS.Controllers
     private readonly IDeviceUserRepository _deviceUserRepository = deviceUserRepository;
     public async Task<IActionResult> Index()
     {
-      _logger.Info("[" + _iSessionHelper.GetUserName() + "] - PAGE VISIT DEVICEUSER INDEX");
+      _logger.Info("[" + _iSessionHelper.GetShortName() + "] - PAGE VISIT DEVICEUSER INDEX");
       var deviceUserVM = await _deviceUserRepository.GetAllAsync(); 
       return View(deviceUserVM);
     }
 
     public async Task<IActionResult> Create()
     {
-      _logger.Info("[" + _iSessionHelper.GetUserName() + "] - PAGE VISIT DEVICEUSER CREATE");
+      _logger.Info("[" + _iSessionHelper.GetShortName() + "] - PAGE VISIT DEVICEUSER CREATE");
       var deviceUserVM = await _deviceUserRepository.LoadDropDowns();    
       return View(deviceUserVM);
     }
@@ -42,7 +42,7 @@ namespace TMIS.Areas.ITIS.Controllers
       // load dropdown list before validations
       var deviceUserVM = await _deviceUserRepository.LoadDropDowns();
 
-      if (obj.AssignDevice.Device == null || obj.AssignDevice.Device == 0)
+      if (obj.AssignDevice!.Device == 0)
       {
         ModelState.AddModelError("AssignDevice.Device", "The Device field is required.");        
       }
@@ -59,14 +59,14 @@ namespace TMIS.Areas.ITIS.Controllers
       // Show success message and redirect
       TempData["success"] = "Assign Successfully";
 
-      _logger.Info("DEVICE ASSIGN [" + obj.AssignDevice.Device + "] - [" + _iSessionHelper.GetUserName() + "]");
+      _logger.Info("DEVICE ASSIGN [" + obj.AssignDevice.Device + "] - [" + _iSessionHelper.GetShortName() + "]");
 
       return RedirectToAction("Index");
     }
 
     public async Task<IActionResult> Return()
     {
-      _logger.Info("[" + _iSessionHelper.GetUserName() + "] - PAGE VISIT DEVICEUSER RETURN");
+      _logger.Info("[" + _iSessionHelper.GetShortName() + "] - PAGE VISIT DEVICEUSER RETURN");
       var deviceUserVM = await _deviceUserRepository.LoadInUseDevices();
       return View(deviceUserVM);
     }
@@ -95,7 +95,7 @@ namespace TMIS.Areas.ITIS.Controllers
       {
         TempData["success"] = "Returned Successfully";
 
-        _logger.Info("DEVICE RETURNED[" + obj.Device + "] - [" + _iSessionHelper.GetUserName() + "]");
+        _logger.Info("DEVICE RETURNED[" + obj.Device + "] - [" + _iSessionHelper.GetShortName() + "]");
 
         return RedirectToAction("Index");
       }
