@@ -17,7 +17,7 @@ namespace TMIS.Areas.ITIS.Controllers
     private readonly ISessionHelper _iSessionHelper = sessionHelper;
     public async Task<IActionResult> Index()
     {
-      _logger.Info("[" + _iSessionHelper.GetUserName() + "] - PAGE VISIT TYPE INDEX");
+      _logger.Info("[" + _iSessionHelper.GetShortName() + "] - PAGE VISIT TYPE INDEX");
       var deviceTypes = await _deviceTypeRepository.GetAllAsync();
       return View(deviceTypes);
     }
@@ -31,7 +31,7 @@ namespace TMIS.Areas.ITIS.Controllers
         return NotFound();
       }
 
-      _logger.Info("[" + _iSessionHelper.GetUserName() + "] - PAGE VISIT DEVICE TYPE EDIT [" + deviceEditVM.DeviceTypeID + "]");
+      _logger.Info("[" + _iSessionHelper.GetShortName() + "] - PAGE VISIT DEVICE TYPE EDIT [" + deviceEditVM.DeviceTypeID + "]");
       return View(deviceEditVM);
     }
 
@@ -44,7 +44,7 @@ namespace TMIS.Areas.ITIS.Controllers
         return NotFound();
       }
 
-      _logger.Info("[" + _iSessionHelper.GetUserName() + "] - PAGE VISIT DEVICE TYPE DELETE [" + deviceEditVM.DeviceTypeID + "]");
+      _logger.Info("[" + _iSessionHelper.GetShortName() + "] - PAGE VISIT DEVICE TYPE DELETE [" + deviceEditVM.DeviceTypeID + "]");
       return View(deviceEditVM);
     }
 
@@ -58,7 +58,7 @@ namespace TMIS.Areas.ITIS.Controllers
       {
         // Show success message and redirect
         TempData["success"] = "Record Deleted Successfully";
-        _logger.Info("DEVICE TYPE DELETED [" + obj.DeviceTypeName + "] - [" + _iSessionHelper.GetUserName() + "]");
+        _logger.Info("DEVICE TYPE DELETED [" + obj.DeviceTypeName + "] - [" + _iSessionHelper.GetShortName() + "]");
       }
            
       return RedirectToAction("Index");
@@ -73,12 +73,12 @@ namespace TMIS.Areas.ITIS.Controllers
         return NotFound();
       }
 
-      _logger.Info("[" + _iSessionHelper.GetUserName() + "] - PAGE VISIT DEVICE TYPE VIEW [" + deviceEditVM.DeviceTypeID + "]");
+      _logger.Info("[" + _iSessionHelper.GetShortName() + "] - PAGE VISIT DEVICE TYPE VIEW [" + deviceEditVM.DeviceTypeID + "]");
       return View(deviceEditVM);
     }
     public IActionResult Create()
     {
-      _logger.Info("[" + _iSessionHelper.GetUserName() + "] - PAGE VISIT TYPE CREATE");
+      _logger.Info("[" + _iSessionHelper.GetShortName() + "] - PAGE VISIT TYPE CREATE");
       return View();
     }
 
@@ -104,7 +104,7 @@ namespace TMIS.Areas.ITIS.Controllers
       // Show success message and redirect
       TempData["success"] = "Record Updated Successfully";
 
-      _logger.Info("DEVICE TYPE UPDATED [" + obj.DeviceTypeName + "] - [" + _iSessionHelper.GetUserName() + "]");
+      _logger.Info("DEVICE TYPE UPDATED [" + obj.DeviceTypeName + "] - [" + _iSessionHelper.GetShortName() + "]");
 
       return RedirectToAction("Index");
     }
@@ -112,7 +112,7 @@ namespace TMIS.Areas.ITIS.Controllers
     [HttpPost]
     public async Task<IActionResult> Create(DeviceType obj, IFormFile? image)
     {
-      if(await _deviceTypeRepository.CheckDeviceTypeExist(obj.DeviceTypeName))
+      if(await _deviceTypeRepository.CheckDeviceTypeExist(obj.DeviceTypeName!))
       {
         ModelState.AddModelError("DeviceTypeName", "Device Type Already Available !");
       }
@@ -129,7 +129,7 @@ namespace TMIS.Areas.ITIS.Controllers
       // Show success message and redirect
       TempData["success"] = "Record Created Successfully";
 
-      _logger.Info("DEVICE TYPE CREATED [" + obj.DeviceTypeName + "] - [" + _iSessionHelper.GetUserName() + "]");
+      _logger.Info("DEVICE TYPE CREATED [" + obj.DeviceTypeName + "] - [" + _iSessionHelper.GetShortName() + "]");
 
       return RedirectToAction("Index");    
     }

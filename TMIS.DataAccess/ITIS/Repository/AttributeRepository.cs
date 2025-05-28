@@ -161,7 +161,7 @@ namespace TMIS.DataAccess.ITIS.Repository
 
                     return true;
                 }
-                catch (Exception ex)
+                catch
                 {
                     // Rollback the transaction if any command fails
                     trns.Rollback();
@@ -258,7 +258,7 @@ namespace TMIS.DataAccess.ITIS.Repository
 
                     return true;
                 }
-                catch (Exception ex)
+                catch
                 {
                     // Rollback the transaction if any command fails
                     trns.Rollback();

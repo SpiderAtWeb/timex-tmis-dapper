@@ -38,7 +38,7 @@ namespace TMIS.DataAccess.ITIS.Repository
                 TrDateTime = DateTime.Now,
                 RefID = log.TrObjectId,
                 TrLog = log.TrLog,
-                TrUser = _iSessionHelper.GetUserName().ToUpper(),
+                TrUser = _iSessionHelper.GetShortName().ToUpper(),
             });
         }
     }
