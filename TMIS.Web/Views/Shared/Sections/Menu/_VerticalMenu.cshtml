@@ -574,54 +574,94 @@
 					  </li>
 				  </ul>
 			  </li>
-			  @* ITIS *@
-			  <li class='menu-item@(currentPage.StartsWith("/ITIS") ? " active open" : "")'>
-				  <a href="javascript:void(0);" class="menu-link menu-toggle">
-					  <i class="menu-icon fa-solid fa-arrows-spin"></i>
-					  <div>IT Inventory</div>
-				  </a>
+		@* ITIS *@
+		<li class='menu-item@(currentPage.StartsWith("/ITIS") ? " active open" : "")'>
+			<a href="javascript:void(0);" class="menu-link menu-toggle">
+				<i class="menu-icon fa-solid fa-boxes-stacked"></i>
+				<div>IT Inventory</div>
+			</a>
 
-				  <ul class="menu-sub">
-					  <li class='menu-item@(currentPage == "/ITIS/DeviceType" ? " active" : "")'>
-						  <a asp-area="ITIS" asp-controller="DeviceType" asp-action="Index" class="menu-link">
-							  <div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Device Types</div>
-						  </a>
-					  </li>
-					  <li class='menu-item@(currentPage == "/ITIS/Attribute" ? " active" : "")'>
-						  <a asp-area="ITIS" asp-controller="Attribute" asp-action="Index" class="menu-link">
-							  <div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Device Attributes</div>
-						  </a>
-					  </li>
-					  <li class='menu-item@(currentPage == "/ITIS/Device" ? " active" : "")'>
-						  <a asp-area="ITIS" asp-controller="Device" asp-action="Index" class="menu-link">
-							  <div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Devices</div>
-						  </a>
-					  </li>
-					  <li class='menu-item@(currentPage == "/ITIS/DeviceUser" ? " active" : "")'>
-						  <a asp-area="ITIS" asp-controller="DeviceUser" asp-action="Index" class="menu-link">
-							  <div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Device Users</div>
-						  </a>
-					  </li>
-					  <li class='menu-item@(currentPage == "/ITIS/ApproveDeviceUser" ? " active" : "")'>
-						  <a asp-area="ITIS" asp-controller="ApproveDeviceUser" asp-action="Index" class="menu-link">
-							  <div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Approve</div>
-						  </a>
-					  </li>						
-					  <li class='menu-item@(currentPage.StartsWith("/ITIS/Summary") ? " active open" : "")'>
-						  <a href="javascript:void(0)" class="menu-link menu-toggle">
-							  <i class="menu-icon fa-solid fa-binoculars"></i>
-							  <div>Report</div>
-						  </a>
-						  <ul class="menu-sub">
-							  <li class='menu-item@(currentPage == "/ITIS/Summary" ? " active" : "")'>
-								  <a asp-area="ITIS" asp-controller="Summary" asp-action="Index" class="menu-link">
-									  <div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Summary</div>
-								  </a>
-							  </li>
-						  </ul>
-					  </li>
-				  </ul>
-			  </li>
+			<ul class="menu-sub">
+
+				<li class='menu-item@(currentPage.StartsWith("/ITIS/Summary") ? " active open" : "")'>
+					<a href="javascript:void(0)" class="menu-link menu-toggle">
+						<i class="menu-icon fa-solid fa-binoculars"></i>
+						<div>Overview</div>
+					</a>
+					<ul class="menu-sub">
+						<li class='menu-item@(currentPage == "/ITIS/Summary" ? " active" : "")'>
+							<a asp-area="ITIS" asp-controller="Summary" asp-action="Index" class="menu-link">
+								<div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Summary</div>
+							</a>
+						</li>
+					</ul>					
+				</li>
+
+				<!-- Transactions -->
+				<li class="menu-header">
+					<span class="menu-header-text">Transactions</span>
+				</li>
+
+				<!-- Forms -->
+				<li class='menu-item@(currentPage.Contains("/ITIS/Device") ||
+                                      currentPage.Contains("/ITIS/DeviceUser")? " active open" : "")'>
+					<a href="javascript:void(0)" class="menu-link menu-toggle">
+						<i class="menu-icon fa-regular fa-hard-drive"></i>
+						<div>Inventory</div>
+					</a>
+					<ul class="menu-sub">
+						<li class='menu-item@(currentPage == "/ITIS/Device" ? " active" : "")'>
+							<a asp-area="ITIS" asp-controller="Device" asp-action="Index" class="menu-link">
+								<div> <span>    <i class="menu-icon fa-solid fa-plus"></i></span>Add New</div>
+							</a>
+						</li>
+						<li class='menu-item@(currentPage == "/ITIS/DeviceUser" ? " active" : "")'>
+							<a asp-area="ITIS" asp-controller="DeviceUser" asp-action="Index" class="menu-link">
+								<div>  <span>    <i class="menu-icon fa-solid fa-users"></i></span>Assign Device</div>
+							</a>
+						</li>
+					</ul>					
+				</li>
+
+				<li class='menu-item@(currentPage.Contains("/ITIS/ApproveDeviceUser")? " active open" : "")'>
+					<a href="javascript:void(0)" class="menu-link menu-toggle">
+						<i class="menu-icon fa-solid fa-user-tie"></i>
+						<div>Approve</div>
+					</a>
+					<ul class="menu-sub">
+						<li class='menu-item@(currentPage == "/ITIS/ApproveDeviceUser" ? " active" : "")'>
+							<a asp-area="ITIS" asp-controller="ApproveDeviceUser" asp-action="Index" class="menu-link">
+								<div> <span>    <i class="menu-icon fa-solid fa-thumbs-up"></i></span>Approve Assign</div>
+							</a>
+						</li>						
+					</ul>
+				</li>
+
+				<!--Master Data-->
+				<li class="menu-header">
+					<span class="menu-header-text">Master Data</span>
+				</li>
+				<!-- Forms -->
+				<li class='menu-item@(currentPage.StartsWith("/ITIS/DeviceType") || currentPage.StartsWith("/ITIS/Attribute") ? " active open" : "")'>
+					<a href="javascript:void(0);" class="menu-link menu-toggle">
+						<i class="menu-icon fa-solid fa-desktop"></i>
+						<div>Device</div>
+					</a>
+					<ul class="menu-sub">
+						<li class='menu-item@(currentPage == "/ITIS/DeviceType" ? " active" : "")'>
+							<a asp-area="ITIS" asp-controller="DeviceType" asp-action="Index" class="menu-link">
+								<div> <span>    <i class="menu-icon fa-solid fa-layer-group"></i></span>Device Types</div>
+							</a>
+						</li>
+						<li class='menu-item@(currentPage == "/ITIS/Attribute" ? " active" : "")'>
+							<a asp-area="ITIS" asp-controller="Attribute" asp-action="Index" class="menu-link">
+								<div> <span>    <i class="menu-icon fa-solid fa-gears"></i></span>Device Attributes</div>
+							</a>
+						</li>						
+					</ul>
+				</li>				
+			</ul>
+		</li>
       
     </ul>
 

@@ -36,7 +36,7 @@ namespace TMIS.DataAccess.ITIS.Repository
 
         public async Task<IEnumerable<SelectListItem>> LoadDepartments()
         {
-            string query = @"select DepartmentID as Value, DepartmentName AS Text from COMN_Departments 
+            string query = @"select DepartmentID as Value, DepartmentName AS Text from COMN_MasterDepartments 
                             where IsDelete=0 ORDER BY Text";
 
             var results = await _dbConnection.GetConnection().QueryAsync<SelectListItem>(query);
