@@ -15,7 +15,7 @@ namespace TMIS.DataAccess.COMON.Rpository
             using var connection = _dbConnection.GetConnection();
 
             // Check User Existence and Get User Details
-            var _sqlUserDetails = @"SELECT Id FROM _MasterUsers
+            var _sqlUserDetails = @"SELECT Id, UserShortName FROM _MasterUsers
                WHERE (UserEmail = @Username) AND (UserPassword = @Password) AND (IsActive = 1)";
 
             var user = await connection.QueryFirstOrDefaultAsync<User>(_sqlUserDetails, new { Username = username, Password = password });
@@ -38,7 +38,7 @@ namespace TMIS.DataAccess.COMON.Rpository
             var _userRolesList = await connection.QueryAsync<string>(sqlUserRolesList, new { UserId = user.Id });
             user.UserRolesList = _userRolesList.ToArray();         
 
-            _iSessionHelper.SetUserSession(user.Id.ToString(), user.ShortName!, user.UserRolesList, user.UserLocationList);
+            _iSessionHelper.SetUserSession(user.Id.ToString(), user.UserShortName, user.UserRolesList, user.UserLocationList);
             return user;
         }
 

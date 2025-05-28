@@ -2,9 +2,7 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Data;
 using TMIS.DataAccess.COMON.IRpository;
-using TMIS.DataAccess.COMON.Rpository;
 using TMIS.DataAccess.TGPS.IRpository;
-using TMIS.Models.Auth;
 using TMIS.Models.TGPS;
 using TMIS.Models.TGPS.VM;
 
@@ -191,7 +189,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
             var approvalListSql = "SELECT Id, UserShortName AS Text FROM [ADMIN].dbo._MasterUsers  WHERE (IsActive = 1) AND (IsGpAppUser = 1)";
             var unitsSql = "SELECT Id, PropName AS Text FROM TGPS_MasterTwoGpGoodsUOM ORDER BY PropName";
 
-            var goodsFrom = await GetDataFromTable(goodsFromSql,  dbConnection);
+            var goodsFrom = await GetDataFromTable(goodsFromSql, dbConnection);
             var goodsTo = await GetDataFromTable(goodsToSql, dbConnection);
             var approvalList = await GetDataFromTable(approvalListSql, dbConnection);
             var units = await GetDataFromTable(unitsSql, dbConnection);
@@ -242,7 +240,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
 
                 await connection.ExecuteScalarAsync<int>(
                     insertSql,
-                    new { GenYear = currentYear, GenNo = genNo + 1 }, 
+                    new { GenYear = currentYear, GenNo = genNo + 1 },
                     transaction
                 );
             }

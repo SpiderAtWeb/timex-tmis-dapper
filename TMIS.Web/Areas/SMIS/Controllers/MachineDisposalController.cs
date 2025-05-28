@@ -16,14 +16,14 @@ namespace TMIS.Areas.SMIS.Controllers
     public async Task<IActionResult> Index()
     {
       IEnumerable<TransMC> trlist = await _db.GetList();
-      _logger.Info("[ " + _iSessionHelper.GetUserName() + " ] - PAGE VISIT INDEX");
+      _logger.Info("[ " + _iSessionHelper.GetShortName() + " ] - PAGE VISIT INDEX");
 
       return View(trlist);
     }
 
     public async Task<IActionResult> Details(int id)
     {
-      _logger.Info("[ " + _iSessionHelper.GetUserName() + " ] - PAGE VISIT Details");
+      _logger.Info("[ " + _iSessionHelper.GetShortName() + " ] - PAGE VISIT Details");
 
       var oMachine = await _db.GetMachineData(id);
       if (oMachine == null)
@@ -55,7 +55,7 @@ namespace TMIS.Areas.SMIS.Controllers
 
       TempData["Success"] = "Record created successfully";
 
-      _logger.Info("[ " + _iSessionHelper.GetUserName() + " ] - DISPOSED [" + oMachinesData!.QrCode + "]");
+      _logger.Info("[ " + _iSessionHelper.GetShortName() + " ] - DISPOSED [" + oMachinesData!.QrCode + "]");
       return RedirectToAction("Index");
     }
   }

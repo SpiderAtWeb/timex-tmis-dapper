@@ -32,7 +32,7 @@ namespace TMIS.DataAccess.SMIM.Repository
                 TrDateTime = DateTime.Now,
                 McId = log.TrObjectId,
                 log.TrLog,
-                TrUser = _iSessionHelper.GetUserName().ToUpper(),
+                TrUser = _iSessionHelper.GetShortName().ToUpper(),
             });
         }
 

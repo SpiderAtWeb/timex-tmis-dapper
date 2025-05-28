@@ -71,13 +71,13 @@ namespace TMIS.Areas.PLMS.Controllers
 
       if (insertResult[0] == "1")
       {
-        _logger.Info("[ " + _iSessionHelper.GetUserName() + "] - InquiryTypes CREATED - [" + twoFieldsMData.PropName + "]");
+        _logger.Info("[ " + _iSessionHelper.GetShortName() + "] - InquiryTypes CREATED - [" + twoFieldsMData.PropName + "]");
 
         return Json(new { success = true, message = insertResult[1] });
       }
       else
       {
-        _logger.Info("[" + _iSessionHelper.GetUserName() + "] - InquiryTypes CREATE FAIL -[" + twoFieldsMData.PropName + "]");
+        _logger.Info("[" + _iSessionHelper.GetShortName() + "] - InquiryTypes CREATE FAIL -[" + twoFieldsMData.PropName + "]");
 
         return Json(new { success = false, message = insertResult[1] });
       }
@@ -91,13 +91,13 @@ namespace TMIS.Areas.PLMS.Controllers
       // Check the first element of the result array to determine success
       if (updateResult[0] == "1")
       {
-        _logger.Info("InquiryTypes UPDATED -[" + twoFieldsMData.PropName + "] [" + _iSessionHelper.GetUserName() + "]");
+        _logger.Info("InquiryTypes UPDATED -[" + twoFieldsMData.PropName + "] [" + _iSessionHelper.GetShortName() + "]");
 
         return Json(new { success = true, message = updateResult[1] });
       }
       else
       {
-        _logger.Info("InquiryTypes UPDATE FAIL -[" + twoFieldsMData.PropName + "] [" + _iSessionHelper.GetUserName() + "]");
+        _logger.Info("InquiryTypes UPDATE FAIL -[" + twoFieldsMData.PropName + "] [" + _iSessionHelper.GetShortName() + "]");
 
         // Update failed, return the error message
         return Json(new { success = false, message = updateResult[1] });
@@ -127,13 +127,13 @@ namespace TMIS.Areas.PLMS.Controllers
 
       if (insertResult[0] == "1")
       {
-        _logger.Info("[ " + _iSessionHelper.GetUserName() + "] - ResponseTypes CREATED - [" + twoFieldsMData.PropName + "]");
+        _logger.Info("[ " + _iSessionHelper.GetShortName() + "] - ResponseTypes CREATED - [" + twoFieldsMData.PropName + "]");
 
         return Json(new { success = true, message = insertResult[1] });
       }
       else
       {
-        _logger.Info("[" + _iSessionHelper.GetUserName() + "] - ResponseTypes CREATE FAIL -[" + twoFieldsMData.PropName + "]");
+        _logger.Info("[" + _iSessionHelper.GetShortName() + "] - ResponseTypes CREATE FAIL -[" + twoFieldsMData.PropName + "]");
 
         return Json(new { success = false, message = insertResult[1] });
       }
@@ -147,13 +147,13 @@ namespace TMIS.Areas.PLMS.Controllers
       // Check the first element of the result array to determine success
       if (updateResult[0] == "1")
       {
-        _logger.Info("ResponseTypes UPDATED -[" + twoFieldsMData.PropName + "] [" + _iSessionHelper.GetUserName() + "]");
+        _logger.Info("ResponseTypes UPDATED -[" + twoFieldsMData.PropName + "] [" + _iSessionHelper.GetShortName() + "]");
 
         return Json(new { success = true, message = updateResult[1] });
       }
       else
       {
-        _logger.Info("ResponseTypes UPDATE FAIL -[" + twoFieldsMData.PropName + "] [" + _iSessionHelper.GetUserName() + "]");
+        _logger.Info("ResponseTypes UPDATE FAIL -[" + twoFieldsMData.PropName + "] [" + _iSessionHelper.GetShortName() + "]");
 
         // Update failed, return the error message
         return Json(new { success = false, message = updateResult[1] });
@@ -183,13 +183,13 @@ namespace TMIS.Areas.PLMS.Controllers
 
       if (insertResult[0] == "1")
       {
-        _logger.Info("[ " + _iSessionHelper.GetUserName() + "] - Customers CREATED - [" + twoFieldsMData.PropName + "]");
+        _logger.Info("[ " + _iSessionHelper.GetShortName() + "] - Customers CREATED - [" + twoFieldsMData.PropName + "]");
 
         return Json(new { success = true, message = insertResult[1] });
       }
       else
       {
-        _logger.Info("[" + _iSessionHelper.GetUserName() + "] - Customers CREATE FAIL -[" + twoFieldsMData.PropName + "]");
+        _logger.Info("[" + _iSessionHelper.GetShortName() + "] - Customers CREATE FAIL -[" + twoFieldsMData.PropName + "]");
 
         return Json(new { success = false, message = insertResult[1] });
       }
@@ -203,13 +203,13 @@ namespace TMIS.Areas.PLMS.Controllers
       // Check the first element of the result array to determine success
       if (updateResult[0] == "1")
       {
-        _logger.Info("Customers UPDATED -[" + twoFieldsMData.PropName + "] [" + _iSessionHelper.GetUserName() + "]");
+        _logger.Info("Customers UPDATED -[" + twoFieldsMData.PropName + "] [" + _iSessionHelper.GetShortName() + "]");
 
         return Json(new { success = true, message = updateResult[1] });
       }
       else
       {
-        _logger.Info("Customers UPDATE FAIL -[" + twoFieldsMData.PropName + "] [" + _iSessionHelper.GetUserName() + "]");
+        _logger.Info("Customers UPDATE FAIL -[" + twoFieldsMData.PropName + "] [" + _iSessionHelper.GetShortName() + "]");
 
         // Update failed, return the error message
         return Json(new { success = false, message = updateResult[1] });
@@ -239,13 +239,13 @@ namespace TMIS.Areas.PLMS.Controllers
 
       if (insertResult[0] == "1")
       {
-        _logger.Info("[ " + _iSessionHelper.GetUserName() + "] - SeasonTypes CREATED - [" + twoFieldsMData.PropName + "]");
+        _logger.Info("[ " + _iSessionHelper.GetShortName() + "] - SeasonTypes CREATED - [" + twoFieldsMData.PropName + "]");
 
         return Json(new { success = true, message = insertResult[1] });
       }
       else
       {
-        _logger.Info("[" + _iSessionHelper.GetUserName() + "] - SeasonTypes CREATE FAIL -[" + twoFieldsMData.PropName + "]");
+        _logger.Info("[" + _iSessionHelper.GetShortName() + "] - SeasonTypes CREATE FAIL -[" + twoFieldsMData.PropName + "]");
 
         return Json(new { success = false, message = insertResult[1] });
       }
@@ -259,13 +259,13 @@ namespace TMIS.Areas.PLMS.Controllers
       // Check the first element of the result array to determine success
       if (updateResult[0] == "1")
       {
-        _logger.Info("SeasonTypes UPDATED -[" + twoFieldsMData.PropName + "] [" + _iSessionHelper.GetUserName() + "]");
+        _logger.Info("SeasonTypes UPDATED -[" + twoFieldsMData.PropName + "] [" + _iSessionHelper.GetShortName() + "]");
 
         return Json(new { success = true, message = updateResult[1] });
       }
       else
       {
-        _logger.Info("SeasonTypes UPDATE FAIL -[" + twoFieldsMData.PropName + "] [" + _iSessionHelper.GetUserName() + "]");
+        _logger.Info("SeasonTypes UPDATE FAIL -[" + twoFieldsMData.PropName + "] [" + _iSessionHelper.GetShortName() + "]");
 
         // Update failed, return the error message
         return Json(new { success = false, message = updateResult[1] });
@@ -295,13 +295,13 @@ namespace TMIS.Areas.PLMS.Controllers
 
       if (insertResult[0] == "1")
       {
-        _logger.Info("[ " + _iSessionHelper.GetUserName() + "] - SampleStages CREATED - [" + twoFieldsMData.PropName + "]");
+        _logger.Info("[ " + _iSessionHelper.GetShortName() + "] - SampleStages CREATED - [" + twoFieldsMData.PropName + "]");
 
         return Json(new { success = true, message = insertResult[1] });
       }
       else
       {
-        _logger.Info("[" + _iSessionHelper.GetUserName() + "] - SampleStages CREATE FAIL -[" + twoFieldsMData.PropName + "]");
+        _logger.Info("[" + _iSessionHelper.GetShortName() + "] - SampleStages CREATE FAIL -[" + twoFieldsMData.PropName + "]");
 
         return Json(new { success = false, message = insertResult[1] });
       }
@@ -315,13 +315,13 @@ namespace TMIS.Areas.PLMS.Controllers
       // Check the first element of the result array to determine success
       if (updateResult[0] == "1")
       {
-        _logger.Info("SampleStages UPDATED -[" + twoFieldsMData.PropName + "] [" + _iSessionHelper.GetUserName() + "]");
+        _logger.Info("SampleStages UPDATED -[" + twoFieldsMData.PropName + "] [" + _iSessionHelper.GetShortName() + "]");
 
         return Json(new { success = true, message = updateResult[1] });
       }
       else
       {
-        _logger.Info("SampleStages UPDATE FAIL -[" + twoFieldsMData.PropName + "] [" + _iSessionHelper.GetUserName() + "]");
+        _logger.Info("SampleStages UPDATE FAIL -[" + twoFieldsMData.PropName + "] [" + _iSessionHelper.GetShortName() + "]");
 
         // Update failed, return the error message
         return Json(new { success = false, message = updateResult[1] });
@@ -351,13 +351,13 @@ namespace TMIS.Areas.PLMS.Controllers
 
       if (insertResult[0] == "1")
       {
-        _logger.Info("[ " + _iSessionHelper.GetUserName() + "] - SampleTypes CREATED - [" + twoFieldsMData.PropName + "]");
+        _logger.Info("[ " + _iSessionHelper.GetShortName() + "] - SampleTypes CREATED - [" + twoFieldsMData.PropName + "]");
 
         return Json(new { success = true, message = insertResult[1] });
       }
       else
       {
-        _logger.Info("[" + _iSessionHelper.GetUserName() + "] - SampleTypes CREATE FAIL -[" + twoFieldsMData.PropName + "]");
+        _logger.Info("[" + _iSessionHelper.GetShortName() + "] - SampleTypes CREATE FAIL -[" + twoFieldsMData.PropName + "]");
 
         return Json(new { success = false, message = insertResult[1] });
       }
@@ -371,13 +371,13 @@ namespace TMIS.Areas.PLMS.Controllers
       // Check the first element of the result array to determine success
       if (updateResult[0] == "1")
       {
-        _logger.Info("SampleTypes UPDATED -[" + twoFieldsMData.PropName + "] [" + _iSessionHelper.GetUserName() + "]");
+        _logger.Info("SampleTypes UPDATED -[" + twoFieldsMData.PropName + "] [" + _iSessionHelper.GetShortName() + "]");
 
         return Json(new { success = true, message = updateResult[1] });
       }
       else
       {
-        _logger.Info("SampleTypes UPDATE FAIL -[" + twoFieldsMData.PropName + "] [" + _iSessionHelper.GetUserName() + "]");
+        _logger.Info("SampleTypes UPDATE FAIL -[" + twoFieldsMData.PropName + "] [" + _iSessionHelper.GetShortName() + "]");
 
         // Update failed, return the error message
         return Json(new { success = false, message = updateResult[1] });
@@ -407,13 +407,13 @@ namespace TMIS.Areas.PLMS.Controllers
 
       if (insertResult[0] == "1")
       {
-        _logger.Info("[ " + _iSessionHelper.GetUserName() + "] - Activities CREATED - [" + twoFieldsMData.PropName + "]");
+        _logger.Info("[ " + _iSessionHelper.GetShortName() + "] - Activities CREATED - [" + twoFieldsMData.PropName + "]");
 
         return Json(new { success = true, message = insertResult[1] });
       }
       else
       {
-        _logger.Info("[" + _iSessionHelper.GetUserName() + "] - Activities CREATE FAIL -[" + twoFieldsMData.PropName + "]");
+        _logger.Info("[" + _iSessionHelper.GetShortName() + "] - Activities CREATE FAIL -[" + twoFieldsMData.PropName + "]");
 
         return Json(new { success = false, message = insertResult[1] });
       }
@@ -427,13 +427,13 @@ namespace TMIS.Areas.PLMS.Controllers
       // Check the first element of the result array to determine success
       if (updateResult[0] == "1")
       {
-        _logger.Info("Activities UPDATED -[" + twoFieldsMData.PropName + "] [" + _iSessionHelper.GetUserName() + "]");
+        _logger.Info("Activities UPDATED -[" + twoFieldsMData.PropName + "] [" + _iSessionHelper.GetShortName() + "]");
 
         return Json(new { success = true, message = updateResult[1] });
       }
       else
       {
-        _logger.Info("Activities UPDATE FAIL -[" + twoFieldsMData.PropName + "] [" + _iSessionHelper.GetUserName() + "]");
+        _logger.Info("Activities UPDATE FAIL -[" + twoFieldsMData.PropName + "] [" + _iSessionHelper.GetShortName() + "]");
 
         // Update failed, return the error message
         return Json(new { success = false, message = updateResult[1] });
@@ -463,13 +463,13 @@ namespace TMIS.Areas.PLMS.Controllers
 
       if (insertResult[0] == "1")
       {
-        _logger.Info("[ " + _iSessionHelper.GetUserName() + "] - UserCategories CREATED - [" + twoFieldsMData.PropName + "]");
+        _logger.Info("[ " + _iSessionHelper.GetShortName() + "] - UserCategories CREATED - [" + twoFieldsMData.PropName + "]");
 
         return Json(new { success = true, message = insertResult[1] });
       }
       else
       {
-        _logger.Info("[" + _iSessionHelper.GetUserName() + "] - UserCategories CREATE FAIL -[" + twoFieldsMData.PropName + "]");
+        _logger.Info("[" + _iSessionHelper.GetShortName() + "] - UserCategories CREATE FAIL -[" + twoFieldsMData.PropName + "]");
 
         return Json(new { success = false, message = insertResult[1] });
       }
@@ -483,13 +483,13 @@ namespace TMIS.Areas.PLMS.Controllers
       // Check the first element of the result array to determine success
       if (updateResult[0] == "1")
       {
-        _logger.Info("UserCategories UPDATED -[" + twoFieldsMData.PropName + "] [" + _iSessionHelper.GetUserName() + "]");
+        _logger.Info("UserCategories UPDATED -[" + twoFieldsMData.PropName + "] [" + _iSessionHelper.GetShortName() + "]");
 
         return Json(new { success = true, message = updateResult[1] });
       }
       else
       {
-        _logger.Info("UserCategories UPDATE FAIL -[" + twoFieldsMData.PropName + "] [" + _iSessionHelper.GetUserName() + "]");
+        _logger.Info("UserCategories UPDATE FAIL -[" + twoFieldsMData.PropName + "] [" + _iSessionHelper.GetShortName() + "]");
 
         // Update failed, return the error message
         return Json(new { success = false, message = updateResult[1] });

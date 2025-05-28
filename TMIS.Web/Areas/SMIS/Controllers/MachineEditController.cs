@@ -18,7 +18,7 @@ namespace TMIS.Areas.SMIS.Controllers
     public async Task<IActionResult> Index()
     {
       MachinesVM machinesVM = await _db.GetList();
-      _logger.Info("[" + _iSessionHelper.GetUserName() + "] - PAGE VISIT INDEX");
+      _logger.Info("[" + _iSessionHelper.GetShortName() + "] - PAGE VISIT INDEX");
 
       return View(machinesVM);
     }
@@ -32,7 +32,7 @@ namespace TMIS.Areas.SMIS.Controllers
         return NotFound();
       }
 
-      _logger.Info("[" + _iSessionHelper.GetUserName() + "] - PAGE VISIT OW-MC EDIT [" + mcEditVM.McInventory.SerialNo + "]");
+      _logger.Info("[" + _iSessionHelper.GetShortName() + "] - PAGE VISIT OW-MC EDIT [" + mcEditVM.McInventory.SerialNo + "]");
       return View(mcEditVM);
     }
 
@@ -70,14 +70,14 @@ namespace TMIS.Areas.SMIS.Controllers
         if (msg == 1)
         {
           TempData["success"] = "Record Updated successfully";
-          _logger.Info("[" + _iSessionHelper.GetUserName() + "] - OW-MC EDITED [" + mcCreateVM.McInventory!.SerialNo + "]");
+          _logger.Info("[" + _iSessionHelper.GetShortName() + "] - OW-MC EDITED [" + mcCreateVM.McInventory!.SerialNo + "]");
           return RedirectToAction(nameof(Index));
         }
         else if (msg == 2)
         {
           // If the update fails (e.g., QR code duplicate), handle it
           ModelState.AddModelError("McInventory.QrCode", "This QR Code is Already Assigned to Another Machine.");
-          _logger.Info("[" + _iSessionHelper.GetUserName() + "] - This QR Code is Already Assigned to Another Machine [" + mcCreateVM.McInventory!.SerialNo + "]");
+          _logger.Info("[" + _iSessionHelper.GetShortName() + "] - This QR Code is Already Assigned to Another Machine [" + mcCreateVM.McInventory!.SerialNo + "]");
 
           return View(mcCreateVM);
         }
@@ -85,7 +85,7 @@ namespace TMIS.Areas.SMIS.Controllers
         {
           // If the update fails (e.g., QR code duplicate), handle it
           ModelState.AddModelError("McInventory.SerialNo", "This Serial is Already Assigned to Another Machine.");
-          _logger.Info("[" + _iSessionHelper.GetUserName() + "] - This Serial is Already Assigned to Another Machine [" + mcCreateVM.McInventory!.SerialNo + "]");
+          _logger.Info("[" + _iSessionHelper.GetShortName() + "] - This Serial is Already Assigned to Another Machine [" + mcCreateVM.McInventory!.SerialNo + "]");
 
           return View(mcCreateVM);
         }
@@ -106,7 +106,7 @@ namespace TMIS.Areas.SMIS.Controllers
       {
         return NotFound();
       }
-      _logger.Info("[" + _iSessionHelper.GetUserName() + "] - PAGE VISIT RN-MC EDIT [" + mcEditdRnVM.McInventory.SerialNo + "]");
+      _logger.Info("[" + _iSessionHelper.GetShortName() + "] - PAGE VISIT RN-MC EDIT [" + mcEditdRnVM.McInventory.SerialNo + "]");
 
       return View(mcEditdRnVM);
     }
@@ -145,7 +145,7 @@ namespace TMIS.Areas.SMIS.Controllers
         if (msg == 1)
         {
           TempData["success"] = "Record Updated Successfully";
-          _logger.Info("[" + _iSessionHelper.GetUserName() + "] - RENTED MC EDITED [" + mcCreatedRnVM.McInventory!.SerialNo + "]");
+          _logger.Info("[" + _iSessionHelper.GetShortName() + "] - RENTED MC EDITED [" + mcCreatedRnVM.McInventory!.SerialNo + "]");
           return RedirectToAction(nameof(Index));
         }
         else if (msg == 2)

@@ -42,7 +42,7 @@ namespace TMIS.Areas.Auth.Controllers
           // Create claims and claims identity
           var claims = new List<Claim>
             {
-                new(ClaimTypes.Name, user.ShortName!),
+                new(ClaimTypes.Name, user.UserShortName!),
                 new(ClaimTypes.Email, inputModel.Email)
             };
 
@@ -80,7 +80,7 @@ namespace TMIS.Areas.Auth.Controllers
     // Logout action
     public async Task<IActionResult> Logout()
     {
-      _logger.Info("[" + _iSessionHelper.GetUserName() + "] - USER SIGN OUT");
+      _logger.Info("[" + _iSessionHelper.GetShortName() + "] - USER SIGN OUT");
 
       // Sign out the user
       await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);

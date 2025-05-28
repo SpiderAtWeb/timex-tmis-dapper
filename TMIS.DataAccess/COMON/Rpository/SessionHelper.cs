@@ -43,7 +43,7 @@ namespace TMIS.DataAccess.COMON.Rpository
             var httpContext = _httpContextAccessor.HttpContext;
             return httpContext?.Session.GetString("UserId") ?? string.Empty;
         }
-        public string GetUserName()
+        public string GetShortName()
         {
             var httpContext = _httpContextAccessor.HttpContext;
             return httpContext?.Session.GetString("ShortName") ?? string.Empty;
@@ -52,17 +52,17 @@ namespace TMIS.DataAccess.COMON.Rpository
         public string[] GetUserRolesList()
         {
             var httpContext = _httpContextAccessor.HttpContext;
-            var userLocList = httpContext?.Session.GetString("UserLocations");
+            var userRoles = httpContext?.Session.GetString("UserRoles");
 
-            return userLocList?.Split(',') ?? [];
+            return userRoles?.Split(',') ?? [];
         }
 
         public string[] GetLocationList()
         {
             var httpContext = _httpContextAccessor.HttpContext;
-            var userRoles = httpContext?.Session.GetString("UserRoles");
+            var userLocList = httpContext?.Session.GetString("UserLocations");
 
-            return userRoles?.Split(',') ?? [];
+            return userLocList?.Split(',') ?? [];
         }
 
         //clear session

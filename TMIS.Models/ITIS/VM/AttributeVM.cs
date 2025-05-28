@@ -13,12 +13,12 @@ namespace TMIS.Models.ITIS.VM
         // ITIS_Attributes 
         public int AttributeID { get; set; }    
         public int DeviceTypeID { get; set; }      
-        public string Name { get; set; }
-        public string DataType { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string DataType { get; set; } = string.Empty;
         public bool IsRequired { get; set; }
 
         // ITIS_DeviceTypes      
-        public string DeviceTypeName { get; set; }
+        public string DeviceTypeName { get; set; } = string.Empty;
        
     }
 }

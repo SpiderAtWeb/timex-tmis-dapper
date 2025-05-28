@@ -16,21 +16,21 @@ namespace TMIS.Areas.SMIS.Controllers
 
     public IActionResult Index()
     {
-      _logger.Info("[ " + _iSessionHelper.GetUserName() + " ] - PAGE VISIT INDEX");
+      _logger.Info("[ " + _iSessionHelper.GetShortName() + " ] - PAGE VISIT INDEX");
 
       return View();
     }
 
     public IActionResult RentSuppliers()
     {
-      _logger.Info("[ " + _iSessionHelper.GetUserName() + " ] - PAGE VISIT SUPPLIERS");
+      _logger.Info("[ " + _iSessionHelper.GetShortName() + " ] - PAGE VISIT SUPPLIERS");
 
       return View();
     }
 
     public IActionResult CostMethods()
     {
-      _logger.Info("[ " + _iSessionHelper.GetUserName() + " ] - PAGE VISIT COST-METHODS");
+      _logger.Info("[ " + _iSessionHelper.GetShortName() + " ] - PAGE VISIT COST-METHODS");
 
       return View();
     }
@@ -51,13 +51,13 @@ namespace TMIS.Areas.SMIS.Controllers
 
       if (insertResult[0] == "1")
       {
-        _logger.Info("[ " + _iSessionHelper.GetUserName() + "] - RentSup CREATED -[" + twoFieldsMData.PropName + "]");
+        _logger.Info("[ " + _iSessionHelper.GetShortName() + "] - RentSup CREATED -[" + twoFieldsMData.PropName + "]");
 
         return Json(new { success = true, message = insertResult[1] });
       }
       else
       {
-        _logger.Info("[ " + _iSessionHelper.GetUserName() + "] - RentSup CREATE FAILED -[" + twoFieldsMData.PropName + "]");
+        _logger.Info("[ " + _iSessionHelper.GetShortName() + "] - RentSup CREATE FAILED -[" + twoFieldsMData.PropName + "]");
 
         return Json(new { success = false, message = insertResult[1] });
       }
@@ -72,14 +72,14 @@ namespace TMIS.Areas.SMIS.Controllers
       if (updateResult[0] == "1")
       {
         // Update successful
-        _logger.Info("[ " + _iSessionHelper.GetUserName() + "] - RentSup UPDATED -[" + twoFieldsMData.PropName + "]");
+        _logger.Info("[ " + _iSessionHelper.GetShortName() + "] - RentSup UPDATED -[" + twoFieldsMData.PropName + "]");
 
         return Json(new { success = true, message = updateResult[1] });
       }
       else
       {
         // Update failed, return the error message
-        _logger.Info("[ " + _iSessionHelper.GetUserName() + "] - RentSup UPDATE FAILED -[" + twoFieldsMData.PropName + "]");
+        _logger.Info("[ " + _iSessionHelper.GetShortName() + "] - RentSup UPDATE FAILED -[" + twoFieldsMData.PropName + "]");
 
         return Json(new { success = false, message = updateResult[1] });
       }
@@ -109,13 +109,13 @@ namespace TMIS.Areas.SMIS.Controllers
 
       if (insertResult[0] == "1")
       {
-        _logger.Info("[ " + _iSessionHelper.GetUserName() + "] - Cost CREATED -[" + twoFieldsMData.PropName + "]");
+        _logger.Info("[ " + _iSessionHelper.GetShortName() + "] - Cost CREATED -[" + twoFieldsMData.PropName + "]");
 
         return Json(new { success = true, message = insertResult[1] });
       }
       else
       {
-        _logger.Info("[ " + _iSessionHelper.GetUserName() + "] - Cost CREATE FALIED-[" + twoFieldsMData.PropName + "]");
+        _logger.Info("[ " + _iSessionHelper.GetShortName() + "] - Cost CREATE FALIED-[" + twoFieldsMData.PropName + "]");
 
         return Json(new { success = false, message = insertResult[1] });
       }
@@ -130,14 +130,14 @@ namespace TMIS.Areas.SMIS.Controllers
       if (updateResult[0] == "1")
       {
         // Update successful
-        _logger.Info("[ " + _iSessionHelper.GetUserName() + "] - Cost UPDATED -[" + twoFieldsMData.PropName + "]");
+        _logger.Info("[ " + _iSessionHelper.GetShortName() + "] - Cost UPDATED -[" + twoFieldsMData.PropName + "]");
 
         return Json(new { success = true, message = updateResult[1] });
       }
       else
       {
         // Update failed, return the error message
-        _logger.Info("[ " + _iSessionHelper.GetUserName() + "] - Cost UPDATE FAILED -[" + twoFieldsMData.PropName + "]");
+        _logger.Info("[ " + _iSessionHelper.GetShortName() + "] - Cost UPDATE FAILED -[" + twoFieldsMData.PropName + "]");
 
         return Json(new { success = false, message = updateResult[1] });
       }

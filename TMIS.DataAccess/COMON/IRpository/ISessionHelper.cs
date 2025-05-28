@@ -12,7 +12,7 @@ namespace TMIS.DataAccess.COMON.IRpository
 
         string GetUserId();
 
-        string GetUserName();
+        string GetShortName();
 
         string[] GetUserRolesList();
 

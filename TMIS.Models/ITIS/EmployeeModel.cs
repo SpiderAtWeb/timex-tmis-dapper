@@ -8,7 +8,7 @@ namespace TMIS.Models.ITIS
 {
     public class EmployeeModel
     {
-        public string EmployeeNumber { get; set; }
-        public string DisplayName { get; set; }
+        public string EmployeeNumber { get; set; } = string.Empty;
+        public string DisplayName { get; set; } = string.Empty;
     }
 }

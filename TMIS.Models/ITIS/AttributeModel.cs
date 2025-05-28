@@ -17,10 +17,10 @@ namespace TMIS.Models.ITIS
         public string? DeviceTypeID { get; set; }
         [Required]
         [DisplayName("Label")]
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
         [Required]
         [DisplayName("Attribute Type")]
-        public string  DataType { get; set; }
+        public string  DataType { get; set; } = string.Empty;
         public bool IsRequired { get; set; }
     }
 }

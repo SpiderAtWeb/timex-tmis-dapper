@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Dapper;
+﻿using Dapper;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using TMIS.DataAccess.COMON.IRpository;
 using TMIS.DataAccess.ITIS.IRepository;
@@ -47,7 +42,7 @@ namespace TMIS.DataAccess.ITIS.Repository
             var results = await _dbConnection.GetConnection().QueryAsync<SelectListItem>(query);
             return results;
         }
-        
+
         public async Task<IEnumerable<SelectListItem>> LoadDeviceStatus()
         {
             string query = @"select Id as Value, PropName AS Text from ITIS_DeviceStatus 
@@ -68,7 +63,7 @@ namespace TMIS.DataAccess.ITIS.Repository
             string query = @"select DeviceID as Value , SerialNumber as Text from ITIS_Devices where DeviceStatusID=6";
             //only get instore devices
             var results = await _dbConnection.GetConnection().QueryAsync<SelectListItem>(query);
-            return results; 
+            return results;
         }
         public async Task<IEnumerable<SelectListItem>> LoadEmployeeList()
         {
@@ -88,42 +83,36 @@ namespace TMIS.DataAccess.ITIS.Repository
 
         public async Task<DeviceDetailVM> LoadDeviceDetail(int deviceID)
         {
-            try
-            {
-                string query = @"select DeviceName, SerialNumber, FixedAssetCode, PurchasedDate,depreciation, IsRented, IsBrandNew 
+
+            string query = @"select DeviceName, SerialNumber, FixedAssetCode, PurchasedDate,depreciation, IsRented, IsBrandNew 
                              from ITIS_Devices where DeviceID=@DeviceID";
 
-                DeviceDetailVM deviceDetailVM = new DeviceDetailVM();
-                var deviceDetail = await _dbConnection.GetConnection().QueryFirstOrDefaultAsync<DeviceDetailVM>(query, new
-                {
-                    DeviceID = deviceID
-                });
+            DeviceDetailVM deviceDetailVM = new DeviceDetailVM();
+            var deviceDetail = await _dbConnection.GetConnection().QueryFirstOrDefaultAsync<DeviceDetailVM>(query, new
+            {
+                DeviceID = deviceID
+            });
 
-                deviceDetailVM = deviceDetail;
+            deviceDetailVM = deviceDetail!;
 
-                string attributeQuery = @"select a.Name, av.ValueText from ITIS_DeviceAttributeValues as av 
+            string attributeQuery = @"select a.Name, av.ValueText from ITIS_DeviceAttributeValues as av 
                                      inner join ITIS_Attributes as a on a.AttributeID=av.AttributeID where av.DeviceID=@DeviceID";
 
-                var attributeValue = await _dbConnection.GetConnection().QueryAsync<AttributeValue>(attributeQuery, new
-                {
-                    DeviceID = deviceID
-                });
-
-                deviceDetailVM.AttributeValues = attributeValue.ToList();
-
-                return deviceDetailVM;
-            }
-            catch(Exception ex)  
+            var attributeValue = await _dbConnection.GetConnection().QueryAsync<AttributeValue>(attributeQuery, new
             {
-                return null;
-            }
+                DeviceID = deviceID
+            });
+
+            deviceDetailVM.AttributeValues = attributeValue.ToList();
+
+            return deviceDetailVM;
+
 
         }
 
         public async Task<DeviceUserDetailVM> LoadUserDetail(int deviceID)
         {
-            try
-            {
+           
                 string query = @"select AssignmentID, EMPNo, EMPName, Designation, AssignedDate, AssignRemarks
                             , ApproverEMPNo, ApproverResponseDate, ApproverRemark 
                             from ITIS_DeviceAssignments where DeviceID=@DeviceID and AssignStatusID not in (4, 5)";
@@ -133,14 +122,9 @@ namespace TMIS.DataAccess.ITIS.Repository
                     DeviceID = deviceID
                 });
 
-                return deviceUserDetail;
-            }
-            catch (Exception ex) 
-            {
-                return null;
-            }
+                return deviceUserDetail!;
+          
 
-           
         }
 
         public async Task<IEnumerable<SelectListItem>> LoadInUseSerialList()

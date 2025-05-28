@@ -16,7 +16,7 @@ namespace TMIS.Areas.SMIS.Controllers
 
     public async Task<IActionResult> Index()
     {
-      _logger.Info("[ " + _iSessionHelper.GetUserName() + " ] - PAGE VISIT INDEX");
+      _logger.Info("[ " + _iSessionHelper.GetShortName() + " ] - PAGE VISIT INDEX");
 
       var vMCluster = new VMCluster
       {
@@ -28,7 +28,7 @@ namespace TMIS.Areas.SMIS.Controllers
 
     public IActionResult Details()
     {
-      _logger.Info("[ " + _iSessionHelper.GetUserName() + " ] - PAGE VISIT DETAILS");
+      _logger.Info("[ " + _iSessionHelper.GetShortName() + " ] - PAGE VISIT DETAILS");
       return View();
     }
 
@@ -40,7 +40,7 @@ namespace TMIS.Areas.SMIS.Controllers
 
       };
 
-      _logger.Info("[ " + _iSessionHelper.GetUserName() + " ] - PAGE VISIT PIVOT");
+      _logger.Info("[ " + _iSessionHelper.GetShortName() + " ] - PAGE VISIT PIVOT");
 
       return View(vMCluster);
     }
@@ -56,7 +56,7 @@ namespace TMIS.Areas.SMIS.Controllers
       string[] logData = _db.GetTrLoggerData(id);
 
       // Log the visit details
-      _logger.Info("[ " + _iSessionHelper.GetUserName() + " ] - PAGE VISIT DETAILS ");
+      _logger.Info("[ " + _iSessionHelper.GetShortName() + " ] - PAGE VISIT DETAILS ");
 
       // Return the log data as a JSON response
       return Json(new { logs = logData });

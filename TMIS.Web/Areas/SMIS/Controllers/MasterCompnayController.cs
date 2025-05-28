@@ -21,28 +21,28 @@ namespace TMIS.Areas.SMIS.Controllers
 
     public IActionResult Locations()
     {
-      _logger.Info("[ " + _iSessionHelper.GetUserName() + " ] - PAGE VISIT LOCATION");
+      _logger.Info("[ " + _iSessionHelper.GetShortName() + " ] - PAGE VISIT LOCATION");
 
       return View();
     }
 
     public IActionResult Clusters()
     {
-      _logger.Info("[ " + _iSessionHelper.GetUserName() + " ] - PAGE VISIT CLUSTER");
+      _logger.Info("[ " + _iSessionHelper.GetShortName() + " ] - PAGE VISIT CLUSTER");
 
       return View();
     }
 
     public IActionResult Units()
     {
-      _logger.Info("[ " + _iSessionHelper.GetUserName() + " ] - PAGE VISIT UNITS");
+      _logger.Info("[ " + _iSessionHelper.GetShortName() + " ] - PAGE VISIT UNITS");
 
       return View();
     }
 
     public IActionResult Groups()
     {
-      _logger.Info("[ " + _iSessionHelper.GetUserName() + " ] - PAGE VISIT GROUPS");
+      _logger.Info("[ " + _iSessionHelper.GetShortName() + " ] - PAGE VISIT GROUPS");
 
       return View();
     }
@@ -63,13 +63,13 @@ namespace TMIS.Areas.SMIS.Controllers
 
       if (insertResult[0] == "1")
       {
-        _logger.Info("[ " + _iSessionHelper.GetUserName() + "] - Group CREATED - [" + twoFieldsMData.PropName + "]");
+        _logger.Info("[ " + _iSessionHelper.GetShortName() + "] - Group CREATED - [" + twoFieldsMData.PropName + "]");
 
         return Json(new { success = true, message = insertResult[1] });
       }
       else
       {
-        _logger.Info("[" + _iSessionHelper.GetUserName() + "] - Group CREATE FAILED -[" + twoFieldsMData.PropName + "]");
+        _logger.Info("[" + _iSessionHelper.GetShortName() + "] - Group CREATE FAILED -[" + twoFieldsMData.PropName + "]");
 
         return Json(new { success = false, message = insertResult[1] });
       }
@@ -83,13 +83,13 @@ namespace TMIS.Areas.SMIS.Controllers
       // Check the first element of the result array to determine success
       if (updateResult[0] == "1")
       {
-        _logger.Info("Group UPDATED -[" + twoFieldsMData.PropName + "] [" + _iSessionHelper.GetUserName() + "]");
+        _logger.Info("Group UPDATED -[" + twoFieldsMData.PropName + "] [" + _iSessionHelper.GetShortName() + "]");
 
         return Json(new { success = true, message = updateResult[1] });
       }
       else
       {
-        _logger.Info("Group UPDATE FAILED -[" + twoFieldsMData.PropName + "] [" + _iSessionHelper.GetUserName() + "]");
+        _logger.Info("Group UPDATE FAILED -[" + twoFieldsMData.PropName + "] [" + _iSessionHelper.GetShortName() + "]");
 
         // Update failed, return the error message
         return Json(new { success = false, message = updateResult[1] });
@@ -120,13 +120,13 @@ namespace TMIS.Areas.SMIS.Controllers
 
       if (insertResult[0] == "1")
       {
-        _logger.Info("[ " + _iSessionHelper.GetUserName() + "] - Locations CREATED -[" + twoFieldsMData.PropName + "]");
+        _logger.Info("[ " + _iSessionHelper.GetShortName() + "] - Locations CREATED -[" + twoFieldsMData.PropName + "]");
 
         return Json(new { success = true, message = insertResult[1] });
       }
       else
       {
-        _logger.Info("[ " + _iSessionHelper.GetUserName() + "] - Locations CREATE FAILED -[" + twoFieldsMData.PropName + "]");
+        _logger.Info("[ " + _iSessionHelper.GetShortName() + "] - Locations CREATE FAILED -[" + twoFieldsMData.PropName + "]");
 
         return Json(new { success = false, message = insertResult[1] });
       }
@@ -140,14 +140,14 @@ namespace TMIS.Areas.SMIS.Controllers
       // Check the first element of the result array to determine success
       if (updateResult[0] == "1")
       {
-        _logger.Info("[" + _iSessionHelper.GetUserName() + "] - Locations UPDATED -[" + twoFieldsMData.PropName + "]");
+        _logger.Info("[" + _iSessionHelper.GetShortName() + "] - Locations UPDATED -[" + twoFieldsMData.PropName + "]");
 
         // Update successful
         return Json(new { success = true, message = updateResult[1] });
       }
       else
       {
-        _logger.Info("[" + _iSessionHelper.GetUserName() + "] - Locations UPDATE FAILED -[" + twoFieldsMData.PropName + "]");
+        _logger.Info("[" + _iSessionHelper.GetShortName() + "] - Locations UPDATE FAILED -[" + twoFieldsMData.PropName + "]");
 
         // Update failed, return the error message
         return Json(new { success = false, message = updateResult[1] });
@@ -178,13 +178,13 @@ namespace TMIS.Areas.SMIS.Controllers
 
       if (insertResult[0] == "1")
       {
-        _logger.Info("[" + _iSessionHelper.GetUserName() + "] - OwnedCluster CREATED -[" + twoFieldsMData.PropName + "]");
+        _logger.Info("[" + _iSessionHelper.GetShortName() + "] - OwnedCluster CREATED -[" + twoFieldsMData.PropName + "]");
 
         return Json(new { success = true, message = insertResult[1] });
       }
       else
       {
-        _logger.Info("[ " + _iSessionHelper.GetUserName() + "] - OwnedCluster CREATE FAILED -[" + twoFieldsMData.PropName + "]");
+        _logger.Info("[ " + _iSessionHelper.GetShortName() + "] - OwnedCluster CREATE FAILED -[" + twoFieldsMData.PropName + "]");
 
         return Json(new { success = false, message = insertResult[1] });
       }
@@ -198,14 +198,14 @@ namespace TMIS.Areas.SMIS.Controllers
       // Check the first element of the result array to determine success
       if (updateResult[0] == "1")
       {
-        _logger.Info("OwnedCluster UPDATED -[" + twoFieldsMData.PropName + "] [" + _iSessionHelper.GetUserName() + "]");
+        _logger.Info("OwnedCluster UPDATED -[" + twoFieldsMData.PropName + "] [" + _iSessionHelper.GetShortName() + "]");
 
         // Update successful
         return Json(new { success = true, message = updateResult[1] });
       }
       else
       {
-        _logger.Info("OwnedCluster UPDATe FAIL -[" + twoFieldsMData.PropName + "] [" + _iSessionHelper.GetUserName() + "]");
+        _logger.Info("OwnedCluster UPDATe FAIL -[" + twoFieldsMData.PropName + "] [" + _iSessionHelper.GetShortName() + "]");
 
         // Update failed, return the error message
         return Json(new { success = false, message = updateResult[1] });
@@ -236,13 +236,13 @@ namespace TMIS.Areas.SMIS.Controllers
 
       if (insertResult[0] == "1")
       {
-        _logger.Info("[ " + _iSessionHelper.GetUserName() + "] - OwnedUnit CREATED -[" + twoFieldsMData.PropName + "]");
+        _logger.Info("[ " + _iSessionHelper.GetShortName() + "] - OwnedUnit CREATED -[" + twoFieldsMData.PropName + "]");
 
         return Json(new { success = true, message = insertResult[1] });
       }
       else
       {
-        _logger.Info("[ " + _iSessionHelper.GetUserName() + "] - OwnedUnit CREATE FAILED -[" + twoFieldsMData.PropName + "]");
+        _logger.Info("[ " + _iSessionHelper.GetShortName() + "] - OwnedUnit CREATE FAILED -[" + twoFieldsMData.PropName + "]");
 
         return Json(new { success = false, message = insertResult[1] });
       }
@@ -256,14 +256,14 @@ namespace TMIS.Areas.SMIS.Controllers
       // Check the first element of the result array to determine success
       if (updateResult[0] == "1")
       {
-        _logger.Info("[" + _iSessionHelper.GetUserName() + "] - OwnedUnit UPDATED -[" + twoFieldsMData.PropName + "]");
+        _logger.Info("[" + _iSessionHelper.GetShortName() + "] - OwnedUnit UPDATED -[" + twoFieldsMData.PropName + "]");
 
         // Update successful
         return Json(new { success = true, message = updateResult[1] });
       }
       else
       {
-        _logger.Info("[" + _iSessionHelper.GetUserName() + "] - OwnedUnit UPDATE FAILED -[" + twoFieldsMData.PropName + "]");
+        _logger.Info("[" + _iSessionHelper.GetShortName() + "] - OwnedUnit UPDATE FAILED -[" + twoFieldsMData.PropName + "]");
 
         // Update failed, return the error message
         return Json(new { success = false, message = updateResult[1] });
