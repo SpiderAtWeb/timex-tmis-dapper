@@ -58,10 +58,13 @@
 							<thead>
 								<tr class="table-info">
 									<th class="d-none">DeviceID</th>
+									<th>Device Type</th>
 									<th>Device Name</th>
 									<th>Serial#</th>
-									<th>Fixed Asset Code</th>
-									<th>Location</th>
+									<th>Device State</th>
+									<th>Vendor</th>
+									<th>Purchased Date</th>
+									<th>Fixed Asset Code</th>								
 									<th>Action</th>									
 								</tr>
 							</thead>
@@ -70,11 +73,18 @@
 								{
 									<tr>
 										<td class="d-none">@item.DeviceID</td>
+										<td>@item.DeviceType</td>
 										<td>@item.DeviceName</td>
 										<td>@item.SerialNumber</td>
+										<td>@item.Status</td>
+										<td>@item.Vendor</td>
+										<td>@item.PurchasedDate?.ToString("MM-dd-yyyy")</td>
 										<td>@item.FixedAssetCode</td>
-										<td>@item.Location</td>
-										<td></td>
+										<td>
+											<a class="btn btn-primary btn-sm" asp-controller="Device" asp-action="View" asp-route-id="@item.DeviceID"><i class="ri-eye-fill"></i></a>
+											<a class="btn btn-primary btn-sm" asp-controller="Device" asp-action="Edit" asp-route-id="@item.DeviceID"><i class="ri-pencil-fill"></i></a>
+											<a class="btn btn-primary btn-sm" asp-controller="Device" asp-action="Delete" asp-route-id="@item.DeviceID"><i class="ri-recycle-fill"></i></a>
+										</td>
 									</tr>
 								}
 							</tbody>

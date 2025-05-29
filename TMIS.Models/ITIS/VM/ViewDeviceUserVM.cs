@@ -1,0 +1,17 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc.Rendering;
+
+namespace TMIS.Models.ITIS.VM
+{
+    public class ViewDeviceUserVM
+    {   
+        public DeviceDetailVM? DeviceDetail { get; set; }             
+        public DeviceUserDetailVM? DeviceUserDetail { get; set; }
+    }
+}

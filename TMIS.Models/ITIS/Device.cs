@@ -60,5 +60,8 @@ namespace TMIS.Models.ITIS
         public bool IsRented { get; set; }
         [DisplayName("Is Brand New")]
         public bool IsBrandNew { get; set; }
+        public string? Status {  get; set; }
+        public string? Vendor {  get; set; }
+        public string? DeviceType {  get; set; }
     }
 }

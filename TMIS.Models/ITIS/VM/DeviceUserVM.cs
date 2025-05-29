@@ -14,5 +14,11 @@ namespace TMIS.Models.ITIS.VM
         public string? EmpName { get; set; }
         public string? Designation { get; set; }
         public string? SerialNumber { get; set; }
+        public string? DeviceType { get; set; }
+        public DateTime? AssignedDate { get; set; }
+        public string? LocationName { get; set; }
+        public string? DepartmentName{ get; set; }
+        public string? DeviceName{ get; set; }        
+        public string? AssignStatus{ get; set; }        
     }
 }

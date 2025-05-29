@@ -111,11 +111,14 @@ namespace TMIS.DataAccess.ITIS.Repository
         }
 
         public async Task<DeviceUserDetailVM> LoadUserDetail(int deviceID)
-        {
-           
-                string query = @"select AssignmentID, EMPNo, EMPName, Designation, AssignedDate, AssignRemarks
-                            , ApproverEMPNo, ApproverResponseDate, ApproverRemark 
-                            from ITIS_DeviceAssignments where DeviceID=@DeviceID and AssignStatusID not in (4, 5)";
+        {                                   
+            string query = @"select a.AssignmentID, a.EMPNo, a.EMPName, a.Designation, a.AssignedDate, a.AssignRemarks, st.PropName as AssignStatus
+                            , a.ApproverEMPNo, a.ApproverResponseDate, a.ApproverRemark, de.DepartmentName as AssignDepartment, l.LocationName as AssignLocation
+                            from ITIS_DeviceAssignments as a 
+                            inner join COMN_MasterTwoLocations as l on l.Id=a.AssignLocation
+                            inner join COMN_MasterDepartments as de on de.DepartmentID=a.AssignDepartment
+                            inner join ITIS_DeviceAssignStatus as st on st.Id=a.AssignStatusID
+                            where a.DeviceID=@DeviceID and a.AssignStatusID not in (4, 5)";
 
                 DeviceUserDetailVM? deviceUserDetail = await _dbConnection.GetConnection().QueryFirstOrDefaultAsync<DeviceUserDetailVM>(query, new
                 {

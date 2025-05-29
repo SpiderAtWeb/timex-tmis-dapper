@@ -24,13 +24,14 @@ namespace TMIS.DataAccess.ITIS.Repository
 
         public async Task<IEnumerable<DeviceUserVM>> GetAllAsync()
         {
-            string sql = @"SELECT dbo.ITIS_DeviceAssignments.EMPNo, dbo.ITIS_DeviceAssignments.EmpName,
-                            dbo.ITIS_Devices.SerialNumber, dbo.ITIS_DeviceAssignments.DeviceID,
-                            dbo.ITIS_DeviceAssignments.AssignmentID, 
-                                            dbo.ITIS_DeviceAssignments.Designation
-                        FROM dbo.ITIS_DeviceAssignments INNER JOIN
-                        dbo.ITIS_Devices ON dbo.ITIS_DeviceAssignments.DeviceID = dbo.ITIS_Devices.DeviceID
-                        where dbo.ITIS_DeviceAssignments.AssignStatusID not in (4,5)";
+            string sql = @"select a.AssignmentID, a.DeviceID, t.DeviceType, d.DeviceName, d.SerialNumber, a.EmpName, a.Designation, 
+                            a.AssignedDate, l.LocationName, de.DepartmentName, st.PropName as AssignStatus from ITIS_DeviceAssignments as a 
+                            inner join ITIS_Devices as d on d.DeviceID=a.DeviceID
+                            inner join ITIS_DeviceTypes as t on t.DeviceTypeID=d.DeviceTypeID
+                            inner join COMN_MasterTwoLocations as l on l.Id=a.AssignLocation
+                            inner join COMN_MasterDepartments as de on de.DepartmentID=a.AssignDepartment
+							inner join ITIS_DeviceAssignStatus as st on st.Id=a.AssignStatusID
+                            where a.AssignStatusID not in (4, 5)";
 
             return await _dbConnection.GetConnection().QueryAsync<DeviceUserVM>(sql);
         }

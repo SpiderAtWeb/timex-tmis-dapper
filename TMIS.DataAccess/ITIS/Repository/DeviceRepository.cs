@@ -25,8 +25,13 @@ namespace TMIS.DataAccess.ITIS.Repository
 
         public async Task<IEnumerable<Device>> GetAllAsync()
         {
-            string sql = @"select d.DeviceID, d.DeviceName, d.SerialNumber, d.FixedAssetCode, l.LocationName as Location 
-                            from ITIS_Devices as d inner join COMN_MasterTwoLocations as l on l.Id=d.Location";
+            string sql = @"select d.DeviceID, d.DeviceName, d.SerialNumber, d.FixedAssetCode, s.PropName as Status,
+                            v.Name as Vendor, d.PurchasedDate, d.Remark, t.DeviceType
+                            from ITIS_Devices as d 
+                            inner join COMN_MasterTwoLocations as l on l.Id=d.Location
+                            inner join ITIS_DeviceStatus as s on s.Id=d.DeviceStatusID
+                            inner join ITIS_VendorTemp as v on v.ID=d.VendorID
+                            inner join ITIS_DeviceTypes as t on t.DeviceTypeID=d.DeviceTypeID";
 
             return await _dbConnection.GetConnection().QueryAsync<Device>(sql);
         }

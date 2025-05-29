@@ -1,0 +1,163 @@
+@using TMIS.Models.ITIS.VM
+@model ViewDeviceUserVM
+
+@section VendorStyles {
+	<link rel="stylesheet" href="~/vendor/libs/flatpickr/flatpickr.css" />
+	<link rel="stylesheet" href="~/vendor/libs/select2/select2.css" />
+	<link href="~/css/input-text-upper.css" rel="stylesheet" />
+}
+
+@section VendorScripts {
+	<script src="~/vendor/libs/flatpickr/flatpickr.js"></script>
+	<script src="~/vendor/libs/select2/select2.js"></script>
+}
+
+@section PageScripts {
+	<script src="~/js/form-layouts.js"></script>
+	<script src="~/custom/input-text-upper.js"></script>
+}
+
+<!-- Multi Column with Form Separator -->
+<div class="card mb-6">
+	<h5 class="card-header page-header">
+		Device User Details
+	</h5>
+	<form class="card-body" id="myForm" enctype="multipart/form-data">
+		<input asp-for="@Model.DeviceDetail!.DeviceID" type="hidden" />
+		<input asp-for="@Model.DeviceUserDetail!.AssignmentID" type="hidden" />
+		<div class="row g-4">
+
+			<div class="card" id="deviceDetailsField">
+				<div class="card-header fw-bold">
+					Device Details
+				</div>
+				<div class="card-body">
+					<div class="row g-4" id="deviceDetailContainer">
+
+						<div class="col-md-4">
+							<div class="form-floating form-floating-outline">
+								<input type="text" class="form-control" value="@Model.DeviceDetail!.DeviceName" disabled />
+								<label>Device Name</label>
+							</div>
+						</div>
+						<div class="col-md-4">
+							<div class="form-floating form-floating-outline">
+								<input type="text" class="form-control" value="@Model.DeviceDetail!.SerialNumber" disabled />
+								<label>Serial Number</label>
+							</div>
+						</div>
+						<div class="col-md-4">
+							<div class="form-floating form-floating-outline">
+								<input type="text" class="form-control" value="@Model.DeviceDetail!.FixedAssetCode" disabled />
+								<label>FA Code</label>
+							</div>
+						</div>
+						<div class="col-md-4">
+							<div class="form-floating form-floating-outline">
+								<input type="text" class="form-control" value="@Model.DeviceDetail!.PurchasedDate?.ToString("MM-dd-yyyy")" disabled />
+								<label>Purchased Date</label>
+							</div>
+						</div>
+						<div class="col-md-4">
+							<div class="form-floating form-floating-outline">
+								<input type="text" class="form-control" value="@Model.DeviceDetail!.Depreciation" disabled />
+								<label>Depreciation</label>
+							</div>
+						</div>
+
+
+
+						@if (Model.DeviceDetail!.AttributeValues != null && Model.DeviceDetail!.AttributeValues.Any())
+						{
+							foreach (var item in Model.DeviceDetail!.AttributeValues)
+							{
+								<div class="col-md-4">
+									<div class="form-floating form-floating-outline">
+										<input type="text" class="form-control" value="@item.ValueText" disabled />
+										<label>@item.Name</label>
+									</div>
+								</div>
+							}
+						}
+					</div>
+				</div>
+			</div>
+			<div class="card" id="userDetailsField">
+				<div class="card-header fw-bold">
+					User Details
+				</div>
+				<div class="card-body">
+					<div class="row g-4" id="userDetailContainer">
+						<div class="col-md-4">
+							<div class="form-floating form-floating-outline">
+								<input type="text" class="form-control" value="@Model.DeviceUserDetail!.EmpName" disabled />
+								<label>Employee</label>
+							</div>
+						</div>
+						<div class="col-md-4">
+							<div class="form-floating form-floating-outline">
+								<input type="text" class="form-control" value="@Model.DeviceUserDetail!.Designation" disabled />
+								<label>Designation</label>
+							</div>
+						</div>
+						<div class="col-md-4">
+							<div class="form-floating form-floating-outline">
+								<input type="text" class="form-control" value="@Model.DeviceUserDetail!.AssignedDate?.ToString("MM-dd-yyyy")" disabled />
+								<label>Assigned Date</label>
+							</div>
+						</div>
+						<div class="col-md-4">
+							<div class="form-floating form-floating-outline">
+								<input type="text" class="form-control" value="@Model.DeviceUserDetail!.AssignRemarks" disabled />
+								<label>Assigner Comment</label>
+							</div>
+						</div>
+						<div class="col-md-4">
+							<div class="form-floating form-floating-outline">
+								<input type="text" class="form-control" value="@Model.DeviceUserDetail!.ApproverResponseDate?.ToString("MM-dd-yyyy")" disabled />
+								<label>Approved Date</label>
+							</div>
+						</div>
+						<div class="col-md-4">
+							<div class="form-floating form-floating-outline">
+								<input type="text" class="form-control" value="@Model.DeviceUserDetail!.ApproverRemark" disabled />
+								<label>Approver Comment</label>
+							</div>
+						</div>
+						<div class="col-md-4">
+							<div class="form-floating form-floating-outline">
+								<input type="text" class="form-control" value="@Model.DeviceUserDetail!.AssignLocation" disabled />
+								<label>Location</label>
+							</div>
+						</div>
+						<div class="col-md-4">
+							<div class="form-floating form-floating-outline">
+								<input type="text" class="form-control" value="@Model.DeviceUserDetail!.AssignDepartment" disabled />
+								<label>Department</label>
+							</div>
+						</div>
+						<div class="col-md-4">
+							<div class="form-floating form-floating-outline">
+								<input type="text" class="form-control" value="@Model.DeviceUserDetail!.AssignStatus" disabled />
+								<label>Assign State</label>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+
+			<div class="col-md-3">
+			</div>
+
+			<div id="activityContainer">
+			</div>
+
+			<div class="pt-1">
+				<a asp-controller="DeviceUser" asp-action="Index" class="btn btn-outline-secondary">Back to List</a>
+			</div>
+
+		</div>
+	</form>
+
+</div>
