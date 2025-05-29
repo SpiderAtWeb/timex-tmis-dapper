@@ -32,5 +32,8 @@ namespace TMIS.Models.ITIS.VM
         public bool IsBrandNew { get; set; }
 
         public List<AttributeValue>? AttributeValues{get;set;}
+
+        public string? Vendor {  get; set; }
+        public string? Status {  get; set; }
     }
 }

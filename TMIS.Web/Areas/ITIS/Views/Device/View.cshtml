@@ -64,9 +64,44 @@
 								<label>Depreciation</label>
 							</div>
 						</div>
-
-
-
+						<div class="col-md-4">
+							<div class="form-floating form-floating-outline">
+								<input type="text" class="form-control" value="@Model.DeviceDetail!.Vendor" disabled />
+								<label>Vendor</label>
+							</div>
+						</div>
+						<div class="col-md-2">
+							<div class="list-group">
+								<label class="list-group-item w-100">
+									<span class="form-check mb-0">
+										<input type="checkbox"
+											   class="form-check-input me-4"
+											   checked="@(Model.DeviceDetail!.IsRented == true)"
+											   disabled="@(Model.DeviceDetail.IsRented == true ? "disabled" : "disabled")" />
+										<label class="form-check-label" for="isRentedCheck">Is Rented</label>
+									</span>
+								</label>
+							</div>
+						</div>
+						<div class="col-md-2">
+							<div class="list-group">
+								<label class="list-group-item w-100">
+									<span class="form-check mb-0">
+										<input type="checkbox"
+											   class="form-check-input me-4"
+											   checked="@(Model.DeviceDetail!.IsBrandNew == true)"
+											   disabled="@(Model.DeviceDetail.IsBrandNew == true ? "disabled" : "disabled")" />
+										<label class="form-check-label" for="isRentedCheck">Is Brand New</label>
+									</span>
+								</label>
+							</div>
+						</div>
+						<div class="col-md-4">
+							<div class="form-floating form-floating-outline">
+								<input type="text" class="form-control" value="@Model.DeviceDetail!.Location" disabled />
+								<label>Location</label>
+							</div>
+						</div>
 						@if (Model.DeviceDetail!.AttributeValues != null && Model.DeviceDetail!.AttributeValues.Any())
 						{
 							foreach (var item in Model.DeviceDetail!.AttributeValues)
@@ -79,6 +114,58 @@
 								</div>
 							}
 						}
+						<div class="col-md-4">
+							<div class="image-preview">
+								@if (Model!.DeviceDetail!.Image1Data != null && Model!.DeviceDetail!.Image1Data.Length > 0)
+								{
+									var base64Image = Convert.ToBase64String(Model!.DeviceDetail!.Image1Data);
+									<img id="Img1" src="data:image/jpeg;base64,@base64Image" alt="Image Preview" style="max-width: 100%; height: auto;" />
+								}
+								else
+								{
+									<img src="~/img/my-images/no-image.jpg" alt="No Image Available" style="max-width: 100px; height: auto;" />
+								}
+							</div>
+						</div>
+						<div class="col-md-4">
+							<div class="image-preview">
+								@if (Model!.DeviceDetail!.Image2Data != null && Model!.DeviceDetail!.Image2Data.Length > 0)
+								{
+									var base64Image = Convert.ToBase64String(Model!.DeviceDetail!.Image2Data);
+									<img id="Img1" src="data:image/jpeg;base64,@base64Image" alt="Image Preview" style="max-width: 100%; height: auto;" />
+								}
+								else
+								{
+									<img src="~/img/my-images/no-image.jpg" alt="No Image Available" style="max-width: 100px; height: auto;" />
+								}
+							</div>
+						</div>
+						<div class="col-md-4">
+							<div class="image-preview">
+								@if (Model!.DeviceDetail!.Image3Data != null && Model!.DeviceDetail!.Image3Data.Length > 0)
+								{
+									var base64Image = Convert.ToBase64String(Model!.DeviceDetail!.Image3Data);
+									<img id="Img1" src="data:image/jpeg;base64,@base64Image" alt="Image Preview" style="max-width: 100%; height: auto;" />
+								}
+								else
+								{
+									<img src="~/img/my-images/no-image.jpg" alt="No Image Available" style="max-width: 100px; height: auto;" />
+								}
+							</div>
+						</div>
+						<div class="col-md-4">
+							<div class="image-preview">
+								@if (Model!.DeviceDetail!.Image4Data != null && Model!.DeviceDetail!.Image4Data.Length > 0)
+								{
+									var base64Image = Convert.ToBase64String(Model!.DeviceDetail!.Image4Data);
+									<img id="Img1" src="data:image/jpeg;base64,@base64Image" alt="Image Preview" style="max-width: 100%; height: auto;" />
+								}
+								else
+								{
+									<img src="~/img/my-images/no-image.jpg" alt="No Image Available" style="max-width: 100px; height: auto;" />
+								}
+							</div>
+						</div>						
 					</div>
 				</div>
 			</div>

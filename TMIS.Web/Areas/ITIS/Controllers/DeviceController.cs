@@ -44,6 +44,11 @@ namespace TMIS.Areas.ITIS.Controllers
       return View(viewDeviceVM);
     }
 
+    //public async Task<IActionResult> Edit(int deviceID)
+    //{
+
+    //}
+
     [HttpPost]
     public async Task<IActionResult> Create(CreateDeviceVM obj, IFormFile? image1, IFormFile? image2, IFormFile? image3, IFormFile? image4)
     {
