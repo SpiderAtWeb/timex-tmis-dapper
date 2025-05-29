@@ -23,7 +23,7 @@ namespace TMIS.Areas.ITIS.Controllers
     }
     public async Task<IActionResult> Create()
     {
-      var createDeviceVM = await _deviceRepository.LoadDropDowns();
+      var createDeviceVM = await _deviceRepository.LoadDropDowns(null);
       _logger.Info("[" + _iSessionHelper.GetShortName() + "] - PAGE VISIT DEVICE CREATE");
 
       return View(createDeviceVM);
@@ -44,16 +44,56 @@ namespace TMIS.Areas.ITIS.Controllers
       return View(viewDeviceVM);
     }
 
-    //public async Task<IActionResult> Edit(int deviceID)
-    //{
+    public async Task<IActionResult> Edit(int deviceID)
+    {
+      var createDeviceVM = await _deviceRepository.LoadDropDowns(deviceID);
+      _logger.Info("[" + _iSessionHelper.GetShortName() + "] - PAGE VISIT DEVICE Edit");
 
-    //}
+      return View(createDeviceVM);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Edit(CreateDeviceVM obj, IFormFile? image1, IFormFile? image2, IFormFile? image3, IFormFile? image4)
+    {
+      var createDeviceVM = await _deviceRepository.LoadDropDowns(obj.Device!.DeviceID);
+
+      if(obj.Device!.SerialNumber != null && obj.Device!.SerialNumber.Any())
+      {
+        if (await _deviceRepository.CheckSerialEdit(obj.Device!.SerialNumber, obj.Device!.DeviceID))
+        {
+          ModelState.AddModelError("Device.SerialNumber", "Serial Number Already Available !");
+        }
+      }
+
+      // Check if the ModelState is valid
+      if (!ModelState.IsValid)
+      {
+        return View(createDeviceVM);
+      }
+
+
+      // Insert Device
+      bool record = await _deviceRepository.UpdateDevice(obj, image1, image2, image3, image4);
+
+      if (!record)
+      {
+        return View(createDeviceVM);
+      }
+
+      // Show success message and redirect
+      TempData["success"] = "Record Update Successfully";
+
+      _logger.Info("DEVICE UPDATED [" + obj.Device.SerialNumber + "] - [" + _iSessionHelper.GetShortName() + "]");
+
+      return RedirectToAction("Index");
+
+    }
 
     [HttpPost]
     public async Task<IActionResult> Create(CreateDeviceVM obj, IFormFile? image1, IFormFile? image2, IFormFile? image3, IFormFile? image4)
     {
       // Load the necessary lists before validation
-      var createDeviceVM = await _deviceRepository.LoadDropDowns();
+      var createDeviceVM = await _deviceRepository.LoadDropDowns(null);
 
       if (obj.Device!.SerialNumber != null)
       {
@@ -91,7 +131,7 @@ namespace TMIS.Areas.ITIS.Controllers
       // Show success message and redirect
       TempData["success"] = "Record Created Successfully";
 
-      _logger.Info("DEVICE TYPE CREATED [" + obj.Device.SerialNumber + "] - [" + _iSessionHelper.GetShortName() + "]");
+      _logger.Info("DEVICE CREATED [" + obj.Device.SerialNumber + "] - [" + _iSessionHelper.GetShortName() + "]");
 
       return RedirectToAction("Index");
     }

@@ -81,7 +81,7 @@ namespace TMIS.DataAccess.ITIS.Repository
             return results;
         }
 
-        public async Task<DeviceDetailVM> LoadDeviceDetail(int deviceID)
+        public async Task<DeviceDetailVM> LoadDeviceDetail(int? deviceID)
         {
 
             string query = @"select d.DeviceName, d.SerialNumber, d.FixedAssetCode, d.PurchasedDate,d.depreciation, 
@@ -115,7 +115,7 @@ namespace TMIS.DataAccess.ITIS.Repository
 
         }
 
-        public async Task<DeviceUserDetailVM> LoadUserDetail(int deviceID)
+        public async Task<DeviceUserDetailVM> LoadUserDetail(int? deviceID)
         {
             string query = @"select a.AssignmentID, a.EMPNo, a.EMPName, a.Designation, a.AssignedDate, a.AssignRemarks, st.PropName as AssignStatus
                             , a.ApproverEMPNo, a.ApproverResponseDate, a.ApproverRemark, de.DepartmentName as AssignDepartment, l.LocationName as AssignLocation

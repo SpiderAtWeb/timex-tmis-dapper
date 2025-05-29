@@ -63,5 +63,7 @@ namespace TMIS.Models.ITIS
         public string? Status {  get; set; }
         public string? Vendor {  get; set; }
         public string? DeviceType {  get; set; }
+
+        public List<AttributeValue>? AttributeValues { get; set; }
     }
 }

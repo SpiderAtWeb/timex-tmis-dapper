@@ -15,5 +15,6 @@ namespace TMIS.Models.ITIS.VM
         public IEnumerable<SelectListItem>? VendorsList { get; set; }
         public Device? Device { get; set; }
         public List<AttributeWithOptionsVM>? Attributes { get; set; }
+        
     }
 }
