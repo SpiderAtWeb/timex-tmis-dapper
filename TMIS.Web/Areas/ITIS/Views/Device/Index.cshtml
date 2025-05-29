@@ -38,10 +38,10 @@
 	}
 }
 
-@await Html.PartialAsync("_Loading")
+	@await Html.PartialAsync("_Loading")
 
-@* ************** Content ************** *@
-<!-- Ajax Sourced Server-side -->
+	@* ************** Content ************** *@
+	<!-- Ajax Sourced Server-side -->
 <div class="panelDiv">
 	<div class="card mb-6">
 		<h5 class="card-header page-header">Devices</h5>
@@ -64,29 +64,29 @@
 									<th>Device State</th>
 									<th>Vendor</th>
 									<th>Purchased Date</th>
-									<th>Fixed Asset Code</th>								
-									<th>Action</th>									
+									<th>Fixed Asset Code</th>
+									<th>Action</th>
 								</tr>
 							</thead>
 							<tbody>
-								@foreach (var item in Model)
-								{
-									<tr>
-										<td class="d-none">@item.DeviceID</td>
-										<td>@item.DeviceType</td>
-										<td>@item.DeviceName</td>
-										<td>@item.SerialNumber</td>
-										<td>@item.Status</td>
-										<td>@item.Vendor</td>
-										<td>@item.PurchasedDate?.ToString("MM-dd-yyyy")</td>
-										<td>@item.FixedAssetCode</td>
-										<td>
-											<a class="btn btn-primary btn-sm" asp-controller="Device" asp-action="View" asp-route-id="@item.DeviceID"><i class="ri-eye-fill"></i></a>
-											<a class="btn btn-primary btn-sm" asp-controller="Device" asp-action="Edit" asp-route-id="@item.DeviceID"><i class="ri-pencil-fill"></i></a>
-											<a class="btn btn-primary btn-sm" asp-controller="Device" asp-action="Delete" asp-route-id="@item.DeviceID"><i class="ri-recycle-fill"></i></a>
-										</td>
-									</tr>
-								}
+							@foreach (var item in Model)
+							{
+								<tr>
+									<td class="d-none">@item.DeviceID</td>
+									<td>@item.DeviceType</td>
+									<td>@item.DeviceName</td>
+									<td>@item.SerialNumber</td>
+									<td>@item.Status</td>
+									<td>@item.Vendor</td>
+									<td>@item.PurchasedDate?.ToString("MM-dd-yyyy")</td>
+									<td>@item.FixedAssetCode</td>
+									<td>
+										<a class="btn btn-primary btn-sm" asp-controller="Device" asp-action="View" asp-route-deviceID="@item.DeviceID"><i class="ri-eye-fill"></i></a>
+										<a class="btn btn-primary btn-sm" asp-controller="Device" asp-action="Edit" asp-route-deviceID="@item.DeviceID"><i class="ri-pencil-fill"></i></a>
+										<a class="btn btn-primary btn-sm" asp-controller="Device" asp-action="Delete" asp-route-deviceID="@item.DeviceID"><i class="ri-recycle-fill"></i></a>
+									</td>
+								</tr>
+							}
 							</tbody>
 						</table>
 					</div>

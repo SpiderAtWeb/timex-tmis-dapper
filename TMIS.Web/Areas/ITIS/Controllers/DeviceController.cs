@@ -4,6 +4,7 @@ using Org.BouncyCastle.Asn1.Cms;
 using TMIS.DataAccess.COMON.IRpository;
 using TMIS.DataAccess.ITIS.IRepository;
 using TMIS.DataAccess.ITIS.Repository;
+using TMIS.Models.ITIS;
 using TMIS.Models.ITIS.VM;
 
 namespace TMIS.Areas.ITIS.Controllers
@@ -26,6 +27,21 @@ namespace TMIS.Areas.ITIS.Controllers
       _logger.Info("[" + _iSessionHelper.GetShortName() + "] - PAGE VISIT DEVICE CREATE");
 
       return View(createDeviceVM);
+    }
+
+    public async Task<IActionResult> View(int deviceID)
+    {
+      _logger.Info("[" + _iSessionHelper.GetShortName() + "] - PAGE VISIT DEVICE VIEW");
+
+      var deviceDetails = await _deviceRepository.LoadDeviceDetail(deviceID);
+      var userDetails = await _deviceRepository.LoadUserDetail(deviceID);
+
+      ViewDeviceVM viewDeviceVM = new ViewDeviceVM();
+
+      viewDeviceVM.DeviceUserDetail = userDetails;
+      viewDeviceVM.DeviceDetail = deviceDetails;
+
+      return View(viewDeviceVM);
     }
 
     [HttpPost]

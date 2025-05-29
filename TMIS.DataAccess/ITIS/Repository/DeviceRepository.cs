@@ -223,5 +223,23 @@ namespace TMIS.DataAccess.ITIS.Repository
             }
 
         }
+
+        public async Task<DeviceDetailVM> LoadDeviceDetail(int deviceID)
+        {
+            var objDeviceDetailVM = new DeviceDetailVM();
+
+            objDeviceDetailVM = await _icommonList.LoadDeviceDetail(deviceID);
+
+            return objDeviceDetailVM;
+        }
+
+        public async Task<DeviceUserDetailVM> LoadUserDetail(int deviceID)
+        {
+            var objDeviceUserDetailVM = new DeviceUserDetailVM();
+
+            objDeviceUserDetailVM = await _icommonList.LoadUserDetail(deviceID);
+
+            return objDeviceUserDetailVM;
+        }
     }
 }
