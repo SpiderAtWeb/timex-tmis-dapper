@@ -1,12 +1,13 @@
 using log4net;
 using Microsoft.AspNetCore.Mvc;
+using TMIS.Controllers;
 using TMIS.DataAccess.PLMS.IRpository;
 using TMIS.Models.PLMS;
 
 namespace TMIS.Areas.PLMS.Controllers
 {
   [Area("PLMS")]
-  public class CriticalPathActivitiesController(ISaveCriticalPathActivity db) : Controller
+  public class CriticalPathActivitiesController(ISaveCriticalPathActivity db) : BaseController
   {
     private readonly ILog _logger = LogManager.GetLogger(typeof(CriticalPathActivitiesController));
     private readonly ISaveCriticalPathActivity _db = db;

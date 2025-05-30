@@ -1,13 +1,14 @@
 using log4net;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using TMIS.Controllers;
 using TMIS.DataAccess.COMON.IRpository;
 using TMIS.DataAccess.PLMS.IRpository;
 
 namespace TMIS.Areas.PLMS.Controllers
 {
   [Area("PLMS")]
-  public class OverviewController(IOverview overview, ISessionHelper sessionHelper) : Controller
+  public class OverviewController(IOverview overview, ISessionHelper sessionHelper) : BaseController
   {
 
     private readonly ILog _logger = LogManager.GetLogger(typeof(OverviewController));

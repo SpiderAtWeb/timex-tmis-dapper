@@ -1,12 +1,13 @@
 using log4net;
 using Microsoft.AspNetCore.Mvc;
+using TMIS.Controllers;
 using TMIS.DataAccess.COMON.IRpository;
 using TMIS.DataAccess.PLMS.IRpository;
 
 namespace TMIS.Areas.PLMS.Controllers
 {
   [Area("PLMS")]
-  public class UpdateSMVController(ISMV smv, ISessionHelper sessionHelper) : Controller
+  public class UpdateSMVController(ISMV smv, ISessionHelper sessionHelper) : BaseController
   {
     private readonly ILog _logger = LogManager.GetLogger(typeof(UpdateSMVController));
     private readonly ISMV _smv = smv;

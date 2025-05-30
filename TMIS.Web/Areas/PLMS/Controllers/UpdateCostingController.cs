@@ -1,5 +1,6 @@
 using log4net;
 using Microsoft.AspNetCore.Mvc;
+using TMIS.Controllers;
 using TMIS.DataAccess.COMON.IRpository;
 using TMIS.DataAccess.PLMS.IRpository;
 using TMIS.DataAccess.PLMS.Rpository;
@@ -8,7 +9,7 @@ using TMIS.Models.PLMS;
 namespace TMIS.Areas.PLMS.Controllers
 {
   [Area("PLMS")]
-  public class UpdatePriceController(ICosting costing, ISessionHelper sessionHelper) : Controller
+  public class UpdatePriceController(ICosting costing, ISessionHelper sessionHelper) : BaseController
   {
     private readonly ILog _logger = LogManager.GetLogger(typeof(UpdatePriceController));
     private readonly ICosting _costing = costing;

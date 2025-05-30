@@ -1,6 +1,7 @@
 using log4net;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using TMIS.Controllers;
 using TMIS.DataAccess.COMON.IRpository;
 using TMIS.DataAccess.SMIM.IRpository;
 using TMIS.Models.SMIS.VM;
@@ -8,7 +9,7 @@ using TMIS.Models.SMIS.VM;
 namespace TMIS.Areas.SMIS.Controllers
 {
   [Area("SMIS")]
-  public class OverviewController(IDashBoard db, ISessionHelper sessionHelper) : Controller
+  public class OverviewController(IDashBoard db, ISessionHelper sessionHelper) : BaseController
   {
     private readonly ILog _logger = LogManager.GetLogger(typeof(OverviewController));
     private readonly IDashBoard _db = db;

@@ -1,5 +1,6 @@
 using log4net;
 using Microsoft.AspNetCore.Mvc;
+using TMIS.Controllers;
 using TMIS.DataAccess.GDRM.IRpository;
 using TMIS.Models.GDRM;
 using TMIS.Models.GDRM.VM;
@@ -7,7 +8,7 @@ using TMIS.Models.GDRM.VM;
 namespace TMIS.Areas.GDRM.Controllers
 {
   [Area("GDRM")]
-  public class GoodsPassController(IGRGoods db) : Controller
+  public class GoodsPassController(IGRGoods db) : BaseController
   {
     private readonly ILog _logger = LogManager.GetLogger(typeof(GoodsPassController));
     private readonly IGRGoods _db = db;

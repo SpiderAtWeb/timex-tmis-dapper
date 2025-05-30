@@ -1,5 +1,6 @@
 using log4net;
 using Microsoft.AspNetCore.Mvc;
+using TMIS.Controllers;
 using TMIS.DataAccess.COMON.IRpository;
 using TMIS.Models.SMIS;
 
@@ -8,7 +9,7 @@ namespace TMIS.Areas.PLMS.Controllers
 {
 
   [Area("PLMS")]
-  public class MasterInquiriesController(ITwoFieldsMDataAccess db, ISessionHelper sessionHelper) : Controller
+  public class MasterInquiriesController(ITwoFieldsMDataAccess db, ISessionHelper sessionHelper) : BaseController
   {
     private readonly ITwoFieldsMDataAccess _db = db;
     private readonly ILog _logger = LogManager.GetLogger(typeof(MasterInquiriesController));

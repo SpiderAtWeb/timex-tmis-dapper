@@ -1,5 +1,6 @@
 using log4net;
 using Microsoft.AspNetCore.Mvc;
+using TMIS.Controllers;
 using TMIS.DataAccess.COMON.IRpository;
 using TMIS.DataAccess.SMIM.IRpository;
 using TMIS.Helper;
@@ -8,7 +9,7 @@ using TMIS.Models.SMIS.VM;
 namespace TMIS.Areas.SMIS.Controllers
 {
   [Area("SMIS")]
-  public class MachineEditController(IInventory db, ISessionHelper sessionHelper, IUserControls userControls) : Controller
+  public class MachineEditController(IInventory db, ISessionHelper sessionHelper, IUserControls userControls) : BaseController
   {
     private readonly ILog _logger = LogManager.GetLogger(typeof(MachineEditController));
     private readonly IInventory _db = db;

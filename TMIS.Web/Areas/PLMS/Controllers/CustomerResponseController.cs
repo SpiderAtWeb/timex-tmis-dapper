@@ -1,12 +1,13 @@
 using log4net;
 using Microsoft.AspNetCore.Mvc;
+using TMIS.Controllers;
 using TMIS.DataAccess.COMON.IRpository;
 using TMIS.DataAccess.PLMS.IRpository;
 
 namespace TMIS.Areas.PLMS.Controllers
 {
   [Area("PLMS")]
-  public class CustomerResponseController(ICommon common, IFeedback feedback, ISessionHelper sessionHelper) : Controller
+  public class CustomerResponseController(ICommon common, IFeedback feedback, ISessionHelper sessionHelper) : BaseController
   {
     private readonly ILog _logger = LogManager.GetLogger(typeof(CustomerResponseController));
     private readonly ICommon _common = common;
