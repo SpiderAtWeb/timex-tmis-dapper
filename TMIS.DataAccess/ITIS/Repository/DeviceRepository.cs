@@ -90,7 +90,7 @@ namespace TMIS.DataAccess.ITIS.Repository
             string sql = @"SELECT att.AttributeID, att.Name, att.DataType, ty.AttributeType
                             FROM ITIS_Attributes AS att
                             INNER JOIN ITIS_AttributeType AS ty ON ty.ID = att.DataType
-                            WHERE att.DeviceTypeID=@DeviceTypeID";
+                            WHERE att.DeviceTypeID=@DeviceTypeID and att.IsDelete=0";
 
             var attributes = (await _dbConnection.GetConnection().QueryAsync<AttributeWithOptionsVM>(sql, new {
                 DeviceTypeID = deviceID

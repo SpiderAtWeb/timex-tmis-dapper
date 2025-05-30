@@ -84,7 +84,7 @@ namespace TMIS.DataAccess.ITIS.Repository
         public async Task<DeviceDetailVM> LoadDeviceDetail(int? deviceID)
         {
 
-            string query = @"select d.DeviceName, d.SerialNumber, d.FixedAssetCode, d.PurchasedDate,d.depreciation, 
+            string query = @"select d.DeviceName, d.SerialNumber, d.FixedAssetCode, d.PurchasedDate,d.depreciation, d.Remark,
                             d.IsRented, d.IsBrandNew, v.Name as Vendor, d.Image1Data, d.Image2Data, d.Image3Data, d.Image4Data,
                             s.PropName as Status, l.LocationName as Location
                             from ITIS_Devices as d

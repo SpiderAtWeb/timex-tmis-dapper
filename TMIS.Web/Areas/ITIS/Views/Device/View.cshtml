@@ -102,6 +102,12 @@
 								<label>Location</label>
 							</div>
 						</div>
+						<div class="col-md-4">
+							<div class="form-floating form-floating-outline">
+								<input type="text" class="form-control" value="@Model.DeviceDetail!.Remark" disabled />
+								<label>Description</label>
+							</div>
+						</div>
 						@if (Model.DeviceDetail!.AttributeValues != null && Model.DeviceDetail!.AttributeValues.Any())
 						{
 							foreach (var item in Model.DeviceDetail!.AttributeValues)
