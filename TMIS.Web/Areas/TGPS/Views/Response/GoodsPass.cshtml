@@ -1,4 +1,4 @@
-@model IEnumerable<EmpPassVM>
+@model IEnumerable<GoodsPassList>
 
 @section VendorStyles {
     <link rel="stylesheet" href="~/vendor/libs/datatables-bs5/datatables.bootstrap5.css">
@@ -15,14 +15,17 @@
 
 @section PageScripts {
     <script src="~/js/form-layouts.js"></script>
+
     <script>
+              let currentGatePassId = null;
+
         $(document).ready(function () {
             // When fa-eye icon is clicked
             $('.btn-y-action').on('click', function () {
-                var gatePassId = $(this).data("id");
+                currentGatePassId = $(this).data("id");
 
                 // Load data via AJAX
-                $.get("/TGPS/GenEmpPass/GetGatePassDetails", { id: gatePassId }, function (data) {
+                $.get("/TGPS/Response/GetGGatePassDetails", { id: currentGatePassId }, function (data) {
                     $("#gatePassModalContent").html(data);
                     $("#viewGatePassModal").modal("show");
                 }).fail(function () {
@@ -30,8 +33,35 @@
                     $("#viewGatePassModal").modal("show");
                 });
             });
+
+            // Approve button click
+            $(document).on('click', '#btnApprove', function () {
+                handleGatePassAction('1');
+            });
+
+            // Reject button click
+            $(document).on('click', '#btnReject', function () {
+                handleGatePassAction('2');
+            });
+
+            function handleGatePassAction(action) {
+                if (!currentGatePassId) return;
+
+                $.post("/TGPS/Response/HandleGGatePassAction", {
+                    id: currentGatePassId,
+                    action: action
+                }).done(function () {
+                    $("#viewGatePassModal").modal("hide");
+                    location.reload(); // Refresh the page
+                }).fail(function () {
+                    alert("Failed to " + action + " gate pass.");
+                });
+            }
         });
+
     </script>
+
+
 }
 
 
@@ -52,50 +82,37 @@
 @await Html.PartialAsync("_Loading")
 <div class="panelDiv">
     <div class="card">
-        <h5 class="card-header page-header">Generated Goods Gate Passes</h5>
+        <h5 class="card-header page-header">Pending Gate Passes To Respond</h5>
         <div class="card-body">
+                        <div class="row">
 
-          <div class="row">              
-                <div class="col-6">
-                    <small class="text-light fw-medium">Previous generated Gate passes and the status.</small>
-                </div>
-                <div class="col-6 text-end">
-                    <a asp-action="Create" class="btn btn-primary"> <i class="ri-add-line"></i> <span class="d-none d-sm-inline-block">Create New</span></a>
-                </div>
-            </div>          
-
-            <div class="row">              
                 <table class="datatables-ajax table table-bordered dt-tbl">
                     <thead>
                         <tr class="table-info">
                             <th class="d-none">Id</th>
                             <th>Gatepass #</th>
-                            <th>Gate Name</th>
-                            <th>Location</th>
-                            <th>Reason</th>
-                            <th>OutTime</th>
-                            <th>IsReturn</th>
-                            <th>Response</th>
+                            <th>GP Subject</th>
+                            <th>Date/Time</th>
+                            <th>To</th>
+                            <th>Status</th>
                             <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                           @foreach (var item in Model)
-                            {
-                                <tr>
-                                    <td class="d-none">@item.Id</td>
-                                <td>@item.EmpGpNo</td>
-                                <td>@item.GateName</td>
-                                <td>@item.ExpLoc</td>
-                                <td>@item.ExpReason</td>
-                                <td>@item.ExpOutTime</td>
-                                <td>@item.IsReturn</td>
-                                <td>@item.IsResponsed</td>
-                                    <td>
-                                        <span class="btn btn-success btn-y-action" data-id="@item.Id"><i class="fa-solid fa-eye"></i></span>
-                                    </td>
-                                </tr>
-                            }
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="d-none">@item.Id</td>
+                                <td>@item.GatePassNo</td>
+                                <td>@item.GpSubject</td>
+                                <td>@item.GenDateTime</td>
+                                <td>@item.GenGPassTo</td>
+                                <td>@item.PassStatus</td>
+                                <td>
+                                    <span class="btn btn-success btn-y-action" data-id="@item.Id"><i class="fa-solid fa-eye"></i></span>
+                                </td>
+                            </tr>
+                        }
                     </tbody>
                 </table>
             </div>

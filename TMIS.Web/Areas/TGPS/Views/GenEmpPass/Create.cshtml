@@ -68,6 +68,8 @@
           </div>
         </div>`;
           $('#personContainer').append(newRow);
+          $('#employeeName').val('');
+           $('#employeeEpf').val('');
         });
 
                 function reindexPersonRows() {
@@ -135,7 +137,7 @@
                         <select asp-for="@Model.EmployeePass.ApprovedById" asp-items="@Model.ApprovEmps" class="select2 form-select" data-allow-clear="true">
                             <option disabled selected>- Select From -</option>
                         </select>
-                        <label for="ApprovedById">Exit Guard Room</label>
+                        <label for="ApprovedById">Approve Person</label>
                     </div>
                 </div>
                 <div class="col-3 g-1">
@@ -164,13 +166,13 @@
                 </div>
                 <div class="col-4 g-1">
                     <div class="form-floating form-floating-outline">
-                        <input type="text" id="employeeName" class="form-control" placeholder="John Doe" required>
+                        <input type="text" id="employeeName" class="form-control" placeholder="John Doe">
                         <label for="employeeName">Employee Name</label>
                     </div>
                 </div>
                 <div class="col-4 g-1">
                     <div class="form-floating form-floating-outline">
-                        <input type="text" id="employeeEpf" class="form-control" placeholder="1308596" required>
+                        <input type="text" id="employeeEpf" class="form-control" placeholder="1308596">
                         <label for="employeeEpf">Employee EPF</label>
                     </div>
                 </div>

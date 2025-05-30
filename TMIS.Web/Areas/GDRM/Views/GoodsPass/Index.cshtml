@@ -338,7 +338,7 @@
                             @foreach (var item in Model.GPNumbersList.Where(x => !x.IsOut).Take(5))
                             {
                                 <button type="button" class="btn rounded-pill btn-secondary m-1 gp-btn" data-isout="@item.IsOut" data-id="@item.GPRouteId">
-                            @item.GPNumber
+                                 @item.GPNumber
                             </button>
                             }
                         </div>
@@ -348,7 +348,8 @@
         </div>
     </div>
 
-    <div class="card mb-2">
+    @if (Model.GPNumbersList.Count > 0)
+    {  <div class="card mb-2">
         <div class="card-body">
             <input type="hidden" id="slectedGpId" />
             <input type="hidden" id="slectedGpIsOut" />
@@ -429,6 +430,17 @@
           
         </div>
     </div>
+    }
+else
+    {
+       <div class="card mb-2">
+        <div class="card-body">
+        <div class="alert alert-info" role="alert">
+            No pending gatepasses available.
+        </div>
+        </div>
+    </div>
+    }
 
     <div class="card mb-2">
         <div class="card-body">

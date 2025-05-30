@@ -1,12 +1,13 @@
 using log4net;
 using Microsoft.AspNetCore.Mvc;
+using TMIS.Controllers;
 using TMIS.DataAccess.TGPS.IRpository;
 using TMIS.Models.TGPS.VM;
 
 namespace TMIS.Areas.TGPS.Controllers;
 
 [Area("TGPS")]
-public class GenGoodsPassController(IGoodsGatePass db) : Controller
+public class GenGoodsPassController(IGoodsGatePass db) : BaseController
 {
 
   private readonly ILog _logger = LogManager.GetLogger(typeof(GenGoodsPassController));

@@ -15,14 +15,17 @@
 
 @section PageScripts {
     <script src="~/js/form-layouts.js"></script>
+
     <script>
+              let currentGatePassId = null;
+
         $(document).ready(function () {
             // When fa-eye icon is clicked
             $('.btn-y-action').on('click', function () {
-                var gatePassId = $(this).data("id");
+                currentGatePassId = $(this).data("id");
 
                 // Load data via AJAX
-                $.get("/TGPS/GenEmpPass/GetGatePassDetails", { id: gatePassId }, function (data) {
+                $.get("/TGPS/Response/GetEGatePassDetails", { id: currentGatePassId }, function (data) {
                     $("#gatePassModalContent").html(data);
                     $("#viewGatePassModal").modal("show");
                 }).fail(function () {
@@ -30,7 +33,32 @@
                     $("#viewGatePassModal").modal("show");
                 });
             });
+
+            // Approve button click
+            $(document).on('click', '#btnApprove', function () {
+                handleGatePassAction('1');
+            });
+
+            // Reject button click
+            $(document).on('click', '#btnReject', function () {
+                handleGatePassAction('2');
+            });
+
+            function handleGatePassAction(action) {
+                if (!currentGatePassId) return;
+
+                $.post("/TGPS/Response/HandleEGatePassAction", {
+                    id: currentGatePassId,
+                    action: action
+                }).done(function () {
+                    $("#viewGatePassModal").modal("hide");
+                    location.reload(); // Refresh the page
+                }).fail(function () {
+                    alert("Failed to " + action + " gate pass.");
+                });
+            }
         });
+
     </script>
 }
 
@@ -55,16 +83,16 @@
         <h5 class="card-header page-header">Generated Goods Gate Passes</h5>
         <div class="card-body">
 
-          <div class="row">              
+            <div class="row">
                 <div class="col-6">
                     <small class="text-light fw-medium">Previous generated Gate passes and the status.</small>
                 </div>
                 <div class="col-6 text-end">
                     <a asp-action="Create" class="btn btn-primary"> <i class="ri-add-line"></i> <span class="d-none d-sm-inline-block">Create New</span></a>
                 </div>
-            </div>          
+            </div>
 
-            <div class="row">              
+            <div class="row">
                 <table class="datatables-ajax table table-bordered dt-tbl">
                     <thead>
                         <tr class="table-info">
@@ -80,10 +108,10 @@
                         </tr>
                     </thead>
                     <tbody>
-                           @foreach (var item in Model)
-                            {
-                                <tr>
-                                    <td class="d-none">@item.Id</td>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="d-none">@item.Id</td>
                                 <td>@item.EmpGpNo</td>
                                 <td>@item.GateName</td>
                                 <td>@item.ExpLoc</td>
@@ -91,11 +119,11 @@
                                 <td>@item.ExpOutTime</td>
                                 <td>@item.IsReturn</td>
                                 <td>@item.IsResponsed</td>
-                                    <td>
-                                        <span class="btn btn-success btn-y-action" data-id="@item.Id"><i class="fa-solid fa-eye"></i></span>
-                                    </td>
-                                </tr>
-                            }
+                                <td>
+                                    <span class="btn btn-success btn-y-action" data-id="@item.Id"><i class="fa-solid fa-eye"></i></span>
+                                </td>
+                            </tr>
+                        }
                     </tbody>
                 </table>
             </div>

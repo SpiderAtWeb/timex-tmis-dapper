@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using iTextSharp.text;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Data;
 using TMIS.DataAccess.COMON.IRpository;
@@ -11,6 +12,15 @@ namespace TMIS.DataAccess.TGPS.Rpository
     {
         private readonly IDatabaseConnectionSys _dbConnection = dbConnection;
         private readonly ISessionHelper _iSessionHelper = sessionHelper;
+
+        public async Task<IEnumerable<EmpPassVM>> GetList()
+        {
+            string sql = @"SELECT  Id, [EmpGpNo], [GateName], [ExpLoc], [ExpReason], [ExpOutTime], [IsReturn], [IsResponsed]
+            FROM            TGPS_VwEGPHeaders
+            WHERE        (GenUserId = @GenUser)";
+
+            return await _dbConnection.GetConnection().QueryAsync<EmpPassVM>(sql, new { GenUser = _iSessionHelper.GetUserId() });
+        }
 
         public async Task<EmployeePassVM> GetAllAsync()
         {
@@ -52,7 +62,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
             return items;
         }
 
-        public async Task<int> InsertEmployeePassAsync(EmployeePassVM model)
+        public async Task<string> InsertEmployeePassAsync(EmployeePassVM model)
         {
             using var dbConnection = _dbConnection.GetConnection();
             using var transaction = dbConnection.BeginTransaction();
@@ -60,33 +70,38 @@ namespace TMIS.DataAccess.TGPS.Rpository
             var userId = _iSessionHelper.GetUserId();
             try
             {
+
+                string genRef = await GenerateGpRefAsync(dbConnection, transaction);
+
                 // Insert Header
                 string insertHeaderSql = @"
-            INSERT INTO [dbo].[TGPS_TrGpEmpHeader]
-                ([EGpLocId], [ExpLoc], [ExpReason], [ExpOutTime], [GenUserId], [IsNoReturn])
-            VALUES
-                (@GuardRoomId, @Location, @Reason, @OutTime, @GenUserId, @IsNoReturn);
-            SELECT CAST(SCOPE_IDENTITY() as int);";
+                INSERT INTO [dbo].[TGPS_TrGpEmpHeader]
+                    ([EmpGpNo], [EGpLocId], [ExpLoc], [ExpReason], [ExpOutTime], ExpDate, [GenUserId], [IsNoReturn], IsResponsed, ApprovedById)
+                VALUES
+                    (@EmpGpNo, @GuardRoomId, @Location, @Reason, @OutTime, GETDATE(), @GenUserId, @IsNoReturn, 0, @ApprovedById);
+                SELECT CAST(SCOPE_IDENTITY() as int);";
 
                 var headerId = await dbConnection.ExecuteScalarAsync<int>(
                     insertHeaderSql,
                     new
                     {
+                        EmpGpNo = genRef,
                         model.EmployeePass.GuardRoomId,
                         model.EmployeePass.Location,
                         model.EmployeePass.Reason,
                         OutTime = TimeSpan.Parse(model.EmployeePass.OutTime),
                         GenUserId = userId,
-                        model.EmployeePass.IsNoReturn
+                        model.EmployeePass.IsNoReturn,
+                        model.EmployeePass.ApprovedById
                     },
                     transaction
                 );
 
                 // Insert Details
                 string insertDetailSql = @"
-            INSERT INTO [dbo].[TGPS_TrGpEmpDetails]
-                ([EGpPassId], [EmpName], [EmpEPF], [ReturnTime], [ResponsedUserId])
-            VALUES
+                INSERT INTO [dbo].[TGPS_TrGpEmpDetails]
+                    ([EGpPassId], [EmpName], [EmpEPF], [ReturnTime], [ResponsedUserId])
+                VALUES
                 (@EGpPassId, @EmpName, @EmpEPF, @ReturnTime, @ResponsedUserId);";
 
                 foreach (var emp in model.EmployeePass.EmpPassEmpList)
@@ -106,7 +121,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
                 }
 
                 transaction.Commit();
-                return headerId;
+                return genRef;
             }
             catch
             {
@@ -168,6 +183,31 @@ namespace TMIS.DataAccess.TGPS.Rpository
             return reference;
         }
 
+        public async Task<EmpPassVM> GetEmpPassesAsync(int id)
+        {
+            using var dbConnection = _dbConnection.GetConnection();
 
+            string headerSql = @"SELECT [EmpGpNo], [GateName], [ExpLoc], [ExpReason], [ExpOutTime], [IsReturn], [IsResponsed], [ResponsedBy], [ResponsedDateTime]
+                FROM [TMIS].[dbo].[TGPS_VwEGPHeaders] WHERE Id = @Id;";
+
+
+            // Fetch header details using Id
+            var header = await dbConnection.QuerySingleOrDefaultAsync<EmpPassVM>(headerSql, new { Id = id });
+
+            if (header == null)
+            {
+                throw new InvalidOperationException($"No header found for Id {id}");
+            }
+
+            // Fetch details using EGpPassId (matches EmpGpNo from header)
+            var detailsSql = @"SELECT  [EGpPassId], [EmpName], [EmpEPF], [ReturnTime], [ResponsedUser]
+                FROM [TMIS].[dbo].[TGPS_VwEGPDetails] WHERE EGpPassId = @Id;";
+
+            var details = await dbConnection.QueryAsync<EmpPassEmployees>(detailsSql, new { Id = id });
+
+            header.ShowGPItemVMList = details.ToList();
+
+            return header;
+        }
     }
 }

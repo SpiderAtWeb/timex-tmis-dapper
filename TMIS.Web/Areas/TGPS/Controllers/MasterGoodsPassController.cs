@@ -1,6 +1,7 @@
 using log4net;
 using Microsoft.AspNetCore.Mvc;
 using System.Data.Entity;
+using TMIS.Controllers;
 using TMIS.DataAccess.TGPS.IRpository;
 using TMIS.DataAccess.TGPS.Rpository;
 using TMIS.Models.TGPS;
@@ -9,7 +10,7 @@ namespace TMIS.Areas.TGPS.Controllers
 {
   [Area("TGPS")]
 
-  public class MasterGoodsPassController(IAddressBank db) : Controller
+  public class MasterGoodsPassController(IAddressBank db) : BaseController
   {
     private readonly ILog _logger = LogManager.GetLogger(typeof(GenGoodsPassController));
     private readonly IAddressBank _db = db;
