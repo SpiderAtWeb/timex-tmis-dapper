@@ -105,6 +105,7 @@ builder.Services.AddScoped<IReportRepository, ReportRepository>();
 //TGPS
 builder.Services.AddScoped<IGoodsGatePass, GoodsGatePass>();
 builder.Services.AddScoped<IAddressBank, AddressBank>();
+builder.Services.AddScoped<IEmployeePass, EmployeePass>();
 
 //GDRM
 builder.Services.AddScoped<IGRGoods, GRGoods>();

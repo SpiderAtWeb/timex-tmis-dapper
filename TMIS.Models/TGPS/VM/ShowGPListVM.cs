@@ -1,6 +1,6 @@
 ﻿namespace TMIS.Models.TGPS.VM
 {
-    public partial class ShowGPListVM
+    public class ShowGPListVM
     {
         public int Id { get; set; }
         public string GGpReference { get; set; } = string.Empty;
@@ -13,5 +13,7 @@
         public string ApprovedDateTime { get; set; } = string.Empty;
         public List<ShowGPItemVM> ShowGPItemVMList { get; set; } = [];
         public List<ShowGPRoutesVM> ShowGPRoutesList { get; set; } = [];
+        public List<ShowGPListErrorsVM> ShowGPListErrorsList { get; set; } = [];
+
     }
 }

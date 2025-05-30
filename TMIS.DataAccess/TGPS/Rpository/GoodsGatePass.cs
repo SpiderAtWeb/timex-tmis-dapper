@@ -219,7 +219,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
 
             // 1. Try to get the generator for the current year
             var selectSql = @"SELECT TOP 1 [Id], [GenYear], [GenNo], [LastGeneratedDate]
-            FROM [dbo].[TGPS_XysGenerateNumber] WHERE GenYear = @Year";
+            FROM [dbo].[TGPS_XysGenerateNumber] WHERE GenYear = @Year AND GpType='TGP'";
 
             var generator = await connection.QuerySingleOrDefaultAsync<dynamic>(
                 selectSql, new { Year = currentYear }, transaction);
@@ -233,7 +233,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
                 genNo = 1;
 
                 var insertSql = @"INSERT INTO [dbo].[TGPS_XysGenerateNumber]
-                    (GenYear, GenNo, LastGeneratedDate) VALUES (@GenYear, @GenNo, GETDATE());
+                    (GenYear, GenNo, LastGeneratedDate, GpType) VALUES (@GenYear, @GenNo, GETDATE(),'TEP' );
                     SELECT CAST(SCOPE_IDENTITY() AS INT);";
 
                 await connection.ExecuteScalarAsync<int>(
@@ -252,7 +252,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
                 UPDATE [dbo].[TGPS_XysGenerateNumber]
                 SET GenNo = @NewGenNo,
                     LastGeneratedDate = GETDATE()
-                WHERE Id = @Id;";
+                 WHERE Id = @Id AND GpType='TGP';";
 
                 await connection.ExecuteAsync(
                     updateSql,
@@ -285,19 +285,25 @@ namespace TMIS.DataAccess.TGPS.Rpository
             SELECT [Id], [GGpReference], [GpSubject], [GeneratedUser], [GeneratedDateTime],
                    [Attention], [GGPRemarks], [ApprovedBy], [ApprovedDateTime],
                    [ItemName], [ItemDescription], [Quantity], [UOM]
-            FROM [TMIS].[dbo].[TGPS_VwGatePassList] 
-            WHERE [Id] = @GPID;
+            FROM   [TMIS].[dbo].[TGPS_VwGatePassList] 
+            WHERE  [Id] = @GPID;
 
             SELECT [GGpPassId], [Id], [LocationName], [ROrder], [RecGRName], [RecUser], [RecGRDateTime],
                    [RecVehicle], [RecDriver], [SendGRName], [SendUser], [SendGRDateTime], 
                    [SendVehicle], [SendDriver]
             FROM [TMIS].[dbo].[TGPS_VwGatePassRoutes] 
-            WHERE [GGpPassId] = @GPID;";
+            WHERE [GGpPassId] = @GPID;
+
+             SELECT GpRouteId, ItemName, SendError, RecError
+                    FROM TGPS_VwGatePassErrors
+                    WHERE GGpPassId = @GPID;";
 
                 using (var multi = await connection.QueryMultipleAsync(sql, new { GPID = id }))
                 {
                     var flatList = (await multi.ReadAsync<dynamic>()).ToList();
                     var routes = (await multi.ReadAsync<ShowGPRoutesVM>()).ToList();
+                    var errors = (await multi.ReadAsync<ShowGPListErrorsVM>()).ToList();
+
 
                     if (!flatList.Any())
                         return null;
@@ -323,7 +329,8 @@ namespace TMIS.DataAccess.TGPS.Rpository
                             Quantity = i.Quantity?.ToString() ?? "",
                             UOM = i.UOM
                         }).ToList(),
-                        ShowGPRoutesList = routes
+                        ShowGPRoutesList = routes,
+                        ShowGPListErrorsList = errors
                     };
 
                     return result;

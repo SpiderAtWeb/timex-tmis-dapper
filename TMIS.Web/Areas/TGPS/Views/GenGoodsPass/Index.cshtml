@@ -102,7 +102,7 @@
     <script>
         $(document).ready(function () {
             // When fa-eye icon is clicked
-            $(".fa-eye").closest("span").on("click", function () {
+            $('.btn-y-action').on('click', function () {
                 var gatePassId = $(this).data("id");
 
                 // Load data via AJAX
@@ -172,7 +172,7 @@
                                     <td>@item.PassStatus</td>
                                     <td>
                                         <span class="btn btn-primary btn-x-action" data-id="@item.Id"><i class="fa-solid fa-circle-info"></i></span>
-                                        <span class="btn btn-primary" data-id="@item.Id"><i class="fa-solid fa-eye"></i></span>
+                                        <span class="btn btn-success btn-y-action" data-id="@item.Id"><i class="fa-solid fa-eye"></i></span>
                                     </td>
                                 </tr>
                             }

@@ -75,7 +75,7 @@
 
                 <!-- Forms -->
                 <li class='menu-item@(currentPage.Contains("/SMIS/MachineAdd") ||
-                                      currentPage.Contains("/SMIS/MachineRequest")? " active open" : "")'>
+                                                          currentPage.Contains("/SMIS/MachineRequest") ? " active open" : "")'>
                     <a href="javascript:void(0)" class="menu-link menu-toggle">
                         <i class="menu-icon fa-regular fa-hard-drive"></i>
                         <div>Inventory</div>
@@ -94,73 +94,73 @@
                     </ul>
                 </li>
 
-                    <li class='menu-item@(currentPage.Contains("/SMIS/ApprovalRequest") ||
-                              currentPage.Contains("/SMIS/MachineEdit")||
-                              currentPage.Contains("/SMIS/MachineDisposal")||
-                              currentPage.Contains("/SMIS/PrintCodes")||
-                              currentPage.Contains("/SMIS/TerminationRent") ? " active open" : "")'>
-                        <a href="javascript:void(0);" class="menu-link menu-toggle">
-                            <i class="menu-icon fa-solid fa-user-tie"></i>
-                            <div>Administration</div>
-                        </a>
-                        <ul class="menu-sub">
-                            <li class='menu-item@(currentPage.Contains("/SMIS/ApprovalRequest") ? " active" : "")'>
-                                <a asp-area="SMIS" asp-controller="ApprovalRequest" asp-action="Index" class="menu-link">
-                                    <div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span> Respond to Requests</div>
-                                </a>
-                            </li>
+                <li class='menu-item@(currentPage.Contains("/SMIS/ApprovalRequest") ||
+                                                  currentPage.Contains("/SMIS/MachineEdit") ||
+                                                  currentPage.Contains("/SMIS/MachineDisposal") ||
+                                                  currentPage.Contains("/SMIS/PrintCodes") ||
+                                                  currentPage.Contains("/SMIS/TerminationRent") ? " active open" : "")'>
+                    <a href="javascript:void(0);" class="menu-link menu-toggle">
+                        <i class="menu-icon fa-solid fa-user-tie"></i>
+                        <div>Administration</div>
+                    </a>
+                    <ul class="menu-sub">
+                        <li class='menu-item@(currentPage.Contains("/SMIS/ApprovalRequest") ? " active" : "")'>
+                            <a asp-area="SMIS" asp-controller="ApprovalRequest" asp-action="Index" class="menu-link">
+                                <div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span> Respond to Requests</div>
+                            </a>
+                        </li>
 
-                            <li class='menu-item@(currentPage.Contains("/SMIS/MachineEdit") ? " active" : "")'>
-                                <a asp-area="SMIS" asp-controller="MachineEdit" asp-action="Index" class="menu-link">
-                                    <div> <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span> Edit Machines</div>
-                                </a>
-                            </li>
+                        <li class='menu-item@(currentPage.Contains("/SMIS/MachineEdit") ? " active" : "")'>
+                            <a asp-area="SMIS" asp-controller="MachineEdit" asp-action="Index" class="menu-link">
+                                <div> <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span> Edit Machines</div>
+                            </a>
+                        </li>
 
-                            <li class='menu-item@(currentPage.Contains("/SMIS/MachineDisposal") ? " active" : "")'>
-                                <a asp-area="SMIS" asp-controller="MachineDisposal" asp-action="Index" class="menu-link">
-                                    <div> <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span> Disposal</div>
-                                </a>
-                            </li>
+                        <li class='menu-item@(currentPage.Contains("/SMIS/MachineDisposal") ? " active" : "")'>
+                            <a asp-area="SMIS" asp-controller="MachineDisposal" asp-action="Index" class="menu-link">
+                                <div> <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span> Disposal</div>
+                            </a>
+                        </li>
 
-                            <li class='menu-item@( currentPage.Contains("/SMIS/TerminationRent")  ? " active" : "")'>
-                                <a asp-area="SMIS" asp-controller="TerminationRent" asp-action="Index" class="menu-link">
-                                    <div> <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span> Rents Terminations </div>
-                                </a>
-                            </li>
+                        <li class='menu-item@( currentPage.Contains("/SMIS/TerminationRent")  ? " active" : "")'>
+                            <a asp-area="SMIS" asp-controller="TerminationRent" asp-action="Index" class="menu-link">
+                                <div> <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span> Rents Terminations </div>
+                            </a>
+                        </li>
 
-                            <li class='menu-item@( currentPage.Contains("/SMIS/PrintCodes")  ? " active" : "")'>
-                                <a asp-area="SMIS" asp-controller="PrintCodes" asp-action="Index" class="menu-link">
-                                    <div> <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span> Print QR Codes</div>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
+                        <li class='menu-item@( currentPage.Contains("/SMIS/PrintCodes")  ? " active" : "")'>
+                            <a asp-area="SMIS" asp-controller="PrintCodes" asp-action="Index" class="menu-link">
+                                <div> <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span> Print QR Codes</div>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
 
-                    <li class='menu-item@(currentPage.StartsWith("/Services") ? " active open" : "")'>
-                        <a href="javascript:void(0);" class="menu-link menu-toggle">
-                            <i class="menu-icon tf-icons ri-tools-fill"></i>
-                            <div>Services</div>
-                        </a>
-                        <ul class="menu-sub">
-                            <li class='menu-item@(currentPage == "/Services/MachineTypes" ? " active" : "")'>
-                                <a asp-area="SMIS" asp-controller="Breakdown" asp-action="Index" class="menu-link">
-                                    <div> <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span> Report Breakdown</div>
-                                </a>
-                            </li>
-                            <li class='menu-item@(currentPage == "/Services/Repairing" ? " active" : "")'>
-                                <a asp-area="SMIS" asp-controller="Repairing" asp-action="Index" class="menu-link">
-                                    <div> <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span> Repairing</div>
-                                </a>
-                            </li>
-                            <li class='menu-item@(currentPage == "/Services/Services" ? " active" : "")'>
-                                <a asp-area="SMIS" asp-controller="Services" asp-action="Index" class="menu-link">
-                                    <div> <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span> Scheduled Services</div>
-                                </a>
-                            </li>
+                <li class='menu-item@(currentPage.StartsWith("/Services") ? " active open" : "")'>
+                    <a href="javascript:void(0);" class="menu-link menu-toggle">
+                        <i class="menu-icon tf-icons ri-tools-fill"></i>
+                        <div>Services</div>
+                    </a>
+                    <ul class="menu-sub">
+                        <li class='menu-item@(currentPage == "/Services/MachineTypes" ? " active" : "")'>
+                            <a asp-area="SMIS" asp-controller="Breakdown" asp-action="Index" class="menu-link">
+                                <div> <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span> Report Breakdown</div>
+                            </a>
+                        </li>
+                        <li class='menu-item@(currentPage == "/Services/Repairing" ? " active" : "")'>
+                            <a asp-area="SMIS" asp-controller="Repairing" asp-action="Index" class="menu-link">
+                                <div> <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span> Repairing</div>
+                            </a>
+                        </li>
+                        <li class='menu-item@(currentPage == "/Services/Services" ? " active" : "")'>
+                            <a asp-area="SMIS" asp-controller="Services" asp-action="Index" class="menu-link">
+                                <div> <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span> Scheduled Services</div>
+                            </a>
+                        </li>
 
-                        </ul>
-                    </li>
-                
+                    </ul>
+                </li>
+
 
                 <li class='menu-item@(currentPage.StartsWith("/Services") ? " active open" : "")'>
                     <a href="javascript:void(0);" class="menu-link menu-toggle">
@@ -182,85 +182,85 @@
                     </ul>
                 </li>
 
-           
-                    <li class="menu-header">
-                        <span class="menu-header-text">Master Data</span>
-                    </li>
-                    <!-- Forms -->
-                    <li class='menu-item@(currentPage.StartsWith("/SMIS/MasterMachine") ? " active open" : "")'>
-                        <a href="javascript:void(0);" class="menu-link menu-toggle">
-                            <i class="menu-icon fa-solid fa-fax"></i>
-                            <div>Machines</div>
-                        </a>
-                        <ul class="menu-sub">
-                            <li class='menu-item@(currentPage == "/SMIS/MasterMachine/MachineTypes" ? " active" : "")'>
-                                <a asp-area="SMIS" asp-controller="MasterMachine" asp-action="MachineTypes" class="menu-link">
-                                    <div> <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span> Types</div>
-                                </a>
-                            </li>
-                            <li class='menu-item@(currentPage == "/SMIS/MasterMachine/MachineBrands" ? " active" : "")'>
-                                <a asp-area="SMIS" asp-controller="MasterMachine" asp-action="MachineBrands" class="menu-link">
-                                    <div> <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span> Brands</div>
-                                </a>
-                            </li>
-                            <li class='menu-item@(currentPage == "/SMIS/MasterMachine/MachineModels" ? " active" : "")'>
-                                <a asp-area="SMIS" asp-controller="MasterMachine" asp-action="MachineModels" class="menu-link">
-                                    <div> <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span> Models</div>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
 
-                    <li class='menu-item@(currentPage.StartsWith("/SMIS/MasterCompany") ? " active open" : "")'>
-                        <a href="javascript:void(0);" class="menu-link menu-toggle">
-                            <i class="menu-icon fa-regular fa-building"></i>
-                            <div>Company</div>
-                        </a>
-                        <ul class="menu-sub">
-                            <li class='menu-item@(currentPage == "/SMIS/MasterCompany/Groups" ? " active" : "")'>
-                                <a asp-area="SMIS" asp-controller="MasterCompany" asp-action="Groups" class="menu-link">
-                                    <div> <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span> Groups</div>
-                                </a>
-                            </li>
-                            <li class='menu-item@(currentPage == "/SMIS/MasterCompany/Locations" ? " active" : "")'>
-                                <a asp-area="SMIS" asp-controller="MasterCompany" asp-action="Locations" class="menu-link">
-                                    <div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span> Locations</div>
-                                </a>
-                            </li>
-                            <li class='menu-item@(currentPage == "/SMIS/MasterCompany/Clusters" ? " active" : "")'>
-                                <a asp-area="SMIS" asp-controller="MasterCompany" asp-action="Clusters" class="menu-link">
-                                    <div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span> Cluster</div>
-                                </a>
-                            </li>
-                            <li class='menu-item@(currentPage == "/SMIS/MasterCompany/Units" ? " active" : "")'>
-                                <a asp-area="SMIS" asp-controller="MasterCompany" asp-action="Units" class="menu-link">
-                                    <div> <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span> Units</div>
-                                </a>
-                            </li>
+                <li class="menu-header">
+                    <span class="menu-header-text">Master Data</span>
+                </li>
+                <!-- Forms -->
+                <li class='menu-item@(currentPage.StartsWith("/SMIS/MasterMachine") ? " active open" : "")'>
+                    <a href="javascript:void(0);" class="menu-link menu-toggle">
+                        <i class="menu-icon fa-solid fa-fax"></i>
+                        <div>Machines</div>
+                    </a>
+                    <ul class="menu-sub">
+                        <li class='menu-item@(currentPage == "/SMIS/MasterMachine/MachineTypes" ? " active" : "")'>
+                            <a asp-area="SMIS" asp-controller="MasterMachine" asp-action="MachineTypes" class="menu-link">
+                                <div> <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span> Types</div>
+                            </a>
+                        </li>
+                        <li class='menu-item@(currentPage == "/SMIS/MasterMachine/MachineBrands" ? " active" : "")'>
+                            <a asp-area="SMIS" asp-controller="MasterMachine" asp-action="MachineBrands" class="menu-link">
+                                <div> <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span> Brands</div>
+                            </a>
+                        </li>
+                        <li class='menu-item@(currentPage == "/SMIS/MasterMachine/MachineModels" ? " active" : "")'>
+                            <a asp-area="SMIS" asp-controller="MasterMachine" asp-action="MachineModels" class="menu-link">
+                                <div> <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span> Models</div>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
 
-                        </ul>
-                    </li>
+                <li class='menu-item@(currentPage.StartsWith("/SMIS/MasterCompany") ? " active open" : "")'>
+                    <a href="javascript:void(0);" class="menu-link menu-toggle">
+                        <i class="menu-icon fa-regular fa-building"></i>
+                        <div>Company</div>
+                    </a>
+                    <ul class="menu-sub">
+                        <li class='menu-item@(currentPage == "/SMIS/MasterCompany/Groups" ? " active" : "")'>
+                            <a asp-area="SMIS" asp-controller="MasterCompany" asp-action="Groups" class="menu-link">
+                                <div> <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span> Groups</div>
+                            </a>
+                        </li>
+                        <li class='menu-item@(currentPage == "/SMIS/MasterCompany/Locations" ? " active" : "")'>
+                            <a asp-area="SMIS" asp-controller="MasterCompany" asp-action="Locations" class="menu-link">
+                                <div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span> Locations</div>
+                            </a>
+                        </li>
+                        <li class='menu-item@(currentPage == "/SMIS/MasterCompany/Clusters" ? " active" : "")'>
+                            <a asp-area="SMIS" asp-controller="MasterCompany" asp-action="Clusters" class="menu-link">
+                                <div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span> Cluster</div>
+                            </a>
+                        </li>
+                        <li class='menu-item@(currentPage == "/SMIS/MasterCompany/Units" ? " active" : "")'>
+                            <a asp-area="SMIS" asp-controller="MasterCompany" asp-action="Units" class="menu-link">
+                                <div> <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span> Units</div>
+                            </a>
+                        </li>
+
+                    </ul>
+                </li>
 
 
-                    <li class='menu-item@(currentPage.StartsWith("/SMIS/MdRenting") ? " active open" : "")'>
-                        <a href="javascript:void(0);" class="menu-link menu-toggle">
-                            <i class="menu-icon fa-solid fa-handshake-simple"></i>
-                            <div>Renting</div>
-                        </a>
-                        <ul class="menu-sub">
-                            <li class='menu-item@(currentPage == "/SMIS/MdRenting/RentSupplier" ? " active" : "")'>
-                                <a asp-area="SMIS" asp-controller="MdRenting" asp-action="RentSuppliers" class="menu-link">
-                                    <div><span>    <i class="menu-icon fa-solid fa-angles-right"></i></span> Suppliers</div>
-                                </a>
-                            </li>
-                            <li class='menu-item@(currentPage == "/SMIS/MDRenting/CostMethods" ? " active" : "")'>
-                                <a asp-area="SMIS" asp-controller="MdRenting" asp-action="CostMethods" class="menu-link">
-                                    <div> <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span> Cost Methods</div>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                
+                <li class='menu-item@(currentPage.StartsWith("/SMIS/MdRenting") ? " active open" : "")'>
+                    <a href="javascript:void(0);" class="menu-link menu-toggle">
+                        <i class="menu-icon fa-solid fa-handshake-simple"></i>
+                        <div>Renting</div>
+                    </a>
+                    <ul class="menu-sub">
+                        <li class='menu-item@(currentPage == "/SMIS/MdRenting/RentSupplier" ? " active" : "")'>
+                            <a asp-area="SMIS" asp-controller="MdRenting" asp-action="RentSuppliers" class="menu-link">
+                                <div><span>    <i class="menu-icon fa-solid fa-angles-right"></i></span> Suppliers</div>
+                            </a>
+                        </li>
+                        <li class='menu-item@(currentPage == "/SMIS/MDRenting/CostMethods" ? " active" : "")'>
+                            <a asp-area="SMIS" asp-controller="MdRenting" asp-action="CostMethods" class="menu-link">
+                                <div> <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span> Cost Methods</div>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
             </ul>
         </li>
 
@@ -293,12 +293,12 @@
 
                 <!-- Transactions -> Inquiry  -->
                 <li class='menu-item@(currentPage.Contains("/PLMS/NewInquiry") ||
-                                      currentPage.Contains("/PLMS/TaskCompletion")||
-                                      currentPage.Contains("/PLMS/UpdatePrice")||
-                                      currentPage.Contains("/PLMS/UpdateSMV")||
-                                      currentPage.Contains("/PLMS/NextStages")||
-                                      currentPage.Contains("/PLMS/FactoryHandover")||
-                                      currentPage.Contains("/PLMS/CustomerResponse")? " active open" : "")'>
+                                                          currentPage.Contains("/PLMS/TaskCompletion") ||
+                                                          currentPage.Contains("/PLMS/UpdatePrice") ||
+                                                          currentPage.Contains("/PLMS/UpdateSMV") ||
+                                                          currentPage.Contains("/PLMS/NextStages") ||
+                                                          currentPage.Contains("/PLMS/FactoryHandover") ||
+                                                          currentPage.Contains("/PLMS/CustomerResponse") ? " active open" : "")'>
                     <a href="javascript:void(0)" class="menu-link menu-toggle">
                         <i class="menu-icon fa-regular fa-envelope"></i>
                         <div>Inquiries</div>
@@ -448,8 +448,6 @@
             </ul>
         </li>
 
-		
-
         @* GTPS *@
         <li class='menu-item@(currentPage.StartsWith("/TGPS") ? " active open" : "")'>
             <a href="javascript:void(0);" class="menu-link menu-toggle">
@@ -479,8 +477,8 @@
 
                 <!-- Transactions -> Inquiry  -->
                 <li class='menu-item@(currentPage.Contains("/TGPS/GenGoodsPass") ||
-                                      currentPage.Contains("/TGPS/GenEmpPass") ||
-                                      currentPage.Contains("/TGPS/GenVisitorPass") ? " active open" : "")'>
+                                                          currentPage.Contains("/TGPS/GenEmpPass") ||
+                                                          currentPage.Contains("/TGPS/GenVisitorPass") ? " active open" : "")'>
                     <a href="javascript:void(0)" class="menu-link menu-toggle">
                         <i class="menu-icon fa-solid fa-pen-to-square"></i>
                         <div>Generate</div>
@@ -499,42 +497,42 @@
                             </a>
                         </li>
                     </ul>
-                    <ul class="menu-sub">
+                    @* <ul class="menu-sub">
                         <li class='menu-item@(currentPage.Contains("/TGPS/GenVisitorPass") ? " active" : "")'>
                             <a asp-area="TGPS" asp-controller="GenVisitorPass" asp-action="Index" class="menu-link">
                                 <div> <span>  <i class="menu-icon fa-solid fa-angles-right"></i> </span>Visitor Pass</div>
                             </a>
                         </li>
-                    </ul>
+                    </ul> *@
                 </li>
 
                 <!-- Transactions -> Administration  -->
-                <li class='menu-item@(currentPage.Contains("/GTPS/CriticalPathActivities") ? " active open" : "")'>
+                <li class='menu-item@(currentPage.Contains("/TGPS/Response") ? " active open" : "")'>
                     <a href="javascript:void(0);" class="menu-link menu-toggle">
                         <i class="menu-icon fa-solid fa-pen-nib"></i>
                         <div>Authorization</div>
                     </a>
                     <ul class="menu-sub">
-                        <li class='menu-item@(currentPage.Contains("/GTPS/CriticalPathActivities/CriticalPathEditor") ? " active" : "")'>
-                            <a asp-area="PLMS" asp-controller="CriticalPathActivities" asp-action="CriticalPathEditor" class="menu-link">
+                        <li class='menu-item@(currentPage.Contains("/TGPS/Response/GoodsPass") ? " active" : "")'>
+                            <a asp-area="TGPS" asp-controller="Response" asp-action="GoodsPass" class="menu-link">
                                 <div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Goods Pass</div>
                             </a>
                         </li>
                     </ul>
                     <ul class="menu-sub">
-                        <li class='menu-item@(currentPage.Contains("/GTPS/CriticalPathActivities/CriticalPathEditor") ? " active" : "")'>
-                            <a asp-area="PLMS" asp-controller="CriticalPathActivities" asp-action="CriticalPathEditor" class="menu-link">
+                        <li class='menu-item@(currentPage.Contains("/TGPS/Response/EmpPass") ? " active" : "")'>
+                            <a asp-area="TGPS" asp-controller="Response" asp-action="EmpPass" class="menu-link">
                                 <div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Employee Pass</div>
                             </a>
                         </li>
                     </ul>
-                    <ul class="menu-sub">
+                    @*   <ul class="menu-sub">
                         <li class='menu-item@(currentPage.Contains("/GTPS/CriticalPathActivities/CriticalPathEditor") ? " active" : "")'>
                             <a asp-area="PLMS" asp-controller="CriticalPathActivities" asp-action="CriticalPathEditor" class="menu-link">
                                 <div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Visitor Pass</div>
                             </a>
                         </li>
-                    </ul>
+                    </ul> *@
                 </li>
 
                 <!-- Master Data -->
@@ -559,70 +557,70 @@
             </ul>
         </li>
 
-			  @* GDRM *@
-			  <li class='menu-item@(currentPage.StartsWith("/GDRM") ? " active open" : "")'>
-				  <a href="javascript:void(0);" class="menu-link menu-toggle">
-					  <i class="menu-icon fa-solid fa-bus"></i>
-					  <div>Guard Room</div>
-				  </a>
+        @* GDRM *@
+        <li class='menu-item@(currentPage.StartsWith("/GDRM") ? " active open" : "")'>
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon fa-solid fa-bus"></i>
+                <div>Guard Room</div>
+            </a>
 
-				  <ul class="menu-sub">
-					  <li class='menu-item@(currentPage == "/GDRM/GoodsPass" ? " active" : "")'>
-						  <a asp-area="GDRM" asp-controller="GoodsPass" asp-action="Index" class="menu-link">
-							  <div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Goods Pass</div>
-						  </a>
-					  </li>
-				  </ul>
-			  </li>
-			  @* ITIS *@
-			  <li class='menu-item@(currentPage.StartsWith("/ITIS") ? " active open" : "")'>
-				  <a href="javascript:void(0);" class="menu-link menu-toggle">
-					  <i class="menu-icon fa-solid fa-arrows-spin"></i>
-					  <div>IT Inventory</div>
-				  </a>
+            <ul class="menu-sub">
+                <li class='menu-item@(currentPage == "/GDRM/GoodsPass" ? " active" : "")'>
+                    <a asp-area="GDRM" asp-controller="GoodsPass" asp-action="Index" class="menu-link">
+                        <div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Goods Pass</div>
+                    </a>
+                </li>
+            </ul>
+        </li>
 
-				  <ul class="menu-sub">
-					  <li class='menu-item@(currentPage == "/ITIS/DeviceType" ? " active" : "")'>
-						  <a asp-area="ITIS" asp-controller="DeviceType" asp-action="Index" class="menu-link">
-							  <div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Device Types</div>
-						  </a>
-					  </li>
-					  <li class='menu-item@(currentPage == "/ITIS/Attribute" ? " active" : "")'>
-						  <a asp-area="ITIS" asp-controller="Attribute" asp-action="Index" class="menu-link">
-							  <div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Device Attributes</div>
-						  </a>
-					  </li>
-					  <li class='menu-item@(currentPage == "/ITIS/Device" ? " active" : "")'>
-						  <a asp-area="ITIS" asp-controller="Device" asp-action="Index" class="menu-link">
-							  <div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Devices</div>
-						  </a>
-					  </li>
-					  <li class='menu-item@(currentPage == "/ITIS/DeviceUser" ? " active" : "")'>
-						  <a asp-area="ITIS" asp-controller="DeviceUser" asp-action="Index" class="menu-link">
-							  <div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Device Users</div>
-						  </a>
-					  </li>
-					  <li class='menu-item@(currentPage == "/ITIS/ApproveDeviceUser" ? " active" : "")'>
-						  <a asp-area="ITIS" asp-controller="ApproveDeviceUser" asp-action="Index" class="menu-link">
-							  <div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Approve</div>
-						  </a>
-					  </li>						
-					  <li class='menu-item@(currentPage.StartsWith("/ITIS/Summary") ? " active open" : "")'>
-						  <a href="javascript:void(0)" class="menu-link menu-toggle">
-							  <i class="menu-icon fa-solid fa-binoculars"></i>
-							  <div>Report</div>
-						  </a>
-						  <ul class="menu-sub">
-							  <li class='menu-item@(currentPage == "/ITIS/Summary" ? " active" : "")'>
-								  <a asp-area="ITIS" asp-controller="Summary" asp-action="Index" class="menu-link">
-									  <div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Summary</div>
-								  </a>
-							  </li>
-						  </ul>
-					  </li>
-				  </ul>
-			  </li>
-      
+        @* ITIS *@
+        <li class='menu-item@(currentPage.StartsWith("/ITIS") ? " active open" : "")'>
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon fa-solid fa-arrows-spin"></i>
+                <div>IT Inventory</div>
+            </a>
+
+            <ul class="menu-sub">
+                <li class='menu-item@(currentPage == "/ITIS/DeviceType" ? " active" : "")'>
+                    <a asp-area="ITIS" asp-controller="DeviceType" asp-action="Index" class="menu-link">
+                        <div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Device Types</div>
+                    </a>
+                </li>
+                <li class='menu-item@(currentPage == "/ITIS/Attribute" ? " active" : "")'>
+                    <a asp-area="ITIS" asp-controller="Attribute" asp-action="Index" class="menu-link">
+                        <div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Device Attributes</div>
+                    </a>
+                </li>
+                <li class='menu-item@(currentPage == "/ITIS/Device" ? " active" : "")'>
+                    <a asp-area="ITIS" asp-controller="Device" asp-action="Index" class="menu-link">
+                        <div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Devices</div>
+                    </a>
+                </li>
+                <li class='menu-item@(currentPage == "/ITIS/DeviceUser" ? " active" : "")'>
+                    <a asp-area="ITIS" asp-controller="DeviceUser" asp-action="Index" class="menu-link">
+                        <div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Device Users</div>
+                    </a>
+                </li>
+                <li class='menu-item@(currentPage == "/ITIS/ApproveDeviceUser" ? " active" : "")'>
+                    <a asp-area="ITIS" asp-controller="ApproveDeviceUser" asp-action="Index" class="menu-link">
+                        <div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Approve</div>
+                    </a>
+                </li>
+                <li class='menu-item@(currentPage.StartsWith("/ITIS/Summary") ? " active open" : "")'>
+                    <a href="javascript:void(0)" class="menu-link menu-toggle">
+                        <i class="menu-icon fa-solid fa-binoculars"></i>
+                        <div>Report</div>
+                    </a>
+                    <ul class="menu-sub">
+                        <li class='menu-item@(currentPage == "/ITIS/Summary" ? " active" : "")'>
+                            <a asp-area="ITIS" asp-controller="Summary" asp-action="Index" class="menu-link">
+                                <div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Summary</div>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </li>
     </ul>
 
 </aside>
