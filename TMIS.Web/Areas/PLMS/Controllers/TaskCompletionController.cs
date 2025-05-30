@@ -1,5 +1,6 @@
 using log4net;
 using Microsoft.AspNetCore.Mvc;
+using TMIS.Controllers;
 using TMIS.DataAccess.COMON.IRpository;
 using TMIS.DataAccess.PLMS.IRpository;
 using TMIS.Models.PLMS;
@@ -7,7 +8,7 @@ using TMIS.Models.PLMS;
 namespace TMIS.Areas.PLMS.Controllers
 {
   [Area("PLMS")]
-  public class TaskCompletionController(ITaskCompletion db, ISessionHelper sessionHelper) : Controller
+  public class TaskCompletionController(ITaskCompletion db, ISessionHelper sessionHelper) : BaseController
   {
     private readonly ILog _logger = LogManager.GetLogger(typeof(TaskCompletionController));
     private readonly ITaskCompletion _db = db;

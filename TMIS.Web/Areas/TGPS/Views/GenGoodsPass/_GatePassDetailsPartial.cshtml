@@ -1,0 +1,266 @@
+@model ShowGPListVM
+
+<h5>Gatepass #: @Model.GGpReference</h5>
+
+<div class="card-body">
+    <div class="mb-1">
+        <small class="text-light fw-medium">Gatepass Details</small>
+    </div>
+    <div class="row mb-1">
+        <div class="col-4 g-1">
+            <div class="form-floating form-floating-outline">
+                <input type="text" asp-for="GpSubject" class="form-control" />
+                <label for="Attention">Subject</label>
+            </div>
+        </div>
+        <div class="col-4 g-1">
+            <div class="form-floating form-floating-outline">
+                <input type="text" asp-for="GeneratedUser" class="form-control" />
+                <label for="Attention">Generated User</label>
+            </div>
+        </div>
+        <div class="col-4 g-1">
+            <div class="form-floating form-floating-outline">
+                <input type="text" asp-for="GeneratedDateTime" class="form-control" />
+                <label for="Attention">Generated Date\Time</label>
+            </div>
+        </div>
+    </div>
+    <div class="row mb-1">
+        <div class="col-4 g-1">
+            <div class="form-floating form-floating-outline">
+                <input type="text" asp-for="Attention" class="form-control" />
+                <label for="Attention">Attention</label>
+            </div>
+        </div>
+        <div class="col-4 g-1">
+            <div class="form-floating form-floating-outline">
+                <input type="text" asp-for="ApprovedBy" class="form-control" />
+                <label for="Attention">Approved By</label>
+            </div>
+        </div>
+        <div class="col-4 g-1">
+            <div class="form-floating form-floating-outline">
+                <input type="text" asp-for="ApprovedDateTime" class="form-control" />
+                <label for="Attention">Approved Date\Time</label>
+            </div>
+        </div>
+    </div>
+    <div class="row mb-1">
+        <div class="col g-1">
+            <div class="form-floating form-floating-outline">
+                <input type="text" asp-for="GGPRemarks" class="form-control" />
+                <label for="Attention">Remarks</label>
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <small class="text-light fw-medium">Gatepass Items</small>
+        @foreach (var item in Model.ShowGPItemVMList)
+        {
+            <div class="row mb-1">
+                <div class="col-3 g-1">
+                    <div class="form-floating form-floating-outline">
+                        <input type="text" class="form-control" value="@item.ItemName" readonly />
+                        <label>Item Name</label>
+                    </div>
+                </div>
+                <div class="col-3 g-1">
+                    <div class="form-floating form-floating-outline">
+                        <input type="text" class="form-control" value="@item.ItemDescription" readonly />
+                        <label>Item Description</label>
+                    </div>
+                </div>
+                <div class="col-3 g-1">
+                    <div class="form-floating form-floating-outline">
+                        <input type="text" class="form-control" value="@item.Quantity" readonly />
+                        <label>Quantity</label>
+                    </div>
+                </div>
+                <div class="col-3 g-1">
+                    <div class="form-floating form-floating-outline">
+                        <input type="text" class="form-control" value="@item.UOM" readonly />
+                        <label>UOM</label>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="mt-2">
+        <small class="text-light fw-medium">Gatepass Locations</small>
+        @{
+            var groupedByLocation = Model.ShowGPRoutesList
+            .GroupBy(x => x.LocationName)
+            .ToList();
+
+            int tabIndex = 0;
+        }
+        <!-- Tab Navigation -->
+        <ul class="nav nav-pills nav-justified" id="locationTabs" role="tablist">
+            @foreach (var group in groupedByLocation)
+            {
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link @(tabIndex == 0 ? "active" : "")"
+                            id="tab-@tabIndex-tab"
+                            data-bs-toggle="tab"
+                            data-bs-target="#tab-@tabIndex"
+                            type="button"
+                            role="tab"
+                            aria-controls="tab-@tabIndex"
+                            aria-selected="@(tabIndex == 0 ? "true" : "false")">
+                        @group.Key
+                    </button>
+                </li>
+                tabIndex++;
+            }
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content" id="locationTabContent">
+            @{
+                tabIndex = 0;
+            }
+            @foreach (var group in groupedByLocation)
+            {
+                var item = group.First(); // assuming only one item per group
+                var errors = Model.ShowGPListErrorsList.Where(e => e.GpRouteId == item.Id).ToList();
+
+                <div class="tab-pane fade @(tabIndex == 0 ? "show active" : "")"
+                     id="tab-@tabIndex"
+                     role="tabpanel"
+                     aria-labelledby="tab-@tabIndex-tab">
+
+                    <div class="row mb-1">
+                        @if (!string.IsNullOrEmpty(item.RecGRName))
+                        {
+                            <div class="col-4 g-1">
+                                <div class="form-floating form-floating-outline">
+                                    <input type="text" class="form-control" value="@item.RecGRName" readonly />
+                                    <label>Rec GR Name</label>
+                                </div>
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(item.RecUser))
+                        {
+                            <div class="col-4 g-1">
+                                <div class="form-floating form-floating-outline">
+                                    <input type="text" class="form-control" value="@item.RecUser" readonly />
+                                    <label>Rec User</label>
+                                </div>
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(item.RecGRDateTime))
+                        {
+                            <div class="col-4 g-1">
+                                <div class="form-floating form-floating-outline">
+                                    <input type="text" class="form-control" value="@item.RecGRDateTime" readonly />
+                                    <label>Rec Date/Time</label>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="row mb-1">
+                        @if (!string.IsNullOrEmpty(item.RecVehicle))
+                        {
+                            <div class="col-4 g-1">
+                                <div class="form-floating form-floating-outline">
+                                    <input type="text" class="form-control" value="@item.RecVehicle" readonly />
+                                    <label>Rec Vehicle</label>
+                                </div>
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(item.RecDriver))
+                        {
+                            <div class="col-4 g-1">
+                                <div class="form-floating form-floating-outline">
+                                    <input type="text" class="form-control" value="@item.RecDriver" readonly />
+                                    <label>Rec Driver</label>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="row mb-1">
+                        @if (!string.IsNullOrEmpty(item.SendGRName))
+                        {
+                            <div class="col-4 g-1">
+                                <div class="form-floating form-floating-outline">
+                                    <input type="text" class="form-control" value="@item.SendGRName" readonly />
+                                    <label>Sent GR Name</label>
+                                </div>
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(item.SendUser))
+                        {
+                            <div class="col-4 g-1">
+                                <div class="form-floating form-floating-outline">
+                                    <input type="text" class="form-control" value="@item.SendUser" readonly />
+                                    <label>Sent User</label>
+                                </div>
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(item.SendGRDateTime))
+                        {
+                            <div class="col-4 g-1">
+                                <div class="form-floating form-floating-outline">
+                                    <input type="text" class="form-control" value="@item.SendGRDateTime" readonly />
+                                    <label>Sent Date/Time</label>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="row mb-1">
+                        @if (!string.IsNullOrEmpty(item.SendVehicle))
+                        {
+                            <div class="col-4 g-1">
+                                <div class="form-floating form-floating-outline">
+                                    <input type="text" class="form-control" value="@item.SendVehicle" readonly />
+                                    <label>Sent Vehicle</label>
+                                </div>
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(item.SendDriver))
+                        {
+                            <div class="col-4 g-1">
+                                <div class="form-floating form-floating-outline">
+                                    <input type="text" class="form-control" value="@item.SendDriver" readonly />
+                                    <label>Sent Driver</label>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    @if (errors.Any())
+                    {
+                        <div class="row mb-1">
+                            <div class="alert alert-danger mt-2">
+                                @foreach (var err in errors)
+                                {
+                                    @if (!string.IsNullOrEmpty(err.SendError))
+                                    {
+                                        <div><strong>Sending Issue:</strong> @err.ItemName => @err.SendError</div>
+                                    }
+                                    @if (!string.IsNullOrEmpty(err.RecError))
+                                    {
+                                        <div><strong>Receiving Issue:</strong> @err.ItemName => @err.RecError </div>
+                                    }
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+                tabIndex++;
+
+            }
+        </div>
+
+
+
+
+    </div>
+</div>
+

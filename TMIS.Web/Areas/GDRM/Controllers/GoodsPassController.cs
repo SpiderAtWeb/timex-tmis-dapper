@@ -1,5 +1,6 @@
 using log4net;
 using Microsoft.AspNetCore.Mvc;
+using TMIS.Controllers;
 using TMIS.DataAccess.GDRM.IRpository;
 using TMIS.Models.GDRM;
 using TMIS.Models.GDRM.VM;
@@ -7,7 +8,7 @@ using TMIS.Models.GDRM.VM;
 namespace TMIS.Areas.GDRM.Controllers
 {
   [Area("GDRM")]
-  public class GoodsPassController(IGRGoods db) : Controller
+  public class GoodsPassController(IGRGoods db) : BaseController
   {
     private readonly ILog _logger = LogManager.GetLogger(typeof(GoodsPassController));
     private readonly IGRGoods _db = db;
@@ -19,9 +20,9 @@ namespace TMIS.Areas.GDRM.Controllers
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetGatepassDetails(int id, bool isOut)
+    public async Task<IActionResult> GetGatepassDetails(int id)
     {
-      var gatepass = await _db.GetGatepassByIdAsync(id, isOut);
+      var gatepass = await _db.GetGatepassByIdAsync(id);
       return Json(gatepass);
     }
 
@@ -29,6 +30,13 @@ namespace TMIS.Areas.GDRM.Controllers
     public async Task<IActionResult> GPUpdate([FromBody] GPGrUpdate gPGrUpdate)
     {
       var result = await _db.GatePassUpdating(gPGrUpdate);
+      return Json(result);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetGatePassSteps(int id)
+    {
+      var result = await _db.GetGDHistoryData(id);
       return Json(result);
     }
 

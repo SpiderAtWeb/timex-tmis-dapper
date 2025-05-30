@@ -14,7 +14,6 @@
 @section PageScripts {
     <script src="~/js/form-layouts.js"></script>
 
-
     <script>
         /* --------------------------------------------------
            1️⃣  Gatepass-Address section
@@ -71,7 +70,7 @@
                     });
 
                     // Add new buttons
-                    const $buttons = $('<div class="d-flex gap-1 mt-2">' +
+                    const $buttons = $('<div class="d-flex gap-1">' +
                         '<button type="button" class="btn btn-sm btn-success add-gatepass">+</button>' +
                         '<button type="button" class="btn btn-sm btn-danger remove-gatepass">−</button>' +
                         '</div>');
@@ -277,10 +276,14 @@
                 let isValid = true;
                 let toValues = [];
 
-                $('#gpAddressContainer .row').each(function () {
-                    const from = $(this).find('[id^="gatepassFrom"]').val()?.trim();
-                    const to = $(this).find('[id^="gatepassTo"]').val()?.trim();
+                const from = $('[id="gatepassFrom1"]').val()?.trim();
+                data.GatepassAddresses.push({
+                    LocId: from
+                });
 
+                $('#gpAddressContainer .row').each(function () {
+                   
+                    const to = $(this).find('[id^="gatepassTo"]').val()?.trim();                 
 
                     //from and to same
                     if (from && to && from === to) {
@@ -304,8 +307,7 @@
                     toValues.push(to);
 
                     data.GatepassAddresses.push({
-                        From: from,
-                        To: to
+                        LocId: to
                     });
                 });
 

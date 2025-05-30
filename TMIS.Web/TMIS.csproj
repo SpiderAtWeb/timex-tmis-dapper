@@ -22,4 +22,10 @@
   <ItemGroup>
     <Folder Include="wwwroot\custom\data-tabels\" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Update="wwwroot\custom\tables-datatables-autowidth-noorder.js">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
 </Project>

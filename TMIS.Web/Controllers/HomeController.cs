@@ -1,6 +1,7 @@
 using log4net;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using System.Diagnostics;
 using TMIS.DataAccess.COMON.IRpository;
 using TMIS.Models;
@@ -10,7 +11,7 @@ namespace TMIS.Controllers
 {
   [Authorize]
   [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
-  public class HomeController(IUserAccess userAccess, ISessionHelper sessionHelper) : Controller
+  public class HomeController(IUserAccess userAccess, ISessionHelper sessionHelper) : BaseController
   {
     private readonly ILog _logger = LogManager.GetLogger(typeof(HomeController));
     private readonly IUserAccess _userAccess = userAccess;

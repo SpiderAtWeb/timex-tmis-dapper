@@ -3,4 +3,10 @@
 
 // Write your JavaScript code.
 
+    // 30-minute timeout = 30 * 60 * 1000 ms
+  setTimeout(function () {
+    window.location.href = '/Auth/Account/Login';
+    }, 30 * 60 * 1000);
+
+
 

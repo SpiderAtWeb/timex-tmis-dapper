@@ -1,0 +1,122 @@
+@model IEnumerable<GoodsPassList>
+
+@section VendorStyles {
+    <link rel="stylesheet" href="~/vendor/libs/datatables-bs5/datatables.bootstrap5.css">
+    <link rel="stylesheet" href="~/vendor/libs/select2/select2.css" />
+    <link href="~/vendor/libs/toastr/toastr.css" rel="stylesheet" />
+}
+
+@section VendorScripts {
+    <script src="~/custom/tables-datatables-autowidth-noorder.js"></script>
+    <script src="~/vendor/libs/select2/select2.js"></script>
+    <script src="~/custom/loading-hide.js"></script>
+    <script src="~/vendor/libs/toastr/toastr.js"></script>
+}
+
+@section PageScripts {
+    <script src="~/js/form-layouts.js"></script>
+
+    <script>
+              let currentGatePassId = null;
+
+        $(document).ready(function () {
+            // When fa-eye icon is clicked
+            $('.btn-y-action').on('click', function () {
+                currentGatePassId = $(this).data("id");
+
+                // Load data via AJAX
+                $.get("/TGPS/Response/GetGGatePassDetails", { id: currentGatePassId }, function (data) {
+                    $("#gatePassModalContent").html(data);
+                    $("#viewGatePassModal").modal("show");
+                }).fail(function () {
+                    $("#gatePassModalContent").html("<p class='text-danger'>Failed to load details.</p>");
+                    $("#viewGatePassModal").modal("show");
+                });
+            });
+
+            // Approve button click
+            $(document).on('click', '#btnApprove', function () {
+                handleGatePassAction('1');
+            });
+
+            // Reject button click
+            $(document).on('click', '#btnReject', function () {
+                handleGatePassAction('2');
+            });
+
+            function handleGatePassAction(action) {
+                if (!currentGatePassId) return;
+
+                $.post("/TGPS/Response/HandleGGatePassAction", {
+                    id: currentGatePassId,
+                    action: action
+                }).done(function () {
+                    $("#viewGatePassModal").modal("hide");
+                    location.reload(); // Refresh the page
+                }).fail(function () {
+                    alert("Failed to " + action + " gate pass.");
+                });
+            }
+        });
+
+    </script>
+
+
+}
+
+
+@* ************** Content ************** *@
+
+<!-- Modal -->
+<div class="modal fade" id="viewGatePassModal" tabindex="-1" role="dialog" aria-labelledby="viewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-body" id="gatePassModalContent">
+                <p>Loading...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@await Html.PartialAsync("_Loading")
+<div class="panelDiv">
+    <div class="card">
+        <h5 class="card-header page-header">Pending Gate Passes To Respond</h5>
+        <div class="card-body">
+                        <div class="row">
+
+                <table class="datatables-ajax table table-bordered dt-tbl">
+                    <thead>
+                        <tr class="table-info">
+                            <th class="d-none">Id</th>
+                            <th>Gatepass #</th>
+                            <th>GP Subject</th>
+                            <th>Date/Time</th>
+                            <th>To</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="d-none">@item.Id</td>
+                                <td>@item.GatePassNo</td>
+                                <td>@item.GpSubject</td>
+                                <td>@item.GenDateTime</td>
+                                <td>@item.GenGPassTo</td>
+                                <td>@item.PassStatus</td>
+                                <td>
+                                    <span class="btn btn-success btn-y-action" data-id="@item.Id"><i class="fa-solid fa-eye"></i></span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+

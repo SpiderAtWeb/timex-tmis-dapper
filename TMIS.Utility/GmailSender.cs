@@ -9,8 +9,8 @@ namespace TMIS.Utility
         string smtpServer = "smtp.gmail.com";
         int smtpPort = 587;
         string senderEmail = "mism@timexsl.com";
-        string senderPassword = "twcd wdxx ybxp iyzd"; // Use an app password if 2FA is enabled.
-       
+        string senderPassword = "zdmq btej luaw qjqx"; // Use an app password if 2FA is enabled.
+
 
         private void SendMail(string mailTo, string mailCc, string mailBcc, string mailBody, string mailSubject)
         {
@@ -62,7 +62,7 @@ namespace TMIS.Utility
             }
         }
 
-        //JK Gate Pass To Approve
+        //TIMEX Gate Pass To Approve
         public void RequestToApprove(params string[] myArray)
         {
             string entryNo = myArray[0];
@@ -144,5 +144,106 @@ namespace TMIS.Utility
 
             SendMail(recipientEmailTo, recipientEmailCc, recipientEmailBcc, sBody, subject);
         }
+
+        //TIMEX Gate Pass To Approve
+        public void GPRequestToApprove(params string[] myArray)
+        {
+            if (myArray.Length < 6)
+                throw new ArgumentException("Expected at least 6 header fields");
+
+            string gPCode = myArray[0];
+            string Locations = myArray[6];
+            string gpSubject = myArray[1];
+            string generatedDateTime = myArray[2];
+            string attention = myArray[3];
+            string gGPRemarks = myArray[4];
+            string generatedBy = myArray[5];
+
+            // Build HTML table rows for details starting from index 6
+            string itemTable = "<table border='1' cellpadding='5' cellspacing='0' style='border-collapse: collapse; font-family: Cambria; width: 100%;'>" +
+                               "<thead><tr style='background-color: #b6f96d; text-align: center;'>" +
+                               "<th>Item Name</th>" +
+                               "<th>Item Description</th>" +
+                               "<th>Quantity</th>" +
+                               "<th>Units</th>" +
+                               "</tr></thead><tbody>";
+
+            for (int i = 7; i < myArray.Length; i++)
+            {
+                var parts = myArray[i].Split('|');
+                if (parts.Length == 4)
+                {
+                    string itemName = parts[0];
+                    string itemDesc = parts[1];
+                    string qty = parts[2];
+                    string units = parts[3];
+
+                    itemTable += "<tr>" +
+                                 $"<td>{itemName}</td>" +
+                                 $"<td>{itemDesc}</td>" +
+                                 $"<td>{qty}</td>" +
+                                 $"<td>{units}</td>" +
+                                 "</tr>";
+                }
+            }
+
+            itemTable += "</tbody></table>";
+
+            string subject = $"Gatepass Request To Approve [{gPCode}] (TMIS)";
+
+            string sApprove = $"mailto:rasika.dalpathadu@timexsl.com?subject=Approved [{gPCode}] TMIS";
+            string sReject = $"mailto:rasika.dalpathadu@timexsl.com?subject=Rejected [{gPCode}] TMIS";
+
+            string sBody = $@"
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta http-equiv='Content-Type' content='text/html; charset=iso-8859-1'>
+            </head>
+            <body>
+                <table style='border: 3px solid Blue; font-family: Cambria;'>
+                    <tr><th style='width: 745px;'>You have a Gatepass Request To Approve [{gPCode}]</th></tr>
+                </table>
+                <hr />
+                <table border='1' style='border-color: blue; border-collapse: collapse; font-family: Cambria; table-layout: fixed; width: 100%;'>
+                    <tr>
+                        <th colspan='2' style='background-color: #b6f96d; text-align: center;'><strong>Gatepass Details</strong></th>
+                    </tr>
+                    <tr><th style='width: 375px;'>Headings</th><th style='width: 375px;'>Details</th></tr>
+                    <tr><td>GP Code</td><td>{gPCode}</td></tr>
+                    <tr><td>Subject</td><td>{gpSubject}</td></tr>
+                    <tr><td>Locations</td><td>{Locations}</td></tr>
+                    <tr><td>Gen. Date Time</td><td>{generatedDateTime}</td></tr>
+                    <tr><td>Attention</td><td>{attention}</td></tr>
+                    <tr><td>Gen. By</td><td>{generatedBy}</td></tr>
+                    <tr><td>Remarks</td><td>{gGPRemarks}</td></tr>                  
+                    <tr>
+                        <td colspan='2'>
+                            {itemTable}
+                        </td>
+                    </tr>
+                </table>
+                <br />
+                <a href='https://tmis.timexsl.com' style='font-family:Cambria'>Approve From System</a>
+                <table border='2' style='height: 39px; font-family:Cambria;'>
+                    <tr>
+                        <td bgcolor='#00FF00' style='width: 370px; text-align: center;'><a href='{sApprove}'>Approve</a></td>
+                        <td bgcolor='#FF0000' style='width: 370px; text-align: center;'><a href='{sReject}'>Reject</a></td>
+                    </tr>
+                </table>
+                <hr>
+                <p><font size='1'><i>This is an Auto Generated Mail From Timex Mail System Developed By Timex IT Department 
+                [Generated Date {DateTime.Now:yyyy-MM-dd} Time {DateTime.Now:HH:mm:ss} - From Timex TMIS]</i></font></p>
+            </body>
+            </html>";
+
+            string recipientEmailTo = "rasika.dalpathadu@timexsl.com";
+            string recipientEmailCc = "";
+            string recipientEmailBcc = "";
+
+            SendMail(recipientEmailTo, recipientEmailCc, recipientEmailBcc, sBody, subject);
+        }
+
+
     }
 }

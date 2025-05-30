@@ -8,7 +8,6 @@ namespace TMIS.Models.TGPS
 {
     public class GatepassAddress
     {
-        public string From { get; set; } = string.Empty;
-        public string To { get; set; } = string.Empty;
+        public string LocId { get; set; } = string.Empty;
     }
 }

@@ -7,8 +7,6 @@ namespace TMIS.Models.GDRM
     {
         public int SelectedGpId { get; set; }
 
-        public int SelectedGpIdType { get; set; }
-
         public int VehicleNoId { get; set; }
 
         public int DriverNameId { get; set; }

@@ -1,5 +1,105 @@
-@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
+@model IEnumerable<EmpPassVM>
+
+@section VendorStyles {
+    <link rel="stylesheet" href="~/vendor/libs/datatables-bs5/datatables.bootstrap5.css">
+    <link rel="stylesheet" href="~/vendor/libs/select2/select2.css" />
+    <link href="~/vendor/libs/toastr/toastr.css" rel="stylesheet" />
 }
+
+@section VendorScripts {
+    <script src="~/custom/tables-datatables-autowidth-noorder.js"></script>
+    <script src="~/vendor/libs/select2/select2.js"></script>
+    <script src="~/custom/loading-hide.js"></script>
+    <script src="~/vendor/libs/toastr/toastr.js"></script>
+}
+
+@section PageScripts {
+    <script src="~/js/form-layouts.js"></script>
+    <script>
+        $(document).ready(function () {
+            // When fa-eye icon is clicked
+            $('.btn-y-action').on('click', function () {
+                var gatePassId = $(this).data("id");
+
+                // Load data via AJAX
+                $.get("/TGPS/GenEmpPass/GetGatePassDetails", { id: gatePassId }, function (data) {
+                    $("#gatePassModalContent").html(data);
+                    $("#viewGatePassModal").modal("show");
+                }).fail(function () {
+                    $("#gatePassModalContent").html("<p class='text-danger'>Failed to load details.</p>");
+                    $("#viewGatePassModal").modal("show");
+                });
+            });
+        });
+    </script>
+}
+
+
+@* ************** Content ************** *@
+
+<!-- Modal -->
+<div class="modal fade" id="viewGatePassModal" tabindex="-1" role="dialog" aria-labelledby="viewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-body" id="gatePassModalContent">
+                <p>Loading...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@await Html.PartialAsync("_Loading")
+<div class="panelDiv">
+    <div class="card">
+        <h5 class="card-header page-header">Generated Goods Gate Passes</h5>
+        <div class="card-body">
+
+          <div class="row">              
+                <div class="col-6">
+                    <small class="text-light fw-medium">Previous generated Gate passes and the status.</small>
+                </div>
+                <div class="col-6 text-end">
+                    <a asp-action="Create" class="btn btn-primary"> <i class="ri-add-line"></i> <span class="d-none d-sm-inline-block">Create New</span></a>
+                </div>
+            </div>          
+
+            <div class="row">              
+                <table class="datatables-ajax table table-bordered dt-tbl">
+                    <thead>
+                        <tr class="table-info">
+                            <th class="d-none">Id</th>
+                            <th>Gatepass #</th>
+                            <th>Gate Name</th>
+                            <th>Location</th>
+                            <th>Reason</th>
+                            <th>OutTime</th>
+                            <th>IsReturn</th>
+                            <th>Response</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                           @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="d-none">@item.Id</td>
+                                <td>@item.EmpGpNo</td>
+                                <td>@item.GateName</td>
+                                <td>@item.ExpLoc</td>
+                                <td>@item.ExpReason</td>
+                                <td>@item.ExpOutTime</td>
+                                <td>@item.IsReturn</td>
+                                <td>@item.IsResponsed</td>
+                                    <td>
+                                        <span class="btn btn-success btn-y-action" data-id="@item.Id"><i class="fa-solid fa-eye"></i></span>
+                                    </td>
+                                </tr>
+                            }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+

@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Data;
 using TMIS.DataAccess.COMON.IRpository;
 using TMIS.DataAccess.TGPS.IRpository;
-using TMIS.Models.TGPS;
 using TMIS.Models.TGPS.VM;
+using TMIS.Utility;
 
 namespace TMIS.DataAccess.TGPS.Rpository
 {
@@ -39,7 +39,6 @@ namespace TMIS.DataAccess.TGPS.Rpository
                 INSERT INTO [dbo].[TGPS_TrGpGoodsHeader]
                 (
                     GGpReference,
-                    GGpFromId,
                     GpSubject,
                     GeneratedUserId,
                     GeneratedDateTime,
@@ -49,14 +48,11 @@ namespace TMIS.DataAccess.TGPS.Rpository
                     IsReturnable,
                     ReturnDays,
                     GGPRemarks,
-                    IsCompleted,
-                    IsSend,
-                    IsManyLoc
+                    IsCompleted
                 )
                 VALUES
                 (
                     @GGpReference,
-                    @GGpFromId,
                     @GpSubject,
                     @GeneratedUserId,
                     GETDATE(),
@@ -66,9 +62,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
                     @IsReturnable,
                     @ReturnDays,
                     @GGPRemarks,
-                    0,
-                    0,
-                    @IsManyLoc
+                    0                    
                 );
                 SELECT CAST(SCOPE_IDENTITY() AS INT);
             ";
@@ -78,15 +72,13 @@ namespace TMIS.DataAccess.TGPS.Rpository
                     new
                     {
                         GGpReference = referenceNumber,
-                        GGpFromId = model.GatepassAddresses.FirstOrDefault()?.From ?? string.Empty,
                         model.GpSubject,
                         GeneratedUserId = _iSessionHelper.GetUserId(),
                         model.Attention,
                         ApprovedTo = model.SendApprovalTo,
                         model.IsReturnable,
                         model.ReturnDays,
-                        GGPRemarks = model.Remarks,
-                        IsManyLoc = model.GatepassAddresses.Count > 1 ? 1 : 0
+                        GGPRemarks = model.Remarks
                     },
                     transaction
                 );
@@ -131,18 +123,22 @@ namespace TMIS.DataAccess.TGPS.Rpository
                 INSERT INTO [dbo].[TGPS_TrGpGoodsRoutes]
                 (
                     GGpPassId,
-                    GGpToId,
-                    ROrder,                   
+                    GGpLocId,
+                    ROrder,                 
                     IsReceived,
-                    IsSend
+                    IsSend,
+                    IsSender,
+                    IsDest
                 )
                 VALUES
                 (
                     @GGpPassId,
-                    @GGpToId,
+                    @GGpLocId,
                     @ROrder,
                     0,
-                    0
+                    0,
+                    @IsSender,  
+                    @IsDest
                 );";
 
 
@@ -154,13 +150,17 @@ namespace TMIS.DataAccess.TGPS.Rpository
                         new
                         {
                             GGpPassId = ggpPassId,
-                            GGpToId = address.To,
-                            ROrder = routeOrder++
+                            GGpLocId = address.LocId,
+                            @IsSender = routeOrder == 1 ? 1 : 0,
+                            ROrder = routeOrder++,
+                            @IsDest = routeOrder == (model.GatepassAddresses.Count + 1) ? 1 : 0,
                         },
                         transaction
                     );
                 }
                 transaction.Commit();
+
+                PrepairEmail(ggpPassId);
                 return returnRefrence;
             }
             catch
@@ -170,22 +170,73 @@ namespace TMIS.DataAccess.TGPS.Rpository
             }
         }
 
+        private void PrepairEmail(int genId)
+        {
+            using var connection = _dbConnection.GetConnection();
+
+            string headerQuery = @"
+            SELECT 
+            GGpReference, 
+            GpSubject, 
+            GeneratedDateTime, 
+            Attention, 
+            GGPRemarks, 
+            GeneratedBy,
+            (
+                 SELECT STRING_AGG(LOC.AddressName, ' => ')
+                 FROM dbo.TGPS_TrGpGoodsRoutes AS RT
+                 INNER JOIN dbo.TGPS_MasterGpGoodsAddress AS LOC ON RT.GGpLocId = LOC.Id
+                WHERE RT.GGpPassId = H.Id
+            ) AS GpTo
+            FROM TGPS_VwGGPHeader AS H
+            WHERE Id = @genId;            ";
+
+            var header = connection.Query(headerQuery, new { GenId = genId }).FirstOrDefault();
+
+            string detailsQuery = @"
+            SELECT ItemName, ItemDescription, Quantity, GpUnits 
+            FROM   TGPS_VwGGPDetails
+            WHERE  (GGpPassId = @genId)";
+
+            var details = connection.Query(detailsQuery, new { GenId = genId }).ToList();
+
+            // Prepare header part of array
+            var myList = new List<string>
+            {
+               $"{header!.GGpReference}",
+                $"{header.GpSubject}",
+                $"{header.GeneratedDateTime}",
+                $"{header.Attention}",
+                $"{header.GGPRemarks}",
+                $"{header.GeneratedBy}",
+                $"{header.GpTo}"
+            };
+
+            // Append each detail row as a string item in the array
+            foreach (var d in details)
+            {
+                string detailString = $"{d.ItemName}|{d.ItemDescription}|{d.Quantity}|{d.GpUnits}";
+                myList.Add(detailString);
+            }
+
+            // Convert to array
+            string[] myArray = myList.ToArray();
+
+            // Send email
+            var gmailSender = new GmailSender();
+            gmailSender.GPRequestToApprove(myArray);
+        }
+
+
+
         public async Task<GoodPassVM> GetSelectData()
         {
             var dbConnection = _dbConnection.GetConnection();
-            var goodsFromSql = @"SELECT  dbo.COMN_MasterTwoLocations.Id, dbo.COMN_MasterTwoLocations.LocationName AS Text
-            FROM            ADMIN.dbo._MasterUsers INNER JOIN
-                                     ADMIN.dbo._TrPermissionLocation ON ADMIN.dbo._MasterUsers.Id = ADMIN.dbo._TrPermissionLocation.UserId INNER JOIN
-                                     dbo.COMN_MasterTwoLocations ON ADMIN.dbo._TrPermissionLocation.LocationId = dbo.COMN_MasterTwoLocations.Id
-            WHERE        (ADMIN.dbo._MasterUsers.Id = @UserId) ORDER BY Text";
+            var goodsFromSql = @"SELECT Id, Text FROM TGPS_VwUserLocations WHERE (UserId = @UserId) ORDER BY Text";
 
-            var goodsToSql = @"SELECT Id, LocationName AS Text 
-            FROM COMN_MasterTwoLocations
-            UNION
-            SELECT Id, AddressName AS Text 
-            FROM TGPS_MasterGpGoodsAddress 
-            WHERE IsDeleted = 0
-            ORDER BY Text";
+            var goodsToSql = @"SELECT Id, AddressName AS Text FROM TGPS_MasterGpGoodsAddress 
+            WHERE IsDeleted = 0 ORDER BY Text";
+
             var approvalListSql = "SELECT Id, UserShortName AS Text FROM [ADMIN].dbo._MasterUsers  WHERE (IsActive = 1) AND (IsGpAppUser = 1)";
             var unitsSql = "SELECT Id, PropName AS Text FROM TGPS_MasterTwoGpGoodsUOM ORDER BY PropName";
 
@@ -221,7 +272,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
 
             // 1. Try to get the generator for the current year
             var selectSql = @"SELECT TOP 1 [Id], [GenYear], [GenNo], [LastGeneratedDate]
-            FROM [dbo].[TGPS_XysGenerateNumber] WHERE GenYear = @Year";
+            FROM [dbo].[TGPS_XysGenerateNumber] WHERE GenYear = @Year AND GpType='TGP'";
 
             var generator = await connection.QuerySingleOrDefaultAsync<dynamic>(
                 selectSql, new { Year = currentYear }, transaction);
@@ -235,7 +286,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
                 genNo = 1;
 
                 var insertSql = @"INSERT INTO [dbo].[TGPS_XysGenerateNumber]
-                    (GenYear, GenNo, LastGeneratedDate) VALUES (@GenYear, @GenNo, GETDATE());
+                    (GenYear, GenNo, LastGeneratedDate, GpType) VALUES (@GenYear, @GenNo, GETDATE(),'TEP' );
                     SELECT CAST(SCOPE_IDENTITY() AS INT);";
 
                 await connection.ExecuteScalarAsync<int>(
@@ -254,7 +305,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
                 UPDATE [dbo].[TGPS_XysGenerateNumber]
                 SET GenNo = @NewGenNo,
                     LastGeneratedDate = GETDATE()
-                WHERE Id = @Id;";
+                 WHERE Id = @Id AND GpType='TGP';";
 
                 await connection.ExecuteAsync(
                     updateSql,
@@ -277,6 +328,65 @@ namespace TMIS.DataAccess.TGPS.Rpository
                     new { GpId = gpId },
                     commandType: CommandType.StoredProcedure);
                 return result.ToList();
+            }
+        }
+        public async Task<ShowGPListVM?> LoadShowGPDataAsync(int id)
+        {
+            using (var connection = _dbConnection.GetConnection())
+            {
+                var sql = @"
+                SELECT [Id], [GGpReference], [GpSubject], [GeneratedUser], [GeneratedDateTime],
+                       [Attention], [GGPRemarks], [ApprovedBy], [ApprovedDateTime],
+                       [ItemName], [ItemDescription], [Quantity], [UOM]
+                FROM   [TMIS].[dbo].[TGPS_VwGatePassList] 
+                WHERE  [Id] = @GPID;
+
+                SELECT [GGpPassId], [Id], [LocationName], [ROrder], [RecGRName], [RecUser], [RecGRDateTime],
+                       [RecVehicle], [RecDriver], [SendGRName], [SendUser], [SendGRDateTime], 
+                       [SendVehicle], [SendDriver]
+                FROM [TMIS].[dbo].[TGPS_VwGatePassRoutes] 
+                WHERE [GGpPassId] = @GPID;
+
+             SELECT GpRouteId, ItemName, SendError, RecError
+                    FROM TGPS_VwGatePassErrors
+                    WHERE GGpPassId = @GPID;";
+
+                using (var multi = await connection.QueryMultipleAsync(sql, new { GPID = id }))
+                {
+                    var flatList = (await multi.ReadAsync<dynamic>()).ToList();
+                    var routes = (await multi.ReadAsync<ShowGPRoutesVM>()).ToList();
+                    var errors = (await multi.ReadAsync<ShowGPListErrorsVM>()).ToList();
+
+                    if (!flatList.Any())
+                        return null;
+
+                    var g = flatList;
+                    var first = g.First();
+
+                    var result = new ShowGPListVM
+                    {
+                        Id = first.Id,
+                        GGpReference = first.GGpReference,
+                        GpSubject = first.GpSubject,
+                        GeneratedUser = first.GeneratedUser,
+                        GeneratedDateTime = first.GeneratedDateTime?.ToString("yyyy-MM-dd HH:mm:ss") ?? "",
+                        Attention = first.Attention,
+                        GGPRemarks = first.GGPRemarks,
+                        ApprovedBy = first.ApprovedBy,
+                        ApprovedDateTime = first.ApprovedDateTime?.ToString("yyyy-MM-dd HH:mm:ss") ?? "",
+                        ShowGPItemVMList = g.Select(i => new ShowGPItemVM
+                        {
+                            ItemName = i.ItemName,
+                            ItemDescription = i.ItemDescription,
+                            Quantity = i.Quantity?.ToString() ?? "",
+                            UOM = i.UOM
+                        }).ToList(),
+                        ShowGPRoutesList = routes,
+                        ShowGPListErrorsList = errors
+                    };
+
+                    return result;
+                }
             }
         }
 

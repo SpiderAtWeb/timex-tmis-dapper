@@ -1,6 +1,7 @@
 using log4net;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TMIS.Controllers;
 using TMIS.DataAccess.COMON.IRpository;
 using TMIS.DataAccess.SMIM.IRpository;
 using TMIS.Helper;
@@ -11,7 +12,7 @@ namespace TMIS.Areas.SMIS.Controllers
 {
   [Authorize]
   [Area("SMIS")]
-  public class MachineRequestController(ITransfers db, ISessionHelper sessionHelper) : Controller
+  public class MachineRequestController(ITransfers db, ISessionHelper sessionHelper) : BaseController
   {
     private readonly ITransfers _db = db;
     private readonly ILog _logger = LogManager.GetLogger(typeof(MachineRequestController));
