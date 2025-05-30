@@ -25,13 +25,18 @@ namespace TMIS.DataAccess.ITIS.Repository
 
         public async Task<IEnumerable<Device>> GetAllAsync()
         {
-            string sql = @"select d.DeviceID, d.DeviceName, d.SerialNumber, d.FixedAssetCode, l.LocationName as Location 
-                            from ITIS_Devices as d inner join COMN_MasterTwoLocations as l on l.Id=d.Location";
+            string sql = @"select d.DeviceID, d.DeviceName, d.SerialNumber, d.FixedAssetCode, s.PropName as Status,
+                            v.Name as Vendor, d.PurchasedDate, d.Remark, t.DeviceType
+                            from ITIS_Devices as d 
+                            inner join COMN_MasterTwoLocations as l on l.Id=d.Location
+                            inner join ITIS_DeviceStatus as s on s.Id=d.DeviceStatusID
+                            inner join ITIS_VendorTemp as v on v.ID=d.VendorID
+                            inner join ITIS_DeviceTypes as t on t.DeviceTypeID=d.DeviceTypeID";
 
             return await _dbConnection.GetConnection().QueryAsync<Device>(sql);
         }
 
-        public async Task<CreateDeviceVM> LoadDropDowns()
+        public async Task<CreateDeviceVM> LoadDropDowns(int? deviceID)
         {
             var objCreateDeviceVM = new CreateDeviceVM();
 
@@ -43,7 +48,39 @@ namespace TMIS.DataAccess.ITIS.Repository
                 VendorsList = await _icommonList.LoadVendors()
             };
 
+            if(deviceID != null && deviceID.HasValue)
+            {
+                objCreateDeviceVM.Device = await GetDeviceDetail(deviceID);
+            }
+
             return objCreateDeviceVM;
+        }
+
+        public async Task<Device> GetDeviceDetail(int? deviceID)
+        {
+            string query = @"select * from ITIS_Devices where DeviceID=@DeviceID";
+
+            Device device = new Device();
+            var deviceDetail = await _dbConnection.GetConnection().QueryFirstOrDefaultAsync<Device>(query, new
+            {
+                DeviceID = deviceID
+            });
+
+            device = deviceDetail!;
+
+            string attributeQuery = @"select att.ID as AttributeType, av.AttributeID, a.Name, av.ValueText from ITIS_DeviceAttributeValues as av 
+                                     inner join ITIS_Attributes as a on a.AttributeID=av.AttributeID 
+									 inner join ITIS_AttributeType as att on att.ID=a.DataType where av.DeviceID=@DeviceID";
+
+            var attributeValue = await _dbConnection.GetConnection().QueryAsync<AttributeValue>(attributeQuery, new
+            {
+                DeviceID = deviceID
+            });
+
+            device.AttributeValues = attributeValue.ToList();
+
+            return device;
+
         }
 
         public async Task<CreateDeviceVM> GetAllAttributes(int deviceID)
@@ -53,7 +90,7 @@ namespace TMIS.DataAccess.ITIS.Repository
             string sql = @"SELECT att.AttributeID, att.Name, att.DataType, ty.AttributeType
                             FROM ITIS_Attributes AS att
                             INNER JOIN ITIS_AttributeType AS ty ON ty.ID = att.DataType
-                            WHERE att.DeviceTypeID=@DeviceTypeID";
+                            WHERE att.DeviceTypeID=@DeviceTypeID and att.IsDelete=0";
 
             var attributes = (await _dbConnection.GetConnection().QueryAsync<AttributeWithOptionsVM>(sql, new {
                 DeviceTypeID = deviceID
@@ -74,6 +111,19 @@ namespace TMIS.DataAccess.ITIS.Repository
             return objCreateDeviceVM;   
         }
 
+        public async Task<bool> CheckSerialEdit(string serialNumber, int deviceID)
+        {
+            const string query = @"SELECT TOP 1 1
+            FROM ITIS_Devices
+            WHERE SerialNumber = @SerialNumber and DeviceID!=@DeviceID;";
+
+            var result = await _dbConnection.GetConnection().QueryFirstOrDefaultAsync<int?>(query, new {
+                SerialNumber = serialNumber, 
+                DeviceID = deviceID
+            });
+            return result.HasValue;
+
+        }
         public async Task<bool> CheckSerialNumberExist(string serialNumber)
         {
             const string query = @"
@@ -87,8 +137,6 @@ namespace TMIS.DataAccess.ITIS.Repository
         }
         public async Task<bool> AddAsync(CreateDeviceVM obj, IFormFile? image1, IFormFile? image2, IFormFile? image3, IFormFile? image4)
         {
-
-
             const string query = @"INSERT INTO ITIS_Devices (
                 DeviceTypeID, DeviceName, SerialNumber, FixedAssetCode, Location,
                 Image1Data, Image2Data, Image3Data, Image4Data, PurchasedDate,
@@ -217,6 +265,183 @@ namespace TMIS.DataAccess.ITIS.Repository
                 return false;
             }
 
+        }
+
+        public async Task<DeviceDetailVM> LoadDeviceDetail(int deviceID)
+        {
+            var objDeviceDetailVM = new DeviceDetailVM();
+
+            objDeviceDetailVM = await _icommonList.LoadDeviceDetail(deviceID);
+
+            return objDeviceDetailVM;
+        }
+
+        public async Task<DeviceUserDetailVM> LoadUserDetail(int deviceID)
+        {
+            var objDeviceUserDetailVM = new DeviceUserDetailVM();
+
+            objDeviceUserDetailVM = await _icommonList.LoadUserDetail(deviceID);
+
+            return objDeviceUserDetailVM;
+        }
+
+        public async Task<bool> UpdateDevice(CreateDeviceVM obj, IFormFile? image1, IFormFile? image2, IFormFile? image3, IFormFile? image4)
+        {
+            var updateFields = new List<string>
+            {
+                "DeviceName = @DeviceName",
+                "SerialNumber = @SerialNumber",
+                "FixedAssetCode = @FixedAssetCode",
+                "Location = @Location",           
+                "PurchasedDate = @PurchasedDate",      
+                "DeviceStatusID = @DeviceStatusID",
+                "Remark = @Remark",
+                "Depreciation = @Depreciation",
+                "VendorID = @VendorID",
+                "IsRented = @IsRented",
+                "UpdatedOn = @UpdatedOn",
+                "IsBrandNew = @IsBrandNew"
+            };
+            
+            try
+            {
+                byte[]? image1Bytes = null;
+                byte[]? image2Bytes = null;
+                byte[]? image3Bytes = null;
+                byte[]? image4Bytes = null;
+
+
+                if (image1 != null && image1.Length > 0)
+                {
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        await image1.CopyToAsync(memoryStream);
+                        image1Bytes = memoryStream.ToArray();
+                    }
+                }
+                if (image2 != null && image2.Length > 0)
+                {
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        await image2.CopyToAsync(memoryStream);
+                        image2Bytes = memoryStream.ToArray();
+                    }
+                }
+                if (image3 != null && image3.Length > 0)
+                {
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        await image3.CopyToAsync(memoryStream);
+                        image3Bytes = memoryStream.ToArray();
+                    }
+                }
+                if (image4 != null && image4.Length > 0)
+                {
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        await image4.CopyToAsync(memoryStream);
+                        image4Bytes = memoryStream.ToArray();
+                    }
+                }
+                if (image1Bytes != null && image1Bytes.Length > 0)
+                {                   
+                    updateFields.Add("Image1Data = @image1Bytes");
+                }
+                if (image2Bytes != null && image2Bytes.Length > 0)
+                {                   
+                    updateFields.Add("Image2Data = @image2Bytes");
+                }
+                if (image3Bytes != null && image3Bytes.Length > 0)
+                {
+                    updateFields.Add("Image3Data = @image3Bytes");
+                }
+                if (image4Bytes != null && image4Bytes.Length > 0)
+                {
+                    updateFields.Add("Image4Data = @image4Bytes");
+                }
+
+                var query = $@"UPDATE ITIS_Devices SET {string.Join(", ", updateFields)} where DeviceID=@DeviceID;";
+
+                int rowsAffected = await _dbConnection.GetConnection().ExecuteAsync(query, new
+                {
+                    DeviceID = obj.Device!.DeviceID,
+                    DeviceName = obj.Device!.DeviceName,
+                    SerialNumber = obj.Device.SerialNumber,
+                    FixedAssetCode = obj.Device.FixedAssetCode,
+                    Location = obj.Device.Location,
+                    Image1Data = image1Bytes,
+                    Image2Data = image2Bytes,
+                    Image3Data = image3Bytes,
+                    Image4Data = image4Bytes,
+                    PurchasedDate = obj.Device.PurchasedDate,
+                    UpdatedOn = DateTime.Now,
+                    DeviceStatusID = obj.Device.DeviceStatusID,
+                    Remark = obj.Device.Remark,
+                    Depreciation = obj.Device.Depreciation,
+                    VendorID = obj.Device.VendorID,
+                    IsRented = obj.Device.IsRented,
+                    IsBrandNew = obj.Device.IsBrandNew
+                });
+
+                if (rowsAffected > 0)
+                {
+                    if (obj.Attributes != null && obj.Attributes!.Any())
+                    {
+                        using (var trns = _dbConnection.GetConnection().BeginTransaction())
+                        {
+                            try
+                            {
+                                const string deleteAttributeValue = @"DELETE FROM ITIS_DeviceAttributeValues WHERE DeviceID=@DeviceID; ";
+
+                                await _dbConnection.GetConnection().ExecuteAsync(deleteAttributeValue, new
+                                {
+                                    DeviceID = obj.Device.DeviceID
+                                }, trns);
+
+                                const string attributeQuery = @"INSERT INTO ITIS_DeviceAttributeValues
+                                (DeviceID,AttributeID,ValueText)
+                                VALUES (@DeviceID,@AttributeID,@ValueText)";
+
+                                foreach (var option in obj.Attributes!)
+                                {
+                                    await _dbConnection.GetConnection().ExecuteAsync(attributeQuery, new
+                                    {
+                                        DeviceID = obj.Device.DeviceID,
+                                        AttributeID = option.AttributeID,
+                                        ValueText = option.Value
+                                    }, trns);
+                                }
+
+                                // Commit the transaction
+                                trns.Commit();
+                            }
+                            catch(Exception)
+                            {
+                                // Rollback the transaction if any command fails
+                                trns.Rollback();
+                                throw;
+                            }
+                        }
+
+                       
+                    }
+
+                    Logdb logdb = new()
+                    {
+                        TrObjectId = obj.Device.DeviceID,
+                        TrLog = "DEVICE UPDATED"
+
+                    };
+
+                    _iITISLogdb.InsertLog(_dbConnection, logdb);                   
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return false;
+            }
         }
     }
 }

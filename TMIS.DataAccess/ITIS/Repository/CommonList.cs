@@ -36,7 +36,7 @@ namespace TMIS.DataAccess.ITIS.Repository
 
         public async Task<IEnumerable<SelectListItem>> LoadDepartments()
         {
-            string query = @"select DepartmentID as Value, DepartmentName AS Text from COMN_Departments 
+            string query = @"select DepartmentID as Value, DepartmentName AS Text from COMN_MasterDepartments 
                             where IsDelete=0 ORDER BY Text";
 
             var results = await _dbConnection.GetConnection().QueryAsync<SelectListItem>(query);
@@ -81,11 +81,16 @@ namespace TMIS.DataAccess.ITIS.Repository
             return results;
         }
 
-        public async Task<DeviceDetailVM> LoadDeviceDetail(int deviceID)
+        public async Task<DeviceDetailVM> LoadDeviceDetail(int? deviceID)
         {
 
-            string query = @"select DeviceName, SerialNumber, FixedAssetCode, PurchasedDate,depreciation, IsRented, IsBrandNew 
-                             from ITIS_Devices where DeviceID=@DeviceID";
+            string query = @"select d.DeviceName, d.SerialNumber, d.FixedAssetCode, d.PurchasedDate,d.depreciation, d.Remark,
+                            d.IsRented, d.IsBrandNew, v.Name as Vendor, d.Image1Data, d.Image2Data, d.Image3Data, d.Image4Data,
+                            s.PropName as Status, l.LocationName as Location
+                            from ITIS_Devices as d
+                            inner join ITIS_VendorTemp as v on v.ID=d.VendorID
+                            inner join ITIS_DeviceStatus as s on s.Id = d.DeviceStatusID
+                            inner join COMN_MasterTwoLocations as l on l.Id = d.Location  where d.DeviceID=@DeviceID";
 
             DeviceDetailVM deviceDetailVM = new DeviceDetailVM();
             var deviceDetail = await _dbConnection.GetConnection().QueryFirstOrDefaultAsync<DeviceDetailVM>(query, new
@@ -110,20 +115,23 @@ namespace TMIS.DataAccess.ITIS.Repository
 
         }
 
-        public async Task<DeviceUserDetailVM> LoadUserDetail(int deviceID)
+        public async Task<DeviceUserDetailVM> LoadUserDetail(int? deviceID)
         {
-           
-                string query = @"select AssignmentID, EMPNo, EMPName, Designation, AssignedDate, AssignRemarks
-                            , ApproverEMPNo, ApproverResponseDate, ApproverRemark 
-                            from ITIS_DeviceAssignments where DeviceID=@DeviceID and AssignStatusID not in (4, 5)";
+            string query = @"select a.AssignmentID, a.EMPNo, a.EMPName, a.Designation, a.AssignedDate, a.AssignRemarks, st.PropName as AssignStatus
+                            , a.ApproverEMPNo, a.ApproverResponseDate, a.ApproverRemark, de.DepartmentName as AssignDepartment, l.LocationName as AssignLocation
+                            from ITIS_DeviceAssignments as a 
+                            inner join COMN_MasterTwoLocations as l on l.Id=a.AssignLocation
+                            inner join COMN_MasterDepartments as de on de.DepartmentID=a.AssignDepartment
+                            inner join ITIS_DeviceAssignStatus as st on st.Id=a.AssignStatusID
+                            where a.DeviceID=@DeviceID and a.AssignStatusID not in (4, 5)";
 
-                DeviceUserDetailVM? deviceUserDetail = await _dbConnection.GetConnection().QueryFirstOrDefaultAsync<DeviceUserDetailVM>(query, new
-                {
-                    DeviceID = deviceID
-                });
+            DeviceUserDetailVM? deviceUserDetail = await _dbConnection.GetConnection().QueryFirstOrDefaultAsync<DeviceUserDetailVM>(query, new
+            {
+                DeviceID = deviceID
+            });
 
-                return deviceUserDetail!;
-          
+            return deviceUserDetail!;
+
 
         }
 

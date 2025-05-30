@@ -43,24 +43,32 @@
 					<div class="card-datatable text-nowrap">
 						<table class="datatables-ajax table table-bordered dt-tbl">
 							<thead>
-								<tr class="table-info">								
+								<tr class="table-info">															
+									<th>Device Type</th>
+									<th>Device Name</th>
 									<th>Serial#</th>
-									<th>Employee#</th>
-									<th>Employee Name</th>
+									<th>Employee</th>
 									<th>Designation</th>
+									<th>Assigned Date</th>
+									<th>Location</th>
+									<th>Department</th>
 									<th>Action</th>
 								</tr>
 							</thead>
 							<tbody>
 								@foreach (var item in Model)
 								{
-									<tr>					
+									<tr>																				
+										<td>@item.DeviceType</td>
+										<td>@item.DeviceName</td>
 										<td>@item.SerialNumber</td>
-										<td>@item.EmpNo</td>
 										<td>@item.EmpName</td>
 										<td>@item.Designation</td>
+										<td>@item.AssignedDate?.ToString("MM-dd-yyyy")</td>
+										<td>@item.LocationName</td>
+										<td>@item.DepartmentName</td>								
 										<td>
-											<a> <i class="ri-contract-fill"></i> </a>
+											<a class="btn btn-primary btn-sm" asp-controller="DeviceUser" asp-action="View" asp-route-deviceId="@item.DeviceID"><i class="ri-eye-fill"></i></a>
 										</td>
 									</tr>
 								}

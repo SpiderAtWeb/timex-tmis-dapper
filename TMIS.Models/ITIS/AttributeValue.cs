@@ -10,5 +10,7 @@ namespace TMIS.Models.ITIS
     {
         public string? Name { get; set; }
         public string? ValueText { get; set; }
+        public int? AttributeID {  get; set; }
+        public int? AttributeType { get; set; }
     }
 }
