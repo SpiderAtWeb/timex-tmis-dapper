@@ -9,11 +9,12 @@ using TMIS.Utility;
 
 namespace TMIS.DataAccess.SMIM.Repository
 {
-    public class Transfers(IDatabaseConnectionSys dbConnection, ISMIMLogdb iSMIMLogdb, ISessionHelper sessionHelper) : ITransfers
+    public class Transfers(IDatabaseConnectionSys dbConnection, ISMIMLogdb iSMIMLogdb, ISessionHelper sessionHelper, IGmailSender gmailSender) : ITransfers
     {
         private readonly IDatabaseConnectionSys _dbConnection = dbConnection;
         private readonly ISMIMLogdb _iSMIMLogdb = iSMIMLogdb;
         private readonly ISessionHelper _iSessionHelper = sessionHelper;
+        private readonly IGmailSender _gmailSender = gmailSender;
 
         public async Task<IEnumerable<TransMC>> GetList()
         {
@@ -144,8 +145,7 @@ namespace TMIS.DataAccess.SMIM.Repository
             _iSMIMLogdb.InsertLog(_dbConnection, logdb);
 
             // Send results to Gmail sender
-            var gmailSender = new GmailSender();
-            gmailSender.RequestToApprove(myArray);
+            _gmailSender.McRequestToApprove(myArray);
 
         }
 

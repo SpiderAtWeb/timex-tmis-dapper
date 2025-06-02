@@ -21,7 +21,7 @@ namespace TMIS.DataAccess.GDRM.Rpository
             string sqlGuardRoom = @"SELECT GGpPassId FROM TGPS_TrGpGoodsRoutes WHERE (Id = @GpSubId)";
             var GatePassId = await connection.QueryFirstOrDefaultAsync<int>(sqlGuardRoom, new { GpSubId = id });
 
-            var headerSql = @"SELECT [Id], [GpSubject], [GeneratedBy] AS GeneratedBy,[Attention], [GGPRemarks] AS Remarks
+            var headerSql = @"SELECT [Id], [GpSubject], [GeneratedBy] AS GeneratedBy,[Attention], [GGPRemarks] AS Remarks, [ApprovedBy]
             FROM [TGPS_VwGGPHeader] WHERE Id = @Id";
 
             var detailsSql = @"SELECT [Id], [ItemName], [ItemDescription] AS ItemDesc,[Quantity], [GpUnits]

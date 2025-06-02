@@ -119,7 +119,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
             }
 
             // Fetch details using EGpPassId (matches EmpGpNo from header)
-            var detailsSql = @"SELECT  [EGpPassId], [EmpName], [EmpEPF], [ReturnTime], [ResponsedUser]
+            var detailsSql = @"SELECT  [EGpPassId], [EmpName], [EmpEPF]
                 FROM [TMIS].[dbo].[TGPS_VwEGPDetails] WHERE EGpPassId = @Id;";
 
             var details = await dbConnection.QueryAsync<EmpPassEmployees>(detailsSql, new { Id = id });

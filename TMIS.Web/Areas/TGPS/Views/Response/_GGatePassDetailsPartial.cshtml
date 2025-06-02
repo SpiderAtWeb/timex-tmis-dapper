@@ -54,6 +54,18 @@
             </div>
         </div>
     </div>
+    <div class="row mb-1">
+        <div class="col g-1">
+            <div class="form-floating form-floating-outline">
+                @{
+                    var locations = string.Join(" => ", Model.ShowGPRoutesList.Select(item => item.LocationName));
+                }
+
+                <input type="text" asp-for="@locations" class="form-control" />
+                <label for="Attention">Locations</label>
+            </div>
+        </div>
+    </div>
 
     <div class="mb-2">
         <small class="text-light fw-medium badge badge-info">Gatepass Items</small>

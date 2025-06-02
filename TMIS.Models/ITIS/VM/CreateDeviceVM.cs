@@ -1,9 +1,10 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc.Rendering;
+using TMIS.Models.TGPS;
 
 namespace TMIS.Models.ITIS.VM
 {
@@ -15,6 +16,13 @@ namespace TMIS.Models.ITIS.VM
         public IEnumerable<SelectListItem>? VendorsList { get; set; }
         public Device? Device { get; set; }
         public List<AttributeWithOptionsVM>? Attributes { get; set; }
-        
+
+        public CreateDeviceVM()
+        {
+            Device = new Device();
+        }
+
+
+
     }
 }

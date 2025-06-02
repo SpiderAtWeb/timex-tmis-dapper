@@ -15,6 +15,7 @@ using TMIS.DataAccess.SMIM.IRpository;
 using TMIS.DataAccess.SMIM.Repository;
 using TMIS.DataAccess.TGPS.IRpository;
 using TMIS.DataAccess.TGPS.Rpository;
+using TMIS.Utility;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -69,6 +70,7 @@ builder.Services.AddScoped<IDatabaseConnectionSys, DatabaseConnectionSys>();
 builder.Services.AddScoped<IUserAccess, UserAccess>();
 builder.Services.AddScoped<ITwoFieldsMDataAccess, TwoFieldsMDataAccess>();
 builder.Services.AddScoped<IUserControls, UserControls>();
+builder.Services.AddScoped<IGmailSender, GmailSender>();
 
 //SMIM
 builder.Services.AddScoped<ICommon, Common>();
@@ -110,6 +112,7 @@ builder.Services.AddScoped<IResponse, Response>();
 
 //GDRM
 builder.Services.AddScoped<IGRGoods, GRGoods>();
+builder.Services.AddScoped<IGREmployee, GREmployee>();
 
 
 

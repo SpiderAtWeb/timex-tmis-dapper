@@ -1,17 +1,19 @@
 ﻿using Dapper;
-using iTextSharp.text;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Data;
 using TMIS.DataAccess.COMON.IRpository;
 using TMIS.DataAccess.TGPS.IRpository;
 using TMIS.Models.TGPS;
+using TMIS.Utility;
 
 namespace TMIS.DataAccess.TGPS.Rpository
 {
-    public class EmployeePass(IDatabaseConnectionSys dbConnection, ISessionHelper sessionHelper) : IEmployeePass
+    public class EmployeePass(IDatabaseConnectionSys dbConnection, ISessionHelper sessionHelper, IUserControls userControls, IGmailSender gmailSender) : IEmployeePass
     {
         private readonly IDatabaseConnectionSys _dbConnection = dbConnection;
         private readonly ISessionHelper _iSessionHelper = sessionHelper;
+        private readonly IUserControls _userControls = userControls;
+        private readonly IGmailSender _gmailSender = gmailSender;
 
         public async Task<IEnumerable<EmpPassVM>> GetList()
         {
@@ -71,14 +73,14 @@ namespace TMIS.DataAccess.TGPS.Rpository
             try
             {
 
-                string genRef = await GenerateGpRefAsync(dbConnection, transaction);
+                string genRef = await _userControls.GenerateGpRefAsync(dbConnection, transaction, "[TGPS_XysGenerateNumber]", "TEP");
 
                 // Insert Header
                 string insertHeaderSql = @"
                 INSERT INTO [dbo].[TGPS_TrGpEmpHeader]
-                    ([EmpGpNo], [EGpLocId], [ExpLoc], [ExpReason], [ExpOutTime], ExpDate, [GenUserId], [IsNoReturn], IsResponsed, ApprovedById)
+                    ([EmpGpNo], [EGpLocId], [ExpLoc], [ExpReason], [ExpOutTime], ExpDate, [GenUserId], [IsNoReturn], IsResponsed, ApprovedById, IsOutUpdated, IsInUpdate)
                 VALUES
-                    (@EmpGpNo, @GuardRoomId, @Location, @Reason, @OutTime, GETDATE(), @GenUserId, @IsNoReturn, 0, @ApprovedById);
+                    (@EmpGpNo, @GuardRoomId, @Location, @Reason, @OutTime, GETDATE(), @GenUserId, @IsNoReturn, 0, @ApprovedById, 0, @IsInUpdate);
                 SELECT CAST(SCOPE_IDENTITY() as int);";
 
                 var headerId = await dbConnection.ExecuteScalarAsync<int>(
@@ -92,7 +94,8 @@ namespace TMIS.DataAccess.TGPS.Rpository
                         OutTime = TimeSpan.Parse(model.EmployeePass.OutTime),
                         GenUserId = userId,
                         model.EmployeePass.IsNoReturn,
-                        model.EmployeePass.ApprovedById
+                        model.EmployeePass.ApprovedById,
+                        IsInUpdate = model.EmployeePass.IsNoReturn ? 1 : 0 // If IsNoReturn is true, IsInUpdate is set to 0, otherwise 1
                     },
                     transaction
                 );
@@ -100,9 +103,9 @@ namespace TMIS.DataAccess.TGPS.Rpository
                 // Insert Details
                 string insertDetailSql = @"
                 INSERT INTO [dbo].[TGPS_TrGpEmpDetails]
-                    ([EGpPassId], [EmpName], [EmpEPF], [ReturnTime], [ResponsedUserId])
+                    ([EGpPassId], [EmpName], [EmpEPF])
                 VALUES
-                (@EGpPassId, @EmpName, @EmpEPF, @ReturnTime, @ResponsedUserId);";
+                (@EGpPassId, @EmpName, @EmpEPF);";
 
                 foreach (var emp in model.EmployeePass.EmpPassEmpList)
                 {
@@ -112,15 +115,15 @@ namespace TMIS.DataAccess.TGPS.Rpository
                         {
                             EGpPassId = headerId,
                             emp.EmpName,
-                            emp.EmpEPF,
-                            ReturnTime = (DateTime?)null, // You can provide actual return time if available
-                            ResponsedUserId = userId
+                            emp.EmpEPF
                         },
                         transaction
                     );
                 }
 
                 transaction.Commit();
+
+                PrepairEmail(headerId);
                 return genRef;
             }
             catch
@@ -130,57 +133,44 @@ namespace TMIS.DataAccess.TGPS.Rpository
             }
         }
 
-        public async Task<string> GenerateGpRefAsync(IDbConnection connection, IDbTransaction transaction)
+        private void PrepairEmail(int genId)
         {
-            int currentYear = DateTime.Now.Year;
+            using var connection = _dbConnection.GetConnection();
 
-            // 1. Try to get the generator for the current year
-            var selectSql = @"SELECT TOP 1 [Id], [GenYear], [GenNo], [LastGeneratedDate]
-            FROM [dbo].[TGPS_XysGenerateNumber] WHERE GenYear = @Year AND GpType='TGP'";
+            string headerQuery = @"SELECT  EmpGpNo, GateName, ExpLoc, ExpReason, ExpOutTime, IsReturn, GenUser
+            FROM TGPS_VwEGPHeaders WHERE (Id = @GenId)";
 
-            var generator = await connection.QuerySingleOrDefaultAsync<dynamic>(
-                selectSql, new { Year = currentYear }, transaction);
+            var header = connection.Query(headerQuery, new { GenId = genId }).FirstOrDefault();
 
-            int genNo;
-            int id;
+            string detailsQuery = @"SELECT EmpName, EmpEPF
+            FROM            TGPS_VwEGPDetails WHERE        (EGpPassId = @GenId)";
 
-            if (generator == null)
+            var details = connection.Query(detailsQuery, new { GenId = genId }).ToList();
+
+            // Prepare header part of array
+            var myList = new List<string>
             {
-                // 2. No record for this year — insert new
-                genNo = 1;
+               $"{header!.EmpGpNo}",
+                $"{header.GateName}",
+                $"{header.ExpLoc}",
+                $"{header.ExpReason}",
+                $"{header.ExpOutTime}",
+                $"{header.IsReturn}",
+                $"{header.GenUser}"
+            };
 
-                var insertSql = @"INSERT INTO [dbo].[TGPS_XysGenerateNumber]
-                    (GenYear, GenNo, LastGeneratedDate, GpType) VALUES (@GenYear, @GenNo, GETDATE(),'TGP' );
-                    SELECT CAST(SCOPE_IDENTITY() AS INT);";
-
-                await connection.ExecuteScalarAsync<int>(
-                    insertSql,
-                    new { GenYear = currentYear, GenNo = genNo + 1 },
-                    transaction
-                );
-            }
-            else
+            // Append each detail row as a string item in the array
+            foreach (var d in details)
             {
-                // 3. Record exists — increment and update
-                genNo = generator.GenNo;
-                id = generator.Id;
-
-                var updateSql = @"
-                UPDATE [dbo].[TGPS_XysGenerateNumber]
-                SET GenNo = @NewGenNo,
-                    LastGeneratedDate = GETDATE()
-                WHERE Id = @Id AND GpType='TGP';";
-
-                await connection.ExecuteAsync(
-                    updateSql,
-                    new { NewGenNo = genNo + 1, Id = id },
-                    transaction
-                );
+                string detailString = $"{d.EmpName}|{d.EmpEPF}";
+                myList.Add(detailString);
             }
 
-            // 4. Format final reference number
-            string reference = $"TEP/{currentYear}/{genNo.ToString("D5")}";
-            return reference;
+            // Convert to array
+            string[] myArray = myList.ToArray();
+
+            // Send email
+            _gmailSender.EPRequestToApprove(myArray);
         }
 
         public async Task<EmpPassVM> GetEmpPassesAsync(int id)
@@ -200,7 +190,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
             }
 
             // Fetch details using EGpPassId (matches EmpGpNo from header)
-            var detailsSql = @"SELECT  [EGpPassId], [EmpName], [EmpEPF], [ReturnTime], [ResponsedUser]
+            var detailsSql = @"SELECT  [EGpPassId], [EmpName], [EmpEPF], [ActualOutTime], [ActualInTime]
                 FROM [TMIS].[dbo].[TGPS_VwEGPDetails] WHERE EGpPassId = @Id;";
 
             var details = await dbConnection.QueryAsync<EmpPassEmployees>(detailsSql, new { Id = id });
