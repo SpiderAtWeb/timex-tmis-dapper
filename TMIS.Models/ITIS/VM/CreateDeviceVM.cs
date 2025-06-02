@@ -13,7 +13,7 @@ namespace TMIS.Models.ITIS.VM
         public IEnumerable<SelectListItem>? LocationList { get; set; }
         public IEnumerable<SelectListItem>? DeviceStatusList { get; set; }
         public IEnumerable<SelectListItem>? VendorsList { get; set; }
-        public Device? Device { get; set; }
+        public Device? Device { get; set; } = new Device();
         public List<AttributeWithOptionsVM>? Attributes { get; set; }
         
     }

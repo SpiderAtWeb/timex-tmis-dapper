@@ -12,7 +12,7 @@ namespace TMIS.Models.ITIS.VM
     public class ReturnDeviceVM
     {
         public IEnumerable<SelectListItem>? DeviceSerialList { get; set; }
-        public DeviceDetailVM? DeviceDetail { get; set; }
+        public DeviceDetailVM? DeviceDetail { get; set; } = new DeviceDetailVM();
         [Required]
         [DisplayName("Comment")]
         public string? ReturnRemark {  get; set; }
@@ -20,7 +20,7 @@ namespace TMIS.Models.ITIS.VM
         [DisplayName("Device")]
         public string? Device { get; set; }
         public int RecordID {  get; set; }
-        public DeviceUserDetailVM? DeviceUserDetail { get; set; }
+        public DeviceUserDetailVM? DeviceUserDetail { get; set; } = new DeviceUserDetailVM();
         public byte[]? ReturnTimeImage { get; set; }
     }
 }

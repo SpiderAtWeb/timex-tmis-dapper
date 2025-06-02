@@ -11,7 +11,7 @@ namespace TMIS.Models.ITIS.VM
 {
     public class ViewDeviceUserVM
     {   
-        public DeviceDetailVM? DeviceDetail { get; set; }             
-        public DeviceUserDetailVM? DeviceUserDetail { get; set; }
+        public DeviceDetailVM? DeviceDetail { get; set; } = new DeviceDetailVM();              
+        public DeviceUserDetailVM? DeviceUserDetail { get; set; } = new DeviceUserDetailVM();
     }
 }

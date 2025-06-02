@@ -9,7 +9,7 @@ namespace TMIS.Models.ITIS.VM
 {
     public class CreateAttributeVM
     {
-        public AttributeModel? Attribute { get; set; }
+        public AttributeModel? Attribute { get; set; } = new AttributeModel();
         public List<AttributeListOption>? AttributeListOption { get; set; }      
         public IEnumerable<SelectListItem>? DeviceTypeList { get; set; }
         public IEnumerable<SelectListItem>? AttributeTypeList { get; set; }        
