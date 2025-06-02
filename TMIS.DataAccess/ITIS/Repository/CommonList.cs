@@ -88,9 +88,9 @@ namespace TMIS.DataAccess.ITIS.Repository
                             d.IsRented, d.IsBrandNew, v.Name as Vendor, d.Image1Data, d.Image2Data, d.Image3Data, d.Image4Data,
                             s.PropName as Status, l.LocationName as Location
                             from ITIS_Devices as d
-                            inner join ITIS_VendorTemp as v on v.ID=d.VendorID
-                            inner join ITIS_DeviceStatus as s on s.Id = d.DeviceStatusID
-                            inner join COMN_MasterTwoLocations as l on l.Id = d.Location  where d.DeviceID=@DeviceID";
+                            left join ITIS_VendorTemp as v on v.ID=d.VendorID
+                            left join ITIS_DeviceStatus as s on s.Id = d.DeviceStatusID
+                            left join COMN_MasterTwoLocations as l on l.Id = d.Location  where d.DeviceID=@DeviceID";
 
             DeviceDetailVM deviceDetailVM = new DeviceDetailVM();
             var deviceDetail = await _dbConnection.GetConnection().QueryFirstOrDefaultAsync<DeviceDetailVM>(query, new
