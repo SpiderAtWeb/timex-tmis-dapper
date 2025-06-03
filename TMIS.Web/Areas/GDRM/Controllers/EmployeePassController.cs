@@ -1,12 +1,13 @@
 using log4net;
 using Microsoft.AspNetCore.Mvc;
+using TMIS.Controllers;
 using TMIS.DataAccess.GDRM.IRpository;
 using TMIS.Models.GDRM;
 
 namespace TMIS.Areas.GDRM.Controllers
 {
   [Area("GDRM")]
-  public class EmployeePassController(IGREmployee db) : Controller
+  public class EmployeePassController(IGREmployee db) : BaseController
   {
     private readonly ILog _logger = LogManager.GetLogger(typeof(EmployeePassController));
     private readonly IGREmployee _db = db;

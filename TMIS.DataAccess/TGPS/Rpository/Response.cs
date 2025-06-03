@@ -81,10 +81,9 @@ namespace TMIS.DataAccess.TGPS.Rpository
             {
                 string sql = @"UPDATE [dbo].[TGPS_TrGpGoodsHeader]
                    SET [IsApproved] = @Action
-                      ,[ApprovedBy] = @LogedUserId
                       ,[ApprovedDateTime] = GETDATE()
                  WHERE Id = @Id";
-                var parameters = new { Id = id, Action = action, LogedUserId = _iSessionHelper.GetUserId() };
+                var parameters = new { Id = id, Action = action };
                 await _dbConnection.GetConnection().ExecuteAsync(sql, parameters);
                 return true;
             }
@@ -97,8 +96,8 @@ namespace TMIS.DataAccess.TGPS.Rpository
 
         public async Task<IEnumerable<EmpPassVM>> GetEmpList()
         {
-            string sql = @"SELECT  Id, [EmpGpNo], [GateName], [ExpLoc], [ExpReason], [ExpOutTime], [IsReturn], [IsResponsed]
-            FROM            TGPS_VwEGPHeaders WHERE  (IsResponsedTag = 0) AND (ApprovedById = @GenUser)";
+            string sql = @"SELECT  Id, [EmpGpNo], [GateName], [ExpLoc], [ExpReason], [ExpOutTime], [IsReturn], [IsApproved]
+            FROM            TGPS_VwEGPHeaders WHERE [IsApprovedStat] = 0  AND (ApprovedById = @GenUser)";
 
             return await _dbConnection.GetConnection().QueryAsync<EmpPassVM>(sql, new { GenUser = _iSessionHelper.GetUserId() });
         }
@@ -107,7 +106,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
         {
             using var dbConnection = _dbConnection.GetConnection();
 
-            string headerSql = @"SELECT [EmpGpNo], [GateName], [ExpLoc], [ExpReason], [ExpOutTime], [IsReturn], [IsResponsed]
+            string headerSql = @"SELECT [EmpGpNo], [GateName], [ExpLoc], [ExpReason], [ExpOutTime], [IsReturn], [IsApproved]
             FROM [TMIS].[dbo].[TGPS_VwEGPHeaders] WHERE Id = @Id;";
 
             // Fetch header details using Id
@@ -133,7 +132,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
             try
             {
                 string sql = @"UPDATE [dbo].[TGPS_TrGpEmpHeader]
-                   SET [IsResponsed] = @Action
+                   SET [IsApproved] = @Action
                       ,[ApprovedDateTime] = GETDATE()
                  WHERE Id = @Id";
                 var parameters = new { Id = id, Action = action };

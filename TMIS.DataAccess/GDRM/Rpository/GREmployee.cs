@@ -77,12 +77,7 @@ namespace TMIS.DataAccess.GDRM.Rpository
         {
             if (empGpUpdate.SelectedEmpGpId <= 0)
                 return await Task.FromResult(new EmpGpUpdateResult { IsSuccess = false, Message = "Employee gatepass not found!", ErrorFieldId = "" });
-
-            if (empGpUpdate.VehicleNoId <= 0)
-                return await Task.FromResult(new EmpGpUpdateResult { IsSuccess = false, Message = "Vehicle number is required.", ErrorFieldId = "vehicleNoId" });
-
-            if (empGpUpdate.DriverNameId <= 0)
-                return await Task.FromResult(new EmpGpUpdateResult { IsSuccess = false, Message = "Driver name is required.", ErrorFieldId = "driverNameId" });
+       
 
             var connection = _dbConnection.GetConnection();
             var transaction = connection.BeginTransaction();
@@ -92,92 +87,86 @@ namespace TMIS.DataAccess.GDRM.Rpository
                 if (empGpUpdate.IsOut > 0)
                 {
                     // Update for outgoing
-                    string sqlUpdateM = @"UPDATE [dbo].[TGPS_TrGpEmpRoutes]
-                                     SET [IsSend] = @IsSend,
-                                         [SendGRId] = @GRId,
-                                         [SendGRUserId] = @SendGRUserId,
-                                         [SendGRDateTime] = GETDATE(),
-                                         [SendVehicleId] = @VehicleNoId,
-                                         [SendDriverId] = @DriverNameId
-                                     WHERE [Id] = @EmpGpId";
+                    string sqlUpdateM = @"UPDATE [dbo].[TGPS_TrGpEmpHeader]
+                       SET [IsOutUpdated] = 1
+                          ,[IsInUpdate] = 0,
+                           [GRUserId] = @GRUserId   
+                     WHERE [ID] = @EmpGpId";
 
                     connection.Execute(
                         sqlUpdateM,
                         new
                         {
                             EmpGpId = empGpUpdate.SelectedEmpGpId,
-                            IsSend = empGpUpdate.ActionType ? 1 : 2,
-                            empGpUpdate.GRId,
-                            SendGRUserId = _iSessionHelper.GetUserId(),
-                            empGpUpdate.VehicleNoId,
-                            empGpUpdate.DriverNameId
+                            GRUserId = _iSessionHelper.GetUserId()
                         },
                         transaction: transaction,
                         commandType: CommandType.Text);
 
-                    // Insert dispatching details
-                    string sqlInsertM = @"INSERT INTO [dbo].[TGPS_TrGpEmpDetailsErrorsSend]
-                                     ([EmpRouteId], [EGpPassDetailsId], [GRRemarkId])
-                                     VALUES (@EmpRouteId, @EGpPassDetailsId, @GuardRoomRemarkId)";
-
-                    foreach (var detail in empGpUpdate.EmpGpUpdateDetailList)
+                    //EmpGpUpdateDetailList update details
+                    if (empGpUpdate.EmpGpUpdateDetailList != null && empGpUpdate.EmpGpUpdateDetailList.Count > 0)
                     {
-                        connection.Execute(
-                            sqlInsertM,
-                            new
-                            {
-                                EmpRouteId = empGpUpdate.SelectedEmpGpId,
-                                EGpPassDetailsId = detail.ID,
-                                GuardRoomRemarkId = detail.ReasonId
-                            },
-                            transaction: transaction,
-                            commandType: CommandType.Text);
+                        string sqlUpdateDetails = @"UPDATE [dbo].[TGPS_TrGpEmpDetails]
+                            SET  [ActualOutTime] = @ActualTime
+                            WHERE [Id] = @EmpGpDetailId";
+                        foreach (var detail in empGpUpdate.EmpGpUpdateDetailList)
+                        {
+                            connection.Execute(
+                                sqlUpdateDetails,
+                                new 
+                                {
+                                    ActualTime = detail.TimeValue == ""? DateTime.Now.ToString() : detail.TimeValue,
+                                    EmpGpDetailId = detail.ID 
+                                },
+
+
+                                transaction: transaction,
+                                commandType: CommandType.Text);
+                        }
                     }
+
                 }
                 else
                 {
                     // Update for receiving
-                    string sqlUpdateM = @"UPDATE [dbo].[TGPS_TrGpEmpRoutes]
-                                     SET [IsReceived] = @IsReceived,
-                                         [RecGRId] = @GRId,
-                                         [RecGRUserId] = @RecGRUserId,
-                                         [RecGRDateTime] = GETDATE(),
-                                         [RecVehicleId] = @VehicleNoId,
-                                         [RecDriverId] = @DriverNameId
-                                     WHERE [Id] = @EmpGpId";
+                    string sqlUpdateM = @"UPDATE [dbo].[TGPS_TrGpEmpHeader]
+                       SET [IsOutUpdated] = 1
+                          ,[IsInUpdate] = 1,
+                           [GRUserId] = @GRUserId   
+                     WHERE [ID] = @EmpGpId";
 
                     connection.Execute(
                         sqlUpdateM,
                         new
                         {
                             EmpGpId = empGpUpdate.SelectedEmpGpId,
-                            IsReceived = empGpUpdate.ActionType ? 1 : 2,
-                            empGpUpdate.GRId,
-                            RecGRUserId = _iSessionHelper.GetUserId(),
-                            empGpUpdate.VehicleNoId,
-                            empGpUpdate.DriverNameId
+                            GRUserId = _iSessionHelper.GetUserId()
                         },
                         transaction: transaction,
                         commandType: CommandType.Text);
 
-                    // Insert receiving details
-                    string sqlInsertM = @"INSERT INTO [dbo].[TGPS_TrGpEmpDetailsErrorsRec]
-                                     ([EmpRouteId], [EGpPassDetailsId], [GRRemarkId])
-                                     VALUES (@EmpRouteId, @EGpPassDetailsId, @GuardRoomRemarkId)";
-
-                    foreach (var detail in empGpUpdate.EmpGpUpdateDetailList)
+                    //EmpGpUpdateDetailList update details
+                    if (empGpUpdate.EmpGpUpdateDetailList != null && empGpUpdate.EmpGpUpdateDetailList.Count > 0)
                     {
-                        connection.Execute(
-                            sqlInsertM,
-                            new
-                            {
-                                EmpRouteId = empGpUpdate.SelectedEmpGpId,
-                                EGpPassDetailsId = detail.ID,
-                                GuardRoomRemarkId = detail.ReasonId
-                            },
-                            transaction: transaction,
-                            commandType: CommandType.Text);
+                        string sqlUpdateDetails = @"UPDATE [dbo].[TGPS_TrGpEmpDetails]
+                            SET  [ActualInTime] = @ActualTime
+                            WHERE [Id] = @EmpGpDetailId";
+                        foreach (var detail in empGpUpdate.EmpGpUpdateDetailList)
+                        {
+                            connection.Execute(
+                                sqlUpdateDetails,
+                                new
+                                {
+                                    ActualTime = detail.TimeValue == "" ? DateTime.Now.ToString() : detail.TimeValue,
+                                    EmpGpDetailId = detail.ID
+                                },
+
+
+                                transaction: transaction,
+                                commandType: CommandType.Text);
+                        }
                     }
+
                 }
 
                 transaction.Commit();

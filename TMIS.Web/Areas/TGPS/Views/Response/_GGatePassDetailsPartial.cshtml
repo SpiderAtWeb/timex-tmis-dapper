@@ -22,7 +22,7 @@
         <div class="col-4 g-1">
             <div class="form-floating form-floating-outline">
                 <input type="text" asp-for="GeneratedDateTime" class="form-control" />
-                <label for="Attention">Generated Date\Time</label>
+                <label for="Attention">Generated Date Time</label>
             </div>
         </div>
     </div>
@@ -33,16 +33,14 @@
                 <label for="Attention">Attention</label>
             </div>
         </div>
-        <div class="col-4 g-1">
+        <div class="col-8 g-1">
             <div class="form-floating form-floating-outline">
-                <input type="text" asp-for="ApprovedBy" class="form-control" />
-                <label for="Attention">Approved By</label>
-            </div>
-        </div>
-        <div class="col-4 g-1">
-            <div class="form-floating form-floating-outline">
-                <input type="text" asp-for="ApprovedDateTime" class="form-control" />
-                <label for="Attention">Approved Date\Time</label>
+                @{
+                    var locations = string.Join(" => ", Model.ShowGPRoutesList.Select(item => item.LocationName));
+                }
+
+                <input type="text" asp-for="@locations" class="form-control" />
+                <label for="Attention">Locations</label>
             </div>
         </div>
     </div>
@@ -54,18 +52,7 @@
             </div>
         </div>
     </div>
-    <div class="row mb-1">
-        <div class="col g-1">
-            <div class="form-floating form-floating-outline">
-                @{
-                    var locations = string.Join(" => ", Model.ShowGPRoutesList.Select(item => item.LocationName));
-                }
 
-                <input type="text" asp-for="@locations" class="form-control" />
-                <label for="Attention">Locations</label>
-            </div>
-        </div>
-    </div>
 
     <div class="mb-2">
         <small class="text-light fw-medium badge badge-info">Gatepass Items</small>

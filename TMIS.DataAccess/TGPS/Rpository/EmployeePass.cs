@@ -17,7 +17,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
 
         public async Task<IEnumerable<EmpPassVM>> GetList()
         {
-            string sql = @"SELECT  Id, [EmpGpNo], [GateName], [ExpLoc], [ExpReason], [ExpOutTime], [IsReturn], [IsResponsed]
+            string sql = @"SELECT  Id, [EmpGpNo], [GateName], [ExpLoc], [ExpReason], [ExpOutTime], [IsReturn], [IsApproved]
             FROM            TGPS_VwEGPHeaders
             WHERE        (GenUserId = @GenUser)";
 
@@ -78,7 +78,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
                 // Insert Header
                 string insertHeaderSql = @"
                 INSERT INTO [dbo].[TGPS_TrGpEmpHeader]
-                    ([EmpGpNo], [EGpLocId], [ExpLoc], [ExpReason], [ExpOutTime], ExpDate, [GenUserId], [IsNoReturn], IsResponsed, ApprovedById, IsOutUpdated, IsInUpdate)
+                    ([EmpGpNo], [EGpLocId], [ExpLoc], [ExpReason], [ExpOutTime], ExpDate, [GenUserId], [IsNoReturn], IsApproved, ApprovedById, IsOutUpdated, IsInUpdate)
                 VALUES
                     (@EmpGpNo, @GuardRoomId, @Location, @Reason, @OutTime, GETDATE(), @GenUserId, @IsNoReturn, 0, @ApprovedById, 0, @IsInUpdate);
                 SELECT CAST(SCOPE_IDENTITY() as int);";
@@ -177,7 +177,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
         {
             using var dbConnection = _dbConnection.GetConnection();
 
-            string headerSql = @"SELECT [EmpGpNo], [GateName], [ExpLoc], [ExpReason], [ExpOutTime], [IsReturn], [IsResponsed], [ResponsedBy], [ResponsedDateTime]
+            string headerSql = @"SELECT [EmpGpNo], [GateName], [ExpLoc], [ExpReason], [ExpOutTime], [IsReturn], [IsApproved], [ApprovedBy], [ResponsedDateTime]
                 FROM [TMIS].[dbo].[TGPS_VwEGPHeaders] WHERE Id = @Id;";
 
 

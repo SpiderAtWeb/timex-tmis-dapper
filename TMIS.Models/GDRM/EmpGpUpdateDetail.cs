@@ -3,6 +3,6 @@
     public class EmpGpUpdateDetail
     {
         public int ID { get; set; }
-        public int ReasonId { get; set; }
+        public string TimeValue { get; set; } = string.Empty;
     }
 }

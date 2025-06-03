@@ -45,7 +45,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
                     GeneratedUserId,
                     GeneratedDateTime,
                     Attention,
-                    ApprovedTo,
+                    ApprovedById,
                     IsApproved,
                     IsReturnable,
                     ReturnDays,
@@ -59,7 +59,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
                     @GeneratedUserId,
                     GETDATE(),
                     @Attention,
-                    @ApprovedTo,
+                    @ApprovedById,
                     0,
                     @IsReturnable,
                     @ReturnDays,
@@ -77,7 +77,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
                         model.GpSubject,
                         GeneratedUserId = _iSessionHelper.GetUserId(),
                         model.Attention,
-                        ApprovedTo = model.SendApprovalTo,
+                        ApprovedById = model.SendApprovalTo,
                         model.IsReturnable,
                         model.ReturnDays,
                         GGPRemarks = model.Remarks
@@ -282,7 +282,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
                 var sql = @"
                 SELECT [Id], [GGpReference], [GpSubject], [GeneratedUser], [GeneratedDateTime],
                        [Attention], [GGPRemarks], [ApprovedBy], [ApprovedDateTime],
-                       [ItemName], [ItemDescription], [Quantity], [UOM]
+                       [ItemName], [ItemDescription], [Quantity], [UOM], [IsApproved]
                 FROM   [TMIS].[dbo].[TGPS_VwGatePassList] 
                 WHERE  [Id] = @GPID;
 
@@ -319,6 +319,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
                         GGPRemarks = first.GGPRemarks,
                         ApprovedBy = first.ApprovedBy,
                         ApprovedDateTime = first.ApprovedDateTime?.ToString("yyyy-MM-dd HH:mm:ss") ?? "",
+                        IsApproved = first.IsApproved,
                         ShowGPItemVMList = g.Select(i => new ShowGPItemVM
                         {
                             ItemName = i.ItemName,

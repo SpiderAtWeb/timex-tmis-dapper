@@ -1,6 +1,13 @@
 @model ShowGPListVM
 
-<h5>Gatepass #: @Model.GGpReference</h5>
+
+<h5>
+    Gatepass #: @Model.GGpReference
+
+    <span class="badge rounded-pill bg-label@(Model.IsApproved == "Approved" ? "-success" : Model.IsApproved == "Rejected" ? "-danger" : "-primary")">
+        @Model.IsApproved
+    </span>
+</h5>
 
 <div class="card-body">
     <div class="mb-1">
@@ -22,7 +29,7 @@
         <div class="col-4 g-1">
             <div class="form-floating form-floating-outline">
                 <input type="text" asp-for="GeneratedDateTime" class="form-control" />
-                <label for="Attention">Generated Date\Time</label>
+                <label for="Attention">Generated Date Time</label>
             </div>
         </div>
     </div>
@@ -42,7 +49,7 @@
         <div class="col-4 g-1">
             <div class="form-floating form-floating-outline">
                 <input type="text" asp-for="ApprovedDateTime" class="form-control" />
-                <label for="Attention">Approved Date\Time</label>
+                <label for="Attention">Approved Date Time</label>
             </div>
         </div>
     </div>

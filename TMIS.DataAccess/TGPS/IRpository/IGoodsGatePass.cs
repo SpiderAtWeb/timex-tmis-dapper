@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TMIS.Models.TGPS.VM;
+﻿using TMIS.Models.TGPS.VM;
 
 namespace TMIS.DataAccess.TGPS.IRpository
 {

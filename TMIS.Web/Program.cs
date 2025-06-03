@@ -113,7 +113,7 @@ builder.Services.AddScoped<IResponse, Response>();
 //GDRM
 builder.Services.AddScoped<IGRGoods, GRGoods>();
 builder.Services.AddScoped<IGREmployee, GREmployee>();
-
+builder.Services.AddScoped<IGatepassService, GatepassService>();
 
 
 builder.Services.AddScoped<ISessionHelper, SessionHelper>();
@@ -163,10 +163,18 @@ app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 
+
 app.Use(async (context, next) =>
 {
   try
   {
+    //Allow anonymous access to gatepass approval API
+    if (context.Request.Path.StartsWithSegments("/api/gatepass"))
+    {
+      await next();
+      return;
+    }
+
     if (!context.User.Identity!.IsAuthenticated && !context.Request.Path.StartsWithSegments("/Auth/Account/Login"))
     {
       context.Response.Redirect("/Auth/Account/Login");
