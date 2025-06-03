@@ -129,12 +129,12 @@ namespace TMIS.DataAccess.ITIS.Repository
                 var insertedId = await _dbConnection.GetConnection().QuerySingleOrDefaultAsync<int?>(query, new
                 {
                     DeviceID = obj.AssignDevice!.Device,
-                    EMPNo = "",
-                    EmpName = obj.AssignDevice.EmpNo,
+                    EMPNo = obj.AssignDevice!.EmpNo,
+                    EmpName = obj.AssignDevice.EmpName,
                     Designation = obj.AssignDevice.Designation,
                     AssignedBy = _iSessionHelper.GetShortName().ToUpper(),
-                    AssignRemarks = "",
-                    ApproverEMPNo = obj.AssignDevice.Approver, // add actual approver empno
+                    AssignRemarks = obj.AssignDevice.AssignRemark,
+                    ApproverEMPNo = obj.AssignDevice.Approver,
                     AssignStatusID = 2,
                     IsToUser = true,
                     AssignLocation = obj.AssignDevice.AssignLocation,

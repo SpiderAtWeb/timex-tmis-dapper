@@ -53,18 +53,31 @@
 				groupable: true,
 				columns: [
 					{ field: "DeviceID", title: "Device ID", width: "150px", hidden: true },
-					{ field: "DeviceType", title: "Device Type", width: "150px" },
-					{ field: "SerialNumber", title: "Serial Number", width: "150px"  },
-					{ field: "FixedAssetCode", title: "Fixed Asset Code ", width: "150px" },
-					{ field: "DeviceName", title: "Device Name", width: "150px" },
-					{ field: "PurchasedDate", title: "Purchased Date", width: "150px" },
-					{ field: "LocationName", title: "Location Name", width: "150px" },									
-					{ field: "Status", title: "Status", width: "250px" },
-					{ field: "Vendor", title: "Vendor", width: "250px" }				
+					{ field: "DeviceType", title: "Device Type", width: "75px" },
+					{ field: "SerialNumber", title: "Serial Number", width: "100px"  },
+					{ field: "FixedAssetCode", title: "Fixed Asset Code ", width: "100px" },
+					{ field: "DeviceName", title: "Device Name", width: "100px" },
+					{
+						field: "PurchasedDate",
+						title: "Purchased Date",
+						width: "100px",
+						template: function(dataItem) {
+							if (!dataItem.PurchasedDate) return "";
+							const date = new Date(dataItem.PurchasedDate);
+							const mm = String(date.getMonth() + 1).padStart(2, '0');
+							const dd = String(date.getDate()).padStart(2, '0');
+							const yyyy = date.getFullYear();
+							return `${mm}-${dd}-${yyyy}`;
+						}
+
+					},
+					{ field: "LocationName", title: "Location Name", width: "100px" },
+					{ field: "Status", title: "Status", width: "50px" },
+					{ field: "Vendor", title: "Vendor", width: "75px" }
 				],
 			});
 
-			
+
 		});
 
 	</script>
@@ -110,7 +123,7 @@
 			<div>
 				<!-- Transactions -->
 				<div class="col align-self-end">
-					<div class="card-body">						
+					<div class="card-body">
 						<hr class="my-2">
 						<div class="row">
 							<div class="col-6">

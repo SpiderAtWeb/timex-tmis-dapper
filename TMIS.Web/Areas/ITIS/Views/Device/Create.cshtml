@@ -16,7 +16,13 @@
     <script src="~/js/form-layouts.js"></script>
     <script src="~/custom/input-text-upper.js"></script>
 <script>
-		let attributeindex = 0;
+
+			$('.select2').select2({
+		  placeholder: "- Select -",
+		  allowClear: true
+		});
+
+	let attributeindex = 0;
 		$('#Device_DeviceTypeID').on('change', function () {
 			
 		$('#attributeContainer').empty();
@@ -32,8 +38,8 @@
 
 				if (attr.dataType === 1 && attr.options) {
 					html += `<input type="hidden" name="Attributes[${attributeindex}].AttributeID" value="${attr.attributeID}" />`;
-					html += `<select name="Attributes[${attributeindex}].Value" class="form-select">`;
-					html += `<option disabled selected>- Select -</option>`;
+					html += `<select name="Attributes[${attributeindex}].Value" class="form-select select2" data-allow-clear="true">`;
+					html += `<option value="" selected>- Select -</option>`;
 					attr.options.forEach(opt => {
 					  html += `<option value="${opt}">${opt}</option>`;
 					});

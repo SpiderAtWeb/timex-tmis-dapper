@@ -11,8 +11,11 @@ namespace TMIS.Models.ITIS.VM
     public class AssignDeviceVM
     {
         [Required]
-        [DisplayName("Employee")]
+        [DisplayName("Employee#")]
         public string EmpNo { get; set; } = string.Empty;
+        [Required]
+        [DisplayName("Employee")]
+        public string EmpName { get; set; } = string.Empty;
         [Required]
         [DisplayName("Device")]
         public int Device {  get; set; } 
@@ -28,5 +31,7 @@ namespace TMIS.Models.ITIS.VM
         [Required]
         [DisplayName("Department")]
         public string? AssignDepartment {  get; set; }
+        [DisplayName("Comment")]
+        public string? AssignRemark { get;set; }
     }
 }

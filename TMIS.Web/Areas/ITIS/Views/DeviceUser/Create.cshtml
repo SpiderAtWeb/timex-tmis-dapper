@@ -84,15 +84,21 @@
 	<form asp-action="Create" method="post" class="card-body" id="myForm" enctype="multipart/form-data">
 
 		<div class="row g-4">
-
 			<div class="col-md-4">
 				<div class="form-floating form-floating-outline">
-					<select asp-for="@Model.AssignDevice!.EmpNo" asp-items="@Model.EmployeeList" class="select2 form-select" data-allow-clear="true">
+					<input asp-for="AssignDevice.EmpNo" type="number" id="style-no" class="form-control" placeholder="130****" min="0" />
+					<label asp-for="AssignDevice.EmpNo"></label>
+					<span asp-validation-for="AssignDevice.EmpNo" class="customerError text-warning"></span>
+				</div>
+			</div>
+			<div class="col-md-4">
+				<div class="form-floating form-floating-outline">
+					<select asp-for="@Model.AssignDevice!.EmpName" asp-items="@Model.EmployeeList" class="select2 form-select" data-allow-clear="true">
 						<option value="" Disabled Selected>- Select Employee -</option>
 					</select>
 
-					<label asp-for="AssignDevice!.EmpNo"></label>
-					<span asp-validation-for="@Model.AssignDevice!.EmpNo" class="text-warning"></span>
+					<label asp-for="AssignDevice!.EmpName"></label>
+					<span asp-validation-for="@Model.AssignDevice!.EmpName" class="text-warning"></span>
 				</div>
 			</div>
 			<div class="col-md-4">
@@ -151,7 +157,14 @@
 						<!-- Dynamic content will go here -->
 					</div>
 				</div>
-			</div>					
+			</div>
+			<div class="col-md-6">
+				<div class="form-floating form-floating-outline">
+					<input asp-for="AssignDevice.AssignRemark" type="text" id="style-no" class="form-control"/>
+					<label asp-for="AssignDevice.AssignRemark"></label>
+					<span asp-validation-for="AssignDevice.AssignRemark" class="customerError text-warning"></span>
+				</div>
+			</div>
 			<div class="pt-1">
 				<button type="submit" class="btn btn-primary me-1">Assign</button>
 				<a asp-controller="DeviceUser" asp-action="Index" class="btn btn-outline-secondary">Back to List</a>
