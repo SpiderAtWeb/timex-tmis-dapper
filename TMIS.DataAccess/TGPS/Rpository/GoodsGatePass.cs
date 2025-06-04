@@ -8,7 +8,7 @@ using TMIS.Utility;
 
 namespace TMIS.DataAccess.TGPS.Rpository
 {
-    public class GoodsGatePass(IDatabaseConnectionSys dbConnection, ISessionHelper sessionHelper, IUserControls userControls, IGmailSender gmailSender ) : IGoodsGatePass
+    public class GoodsGatePass(IDatabaseConnectionSys dbConnection, ISessionHelper sessionHelper, IUserControls userControls, IGmailSender gmailSender) : IGoodsGatePass
     {
         private readonly IDatabaseConnectionSys _dbConnection = dbConnection;
         private readonly ISessionHelper _iSessionHelper = sessionHelper;
@@ -229,7 +229,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
             // Send email
             Task.Run(() => _gmailSender.GPRequestToApprove(myArray));
         }
-        
+
         public async Task<GoodPassVM> GetSelectData()
         {
             var dbConnection = _dbConnection.GetConnection();

@@ -60,7 +60,7 @@ public class GenGoodsPassController(IGoodsGatePass db) : BaseController
       return BadRequest("Remarks are required.");
     }
 
-    if (gatepassVM.IsReturnable )
+    if (gatepassVM.IsReturnable)
     {
       if (string.IsNullOrEmpty(gatepassVM.ReturnDays))
       {
