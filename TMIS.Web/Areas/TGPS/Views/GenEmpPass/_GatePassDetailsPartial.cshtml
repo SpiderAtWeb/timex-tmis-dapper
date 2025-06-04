@@ -67,18 +67,30 @@
         @foreach (var item in Model.ShowGPItemVMList)
         {
             <div class="row mb-1">
-                <div class="col-6 g-1">
+                <div class="col-3 g-1">
                     <div class="form-floating form-floating-outline">
                         <input type="text" class="form-control" value="@item.EmpName" readonly />
                         <label>Employee Name</label>
                     </div>
                 </div>
-                <div class="col-6 g-1">
+                <div class="col-3 g-1">
                     <div class="form-floating form-floating-outline">
                         <input type="text" class="form-control" value="@item.EmpEPF" readonly />
                         <label>Employee EPF</label>
                     </div>
-                </div>                
+                </div>
+                <div class="col-3 g-1">
+                    <div class="form-floating form-floating-outline">
+                        <input type="text" class="form-control" value="@item.ActualOutTime" readonly />
+                        <label>Actual OUT</label>
+                    </div>
+                </div>
+                <div class="col-3 g-1">
+                    <div class="form-floating form-floating-outline">
+                        <input type="text" class="form-control" value="@item.ActualInTime" readonly />
+                        <label>Actual IN</label>
+                    </div>
+                </div>
             </div>
         }
     </div>

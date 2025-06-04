@@ -12,6 +12,7 @@
         public string ApprovedBy { get; set; } = string.Empty;
         public string ApprovedDateTime { get; set; } = string.Empty;
         public string IsApproved { get; set; } = string.Empty;
+        public string BoiGatepass { get; set; } = string.Empty;
         public List<ShowGPItemVM> ShowGPItemVMList { get; set; } = [];
         public List<ShowGPRoutesVM> ShowGPRoutesList { get; set; } = [];
         public List<ShowGPListErrorsVM> ShowGPListErrorsList { get; set; } = [];

@@ -29,7 +29,7 @@
     }
     <script>
         $(document).ready(function () {
-            $('.btn-x-action').on('click', function () {
+          $(document).on('click', '.btn-x-action', function () {
                 const $row = $(this).closest('tr'); // Get the row
                 const gpId = $(this).data('id');    // Get the ID from the button
                 const gatePassNo = $row.find('td').eq(1).text().trim(); // Get GatePassNo from 2nd <td>
@@ -102,7 +102,7 @@
     <script>
         $(document).ready(function () {
             // When fa-eye icon is clicked
-            $('.btn-y-action').on('click', function () {
+            $(document).on('click', '.btn-y-action', function () {
                 var gatePassId = $(this).data("id");
 
                 // Load data via AJAX

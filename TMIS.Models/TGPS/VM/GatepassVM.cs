@@ -17,6 +17,7 @@ namespace TMIS.Models.TGPS.VM
         public bool IsReturnable { get; set; }
         public string ReturnDays { get; set; } = string.Empty;
         public string Remarks { get; set; } = string.Empty;
+        public string BoiGatepass { get; set; } = string.Empty;
 
     }
 }

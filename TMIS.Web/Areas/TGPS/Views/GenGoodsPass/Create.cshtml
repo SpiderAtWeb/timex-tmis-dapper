@@ -329,26 +329,30 @@
                 data.IsReturnable = $('#returnable').is(':checked');
                 data.ReturnDays = $('#returnDays').val();
                 data.Remarks = $('#remarks').val();
-
+                data.BoiGatepass = $('#BoiGatepass').val();
 
 
                   if (!data.GpSubject) {
                     toastr.error("Please ensure 'Gatepass Subject' fields is filled.");
+                     $btn.prop('disabled', false).text(originalText);
                     return;
                 }
 
                 if (!data.Attention) {
                     toastr.error("Please ensure 'Attention' fields is filled.");
+                     $btn.prop('disabled', false).text(originalText);
                     return;
                 }
 
                 if (!data.SendApprovalTo) {
                     toastr.error("Please ensure 'SendApprovalTo' fields is filled.");
+                     $btn.prop('disabled', false).text(originalText);
                     return;
                 }
 
                 if (!data.Remarks) {
                     toastr.error("Please ensure 'Remarks' fields is filled.");
+                     $btn.prop('disabled', false).text(originalText);
                     return;
                 }
 
@@ -378,6 +382,7 @@
                 });
 
                 if (!isValid) {
+                   $btn.prop('disabled', false).text(originalText);
                     return;
                 }
 
@@ -396,6 +401,7 @@
                         var errorMsg = xhr.responseText || 'An error occurred while submitting the form.';
                         toastr.error(errorMsg);
                         console.log("Error details:", errorMsg);
+                         $btn.prop('disabled', false).text(originalText);
                     },
                      complete: function () {
             // Re-enable and reset the button in both success or error
@@ -449,19 +455,25 @@
                 <small class="text-light fw-medium">Fill the necessary details for the gate pass.</small>
             </div>
             <div class="row mb-3">
-                <div class="col-4 g-1">
+                <div class="col-3 g-1">
                     <div class="form-floating form-floating-outline">
                         <input type="text" id="GpSubject" class="form-control" placeholder="New Order Threads" />
                         <label for="GpSubject">Gate pass Subject</label>
                     </div>
                 </div>
-                <div class="col-4 g-1">
+                <div class="col-3 g-1">
                         <div class="form-floating form-floating-outline">
                             <input type="text" id="Attention" class="form-control" placeholder="Mr.Silva" />
                             <label for="Attention">Attention</label>
                         </div>
                 </div>
-                <div class="col-4 g-1">
+                <div class="col-3 g-1">
+                    <div class="form-floating form-floating-outline">
+                        <input type="text" id="BoiGatepass" class="form-control" placeholder="" />
+                        <label for="Attention">BOI Gatepass #</label>
+                    </div>
+                </div>
+                <div class="col-3 g-1">
                     <div class="form-floating form-floating-outline">
                         <select asp-items="@Model.ApprovalList" id="SendApprovalTo" class="select2 form-select" data-allow-clear="true">
                             <option Disabled Selected>- Select -</option>

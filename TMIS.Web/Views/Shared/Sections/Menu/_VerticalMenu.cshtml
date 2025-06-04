@@ -470,7 +470,7 @@
                         </a>
                         <ul class="menu-sub">
                             <li class='menu-item@(currentPage == "/TGPS/Overview" ? " active" : "")'>
-                                <a asp-area="PLMS" asp-controller="Overview" asp-action="Index" class="menu-link">
+                                <a asp-area="TGPS" asp-controller="Overview" asp-action="Index" class="menu-link">
                                     <div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Summary</div>
                                 </a>
                             </li>
@@ -624,7 +624,7 @@
         }
 
         @* ITIS *@
-        @if (User.IsInRole("SUPER-ADMIN") || User.IsInRole("GDRM-USER"))
+        @if (User.IsInRole("SUPER-ADMIN") || User.IsInRole("ITIS-USER"))
         {
 
             <li class='menu-item@(currentPage.StartsWith("/ITIS") ? " active open" : "")'>

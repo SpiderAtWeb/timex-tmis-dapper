@@ -150,7 +150,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
             // Prepare header part of array
             var myList = new List<string>
             {
-               $"{header!.EmpGpNo}",
+                $"{header!.EmpGpNo}",
                 $"{header.GateName}",
                 $"{header.ExpLoc}",
                 $"{header.ExpReason}",
@@ -170,7 +170,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
             string[] myArray = myList.ToArray();
 
             // Send email
-            _gmailSender.EPRequestToApprove(myArray);
+            Task.Run(() => _gmailSender.EPRequestToApprove(myArray));
         }
 
         public async Task<EmpPassVM> GetEmpPassesAsync(int id)

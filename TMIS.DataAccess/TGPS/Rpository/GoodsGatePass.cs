@@ -50,7 +50,8 @@ namespace TMIS.DataAccess.TGPS.Rpository
                     IsReturnable,
                     ReturnDays,
                     GGPRemarks,
-                    IsCompleted
+                    IsCompleted,
+                    BoiGatepass
                 )
                 VALUES
                 (
@@ -64,7 +65,8 @@ namespace TMIS.DataAccess.TGPS.Rpository
                     @IsReturnable,
                     @ReturnDays,
                     @GGPRemarks,
-                    0                    
+                    0,
+                    @BoiGatepass    
                 );
                 SELECT CAST(SCOPE_IDENTITY() AS INT);
             ";
@@ -80,7 +82,8 @@ namespace TMIS.DataAccess.TGPS.Rpository
                         ApprovedById = model.SendApprovalTo,
                         model.IsReturnable,
                         model.ReturnDays,
-                        GGPRemarks = model.Remarks
+                        GGPRemarks = model.Remarks,
+                        model.BoiGatepass
                     },
                     transaction
                 );
@@ -224,7 +227,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
             string[] myArray = myList.ToArray();
 
             // Send email
-            _gmailSender.GPRequestToApprove(myArray);
+            Task.Run(() => _gmailSender.GPRequestToApprove(myArray));
         }
         
         public async Task<GoodPassVM> GetSelectData()
@@ -282,7 +285,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
                 var sql = @"
                 SELECT [Id], [GGpReference], [GpSubject], [GeneratedUser], [GeneratedDateTime],
                        [Attention], [GGPRemarks], [ApprovedBy], [ApprovedDateTime],
-                       [ItemName], [ItemDescription], [Quantity], [UOM], [IsApproved]
+                       [ItemName], [ItemDescription], [Quantity], [UOM], [IsApproved], [BoiGatepass]
                 FROM   [TMIS].[dbo].[TGPS_VwGatePassList] 
                 WHERE  [Id] = @GPID;
 
@@ -320,6 +323,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
                         ApprovedBy = first.ApprovedBy,
                         ApprovedDateTime = first.ApprovedDateTime?.ToString("yyyy-MM-dd HH:mm:ss") ?? "",
                         IsApproved = first.IsApproved,
+                        BoiGatepass = first.BoiGatepass,
                         ShowGPItemVMList = g.Select(i => new ShowGPItemVM
                         {
                             ItemName = i.ItemName,

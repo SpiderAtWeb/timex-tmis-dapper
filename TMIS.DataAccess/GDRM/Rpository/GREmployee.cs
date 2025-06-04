@@ -115,7 +115,7 @@ namespace TMIS.DataAccess.GDRM.Rpository
                                 sqlUpdateDetails,
                                 new 
                                 {
-                                    ActualTime = detail.TimeValue == ""? DateTime.Now.ToString() : detail.TimeValue,
+                                    ActualTime = detail.TimeValue == ""? DateTime.Now.ToString() : DateTime.Today.ToString("yyyy-MM-dd") + " " + detail.TimeValue,
                                     EmpGpDetailId = detail.ID 
                                 },
 
@@ -157,7 +157,7 @@ namespace TMIS.DataAccess.GDRM.Rpository
                                 sqlUpdateDetails,
                                 new
                                 {
-                                    ActualTime = detail.TimeValue == "" ? DateTime.Now.ToString() : detail.TimeValue,
+                                    ActualTime = detail.TimeValue == "" ? DateTime.Now.ToString() : DateTime.Today.ToString("yyyy-MM-dd") + " " + detail.TimeValue,
                                     EmpGpDetailId = detail.ID
                                 },
 

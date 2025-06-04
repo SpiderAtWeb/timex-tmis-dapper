@@ -15,6 +15,15 @@
 
 @section PageScripts {
     <script src="~/js/form-layouts.js"></script>
+
+    @if (TempData["success"] != null)
+    {
+        <script type="text/javascript">
+            toastr.success('@TempData["success"]');
+        </script>
+        TempData.Clear();
+    }
+
     <script>
         $(document).ready(function () {
             // When fa-eye icon is clicked
