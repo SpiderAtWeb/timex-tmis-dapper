@@ -345,19 +345,19 @@ namespace TMIS.DataAccess.ITIS.Repository
                 }
                 if (image1Bytes != null && image1Bytes.Length > 0)
                 {                   
-                    updateFields.Add("Image1Data = @image1Bytes");
+                    updateFields.Add("Image1Data = @Image1Bytes");
                 }
                 if (image2Bytes != null && image2Bytes.Length > 0)
                 {                   
-                    updateFields.Add("Image2Data = @image2Bytes");
+                    updateFields.Add("Image2Data = @Image2Bytes");
                 }
                 if (image3Bytes != null && image3Bytes.Length > 0)
                 {
-                    updateFields.Add("Image3Data = @image3Bytes");
+                    updateFields.Add("Image3Data = @Image3Bytes");
                 }
                 if (image4Bytes != null && image4Bytes.Length > 0)
                 {
-                    updateFields.Add("Image4Data = @image4Bytes");
+                    updateFields.Add("Image4Data = @Image4Bytes");
                 }
 
                 var query = $@"UPDATE ITIS_Devices SET {string.Join(", ", updateFields)} where DeviceID=@DeviceID;";
