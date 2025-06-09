@@ -1,7 +1,5 @@
 using log4net;
 using Microsoft.AspNetCore.Mvc;
-using Mono.TextTemplating;
-using TMIS.Areas.PLMS.Controllers;
 using TMIS.Controllers;
 using TMIS.DataAccess.COMON.IRpository;
 using TMIS.DataAccess.ITIS.IRepository;
