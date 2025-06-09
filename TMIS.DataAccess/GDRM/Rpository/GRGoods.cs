@@ -21,10 +21,10 @@ namespace TMIS.DataAccess.GDRM.Rpository
             string sqlGuardRoom = @"SELECT GGpPassId FROM TGPS_TrGpGoodsRoutes WHERE (Id = @GpSubId)";
             var GatePassId = await connection.QueryFirstOrDefaultAsync<int>(sqlGuardRoom, new { GpSubId = id });
 
-            var headerSql = @"SELECT [Id], [GpSubject], [GeneratedBy] AS GeneratedBy,[Attention], [GGPRemarks] AS Remarks, [ApprovedBy]
+            var headerSql = @"SELECT [Id], [GpSubject], [GeneratedBy] AS GeneratedBy,[Attention], [GGPRemarks] AS Remarks, [ApprovedBy], [SendVehicleId], [SendDriverId]
             FROM [TGPS_VwGGPHeader] WHERE Id = @Id";
 
-            var detailsSql = @"SELECT [Id], [ItemName], [ItemDescription] AS ItemDesc,[Quantity], [GpUnits]
+            var detailsSql = @"SELECT [Id], [ItemName], [ItemDescription] AS ItemDesc, [Quantity], [GpUnits]
             FROM [TGPS_VwGGPDetails] WHERE GGpPassId = @Id";
 
             var reasonSql = @"SELECT [Id] AS Value, [PropName] AS Text FROM [TGPS_MasterTwoGpGoodsReasons] WHERE IsDelete=0";
@@ -59,9 +59,9 @@ namespace TMIS.DataAccess.GDRM.Rpository
             // Get one guard room's info (adjust as needed — currently just takes first one)
             string sqlGuardRoom = @"SELECT A.Id AS GRId, B.PropName AS GRName, dbo.COMN_MasterTwoLocations.Id AS GRLocationId, 
                          dbo.COMN_MasterTwoLocations.LocationName AS GRLocation
-            FROM            [ADMIN].dbo.GTPS_RelGRoomsLoc AS A INNER JOIN
-                                     [ADMIN].dbo.GTPS_MasterGRooms AS B ON A.GuardRoomId = B.Id INNER JOIN
-                                     dbo.COMN_MasterTwoLocations ON A.LocationId = dbo.COMN_MasterTwoLocations.Id INNER JOIN
+            FROM            [ADMIN].dbo.TGPS_MasterGRooms AS A INNER JOIN
+                                     [ADMIN].dbo.TGPS_MasterGRooms AS B ON A.Id = B.Id INNER JOIN
+                                     dbo.COMN_MasterTwoLocations ON A.Id = dbo.COMN_MasterTwoLocations.Id INNER JOIN
                                      ADMIN.dbo._MasterUsers AS U ON A.Id = U.DefGRoomId
             WHERE        (U.Id = @UserId)";
 
@@ -112,6 +112,31 @@ namespace TMIS.DataAccess.GDRM.Rpository
             {
                 if (gPGrUpdate.IsOut > 0)
                 {
+                    string isExt = @"SELECT TGPS_TrGpGoodsHeader.IsExternal
+                    FROM TGPS_TrGpGoodsHeader INNER JOIN
+                    TGPS_TrGpGoodsRoutes ON TGPS_TrGpGoodsHeader.ID = TGPS_TrGpGoodsRoutes.GGpPassId
+                    WHERE        (TGPS_TrGpGoodsRoutes.ID = @GpId)";
+
+                    var isExternal = await connection.QueryFirstOrDefaultAsync<bool>(isExt, new { GpId = gPGrUpdate.SelectedGpId }
+                    , transaction: transaction,
+                     commandType: CommandType.Text);
+
+                    if (isExternal)
+                    {
+                        string sqlUpdateExt = @"UPDATE [dbo].[TGPS_TrGpGoodsHeader]
+                        SET [IsCompleted] = 1
+                        FROM            TGPS_TrGpGoodsHeader INNER JOIN
+                                                 TGPS_TrGpGoodsRoutes ON TGPS_TrGpGoodsHeader.ID = TGPS_TrGpGoodsRoutes.GGpPassId
+                        WHERE        (TGPS_TrGpGoodsRoutes.ID = @GpId)";
+
+                        //execute  sqlUpdateM
+                        connection.Execute(
+                            sqlUpdateExt,
+                            new { GpId = gPGrUpdate.SelectedGpId },
+                            transaction: transaction,
+                            commandType: CommandType.Text);
+                    }
+
                     // Update from sql query
                     string sqlUpdateM = @"UPDATE [dbo].[TGPS_TrGpGoodsRoutes]
                         SET    [IsSend] = @IsSend
@@ -140,11 +165,13 @@ namespace TMIS.DataAccess.GDRM.Rpository
                     string sqlInsertM = @"INSERT INTO [dbo].[TGPS_TrGpGoodsDetailsErrorsSend]
                            ([GpRouteId]
                            ,[GGpPassDetailsId]
-                           ,[GRRemarkId])
+                           ,[GRRemarkId]
+                           ,[ActualQty])
                      VALUES
                            (@GpRouteId
                            ,@GGpPassDetailsId
-                           ,@GuardRoomRemarkId)";
+                           ,@GuardRoomRemarkId
+                           ,@ActualQty)";
 
                     foreach (var detail in gPGrUpdate.GPGrUpdateDetailList)
                     {
@@ -154,7 +181,8 @@ namespace TMIS.DataAccess.GDRM.Rpository
                             {
                                 GpRouteId = gPGrUpdate.SelectedGpId,
                                 GGpPassDetailsId = detail.ID,
-                                GuardRoomRemarkId = detail.ReasonId
+                                GuardRoomRemarkId = detail.ReasonId,
+                                detail.ActualQty
 
                             },
                             transaction: transaction,
@@ -163,6 +191,33 @@ namespace TMIS.DataAccess.GDRM.Rpository
                 }
                 else
                 {
+
+
+                    string isDest = @"SELECT TGPS_TrGpGoodsHeader.IsExternal, TGPS_TrGpGoodsRoutes.IsDest
+                    FROM            TGPS_TrGpGoodsHeader INNER JOIN
+                                             TGPS_TrGpGoodsRoutes ON TGPS_TrGpGoodsHeader.ID = TGPS_TrGpGoodsRoutes.GGpPassId
+                    WHERE        (TGPS_TrGpGoodsRoutes.ID = @GpId)";
+
+                    var isDestination = await connection.QueryFirstOrDefaultAsync<CompleteTrip>(isDest, new { GpId = gPGrUpdate.SelectedGpId },
+                        transaction: transaction,
+                        commandType: CommandType.Text);
+
+                    if (isDestination!.IsDest && !isDestination.IsExternal)
+                    {
+                        string sqlUpdateExt = @"UPDATE [dbo].[TGPS_TrGpGoodsHeader]
+                        SET [IsCompleted] = 1
+                        FROM            TGPS_TrGpGoodsHeader INNER JOIN
+                                                 TGPS_TrGpGoodsRoutes ON TGPS_TrGpGoodsHeader.ID = TGPS_TrGpGoodsRoutes.GGpPassId
+                        WHERE        (TGPS_TrGpGoodsRoutes.ID = @GpId)";
+
+                        //execute  sqlUpdateM
+                        connection.Execute(
+                            sqlUpdateExt,
+                            new { GpId = gPGrUpdate.SelectedGpId },
+                            transaction: transaction,
+                            commandType: CommandType.Text);
+                    }
+
                     // Update from sql query
                     string sqlUpdateM = @"UPDATE [dbo].[TGPS_TrGpGoodsRoutes]
                        SET [IsReceived] = @IsReceived                         
@@ -191,11 +246,13 @@ namespace TMIS.DataAccess.GDRM.Rpository
                     string sqlInsertM = @"INSERT INTO [dbo].[TGPS_TrGpGoodsDetailsErrorsRec]
                            ([GpRouteId]
                            ,[GGpPassDetailsId]
-                           ,[GRRemarkId])
+                           ,[GRRemarkId]
+                           ,[ActualQty])
                      VALUES
                            (@GpRouteId
                            ,@GGpPassDetailsId
-                           ,@GuardRoomRemarkId)";
+                           ,@GuardRoomRemarkId
+                           ,@ActualQty)";
 
                     foreach (var detail in gPGrUpdate.GPGrUpdateDetailList)
                     {
@@ -205,7 +262,8 @@ namespace TMIS.DataAccess.GDRM.Rpository
                             {
                                 GpRouteId = gPGrUpdate.SelectedGpId,
                                 GGpPassDetailsId = detail.ID,
-                                GuardRoomRemarkId = detail.ReasonId
+                                GuardRoomRemarkId = detail.ReasonId,
+                                detail.ActualQty
 
                             },
                             transaction: transaction,
@@ -214,7 +272,7 @@ namespace TMIS.DataAccess.GDRM.Rpository
                 }
 
                 transaction.Commit();
-                return await Task.FromResult(new GPGrUpdateResult { IsSuccess = true, Message = "Dispatching completed successfully." });
+                return await Task.FromResult(new GPGrUpdateResult { IsSuccess = true, Message = "Transaction Completed Successfully." });
             }
             catch (Exception ex)
             {

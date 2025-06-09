@@ -255,11 +255,11 @@
                                 {
                                     @if (!string.IsNullOrEmpty(err.SendError))
                                     {
-                                        <div><strong>Sending Issue:</strong> @err.ItemName => @err.SendError</div>
+                                        <div><strong>Sending Issue:</strong> @err.ItemName => @err.SendError ( @err.SendQty )</div>
                                     }
                                     @if (!string.IsNullOrEmpty(err.RecError))
                                     {
-                                        <div><strong>Receiving Issue:</strong> @err.ItemName => @err.RecError </div>
+                                        <div><strong>Receiving Issue:</strong> @err.ItemName => @err.RecError ( @err.RecQty )</div>
                                     }
                                 }
                             </div>

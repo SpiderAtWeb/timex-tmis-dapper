@@ -43,6 +43,13 @@
     </script>
 }
 
+@section PageStyles {
+    <style>
+        table.dataTable > tbody > tr > td {
+            padding: 5px 10px !important;
+        }
+    </style>
+}
 
 @* ************** Content ************** *@
 
@@ -64,16 +71,16 @@
         <h5 class="card-header page-header">Generated Goods Gate Passes</h5>
         <div class="card-body">
 
-          <div class="row">              
+            <div class="row">
                 <div class="col-6">
                     <small class="text-light fw-medium">Previous generated Gate passes and the status.</small>
                 </div>
                 <div class="col-6 text-end">
                     <a asp-action="Create" class="btn btn-primary"> <i class="ri-add-line"></i> <span class="d-none d-sm-inline-block">Create New</span></a>
                 </div>
-            </div>          
+            </div>
 
-            <div class="row">              
+            <div class="row">
                 <table class="datatables-ajax table table-bordered dt-tbl">
                     <thead>
                         <tr class="table-info">
@@ -89,22 +96,27 @@
                         </tr>
                     </thead>
                     <tbody>
-                           @foreach (var item in Model)
-                            {
-                                <tr>
-                                    <td class="d-none">@item.Id</td>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="d-none">@item.Id</td>
                                 <td>@item.EmpGpNo</td>
                                 <td>@item.GateName</td>
                                 <td>@item.ExpLoc</td>
                                 <td>@item.ExpReason</td>
                                 <td>@item.ExpOutTime</td>
                                 <td>@item.IsReturn</td>
-                                <td>@item.IsApproved</td>
-                                    <td>
-                                        <span class="btn btn-success btn-y-action" data-id="@item.Id"><i class="fa-solid fa-eye"></i></span>
-                                    </td>
-                                </tr>
-                            }
+                                <td class="badge rounded-pill @(item.IsApproved == "Pending" ?  "bg-label-primary" :
+                                                                item.IsApproved == "Rejected" ? "bg-label-danger" :
+                                                                                                "bg-label-success")">
+                                @item.IsApproved
+                            </td>
+
+                                <td>
+                                    <span class="btn btn-success btn-y-action" data-id="@item.Id"><i class="fa-solid fa-eye"></i></span>
+                                </td>
+                            </tr>
+                                                }
                     </tbody>
                 </table>
             </div>

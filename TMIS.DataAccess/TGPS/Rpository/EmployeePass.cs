@@ -1,10 +1,13 @@
 ﻿using Dapper;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using SkiaSharp;
 using System.Data;
 using TMIS.DataAccess.COMON.IRpository;
 using TMIS.DataAccess.TGPS.IRpository;
+using TMIS.Models.Auth;
 using TMIS.Models.TGPS;
 using TMIS.Utility;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace TMIS.DataAccess.TGPS.Rpository
 {
@@ -28,18 +31,14 @@ namespace TMIS.DataAccess.TGPS.Rpository
         {
             using var dbConnection = _dbConnection.GetConnection();
 
-            var goodsFromSql = @"SELECT A.Id, B.PropName AS Text
-            FROM  ADMIN.dbo.GTPS_RelGRoomsLoc AS A INNER JOIN
-            ADMIN.dbo.GTPS_MasterGRooms AS B ON A.GuardRoomId = B.Id INNER JOIN
-            ADMIN.dbo._MasterUsers AS U ON A.Id = U.DefGRoomId
-            WHERE        (U.Id = @UserId)";
+            var goodsFromSql = @"SELECT U.DefGRoomId AS Id, A.PropName AS Text
+            FROM            ADMIN.dbo.TGPS_MasterGRooms AS A INNER JOIN
+                                     ADMIN.dbo.TGPS_RelGRoomsLoc INNER JOIN
+                                     ADMIN.dbo._MasterUsers AS U ON ADMIN.dbo.TGPS_RelGRoomsLoc.Id = U.DefGRoomId ON A.Id = ADMIN.dbo.TGPS_RelGRoomsLoc.GuardRoomId
+            WHERE        (U.Id =  @UserId)";
 
-            var approvalListSql = @"SELECT ADMIN.dbo.GTPS_RelApproveUser.ApproveUserId AS Id,
-            ADMIN.dbo._MasterUsers.UserShortName AS Text
-            FROM ADMIN.dbo.GTPS_RelApproveUser INNER JOIN
-            ADMIN.dbo._MasterUsers ON ADMIN.dbo.GTPS_RelApproveUser.ApproveUserId = ADMIN.dbo._MasterUsers.Id
-            WHERE (ADMIN.dbo.GTPS_RelApproveUser.UserId = @UserId)";
-
+            var approvalListSql = @"SELECT AppUserId AS Id, UserShortName AS Text
+            FROM  ADMIN.dbo.TGPS_VwUserApprovePersons WHERE (UserId = @UserId) AND (SystemType = N'TEP')";
 
             var guardRoomsList = await GetDataFromTable(goodsFromSql, dbConnection);
             var approvalList = await GetDataFromTable(approvalListSql, dbConnection);
@@ -182,12 +181,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
 
 
             // Fetch header details using Id
-            var header = await dbConnection.QuerySingleOrDefaultAsync<EmpPassVM>(headerSql, new { Id = id });
-
-            if (header == null)
-            {
-                throw new InvalidOperationException($"No header found for Id {id}");
-            }
+            var header = await dbConnection.QuerySingleOrDefaultAsync<EmpPassVM>(headerSql, new { Id = id }) ?? throw new InvalidOperationException($"No header found for Id {id}");
 
             // Fetch details using EGpPassId (matches EmpGpNo from header)
             var detailsSql = @"SELECT  [EGpPassId], [EmpName], [EmpEPF], [ActualOutTime], [ActualInTime]

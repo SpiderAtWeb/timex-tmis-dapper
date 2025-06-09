@@ -51,7 +51,8 @@ namespace TMIS.DataAccess.TGPS.Rpository
                     ReturnDays,
                     GGPRemarks,
                     IsCompleted,
-                    BoiGatepass
+                    BoiGatepass,
+                    IsExternal 
                 )
                 VALUES
                 (
@@ -66,7 +67,8 @@ namespace TMIS.DataAccess.TGPS.Rpository
                     @ReturnDays,
                     @GGPRemarks,
                     0,
-                    @BoiGatepass    
+                    @BoiGatepass,
+                    @IsExternal
                 );
                 SELECT CAST(SCOPE_IDENTITY() AS INT);
             ";
@@ -83,7 +85,8 @@ namespace TMIS.DataAccess.TGPS.Rpository
                         model.IsReturnable,
                         model.ReturnDays,
                         GGPRemarks = model.Remarks,
-                        model.BoiGatepass
+                        model.BoiGatepass,
+                        model.IsExternal
                     },
                     transaction
                 );
@@ -187,7 +190,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
             GGPRemarks, 
             GeneratedBy,
             (
-                 SELECT STRING_AGG(LOC.AddressName, ' => ')
+                 SELECT STRING_AGG(LOC.BusinessName, ' => ')
                  FROM dbo.TGPS_TrGpGoodsRoutes AS RT
                  INNER JOIN dbo.TGPS_MasterGpGoodsAddress AS LOC ON RT.GGpLocId = LOC.Id
                 WHERE RT.GGpPassId = H.Id
@@ -230,15 +233,22 @@ namespace TMIS.DataAccess.TGPS.Rpository
             Task.Run(() => _gmailSender.GPRequestToApprove(myArray));
         }
 
-        public async Task<GoodPassVM> GetSelectData()
+        public async Task<GoodPassVM> GetFillData(bool isExternal)
         {
             var dbConnection = _dbConnection.GetConnection();
+
             var goodsFromSql = @"SELECT Id, Text FROM TGPS_VwUserLocations WHERE (UserId = @UserId) ORDER BY Text";
 
-            var goodsToSql = @"SELECT Id, AddressName AS Text FROM TGPS_MasterGpGoodsAddress 
-            WHERE IsDeleted = 0 ORDER BY Text";
+            var goodsToSql = @"SELECT Id, BusinessName AS Text FROM TGPS_MasterGpGoodsAddress 
+            WHERE IsDeleted = 0 AND (IsExternal = 0) ORDER BY Text";
 
-            var approvalListSql = "SELECT Id, UserShortName AS Text FROM [ADMIN].dbo._MasterUsers  WHERE (IsActive = 1) AND (IsGpAppUser = 1)";
+            if (isExternal)
+                goodsToSql = @"SELECT Id, BusinessName AS Text FROM TGPS_MasterGpGoodsAddress 
+            WHERE IsDeleted = 0 AND (IsExternal = 1) ORDER BY Text";
+
+            var approvalListSql = @"SELECT AppUserId AS Id, UserShortName AS Text
+            FROM  ADMIN.dbo.TGPS_VwUserApprovePersons WHERE (UserId = @UserId) AND (SystemType = N'TGP')";
+
             var unitsSql = "SELECT Id, PropName AS Text FROM TGPS_MasterTwoGpGoodsUOM ORDER BY PropName";
 
             var goodsFrom = await GetDataFromTable(goodsFromSql, dbConnection);
@@ -295,7 +305,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
                 FROM [TMIS].[dbo].[TGPS_VwGatePassRoutes] 
                 WHERE [GGpPassId] = @GPID;
 
-             SELECT GpRouteId, ItemName, SendError, RecError
+             SELECT GpRouteId, ItemName, SendError, RecError, SendQty, RecQty
                     FROM TGPS_VwGatePassErrors
                     WHERE GGpPassId = @GPID;";
 

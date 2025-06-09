@@ -48,12 +48,12 @@ namespace TMIS.Areas.TGPS.Controllers
       if (model.Id == 0)
       {
         var id = await _db.InsertAsync(model);
-        return Json(new { success = true, message = "Created", id });
+        return Json(new { success = true, message = "Address Successfully Created", id });
       }
       else
       {
         await _db.UpdateAsync(model);
-        return Json(new { success = true, message = "Updated" });
+        return Json(new { success = true, message = "Address Successfully Updated" });
       }
     }
 

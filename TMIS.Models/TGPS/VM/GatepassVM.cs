@@ -12,6 +12,7 @@
         public string ReturnDays { get; set; } = string.Empty;
         public string Remarks { get; set; } = string.Empty;
         public string BoiGatepass { get; set; } = string.Empty;
+        public bool IsExternal { get; set; }
 
     }
 }

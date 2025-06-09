@@ -39,9 +39,9 @@ namespace TMIS.DataAccess.GDRM.Rpository
             // Get guard room info
             string sqlGuardRoom = @"SELECT A.Id AS GRId, B.PropName AS GRName, dbo.COMN_MasterTwoLocations.Id AS GRLocationId, 
                                dbo.COMN_MasterTwoLocations.LocationName AS GRLocation
-                               FROM [ADMIN].dbo.GTPS_RelGRoomsLoc AS A 
-                               INNER JOIN [ADMIN].dbo.GTPS_MasterGRooms AS B ON A.GuardRoomId = B.Id 
-                               INNER JOIN dbo.COMN_MasterTwoLocations ON A.LocationId = dbo.COMN_MasterTwoLocations.Id 
+                               FROM [ADMIN].dbo.TGPS_MasterGRooms AS A 
+                               INNER JOIN [ADMIN].dbo.TGPS_MasterGRooms AS B ON A.Id = B.Id 
+                               INNER JOIN dbo.COMN_MasterTwoLocations ON A.Id = dbo.COMN_MasterTwoLocations.Id 
                                INNER JOIN ADMIN.dbo._MasterUsers AS U ON A.Id = U.DefGRoomId
                                WHERE (U.Id = @UserId)";
 

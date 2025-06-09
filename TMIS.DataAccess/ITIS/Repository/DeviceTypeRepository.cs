@@ -1,21 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Dapper;
+﻿using Dapper;
 using Microsoft.AspNetCore.Http;
-using Org.BouncyCastle.Asn1.Cms;
 using TMIS.DataAccess.COMON.IRpository;
 using TMIS.DataAccess.ITIS.IRepository;
 using TMIS.Models.ITIS;
 
 namespace TMIS.DataAccess.ITIS.Repository
 {
-    public class DeviceTypeRepository(IDatabaseConnectionSys dbConnection,                           
+    public class DeviceTypeRepository(IDatabaseConnectionSys dbConnection,
                             IITISLogdb iITISLogdb) : IDeviceTypeRepository
     {
-        private readonly IDatabaseConnectionSys _dbConnection = dbConnection;    
+        private readonly IDatabaseConnectionSys _dbConnection = dbConnection;
         private readonly IITISLogdb _iITISLogdb = iITISLogdb;
         public async Task<bool> AddAsync(DeviceType obj, IFormFile? image)
         {
@@ -29,7 +23,7 @@ namespace TMIS.DataAccess.ITIS.Repository
             try
             {
                 byte[]? imageBytes = null;
-               
+
 
                 if (image != null && image.Length > 0)
                 {
@@ -39,7 +33,7 @@ namespace TMIS.DataAccess.ITIS.Repository
                         imageBytes = memoryStream.ToArray();
                     }
                 }
-       
+
                 var insertedId = await _dbConnection.GetConnection().QuerySingleOrDefaultAsync<int?>(query, new
                 {
                     DeviceType = obj.DeviceTypeName,
@@ -67,8 +61,8 @@ namespace TMIS.DataAccess.ITIS.Repository
                 return false;
             }
 
-        }     
-        
+        }
+
         public async Task<bool> DeleteDeviceType(int id)
         {
             const string attributeQuery = @"Update ITIS_DeviceTypes SET
@@ -76,10 +70,10 @@ namespace TMIS.DataAccess.ITIS.Repository
 
             int rowsAffected = await _dbConnection.GetConnection().ExecuteAsync(attributeQuery, new
             {
-                DeviceTypeID=id
+                DeviceTypeID = id
             });
-            if (rowsAffected > 0) 
-            { 
+            if (rowsAffected > 0)
+            {
                 return true;
             }
             return false;
@@ -87,17 +81,17 @@ namespace TMIS.DataAccess.ITIS.Repository
 
         public async Task<bool> UpdateDeviceType(DeviceType obj, IFormFile? image)
         {
-          
+
             var updateFields = new List<string>
             {
                 "DeviceType = @DeviceType",
-                "Remarks=@Remarks"                
+                "Remarks=@Remarks"
             };
 
             try
             {
                 byte[]? imageBytes = null;
-               
+
                 if (image != null && image.Length > 0)
                 {
                     using (var memoryStream = new MemoryStream())
@@ -175,15 +169,15 @@ namespace TMIS.DataAccess.ITIS.Repository
             FROM ITIS_DeviceTypes
             WHERE (DeviceType = @DeviceType and DeviceTypeID != @DeviceTypeID and IsDelete = 0)";
 
-            var result = await _dbConnection.GetConnection().QueryFirstOrDefaultAsync<int?>(query, new { DeviceType = obj.DeviceTypeName, DeviceTypeID = obj.DeviceTypeID});
+            var result = await _dbConnection.GetConnection().QueryFirstOrDefaultAsync<int?>(query, new { DeviceType = obj.DeviceTypeName, DeviceTypeID = obj.DeviceTypeID });
             return result.HasValue;
         }
 
-        public async Task<DeviceType?> LoadDeviceType(int id) 
+        public async Task<DeviceType?> LoadDeviceType(int id)
         {
             const string query = @"select DeviceTypeID, DeviceType as DeviceTypeName, Remarks, DefaultImage from ITIS_DeviceTypes where DeviceTypeID=@DeviceTypeID";
 
-            var deviceType = await _dbConnection.GetConnection().QueryFirstOrDefaultAsync<DeviceType>(query, new { DeviceTypeID = id});
+            var deviceType = await _dbConnection.GetConnection().QueryFirstOrDefaultAsync<DeviceType>(query, new { DeviceTypeID = id });
             return deviceType;
         }
     }

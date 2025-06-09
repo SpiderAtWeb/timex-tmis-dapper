@@ -47,6 +47,8 @@
                         $("#attention").text(data.attention);
                         $("#remarks").text(data.remarks);
                         $("#approvedBy").text(data.approvedBy);
+                        $("#vehicleNoId").val(data.sendVehicleId).trigger('change');
+                        $("#driverNameId").val(data.sendDriverId).trigger('change');
 
                         // Fill item table
                         const tbody = $("#dispatchingTable");
@@ -61,7 +63,7 @@
                                                                 ${item.itemName}
                                                             </div>
                                                         </div>
-                                                        <div class="col-4 g-1">
+                                                        <div class="col-3 g-1">
                                                             <div class="alert alert-secondary" role="alert">
                                                                 ${item.itemDesc}
                                                             </div>
@@ -69,6 +71,11 @@
                                                         <div class="col-1 g-1">
                                                             <div class="alert alert-secondary" role="alert">
                                                                 ${item.quantity}
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-1 g-1">
+                                                            <div class="alert alert-danger" role="alert">
+                                                           <input type="number" class="actual-qty" value="${item.quantity}" style="border: none; width: 80px; background-color: transparent;">
                                                             </div>
                                                         </div>
                                                         <div class="col-1 g-1">
@@ -223,11 +230,13 @@
                 $('.dispatching-row').each(function () {
                     const id = parseInt($(this).find('.dispatching-id').val()) || 0;
                     const reasonId = parseInt($(this).find('.reason-select').val()) || 0;
+                    const actualQty = parseInt($(this).find('.actual-qty').val()) || 0;
 
                     if (id > 0 && reasonId > 0) {
                         data.gPGrUpdateDetailList.push({
                             id: id,
-                            reasonId: reasonId
+                            reasonId: reasonId,
+                            actualQty:actualQty
                         });
                     }
                 });
