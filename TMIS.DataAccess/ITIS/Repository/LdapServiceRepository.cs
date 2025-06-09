@@ -10,10 +10,9 @@ using Dapper;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using TMIS.DataAccess.COMON.IRpository;
 using TMIS.DataAccess.ITIS.IRepository;
-using TMIS.DataAccess.TAPS.IRepository;
-using TMIS.Models.TAPS;
+using TMIS.Models.ITIS;
 
-namespace TMIS.DataAccess.TAPS.Repository
+namespace TMIS.DataAccess.ITIS.Repository
 {
     public class LdapServiceRepository(IDatabaseConnectionSys dbConnection, IITISLogdb iITISLogdb) : ILdapServiceRepository
     {
@@ -22,7 +21,7 @@ namespace TMIS.DataAccess.TAPS.Repository
         public async Task<bool> ButtonStatus(string buttonName)
         {            
             bool isButtonActive = false;
-            const string sql = @"select RunStatus from TAPS_ButtonStatus where ButtonName=@ButtonName";
+            const string sql = @"select RunStatus from ITIS_ButtonStatus where ButtonName=@ButtonName";
 
             isButtonActive = await _dbConnection.GetConnection().QueryFirstOrDefaultAsync<bool>(sql, new { ButtonName = buttonName });
 
@@ -32,7 +31,7 @@ namespace TMIS.DataAccess.TAPS.Repository
 
         public async Task<bool> SetButtonStatus(string buttonName, bool status)
         {
-            const string sql = @"UPDATE TAPS_ButtonStatus SET RunStatus = @RunStatus WHERE ButtonName = @ButtonName";
+            const string sql = @"UPDATE ITIS_ButtonStatus SET RunStatus = @RunStatus WHERE ButtonName = @ButtonName";
             var parameters = new
             {
                 ButtonName = buttonName,
@@ -44,9 +43,9 @@ namespace TMIS.DataAccess.TAPS.Repository
 
         public async Task<bool> InsertADEMPLOYEES(List<ADEMPLOYEE> employeeList)
         {
-            const string deleteSql = @"DELETE FROM COMN_MasterADEMPLOYEES";
+            const string deleteSql = @"DELETE FROM ITIS_MasterADEMPLOYEES";
 
-            const string sql = @"INSERT INTO COMN_MasterADEMPLOYEES (EmpEmail, EmpName, EmpDesignation, EmpDepartment, EmpLocation, EmpUserName)
+            const string sql = @"INSERT INTO ITIS_MasterADEMPLOYEES (EmpEmail, EmpName, EmpDesignation, EmpDepartment, EmpLocation, EmpUserName)
                 VALUES (@mail, @displayName, @jobTitle, @department, @office, @username)";
 
             try

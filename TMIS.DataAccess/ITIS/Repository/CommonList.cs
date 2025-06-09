@@ -67,7 +67,7 @@ namespace TMIS.DataAccess.ITIS.Repository
         }
         public async Task<IEnumerable<SelectListItem>> LoadEmployeeList()
         {
-            string query = @"select EmpUserName as Value, EmpUserName + ' - ' + EmpEmail AS Text from COMN_MasterADEMPLOYEES where IsDelete=0";
+            string query = @"select EmpUserName as Value, EmpUserName + ' - ' + EmpEmail AS Text from ITIS_MasterADEMPLOYEES where IsDelete=0";
             //replace with real datasource
             var results = await _dbConnection.GetConnection().QueryAsync<SelectListItem>(query);
             return results;
@@ -121,7 +121,7 @@ namespace TMIS.DataAccess.ITIS.Repository
                             , a.ApproverEMPNo, a.ApproverResponseDate, a.ApproverRemark, a.AssignDepartment as AssignDepartment, a.AssignLocation as AssignLocation
                             from ITIS_DeviceAssignments as a 
                             inner join ITIS_DeviceAssignStatus as st on st.Id=a.AssignStatusID
-                            left join COMN_MasterADEMPLOYEES as cm on cm.EmpUserName=a.EmpName
+                            left join ITIS_MasterADEMPLOYEES as cm on cm.EmpUserName=a.EmpName
                             where a.DeviceID=@DeviceID and a.AssignStatusID not in (4, 5)";
 
             DeviceUserDetailVM? deviceUserDetail = await _dbConnection.GetConnection().QueryFirstOrDefaultAsync<DeviceUserDetailVM>(query, new
@@ -144,7 +144,7 @@ namespace TMIS.DataAccess.ITIS.Repository
 
         public async Task<IEnumerable<SelectListItem>> LoadLocationsFromAD()
         {
-            const string sql = @"SELECT DISTINCT EmpLocation as Value, EmpLocation as Text FROM COMN_MasterADEMPLOYEES WHERE EmpLocation IS NOT NULL
+            const string sql = @"SELECT DISTINCT EmpLocation as Value, EmpLocation as Text FROM ITIS_MasterADEMPLOYEES WHERE EmpLocation IS NOT NULL
                                 ORDER BY EmpLocation;";
 
             var results = await _dbConnection.GetConnection().QueryAsync<SelectListItem>(sql);
@@ -153,7 +153,7 @@ namespace TMIS.DataAccess.ITIS.Repository
         }
         public async Task<IEnumerable<SelectListItem>> LoadDepartmentsFromAD()
         {
-            const string sql = @"SELECT DISTINCT EmpDepartment as Value, EmpDepartment as Text FROM COMN_MasterADEMPLOYEES WHERE EmpDepartment IS NOT NULL
+            const string sql = @"SELECT DISTINCT EmpDepartment as Value, EmpDepartment as Text FROM ITIS_MasterADEMPLOYEES WHERE EmpDepartment IS NOT NULL
                                  ORDER BY EmpDepartment;";
 
             var results = await _dbConnection.GetConnection().QueryAsync<SelectListItem>(sql);
@@ -162,7 +162,7 @@ namespace TMIS.DataAccess.ITIS.Repository
         }
         public async Task<IEnumerable<SelectListItem>> LoadDesignationsFromAD()
         {
-            const string sql = @"SELECT DISTINCT EmpDesignation as Value, EmpDesignation as Text FROM COMN_MasterADEMPLOYEES WHERE EmpDesignation IS NOT NULL
+            const string sql = @"SELECT DISTINCT EmpDesignation as Value, EmpDesignation as Text FROM ITIS_MasterADEMPLOYEES WHERE EmpDesignation IS NOT NULL
                                 ORDER BY EmpDesignation;";
 
             var results = await _dbConnection.GetConnection().QueryAsync<SelectListItem>(sql);

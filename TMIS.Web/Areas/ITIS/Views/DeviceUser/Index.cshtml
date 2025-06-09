@@ -5,6 +5,11 @@
 @section VendorStyles {
 	<link rel="stylesheet" href="~/vendor/libs/datatables-bs5/datatables.bootstrap5.css">
 	<link href="~/vendor/libs/toastr/toastr.css" rel="stylesheet" />
+	<style>
+		.btn-fixed-width {
+			min-width: 180px; /* Adjust width as needed */
+		}
+	</style>
 }
 
 @section PageScripts {
@@ -32,12 +37,18 @@
 				<div class="tab-pane fade show active" id="navs-top-home" role="tabpanel">
 					<div class="row p-1">
 						<div class="col text-end">
-							<a asp-action="Create" class="btn btn-primary"> <i class="ri-add-line"></i> <span class="d-none d-sm-inline-block">Assign Device</span></a>							
-						</div>					
+							<a asp-action="Create" class="btn btn-primary btn-fixed-width">
+								<i class="ri-add-line"></i>
+								<span class="d-none d-sm-inline-block">Assign</span>
+							</a>
+						</div>
 					</div>
 					<div class="row p-1">
 						<div class="col text-end">
-							<a asp-action="Return" class="btn btn-primary"> <i class="ri-add-line"></i> <span class="d-none d-sm-inline-block">Unassign Device</span></a>
+							<a asp-action="Return" class="btn btn-primary btn-fixed-width">
+								<i class="ri-add-line"></i>
+								<span class="d-none d-sm-inline-block">Unassign</span>
+							</a>
 						</div>
 					</div>
 					<div class="card-datatable text-nowrap">

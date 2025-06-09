@@ -192,7 +192,7 @@ namespace TMIS.DataAccess.ITIS.Repository
         {
             var objDeviceUserDetailVM = new DeviceUserDetailVM();
 
-            string sql = @"select EmpDesignation as Designation, EmpLocation as AssignLocation, EmpDepartment as AssignDepartment from COMN_MasterADEMPLOYEES where EmpUserName=@EmpName";
+            string sql = @"select EmpDesignation as Designation, EmpLocation as AssignLocation, EmpDepartment as AssignDepartment from ITIS_MasterADEMPLOYEES where EmpUserName=@EmpName";
             
             objDeviceUserDetailVM = await _dbConnection.GetConnection().QueryFirstOrDefaultAsync<DeviceUserDetailVM>(sql, new
             {

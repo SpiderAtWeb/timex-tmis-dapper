@@ -1,14 +1,13 @@
 using System.Threading.Tasks;
 using log4net;
 using Microsoft.AspNetCore.Mvc;
-using TMIS.Areas.ITIS.Controllers;
 using TMIS.Controllers;
 using TMIS.DataAccess.COMON.IRpository;
-using TMIS.DataAccess.TAPS.IRepository;
+using TMIS.DataAccess.ITIS.IRepository;
 
-namespace TMIS.Areas.TAPS.Controllers
+namespace TMIS.Areas.ITIS.Controllers
 {
-  [Area("TAPS")]
+  [Area("ITIS")]
   public class ADSyncController(ISessionHelper sessionHelper, ILdapServiceRepository ldapService) : BaseController
   {
     private readonly ILog _logger = LogManager.GetLogger(typeof(DeviceUserController));

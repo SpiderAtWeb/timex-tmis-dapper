@@ -103,6 +103,7 @@ builder.Services.AddScoped<IDeviceRepository, DeviceRepository>();
 builder.Services.AddScoped<IDeviceUserRepository, DeviceUserRepository>();
 builder.Services.AddScoped<IApproveRepository, ApproveRepository>();
 builder.Services.AddScoped<IReportRepository, ReportRepository>();
+builder.Services.AddScoped<ILdapServiceRepository, LdapServiceRepository>();
 //TGPS
 builder.Services.AddScoped<IGoodsGatePass, GoodsGatePass>();
 builder.Services.AddScoped<IAddressBank, AddressBank>();
@@ -113,7 +114,7 @@ builder.Services.AddScoped<IResponse, Response>();
 builder.Services.AddScoped<IGRGoods, GRGoods>();
 
 //TAPS
-builder.Services.AddScoped<ILdapServiceRepository, LdapServiceRepository>();
+builder.Services.AddScoped<IAdminRepository, AdminRepository>();
 
 
 builder.Services.AddScoped<ISessionHelper, SessionHelper>();

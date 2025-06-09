@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace TMIS.DataAccess.TAPS.IRepository
+namespace TMIS.DataAccess.ITIS.IRepository
 {
     public interface ILdapServiceRepository
     {

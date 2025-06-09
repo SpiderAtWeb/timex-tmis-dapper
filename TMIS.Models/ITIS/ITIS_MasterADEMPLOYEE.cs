@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TMIS.Models.TAPS
+namespace TMIS.Models.ITIS
 {
-    public class COMN_MasterADEMPLOYEE
+    public class ITIS_MasterADEMPLOYEE
     {
         public int ID { get; set; }
         public int EmpNo { get; set; }
