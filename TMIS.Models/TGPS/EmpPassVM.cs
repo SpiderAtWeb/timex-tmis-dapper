@@ -23,9 +23,9 @@ namespace TMIS.Models.TGPS
 
         public string IsReturn { get; set; } = string.Empty;
 
-        public string IsResponsed { get; set; } = string.Empty;
+        public string IsApproved { get; set; } = string.Empty;
 
-        public string ResponsedBy { get; set; } = string.Empty;
+        public string ApprovedBy { get; set; } = string.Empty;
         public string ResponsedDateTime { get; set; } = string.Empty;
 
         public List<EmpPassEmployees> ShowGPItemVMList { get; set; } = [];

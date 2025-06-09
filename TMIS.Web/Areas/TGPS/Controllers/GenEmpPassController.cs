@@ -28,10 +28,86 @@ public class GenEmpPassController(IEmployeePass db) : BaseController
   [HttpPost]
   public async Task<IActionResult> Create(EmployeePassVM employeePassVM)
   {
-    var result =  await _db.InsertEmployeePassAsync(employeePassVM);
-    TempData["Success"] = result + " Exit pass created successfully.";
+    if (employeePassVM == null)
+    {
+      _logger.Error("EmployeePassVM is null in Create method.");
+      ModelState.AddModelError("", "Unexpected error occurred.");
+      return await ReturnViewWithDropdowns();
+    }   
+
+    if (employeePassVM.EmployeePass.GuardRoomId <= 0)
+    {
+      _logger.Error("Invalid GuardRoomId.");
+      ModelState.AddModelError("EmployeePass.GuardRoomId", "Please select a valid guard room.");
+      return await ReturnViewWithDropdowns();
+    }
+
+    if (employeePassVM.EmployeePass.ApprovedById <= 0)
+    {
+      _logger.Error("Invalid ApprovedById.");
+      ModelState.AddModelError("EmployeePass.ApprovedById", "Please select a valid approver.");
+      return await ReturnViewWithDropdowns();
+    }
+
+    if (string.IsNullOrWhiteSpace(employeePassVM.EmployeePass.Location))
+    {
+      _logger.Error("Location is null or empty.");
+      ModelState.AddModelError("EmployeePass.Location", "Location cannot be empty.");
+      return await ReturnViewWithDropdowns();
+    }
+
+    if (string.IsNullOrWhiteSpace(employeePassVM.EmployeePass.Reason))
+    {
+      _logger.Error("Reason is null or empty.");
+      ModelState.AddModelError("EmployeePass.Reason", "Reason cannot be empty.");
+      return await ReturnViewWithDropdowns();
+    }
+
+    if (string.IsNullOrWhiteSpace(employeePassVM.EmployeePass.OutTime))
+    {
+      _logger.Error("OutTime is null or empty.");
+      ModelState.AddModelError("EmployeePass.OutTime", "Out time cannot be empty.");
+      return await ReturnViewWithDropdowns();
+    }
+
+    if (employeePassVM.EmployeePass.EmpPassEmpList == null || !employeePassVM.EmployeePass.EmpPassEmpList.Any())
+    {
+      _logger.Error("EmployeePass.EmpPassEmpList is null or empty.");
+      ModelState.AddModelError("EmployeePass.EmpPassEmpList", "Employee list cannot be empty.");
+      return await ReturnViewWithDropdowns();
+    }
+
+    for (int i = 0; i < employeePassVM.EmployeePass.EmpPassEmpList.Count; i++)
+    {
+      var emp = employeePassVM.EmployeePass.EmpPassEmpList[i];
+
+      if (string.IsNullOrWhiteSpace(emp.EmpName))
+      {
+        _logger.Error("Empty employee name.");
+        ModelState.AddModelError($"EmployeePass.EmpPassEmpList[{i}].EmpName", "Employee name is required.");
+      }
+
+      if (string.IsNullOrWhiteSpace(emp.EmpEPF) || !int.TryParse(emp.EmpEPF, out _))
+      {
+        _logger.Error($"Invalid EmpEPF: {emp.EmpEPF}");
+        ModelState.AddModelError($"EmployeePass.EmpPassEmpList[{i}].EmpEPF", "Valid EPF is required.");
+      }
+    }
+
+    if (!ModelState.IsValid)
+      return await ReturnViewWithDropdowns();
+
+    var result = await _db.InsertEmployeePassAsync(employeePassVM);
+    TempData["success"] = result + " Exit pass created successfully.";
     return RedirectToAction("Index");
   }
+
+  private async Task<IActionResult> ReturnViewWithDropdowns()
+  {
+    var viewModel = await _db.GetAllAsync(); // should return EmployeePassVM with GuardRooms and ApprovEmps populated
+    return View("Create", viewModel);
+  }
+
 
   [HttpGet]
   public async Task<IActionResult> GetGatePassDetails(int id)

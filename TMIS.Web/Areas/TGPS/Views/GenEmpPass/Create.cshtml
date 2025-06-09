@@ -11,6 +11,7 @@
 }
 
 @section PageScripts {
+    <script src="~/js/form-layouts.js"></script>
     <script src="~/js/form-basic-inputs.js"></script>
 
     <script>
@@ -87,6 +88,7 @@
            reindexPersonRows();
         });
     </script>
+
 }
 
 @section PageStyles {
@@ -107,24 +109,26 @@
     <h5 class="card-header page-header">Create Employees Exit Permit</h5>
     <form asp-action="Create" method="post">
         <div class="card-body">
+            @Html.ValidationSummary(false, "", new { @class = "text-danger" })
             <div class="row mb-2">
                 <div class="col-3 g-1">
                     <div class="form-floating form-floating-outline">
-                        <select asp-for="@Model.EmployeePass.GuardRoomId" asp-items="@Model.GuardRooms" class="select2 form-select" data-allow-clear="true">
+                        <select asp-for="EmployeePass.GuardRoomId" asp-items="Model.GuardRooms" class="select2 form-select" data-allow-clear="true" title="Guard Room">
                             <option disabled selected>- Select From -</option>
                         </select>
                         <label for="GuardRoomId">Exit Guard Room</label>
                     </div>
+
                 </div>
                 <div class="col-3 g-1">
                     <div class="form-floating form-floating-outline">
-                        <input asp-for="@Model.EmployeePass.Location" type="text" class="form-control" placeholder="Borella" required>
+                        <input asp-for="EmployeePass.Location" type="text" class="form-control" placeholder="Borella" >
                         <label for="Location">Location</label>
                     </div>
                 </div>
                 <div class="col-6 g-1">
                     <div class="form-floating form-floating-outline">
-                        <input asp-for="@Model.EmployeePass.Reason" type="text" class="form-control" placeholder="Go to Bank" required>
+                        <input asp-for="EmployeePass.Reason" type="text" class="form-control" placeholder="Go to Bank" >
                         <label for="Reason">Reason</label>
                     </div>
                 </div>
@@ -134,7 +138,7 @@
             <div class="row mb-2">
                 <div class="col-3 g-1">
                     <div class="form-floating form-floating-outline">
-                        <select asp-for="@Model.EmployeePass.ApprovedById" asp-items="@Model.ApprovEmps" class="select2 form-select" data-allow-clear="true">
+                        <select asp-for="EmployeePass.ApprovedById" asp-items="@Model.ApprovEmps" class="select2 form-select" data-allow-clear="true">
                             <option disabled selected>- Select From -</option>
                         </select>
                         <label for="ApprovedById">Approve Person</label>
@@ -142,15 +146,15 @@
                 </div>
                 <div class="col-3 g-1">
                     <div class="form-floating form-floating-outline">
-                        <input asp-for="@Model.EmployeePass.OutTime" class="form-control" type="time" id="html5-time-input" />
+                        <input asp-for="EmployeePass.OutTime" class="form-control" type="time" id="html5-time-input" />
                         <label for="html5-time-input">Time</label>
                     </div>
                 </div>
 
                 <div class="col-2 d-flex align-items-center justify-content-left mt-2">
                     <span class="form-check">
-                        <input asp-for="@Model.EmployeePass.IsNoReturn" class="form-check-input" type="checkbox" id="returnable" value="false">
-                        <label class="form-check-label" for="IdDutyOff">Off for the Day</label>
+                        <input type="checkbox" asp-for="EmployeePass.IsNoReturn" value="true" />
+                        <label for="EmployeePass.IsNoReturn">Off for the Day</label>
                     </span>
                 </div>
 
@@ -172,7 +176,7 @@
                 </div>
                 <div class="col-4 g-1">
                     <div class="form-floating form-floating-outline">
-                        <input type="text" id="employeeEpf" class="form-control" placeholder="1308596">
+                        <input type="number" id="employeeEpf" class="form-control" placeholder="1308596" >
                         <label for="employeeEpf">Employee EPF</label>
                     </div>
                 </div>

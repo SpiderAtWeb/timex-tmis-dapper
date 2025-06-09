@@ -1,6 +1,10 @@
 @model EmpPassVM
 
-<h5>Exit Permit #:@Model.EmpGpNo </h5>
+<h5>Exit Permit #:@Model.EmpGpNo
+    <span class="badge rounded-pill bg-label@(Model.IsApproved == "Approved" ? "-success" : Model.IsApproved == "Rejected" ? "-danger" : "-primary")">
+        @Model.IsApproved
+    </span>
+</h5>
 
 <div class="card-body">
     <div class="mb-1">
@@ -44,13 +48,7 @@
     <div class="row mb-1">
         <div class="col-4 g-1">
             <div class="form-floating form-floating-outline">
-                <input type="text" class="form-control" value="@Model.IsResponsed" readonly />
-                <label>Is Approved</label>
-            </div>
-        </div>
-        <div class="col-4 g-1">
-            <div class="form-floating form-floating-outline">
-                <input type="text" class="form-control" value="@Model.ResponsedBy" readonly />
+                <input type="text" class="form-control" value="@Model.ApprovedBy" readonly />
                 <label>Responsed By</label>
             </div>
         </div>
@@ -83,14 +81,14 @@
                 </div>
                 <div class="col-3 g-1">
                     <div class="form-floating form-floating-outline">
-                        <input type="text" class="form-control" value="@item.ReturnTime" readonly />
-                        <label>Return Time</label>
+                        <input type="text" class="form-control" value="@item.ActualOutTime" readonly />
+                        <label>Actual OUT</label>
                     </div>
                 </div>
                 <div class="col-3 g-1">
                     <div class="form-floating form-floating-outline">
-                        <input type="text" class="form-control" value="@item.ResponsedUser" readonly />
-                        <label>Guard Room User</label>
+                        <input type="text" class="form-control" value="@item.ActualInTime" readonly />
+                        <label>Actual IN</label>
                     </div>
                 </div>
             </div>

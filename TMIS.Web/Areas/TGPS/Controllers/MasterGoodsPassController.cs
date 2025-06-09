@@ -1,20 +1,21 @@
 using log4net;
 using Microsoft.AspNetCore.Mvc;
-using System.Data.Entity;
 using TMIS.Controllers;
+using TMIS.DataAccess.COMON.IRpository;
 using TMIS.DataAccess.TGPS.IRpository;
-using TMIS.DataAccess.TGPS.Rpository;
+using TMIS.Models.SMIS;
 using TMIS.Models.TGPS;
 
 namespace TMIS.Areas.TGPS.Controllers
 {
   [Area("TGPS")]
 
-  public class MasterGoodsPassController(IAddressBank db) : BaseController
+  public class MasterGoodsPassController(IAddressBank db, ISessionHelper sessionHelper, ITwoFieldsMDataAccess dbTwo) : BaseController
   {
     private readonly ILog _logger = LogManager.GetLogger(typeof(GenGoodsPassController));
     private readonly IAddressBank _db = db;
-
+    private readonly ITwoFieldsMDataAccess _dbTwo = dbTwo;
+    private readonly ISessionHelper _iSessionHelper = sessionHelper;
 
     public IActionResult NewAddress()
     {
@@ -47,12 +48,12 @@ namespace TMIS.Areas.TGPS.Controllers
       if (model.Id == 0)
       {
         var id = await _db.InsertAsync(model);
-        return Json(new { success = true, message = "Created", id });
+        return Json(new { success = true, message = "Address Successfully Created", id });
       }
       else
       {
         await _db.UpdateAsync(model);
-        return Json(new { success = true, message = "Updated" });
+        return Json(new { success = true, message = "Address Successfully Updated" });
       }
     }
 
@@ -72,6 +73,264 @@ namespace TMIS.Areas.TGPS.Controllers
       var result = await _db.DeleteAsync(id);
       return Json(new { success = result > 0 });
     }
+
+
+    public IActionResult NewUnits()
+    {
+      return View();
+
+    }
+
+    #region API CALLS - NewUnits
+
+    [HttpGet]
+    public IActionResult NewUnitsGetAll()
+    {
+      IEnumerable<TwoFieldsMData> fieldList = _dbTwo.GetList("TGPS_MasterTwoGpGoodsUOM");
+      return Json(new { data = fieldList });
+    }
+
+    [HttpPost]
+    public IActionResult NewUnitsGetInsert(TwoFieldsMData twoFieldsMData)
+    {
+      string[] insertResult = _dbTwo.InsertRecord(twoFieldsMData, "TGPS_MasterTwoGpGoodsUOM");
+
+      if (insertResult[0] == "1")
+      {
+        _logger.Info("[ " + _iSessionHelper.GetShortName() + "] - NewUnits CREATED -[" + twoFieldsMData.PropName + "]");
+
+        return Json(new { success = true, message = insertResult[1] });
+      }
+      else
+      {
+        _logger.Info("[ " + _iSessionHelper.GetShortName() + "] - NewUnits CREATE FAILED -[" + twoFieldsMData.PropName + "]");
+
+        return Json(new { success = false, message = insertResult[1] });
+      }
+    }
+
+    [HttpPost]
+    public IActionResult NewUnitsGetUpdate(TwoFieldsMData twoFieldsMData)
+    {
+      string[] updateResult = _dbTwo.UpdateRecord(twoFieldsMData, "TGPS_MasterTwoGpGoodsUOM");
+
+      // Check the first element of the result array to determine success
+      if (updateResult[0] == "1")
+      {
+        // Update successful
+        _logger.Info("[ " + _iSessionHelper.GetShortName() + "] - NewUnits UPDATED -[" + twoFieldsMData.PropName + "]");
+
+        return Json(new { success = true, message = updateResult[1] });
+      }
+      else
+      {
+        // Update failed, return the error message
+        _logger.Info("[ " + _iSessionHelper.GetShortName() + "] - NewUnits UPDATE FAILED -[" + twoFieldsMData.PropName + "]");
+
+        return Json(new { success = false, message = updateResult[1] });
+      }
+    }
+
+    [HttpGet]
+    public IActionResult NewUnitsGetDelete(int? id)
+    {
+      _dbTwo.DeleteRecord(id, "TGPS_MasterTwoGpGoodsUOM");
+      return Json(new { success = true, message = "Deleted Successful" });
+    }
+    #endregion
+
+    public IActionResult NewDrivers()
+    {
+      return View();
+
+    }
+
+    #region API CALLS - NewDrivers
+
+    [HttpGet]
+    public IActionResult NewDriversGetAll()
+    {
+      IEnumerable<TwoFieldsMData> fieldList = _dbTwo.GetList("TGPS_MasterTwoGpDrivers");
+      return Json(new { data = fieldList });
+    }
+
+    [HttpPost]
+    public IActionResult NewDriversGetInsert(TwoFieldsMData twoFieldsMData)
+    {
+      string[] insertResult = _dbTwo.InsertRecord(twoFieldsMData, "TGPS_MasterTwoGpDrivers");
+
+      if (insertResult[0] == "1")
+      {
+        _logger.Info("[ " + _iSessionHelper.GetShortName() + "] - NewDrivers CREATED -[" + twoFieldsMData.PropName + "]");
+
+        return Json(new { success = true, message = insertResult[1] });
+      }
+      else
+      {
+        _logger.Info("[ " + _iSessionHelper.GetShortName() + "] - NewDrivers CREATE FAILED -[" + twoFieldsMData.PropName + "]");
+
+        return Json(new { success = false, message = insertResult[1] });
+      }
+    }
+
+    [HttpPost]
+    public IActionResult NewDriversGetUpdate(TwoFieldsMData twoFieldsMData)
+    {
+      string[] updateResult = _dbTwo.UpdateRecord(twoFieldsMData, "TGPS_MasterTwoGpDrivers");
+
+      // Check the first element of the result array to determine success
+      if (updateResult[0] == "1")
+      {
+        // Update successful
+        _logger.Info("[ " + _iSessionHelper.GetShortName() + "] - NewDrivers UPDATED -[" + twoFieldsMData.PropName + "]");
+
+        return Json(new { success = true, message = updateResult[1] });
+      }
+      else
+      {
+        // Update failed, return the error message
+        _logger.Info("[ " + _iSessionHelper.GetShortName() + "] - NewDrivers UPDATE FAILED -[" + twoFieldsMData.PropName + "]");
+
+        return Json(new { success = false, message = updateResult[1] });
+      }
+    }
+
+    [HttpGet]
+    public IActionResult NewDriversGetDelete(int? id)
+    {
+      _dbTwo.DeleteRecord(id, "TGPS_MasterTwoGpDrivers");
+      return Json(new { success = true, message = "Deleted Successful" });
+    }
+    #endregion
+
+
+    public IActionResult NewVehicles()
+    {
+      return View();
+
+    }
+
+    #region API CALLS - NewVehicles
+
+    [HttpGet]
+    public IActionResult NewVehiclesGetAll()
+    {
+      IEnumerable<TwoFieldsMData> fieldList = _dbTwo.GetList("TGPS_MasterTwoGpVehicles");
+      return Json(new { data = fieldList });
+    }
+
+    [HttpPost]
+    public IActionResult NewVehiclesGetInsert(TwoFieldsMData twoFieldsMData)
+    {
+      string[] insertResult = _dbTwo.InsertRecord(twoFieldsMData, "TGPS_MasterTwoGpVehicles");
+
+      if (insertResult[0] == "1")
+      {
+        _logger.Info("[ " + _iSessionHelper.GetShortName() + "] - NewVehicles CREATED -[" + twoFieldsMData.PropName + "]");
+
+        return Json(new { success = true, message = insertResult[1] });
+      }
+      else
+      {
+        _logger.Info("[ " + _iSessionHelper.GetShortName() + "] - NewVehicles CREATE FAILED -[" + twoFieldsMData.PropName + "]");
+
+        return Json(new { success = false, message = insertResult[1] });
+      }
+    }
+
+    [HttpPost]
+    public IActionResult NewVehiclesGetUpdate(TwoFieldsMData twoFieldsMData)
+    {
+      string[] updateResult = _dbTwo.UpdateRecord(twoFieldsMData, "TGPS_MasterTwoGpVehicles");
+
+      // Check the first element of the result array to determine success
+      if (updateResult[0] == "1")
+      {
+        // Update successful
+        _logger.Info("[ " + _iSessionHelper.GetShortName() + "] - NewVehicles UPDATED -[" + twoFieldsMData.PropName + "]");
+
+        return Json(new { success = true, message = updateResult[1] });
+      }
+      else
+      {
+        // Update failed, return the error message
+        _logger.Info("[ " + _iSessionHelper.GetShortName() + "] - NewVehicles UPDATE FAILED -[" + twoFieldsMData.PropName + "]");
+
+        return Json(new { success = false, message = updateResult[1] });
+      }
+    }
+
+    [HttpGet]
+    public IActionResult NewVehiclespGetDelete(int? id)
+    {
+      _dbTwo.DeleteRecord(id, "TGPS_MasterTwoGpVehicles");
+      return Json(new { success = true, message = "Deleted Successful" });
+    }
+    #endregion
+
+
+    public IActionResult NewIssues()
+    {
+      return View();
+
+    }
+    #region API CALLS - NewIssues
+
+    [HttpGet]
+    public IActionResult NewIssuesGetAll()
+    {
+      IEnumerable<TwoFieldsMData> fieldList = _dbTwo.GetList("TGPS_MasterTwoGpGoodsReasons");
+      return Json(new { data = fieldList });
+    }
+
+    [HttpPost]
+    public IActionResult NewIssuesGetInsert(TwoFieldsMData twoFieldsMData)
+    {
+      string[] insertResult = _dbTwo.InsertRecord(twoFieldsMData, "TGPS_MasterTwoGpGoodsReasons");
+
+      if (insertResult[0] == "1")
+      {
+        _logger.Info("[ " + _iSessionHelper.GetShortName() + "] - NewIssues CREATED -[" + twoFieldsMData.PropName + "]");
+
+        return Json(new { success = true, message = insertResult[1] });
+      }
+      else
+      {
+        _logger.Info("[ " + _iSessionHelper.GetShortName() + "] - NewIssues CREATE FAILED -[" + twoFieldsMData.PropName + "]");
+
+        return Json(new { success = false, message = insertResult[1] });
+      }
+    }
+
+    [HttpPost]
+    public IActionResult NewIssuesGetUpdate(TwoFieldsMData twoFieldsMData)
+    {
+      string[] updateResult = _dbTwo.UpdateRecord(twoFieldsMData, "TGPS_MasterTwoGpGoodsReasons");
+
+      // Check the first element of the result array to determine success
+      if (updateResult[0] == "1")
+      {
+        // Update successful
+        _logger.Info("[ " + _iSessionHelper.GetShortName() + "] - NewIssues UPDATED -[" + twoFieldsMData.PropName + "]");
+
+        return Json(new { success = true, message = updateResult[1] });
+      }
+      else
+      {
+        // Update failed, return the error message
+        _logger.Info("[ " + _iSessionHelper.GetShortName() + "] - NewIssues UPDATE FAILED -[" + twoFieldsMData.PropName + "]");
+
+        return Json(new { success = false, message = updateResult[1] });
+      }
+    }
+
+    [HttpGet]
+    public IActionResult NewIssuesGetDelete(int? id)
+    {
+      _dbTwo.DeleteRecord(id, "TGPS_MasterTwoGpGoodsReasons");
+      return Json(new { success = true, message = "Deleted Successful" });
+    }
+    #endregion
 
   }
 }

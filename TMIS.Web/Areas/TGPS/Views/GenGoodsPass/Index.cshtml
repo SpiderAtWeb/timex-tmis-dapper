@@ -29,7 +29,7 @@
     }
     <script>
         $(document).ready(function () {
-            $('.btn-x-action').on('click', function () {
+          $(document).on('click', '.btn-x-action', function () {
                 const $row = $(this).closest('tr'); // Get the row
                 const gpId = $(this).data('id');    // Get the ID from the button
                 const gatePassNo = $row.find('td').eq(1).text().trim(); // Get GatePassNo from 2nd <td>
@@ -102,7 +102,7 @@
     <script>
         $(document).ready(function () {
             // When fa-eye icon is clicked
-            $('.btn-y-action').on('click', function () {
+            $(document).on('click', '.btn-y-action', function () {
                 var gatePassId = $(this).data("id");
 
                 // Load data via AJAX
@@ -116,6 +116,30 @@
             });
         });
     </script>
+
+    <script>
+        $(document).ready(function () {
+            // When fa-file-pdf icon is clicked
+            $(document).on('click', '.btn-z-action', function (e) {
+              e.preventDefault();
+              //confirm before print
+               var gatePassId = $(this).data("id");
+
+            // Show confirmation dialog
+            if (confirm("Do you want to download and this Gate Pass PDF?")) {
+                window.open("/TGPS/GenGoodsPass/DownloadPdf?id=" + gatePassId, "_blank");
+            }
+            });
+        });
+    </script>
+}
+
+@section PageStyles {
+    <style>
+        table.dataTable > tbody > tr > td {
+            padding: 5px 10px !important;
+        }
+    </style>
 }
 
 
@@ -140,7 +164,7 @@
         <div class="card-body">
             <div class="row mb-2">
                 <div class="col text-end">
-                    <a asp-action="Create" class="btn btn-primary"> <i class="ri-add-line"></i> <span class="d-none d-sm-inline-block">Create New</span></a>
+                    <a asp-action="InternalCreate" class="btn btn-primary"> <i class="ri-add-line"></i> <span class="d-none d-sm-inline-block">Create New</span></a>
                 </div>
             </div>
             <div class="row">
@@ -169,10 +193,13 @@
                                     <td>@item.GpSubject</td>
                                     <td>@item.GenDateTime</td>
                                     <td>@item.GenGPassTo</td>
-                                    <td>@item.PassStatus</td>
+                                    <td class="badge rounded-pill @(item.PassStatus == "Completed" ? "bg-label-success" : "bg-label-primary")">
+                                        @item.PassStatus
+                                    </td>
                                     <td>
                                         <span class="btn btn-primary btn-x-action" data-id="@item.Id"><i class="fa-solid fa-circle-info"></i></span>
                                         <span class="btn btn-success btn-y-action" data-id="@item.Id"><i class="fa-solid fa-eye"></i></span>
+                                        <span class="btn btn-primary btn-z-action" data-id="@item.Id"><i class="fa-solid fa-file-pdf"></i></span>
                                     </td>
                                 </tr>
                             }

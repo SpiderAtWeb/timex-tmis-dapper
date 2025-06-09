@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using TMIS.Controllers;
 using TMIS.DataAccess.GDRM.IRpository;
 using TMIS.Models.GDRM;
-using TMIS.Models.GDRM.VM;
 
 namespace TMIS.Areas.GDRM.Controllers
 {

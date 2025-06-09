@@ -15,116 +15,354 @@
     <script src="~/custom/tables-datatables-basic.js"></script>
 
     <script>
-        $(document).ready(function () {
-            loadAddresses();
+                $(document).ready(function () {
+                    loadAddresses();
 
-            $("#btnSave").click(function () {
-                const model = {
-                    AddressName: $("#AddressName").val(),
-                    AddressAddressLane1: $("#AddressLane1").val(),
-                    AddressAddressLane2: $("#AddressLane2").val(),
-                    AddressAddressLane3: $("#AddressLane3").val(),
-                    ContactNos: $("#ContactNo").val()
-                };
+                    $("#btnSave").click(function () {
+                        const model = {
+                            businessName: $("#business-name").val(),
+                            address: $("#address").val(),
+                            city: $("#city").val(),
+                            state: $("#state").val(),
+                            phone: $("#phone").val()
+                        };
 
-               $.ajax({
-    type: "POST",
-    url: "/TGPS/MasterGoodsPass/SaveAddress",
-    contentType: "application/json",
-    data: JSON.stringify(model),
-    success: function (response) {
-        if (response.success) {
-            toastr.success(response.message || "Saved successfully!");
-            loadAddresses();
-        }
-    },
-    error: function (xhr) {
-        if (xhr.status === 400 && xhr.responseJSON && xhr.responseJSON.errors) {
-            const errors = xhr.responseJSON.errors;
-            for (const key in errors) {
-                if (errors.hasOwnProperty(key)) {
-                    errors[key].forEach(msg => toastr.error(msg));
+                       $.ajax({
+            type: "POST",
+            url: "/TGPS/MasterGoodsPass/SaveAddress",
+            contentType: "application/json",
+            data: JSON.stringify(model),
+            success: function (response) {
+                if (response.success) {
+                    toastr.success(response.message || "Saved successfully!");
+                    loadAddresses();
                 }
-            }
-        } else {
-            toastr.error("An unexpected error occurred.");
-        }
-    }
-});
-
-            });
-
-            $(document).on("click", ".btn-edit", function () {
-                const id = $(this).data("id");
-                $.get(`/TGPS/MasterGoodsPass/GetAddress?id=${id}`, function (data) {
-                    $("#editId").val(data.id);
-                    $("#editAddressName").val(data.addressName);
-                    $("#editLane1").val(data.addressAddressLane1);
-                    $("#editLane2").val(data.addressAddressLane2);
-                    $("#editLane3").val(data.addressAddressLane3);
-                    $("#editContact").val(data.contactNos);
-                    $("#editAddressModal").modal("show");
-                });
-            });
-
-            $("#btnUpdate").click(function () {
-                const model = {
-                    Id: $("#editId").val(),
-                    AddressName: $("#editAddressName").val(),
-                    AddressAddressLane1: $("#editLane1").val(),
-                    AddressAddressLane2: $("#editLane2").val(),
-                    AddressAddressLane3: $("#editLane3").val(),
-                    ContactNos: $("#editContact").val()
-                };
-
-                $.ajax({
-                    type: "POST",
-                    url: "/TGPS/MasterGoodsPass/SaveAddress",
-                    contentType: "application/json",
-                    data: JSON.stringify(model),
-                    success: function () {
-                        toastr.success("Updated successfully!");
-                        $("#editAddressModal").modal("hide");
-                        loadAddresses();
+            },
+            error: function (xhr) {
+                if (xhr.status === 400 && xhr.responseJSON && xhr.responseJSON.errors) {
+                    const errors = xhr.responseJSON.errors;
+                    for (const key in errors) {
+                        if (errors.hasOwnProperty(key)) {
+                            errors[key].forEach(msg => toastr.error(msg));
+                        }
                     }
-                });
-            });
-
-            $(document).on("click", ".btn-delete", function () {
-                if (confirm("Are you sure to delete?")) {
-                    const id = $(this).data("id");
-                    $.post("/TGPS/MasterGoodsPass/DeleteAddress", { id }, function () {
-                        toastr.success("Deleted successfully!");
-                        loadAddresses();
-                    });
+                } else {
+                    toastr.error("An unexpected error occurred.");
                 }
-            });
-
-            function loadAddresses() {
-                $.get("/TGPS/MasterGoodsPass/GetAllAddresses", function (data) {
-                    const tbody = $("#gatePassTable tbody");
-                    tbody.empty();
-                    data.forEach(row => {
-                        tbody.append(`
-                                <tr>
-                                    <td class="d-none">${row.id}</td>
-                                    <td>${row.addressName}</td>
-                                    <td>${row.addressAddressLane1}</td>
-                                    <td>${row.addressAddressLane2}</td>
-                                    <td>${row.addressAddressLane3}</td>
-                                    <td>${row.contactNos}</td>
-                                    <td>
-                                                                        <span class="btn btn-sm btn-info btn-edit" data-id="${row.id}"><i class="fa-solid fa-pen-to-square"></i></span>
-                                                                        <span class="btn btn-sm btn-danger btn-delete" data-id="${row.id}"><i class="fa-solid fa-trash"></i></span>
-                                            </td>
-                                </tr>
-                            `);
-                    });
-                });
             }
         });
+
+                    });
+
+                    $(document).on("click", ".btn-edit", function () {
+                        const id = $(this).data("id");
+                        $.get(`/TGPS/MasterGoodsPass/GetAddress?id=${id}`, function (data) {
+                            $("#editId").val(data.id);
+                            $("#editbusinessName").val(data.businessName);
+                            $("#editaddress").val(data.address);
+                            $("#editcity").val(data.city);
+                            $("#editstate").val(data.state);
+                            $("#editphone").val(data.phone);
+                            $("#editAddressModal").modal("show");
+                        });
+                    });
+
+                    $("#btnUpdate").click(function () {
+                        const model = {
+                            Id: $("#editId").val(),
+                            businessName: $("#business-name").val(),
+                            address: $("#address").val(),
+                            city: $("#city").val(),
+                            state: $("#state").val(),
+                            postalCode: $("#postal-code").val(),
+                            phone: $("#phone").val()
+                        };
+
+                        $.ajax({
+                            type: "POST",
+                            url: "/TGPS/MasterGoodsPass/SaveAddress",
+                            contentType: "application/json",
+                            data: JSON.stringify(model),
+                            success: function () {
+                                toastr.success("Updated successfully!");
+                                $("#editAddressModal").modal("hide");
+                                loadAddresses();
+                            }
+                        });
+                    });
+
+                    $(document).on("click", ".btn-delete", function () {
+                        if (confirm("Are you sure to delete?")) {
+                            const id = $(this).data("id");
+                            $.post("/TGPS/MasterGoodsPass/DeleteAddress", { id }, function () {
+                                toastr.success("Deleted successfully!");
+                                loadAddresses();
+                            });
+                        }
+                    });
+
+                    function loadAddresses() {
+                        $.get("/TGPS/MasterGoodsPass/GetAllAddresses", function (data) {
+                            const tbody = $("#gatePassTable tbody");
+                            tbody.empty();
+                            data.forEach(row => {
+                                tbody.append(`
+                                        <tr>
+                                            <td class="d-none">${row.id}</td>
+                                            <td>${row.businessName}</td>
+                                            <td>${row.address}</td>
+                                            <td>${row.city}</td>
+                                            <td>${row.state}</td>
+                                            <td>${row.phone}</td>
+                                            <td>
+                                               <span class="btn btn-sm btn-info btn-edit" data-id="${row.id}"><i class="fa-solid fa-pen-to-square"></i></span>
+                                               <span class="btn btn-sm btn-danger btn-delete" data-id="${row.id}"><i class="fa-solid fa-trash"></i></span>
+                                            </td>
+                                        </tr>
+                                    `);
+                            });
+                        });
+                    }
+                });
     </script>
 
+    <script>
+        let map;
+        let marker;
+        let placesService;
+        let autocompleteService;
+        let debounceTimer;
+
+        function initMap() {
+            // Initialize map
+            map = new google.maps.Map(document.getElementById("map"), {
+                center: { lat: 0, lng: 0 },
+                zoom: 2
+            });
+
+            // Initialize services
+            placesService = new google.maps.places.PlacesService(map);
+            autocompleteService = new google.maps.places.AutocompleteService();
+
+            // Set up business name input listener
+            const businessNameInput = document.getElementById("business-name");
+            const suggestionsDropdown = document.getElementById("suggestions");
+
+            businessNameInput.addEventListener('input', function() {
+                clearTimeout(debounceTimer);
+                suggestionsDropdown.style.display = 'none';
+                document.getElementById("loading").style.display = 'none';
+
+                if (this.value.length > 2) {
+                    document.getElementById("loading").style.display = 'inline-block';
+
+                    debounceTimer = setTimeout(() => {
+                        getBusinessSuggestions(this.value);
+                    }, 500);
+                } else {
+                    clearFormFields();
+                }
+            });
+
+            // Hide dropdown when clicking elsewhere
+            document.addEventListener('click', function(e) {
+                if (e.target.id !== 'business-name') {
+                    suggestionsDropdown.style.display = 'none';
+                }
+            });
+        }
+
+        function getBusinessSuggestions(query) {
+            autocompleteService.getPlacePredictions({
+                input: query,
+                types: ['establishment'],
+                componentRestrictions: { country: [] } // Global search
+            }, (predictions, status) => {
+                document.getElementById("loading").style.display = 'none';
+                const suggestionsDropdown = document.getElementById("suggestions");
+                suggestionsDropdown.innerHTML = '';
+
+                if (status === google.maps.places.PlacesServiceStatus.OK && predictions) {
+                    predictions.forEach(prediction => {
+                        const suggestionItem = document.createElement('div');
+                        suggestionItem.className = 'suggestion-item';
+                        suggestionItem.textContent = prediction.description;
+
+                        suggestionItem.addEventListener('click', () => {
+                            document.getElementById("business-name").value = prediction.structured_formatting.main_text;
+                            getPlaceDetails(prediction.place_id);
+                            suggestionsDropdown.style.display = 'none';
+                        });
+
+                        suggestionsDropdown.appendChild(suggestionItem);
+                    });
+
+                    if (predictions.length > 0) {
+                        suggestionsDropdown.style.display = 'block';
+                    }
+                }
+            });
+        }
+
+        function getPlaceDetails(placeId) {
+            placesService.getDetails({
+                placeId: placeId,
+                fields: ['name', 'formatted_address', 'geometry', 'address_components',
+                        'international_phone_number']
+            }, (place, status) => {
+                if (status === google.maps.places.PlacesServiceStatus.OK) {
+                    updateFormFields(place);
+                }
+            });
+        }
+
+        function updateFormFields(place) {
+            // Update address
+            document.getElementById("address").value = place.formatted_address || '';
+
+            // Parse address components
+            const addressComponents = place.address_components || [];
+            addressComponents.forEach(component => {
+                if (component.types.includes('locality')) {
+                    document.getElementById("city").value = component.long_name;
+                }
+                if (component.types.includes('administrative_area_level_1')) {
+                    document.getElementById("state").value = component.long_name;
+                }                
+            });
+
+            // Update phone
+            document.getElementById("phone").value = place.international_phone_number || '';
+
+            // Update map
+            if (place.geometry) {
+                map.setCenter(place.geometry.location);
+                map.setZoom(15);
+
+                if (marker) {
+                    marker.setMap(null);
+                }
+
+                marker = new google.maps.Marker({
+                    map: map,
+                    position: place.geometry.location,
+                    title: place.name || place.formatted_address
+                });
+            }
+        }
+
+        function clearFormFields() {
+            const fields = ['address', 'city', 'state', 'postal-code', 'country', 'phone'];
+            fields.forEach(field => {
+                document.getElementById(field).value = '';
+            });
+
+            if (marker) {
+                marker.setMap(null);
+            }
+        }
+    </script>
+
+    <script async defer
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBOf_Y1BV2LqfG2ssnfzwPWWadUfEiWcz4&libraries=places&callback=initMap">
+    </script>
+
+}
+
+@section PageStyles {
+    <style>
+        .search-container {
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        #business-name {
+            width: 100%;
+            padding: 12px 15px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+
+            #business-name:focus {
+                outline: none;
+                border-color: #4285F4;
+            }
+
+        .suggestions-dropdown {
+            position: absolute;
+            width: 100%;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 0 0 8px 8px;
+            background: white;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .suggestion-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+        }
+
+            .suggestion-item:hover {
+                background-color: #f5f5f5;
+            }
+
+            .suggestion-item:last-child {
+                border-bottom: none;
+            }
+
+        .form-container {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 0 -10px 15px -10px;
+        }
+
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .map-container {
+            height: 350px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #eee;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0,0,0,0.1);
+            border-radius: 50%;
+            border-top-color: #4285F4;
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+    </style>
 }
 
 
@@ -139,11 +377,11 @@
             </div>
             <div class="modal-body">
                 <input type="hidden" id="editId" />
-                <div class="form-floating mb-2"><input type="text" id="editAddressName" class="form-control" /><label>Address Name</label></div>
-                <div class="form-floating mb-2"><input type="text" id="editLane1" class="form-control" /><label>Address Lane1</label></div>
-                <div class="form-floating mb-2"><input type="text" id="editLane2" class="form-control" /><label>Address Lane2</label></div>
-                <div class="form-floating mb-2"><input type="text" id="editLane3" class="form-control" /><label>Address Lane3</label></div>
-                <div class="form-floating mb-2"><input type="text" id="editContact" class="form-control" /><label>Contact Nos</label></div>
+                <div class="form-floating mb-2"><input type="text" id="editbusinessName" class="form-control" /><label>Address Name</label></div>
+                <div class="form-floating mb-2"><input type="text" id="editaddress" class="form-control" /><label>Address Desc</label></div>
+                <div class="form-floating mb-2"><input type="text" id="editcity" class="form-control" /><label>City</label></div>
+                <div class="form-floating mb-2"><input type="text" id="editstate" class="form-control" /><label> Province</label></div>
+                <div class="form-floating mb-2"><input type="text" id="editphone" class="form-control" /><label>Contact Nos</label></div>
             </div>
             <div class="modal-footer">
                 <button type="button" id="btnUpdate" class="btn btn-success">Update</button>
@@ -160,51 +398,55 @@
         <h5 class="card-header page-header">Address List</h5>
         <div class="card-body">
 
-            <div class="row">
-                <div class="col-4 g-1">
-                    <div class="form-floating form-floating-outline">
-                        <input type="text" id="AddressName" class="form-control" placeholder="Timex Garments" />
-                        <label for="AddressName">Address Name</label>
-                    </div>
-                </div>
-
-                <div class="col-4 g-1">
-                    <div class="form-floating form-floating-outline">
-                        <input type="text" id="AddressLane1" class="form-control" placeholder="New Order Threads" />
-                        <label for="AddressLane1">Address Lane 1</label>
-                    </div>
-                </div>
-
-                <div class="col-4 g-1">
-                    <div class="form-floating form-floating-outline">
-                        <input type="text" id="AddressLane2" class="form-control" placeholder="New Order Threads" />
-                        <label for="AddressLane2">Address Lane 2</label>
-                    </div>
-                </div>              
-
+            <div class="search-container">
+                <input type="text" id="business-name" placeholder="Type business name...">
+                <div id="suggestions" class="suggestions-dropdown"></div>
+                <span id="loading" class="loading" style="display:none;"></span>
             </div>
+
+
             <div class="row">
-                <div class="col-4 g-1">
+                <div class="col-6 g-1">
                     <div class="form-floating form-floating-outline">
-                        <input type="text" id="AddressLane3" class="form-control" placeholder="New Order Threads" />
-                        <label for="AddressLane3">Address Lane 3</label>
+                        <input type="text" id="address" class="form-control" />
+                        <label for="address">Address</label>
                     </div>
                 </div>
 
-                <div class="col-4 g-1">
-                    <div class="form-floating form-floating-outline">
-                        <input type="text" id="ContactNo" class="form-control" placeholder="New Order Threads" />
-                        <label for="ContactNo">Contact No</label>
-                    </div>
+                <div class="col-3 g-1">
                 </div>
-
-                <div class="col-3">
-                    <button type="button" class="btn btn-primary mt-4" id="btnSave">Save</button>
-                </div>
-
 
             </div>
 
+            <div class="row mb-4">
+                <div class="col-3 g-1">
+                    <div class="form-floating form-floating-outline">
+                        <input type="text" id="city" class="form-control" />
+                        <label for="city">City</label>
+                    </div>
+                </div>
+                <div class="col-3 g-1">
+                    <div class="form-floating form-floating-outline">
+                        <input type="text" id="state" class="form-control" />
+                        <label for="state">Province</label>
+                    </div>
+                </div>
+
+                <div class="col-3 g-1">
+                    <div class="form-floating form-floating-outline">
+                        <input type="text" id="phone" class="form-control" />
+                        <label for="phone">Contact No</label>
+                    </div>
+                </div>
+
+                <div class="col-3 g-1">
+                    <button type="button" class="btn btn-primary mt-1 w-100" id="btnSave">Save</button>
+                </div>
+            </div>
+
+            <div class="row">
+                <div id="map" class="map-container"></div>
+            </div>
 
         </div>
     </div>
@@ -216,28 +458,14 @@
                         <tr>
                             <th class="d-none">Id</th>
                             <th>Address Name</th>
-                            <th>Address Lane1</th>
-                            <th>Address Lane2</th>
-                            <th>Address Lane3</th>
-                            <th>Contact Nos</th>
+                            <th>Address Desc</th>
+                            <th>City</th>
+                            <th>Province</th>
+                            <th>Phone</th>
                             <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @*  @foreach (var item in Model)
-                        {
-                        <tr>
-                        <td>
-                        <button class="btn btn-primary btn-x-action" data-id="@item.Id">View Steps</button>
-                        </td>
-                        <td>@item.GatePassNo</td>
-                        <td>@item.VendorName</td>
-                        <td>@item.VendorAddress</td>
-                        <td>@item.VehicleNo</td>
-                        <td>@item.DriverName</td>
-                        <td>@item.DriverMobileNo</td>
-                        </tr>
-                        } *@
                     </tbody>
                 </table>
             </div>

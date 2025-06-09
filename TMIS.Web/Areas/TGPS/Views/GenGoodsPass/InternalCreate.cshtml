@@ -28,6 +28,13 @@
 
                 /* ------ Add row ------ */
                 if ($addBtn.length) {
+
+                   const rowCount = $('#gpAddressContainer .row').length;
+                    if (rowCount >= 2) {
+                        toastr.warning('You can only add up to 2 address !!!');
+                        return;
+                    }
+
                     const $block = $addBtn.closest('.row');
                     const $currentTo = $block.find('select[id^="gatepassTo"]');
 
@@ -268,6 +275,11 @@
             $('#submitGatepass').on('click', function (e) {
                 e.preventDefault();
 
+                     let $btn = $(this);
+        let originalText = $btn.text();
+
+        $btn.prop('disabled', true).text('Sending Mail...');
+
                 let data = {};
 
                 // 1. Dynamic Gatepass Address rows
@@ -282,15 +294,15 @@
                 });
 
                 $('#gpAddressContainer .row').each(function () {
-                   
-                    const to = $(this).find('[id^="gatepassTo"]').val()?.trim();                 
+
+                    const to = $(this).find('[id^="gatepassTo"]').val()?.trim();
 
                     //from and to same
                     if (from && to && from === to) {
                         isValid = false; // duplicate "From" and "To" values
                         toastr.error("Please ensure 'From' and 'To' are not the same.");
                         return; // skip this iteration
-                    }    
+                    }
 
                     if (!from || !to) {
                         isValid = false; // missing field
@@ -312,6 +324,7 @@
                 });
 
                 if (!isValid) {
+                   $btn.prop('disabled', false).text(originalText);
                     return;
                 }
 
@@ -323,26 +336,30 @@
                 data.IsReturnable = $('#returnable').is(':checked');
                 data.ReturnDays = $('#returnDays').val();
                 data.Remarks = $('#remarks').val();
-
+                data.BoiGatepass = $('#BoiGatepass').val();
 
 
                   if (!data.GpSubject) {
                     toastr.error("Please ensure 'Gatepass Subject' fields is filled.");
+                     $btn.prop('disabled', false).text(originalText);
                     return;
                 }
 
                 if (!data.Attention) {
                     toastr.error("Please ensure 'Attention' fields is filled.");
+                     $btn.prop('disabled', false).text(originalText);
                     return;
                 }
 
                 if (!data.SendApprovalTo) {
                     toastr.error("Please ensure 'SendApprovalTo' fields is filled.");
+                     $btn.prop('disabled', false).text(originalText);
                     return;
                 }
 
                 if (!data.Remarks) {
                     toastr.error("Please ensure 'Remarks' fields is filled.");
+                     $btn.prop('disabled', false).text(originalText);
                     return;
                 }
 
@@ -372,12 +389,13 @@
                 });
 
                 if (!isValid) {
+                   $btn.prop('disabled', false).text(originalText);
                     return;
                 }
 
                 // 4. Send AJAX to ASP.NET MVC controller
                 $.ajax({
-                    url: '/TGPS/GenGoodsPass/Create',
+                    url: '/TGPS/GenGoodsPass/InternalCreate',
                     type: 'POST',
                     contentType: 'application/json',
                     data: JSON.stringify(data),
@@ -390,7 +408,12 @@
                         var errorMsg = xhr.responseText || 'An error occurred while submitting the form.';
                         toastr.error(errorMsg);
                         console.log("Error details:", errorMsg);
-                    }
+                         $btn.prop('disabled', false).text(originalText);
+                    },
+                     complete: function () {
+            // Re-enable and reset the button in both success or error
+            $btn.prop('disabled', false).text(originalText);
+        }
                 });
             });
         });
@@ -400,139 +423,152 @@
 @* ************** Content ************** *@
 <!-- Ajax Sourced Server-side -->
 
+<div class="row">
+    <div class="col-md-12">
+        <div class="nav-align-top">
+            <ul class="nav nav-pills flex-column flex-md-row mb-6 gap-2 gap-lg-0">
+                <li class="nav-item"><a class="nav-link active" href="javascript:void(0);"><i class="ri-home-office-fill me-1_5"></i>Internal</a></li>
+                <li class="nav-item"><a class="nav-link" href="ExternalCreate"><i class="ri-building-3-fill me-1_5"></i>External</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
 <div class="card">
     <h5 class="card-header page-header">Create Goods Gate Pass</h5>
-
-    <form asp-action="Create" method="post">
-
-        <div class="card-body">
-            <div class="mb-1">
-                <small class="text-light fw-medium">Select the destination(s) to which the goods are to be dispatched.</small>
-            </div>
-            <div id="gpAddressContainer">
-                <div class="row mb-2" id="gatepass-block1">
-                    <div class="col-4 g-1">
-                        <div class="form-floating form-floating-outline">
-                            <select asp-items="@Model.GoodsFrom" id="gatepassFrom1" name="gatepassFrom1" class="form-select">
-                                <option disabled selected>- Select From -</option>
-                            </select>
-                            <label for="gatepassFrom1">Goods From</label>
-                        </div>
-                    </div>
-                    <div class="col-4 g-1">
-                        <div class="form-floating form-floating-outline">
-                            <select asp-items="@Model.GoodsTo" id="gatepassTo1" name="SendApprovalTo" class="select2 form-select">
-                                <option disabled selected>- Select To -</option>
-                            </select>
-                            <label for="gatepassTo1">Goods To</label>
-                        </div>
-                    </div>
-                    <div class="col-4 g-1">
-                    </div>
-                </div>
-            </div>
+    <div class="card-body">
+        <div class="mb-1">
+            <small class="text-light fw-medium">Select the destination(s) to which the goods are to be dispatched.</small>
         </div>
-
-        <hr class="m-0">
-        <div class="card-body">
-            <div class="mb-1">
-                <small class="text-light fw-medium">Fill the necessary details for the gate pass.</small>
-            </div>
-            <div class="row mb-3">
+        <div id="gpAddressContainer">
+            <div class="row mb-2" id="gatepass-block1">
                 <div class="col-4 g-1">
                     <div class="form-floating form-floating-outline">
-                        <input type="text" id="GpSubject" class="form-control" placeholder="New Order Threads" />
-                        <label for="GpSubject">Gate pass Subject</label>
-                    </div>
-                </div>
-                <div class="col-4 g-1">
-                        <div class="form-floating form-floating-outline">
-                            <input type="text" id="Attention" class="form-control" placeholder="Mr.Silva" />
-                            <label for="Attention">Attention</label>
-                        </div>
-                </div>
-                <div class="col-4 g-1">
-                    <div class="form-floating form-floating-outline">
-                        <select asp-items="@Model.ApprovalList" id="SendApprovalTo" class="select2 form-select" data-allow-clear="true">
-                            <option Disabled Selected>- Select -</option>
+                        <select asp-items="@Model.GoodsFrom" id="gatepassFrom1" name="gatepassFrom1" class="form-select">
+                            <option disabled selected>- Select From -</option>
                         </select>
-
-                        <label for="machineBrandId">Send Approval To</label>
+                        <label for="gatepassFrom1">Goods From</label>
                     </div>
                 </div>
-            </div>
-
-            <div class="row mb-3">
                 <div class="col-4 g-1">
-                    <div class="row">
-                        <div class="col d-flex align-items-center justify-content-center">
-                            <span class="form-check">
-                                <input class="form-check-input me-2" type="checkbox" id="returnable" name="IsReturnable" value="false">
-                                <label class="form-check-label" for="returnable">Returnable</label>
-                            </span>
-                        </div>
-                        <div class="col">
-                            <div class="form-floating form-floating-outline">
-                                <input type="number" id="returnDays" class="form-control" name="ReturnDays" placeholder="Max 365" max="365" />
-                                <label for="returnDays">Return Days</label>
-                            </div>
-                        </div>
+                    <div class="form-floating form-floating-outline">
+                        <select asp-items="@Model.GoodsTo" id="gatepassTo1" name="SendApprovalTo" class="select2 form-select">
+                            <option disabled selected>- Select To -</option>
+                        </select>
+                        <label for="gatepassTo1">Goods To</label>
                     </div>
                 </div>
-                <div class="col-8 g-1">
-                  <div class="form-floating form-floating-outline">
-                        <input type="text" id="remarks" name="Remarks" class="form-control" placeholder="..." />
-                        <label for="remarks">Remarks</label>
-                    </div>
+                <div class="col-4 g-1">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <hr class="m-0">
+    <div class="card-body">
+        <div class="mb-1">
+            <small class="text-light fw-medium">Fill the necessary details for the gate pass.</small>
+        </div>
+        <div class="row mb-3">
+            <div class="col-3 g-1">
+                <div class="form-floating form-floating-outline">
+                    <input type="text" id="GpSubject" class="form-control" placeholder="New Order Threads" />
+                    <label for="GpSubject">Gate pass Subject</label>
+                </div>
+            </div>
+            <div class="col-3 g-1">
+                <div class="form-floating form-floating-outline">
+                    <input type="text" id="Attention" class="form-control" placeholder="Mr.Silva" />
+                    <label for="Attention">Attention</label>
+                </div>
+            </div>
+            <div class="col-3 g-1">
+                <div class="form-floating form-floating-outline">
+                    <input type="text" id="BoiGatepass" class="form-control" placeholder="" />
+                    <label for="Attention">BOI Gatepass #</label>
+                </div>
+            </div>
+            <div class="col-3 g-1">
+                <div class="form-floating form-floating-outline">
+                    <select asp-items="@Model.ApprovalList" id="SendApprovalTo" class="select2 form-select" data-allow-clear="true">
+                        <option Disabled Selected>- Select -</option>
+                    </select>
+
+                    <label for="machineBrandId">Send Approval To</label>
                 </div>
             </div>
         </div>
 
-        <hr class="m-0">
-        <div class="card-body">
-            <div class="mb-1">
-                <small class="text-light fw-medium">Complete the items and their descriptions for the gate pass..</small>
-            </div>
-            <div id="gpDetailsContainer">
-                <div class="row mb-2" id="item-block1">
-                    <div class="col-3 g-1">
-                        <div class="form-floating form-floating-outline">
-                            <input type="text" id="itemName1" name="itemName1" class="form-control" placeholder="SN#123456" />
-                            <label for="itemName1">Item Name</label>
-                        </div>
+        <div class="row mb-3">
+            <div class="col-4 g-1">
+                <div class="row">
+                    <div class="col d-flex align-items-center justify-content-center">
+                        <span class="form-check">
+                            <input class="form-check-input me-2" type="checkbox" id="returnable" name="IsReturnable" value="false">
+                            <label class="form-check-label" for="returnable">Returnable</label>
+                        </span>
                     </div>
-                    <div class="col-4 g-1">
+                    <div class="col">
                         <div class="form-floating form-floating-outline">
-                            <input type="text" id="itemDesc1" name="itemDesc1" class="form-control" placeholder="TKT160 THREAD" />
-                            <label for="itemDesc1">Item Description</label>
+                            <input type="number" id="returnDays" class="form-control" name="ReturnDays" placeholder="Max 365" max="365" />
+                            <label for="returnDays">Return Days</label>
                         </div>
-                    </div>
-                    <div class="col-2 g-1">
-                        <div class="form-floating form-floating-outline">
-                            <input type="text" id="itemQty1" name="Qty1" class="form-control" placeholder="12" />
-                            <label for="Qty1">Quantity</label>
-                        </div>
-                    </div>
-                    <div class="col-2 g-1">
-                        <div class="form-floating form-floating-outline">
-                            <select asp-items="@Model.Units" id="itemUnit1" name="itemUnit1" class="form-select" data-allow-clear="true">
-                                <option disabled selected>- Select -</option>
-                            </select>
-                            <label for="uom1">UOM</label>
-                        </div>
-                    </div>
-                    <div class="col-1 g-1 d-flex justify-content-between align-items-stretch">
                     </div>
                 </div>
             </div>
-
-            <div class="pt-1">
-                <button id="submitGatepass" type="button" class="btn btn-primary me-1">Submit</button>
-                <a asp-controller="GenGoodsPass" asp-action="Index" class="btn btn-outline-secondary">Back to List</a>
+            <div class="col-8 g-1">
+                <div class="form-floating form-floating-outline">
+                    <input type="text" id="remarks" name="Remarks" class="form-control" placeholder="..." />
+                    <label for="remarks">Remarks</label>
+                </div>
             </div>
-
         </div>
-    </form>
+    </div>
+
+    <hr class="m-0">
+    <div class="card-body">
+        <div class="mb-1">
+            <small class="text-light fw-medium">Complete the items and their descriptions for the gate pass..</small>
+        </div>
+        <div id="gpDetailsContainer">
+            <div class="row mb-2" id="item-block1">
+                <div class="col-3 g-1">
+                    <div class="form-floating form-floating-outline">
+                        <input type="text" id="itemName1" name="itemName1" class="form-control" placeholder="SN#123456" />
+                        <label for="itemName1">Item Name</label>
+                    </div>
+                </div>
+                <div class="col-4 g-1">
+                    <div class="form-floating form-floating-outline">
+                        <input type="text" id="itemDesc1" name="itemDesc1" class="form-control" placeholder="TKT160 THREAD" />
+                        <label for="itemDesc1">Item Description</label>
+                    </div>
+                </div>
+                <div class="col-2 g-1">
+                    <div class="form-floating form-floating-outline">
+                        <input type="text" id="itemQty1" name="Qty1" class="form-control" placeholder="12" />
+                        <label for="Qty1">Quantity</label>
+                    </div>
+                </div>
+                <div class="col-2 g-1">
+                    <div class="form-floating form-floating-outline">
+                        <select asp-items="@Model.Units" id="itemUnit1" name="itemUnit1" class="form-select" data-allow-clear="true">
+                            <option disabled selected>- Select -</option>
+                        </select>
+                        <label for="uom1">UOM</label>
+                    </div>
+                </div>
+                <div class="col-1 g-1 d-flex justify-content-between align-items-stretch">
+                </div>
+            </div>
+        </div>
+
+        <div class="pt-1">
+            <button id="submitGatepass" type="button" class="btn btn-primary me-1">Submit</button>
+            <a asp-controller="GenGoodsPass" asp-action="Index" class="btn btn-outline-secondary">Back to List</a>
+        </div>
+
+    </div>
 </div>
 
 

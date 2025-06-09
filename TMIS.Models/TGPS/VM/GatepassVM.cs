@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TMIS.Models.TGPS.VM
+﻿namespace TMIS.Models.TGPS.VM
 {
     public class GatepassVM
     {
@@ -17,6 +11,8 @@ namespace TMIS.Models.TGPS.VM
         public bool IsReturnable { get; set; }
         public string ReturnDays { get; set; } = string.Empty;
         public string Remarks { get; set; } = string.Empty;
+        public string BoiGatepass { get; set; } = string.Empty;
+        public bool IsExternal { get; set; }
 
     }
 }
