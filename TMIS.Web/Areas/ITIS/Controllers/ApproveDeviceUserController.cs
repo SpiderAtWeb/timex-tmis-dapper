@@ -1,6 +1,7 @@
 using System;
 using log4net;
 using Microsoft.AspNetCore.Mvc;
+using TMIS.Controllers;
 using TMIS.DataAccess.COMON.IRpository;
 using TMIS.DataAccess.ITIS.IRepository;
 using TMIS.DataAccess.ITIS.Repository;
@@ -9,7 +10,7 @@ using TMIS.Models.ITIS.VM;
 namespace TMIS.Areas.ITIS.Controllers
 {
   [Area("ITIS")]
-  public class ApproveDeviceUserController(ISessionHelper sessionHelper, IApproveRepository approveRepository) : Controller
+  public class ApproveDeviceUserController(ISessionHelper sessionHelper, IApproveRepository approveRepository) : BaseController
   {
     private readonly ILog _logger = LogManager.GetLogger(typeof(DeviceUserController));
     private readonly ISessionHelper _iSessionHelper = sessionHelper;

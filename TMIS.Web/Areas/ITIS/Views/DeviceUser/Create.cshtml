@@ -17,6 +17,30 @@
 	<script src="~/custom/input-text-upper.js"></script>
 
 <script>
+	$(document).ready(function () {
+		$('#EmpNameDropdown').on('change', function () {
+		  var empEmail = $(this).val();
+		  console.log("Now in emp");
+		  if (empEmail) {
+		  $.ajax({
+			  url: '/ITIS/DeviceUser/GetEmployeeDetails',
+			  type: 'GET',
+			  data: { empName: empEmail},
+			  success: function (data) {
+				  if (data) {
+					  // Populate Designation					
+					  $('#DesignationDropdown').val(data.designation).trigger('change');
+					  // Populate Location			
+					  $('#LocationDropdown').val(data.location).trigger('change');
+					  // Populate Department					
+					  $('#DepartmentDropdown').val(data.department).trigger('change');
+				  }
+			  }
+		  });
+		  }
+		});
+	});
+
 	$('#AssignDevice_Device').on('change', function () {
 			
 		$('#deviceDetailContainer').empty();
@@ -93,7 +117,7 @@
 			</div>
 			<div class="col-md-4">
 				<div class="form-floating form-floating-outline">
-					<select asp-for="@Model.AssignDevice!.EmpName" asp-items="@Model.EmployeeList" class="select2 form-select" data-allow-clear="true">
+					<select asp-for="@Model.AssignDevice!.EmpName" asp-items="@Model.EmployeeList" id="EmpNameDropdown" class="select2 form-select" data-allow-clear="true">
 						<option value="" Disabled Selected>- Select Employee -</option>
 					</select>
 
@@ -103,7 +127,7 @@
 			</div>
 			<div class="col-md-4">
 				<div class="form-floating form-floating-outline">
-					<select asp-for="@Model.AssignDevice!.AssignLocation" asp-items="@Model.LocationList" class="select2 form-select" data-allow-clear="true">
+					<select id="LocationDropdown" asp-for="@Model.AssignDevice!.AssignLocation" asp-items="@Model.LocationList" class="select2 form-select" data-allow-clear="true">
 						<option value="" Disabled Selected>- Select Location -</option>
 					</select>
 
@@ -113,7 +137,7 @@
 			</div>
 			<div class="col-md-4">
 				<div class="form-floating form-floating-outline">
-					<select asp-for="@Model.AssignDevice!.AssignDepartment" asp-items="@Model.DepartmentList" class="select2 form-select" data-allow-clear="true">
+					<select id="DepartmentDropdown" asp-for="@Model.AssignDevice!.AssignDepartment" asp-items="@Model.DepartmentList" class="select2 form-select" data-allow-clear="true">
 						<option value="" Disabled Selected>- Select Department -</option>
 					</select>
 
@@ -123,9 +147,12 @@
 			</div>		
 			<div class="col-md-4">
 				<div class="form-floating form-floating-outline">
-					<input asp-for="AssignDevice.Designation" type="text" id="style-no" class="form-control" placeholder="Software Engineer" />
-					<label asp-for="AssignDevice.Designation"></label>
-					<span asp-validation-for="AssignDevice.Designation" class="customerError text-warning"></span>
+					<select id="DesignationDropdown" asp-for="@Model.AssignDevice!.Designation" asp-items="@Model.DesignationList" class="select2 form-select" data-allow-clear="true">
+						<option value="" Disabled Selected>- Select Designation -</option>
+					</select>
+
+					<label asp-for="AssignDevice!.Designation"></label>
+					<span asp-validation-for="@Model.AssignDevice!.Designation" class="text-warning"></span>					
 				</div>
 			</div>
 			<div class="col-md-4">

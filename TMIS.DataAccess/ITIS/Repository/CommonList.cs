@@ -67,7 +67,7 @@ namespace TMIS.DataAccess.ITIS.Repository
         }
         public async Task<IEnumerable<SelectListItem>> LoadEmployeeList()
         {
-            string query = @"select EmpNo as Value, CAST(EmpNo AS VARCHAR) + ' - ' + EmpName AS Text from ITIS_EmployeeTemp where EmpAct='A'";
+            string query = @"select EmpUserName as Value, EmpUserName + ' - ' + EmpEmail AS Text from COMN_MasterADEMPLOYEES where IsDelete=0";
             //replace with real datasource
             var results = await _dbConnection.GetConnection().QueryAsync<SelectListItem>(query);
             return results;
@@ -117,12 +117,11 @@ namespace TMIS.DataAccess.ITIS.Repository
 
         public async Task<DeviceUserDetailVM> LoadUserDetail(int? deviceID)
         {
-            string query = @"select a.AssignmentID, a.EMPNo, a.EMPName, a.Designation, a.AssignedDate, a.AssignRemarks, st.PropName as AssignStatus
-                            , a.ApproverEMPNo, a.ApproverResponseDate, a.ApproverRemark, de.DepartmentName as AssignDepartment, l.LocationName as AssignLocation
+            string query = @"select a.AssignmentID, a.EMPNo, cm.EmpName as EMPName, a.Designation, a.AssignedDate, a.AssignRemarks, st.PropName as AssignStatus
+                            , a.ApproverEMPNo, a.ApproverResponseDate, a.ApproverRemark, a.AssignDepartment as AssignDepartment, a.AssignLocation as AssignLocation
                             from ITIS_DeviceAssignments as a 
-                            inner join COMN_MasterTwoLocations as l on l.Id=a.AssignLocation
-                            inner join COMN_MasterDepartments as de on de.DepartmentID=a.AssignDepartment
                             inner join ITIS_DeviceAssignStatus as st on st.Id=a.AssignStatusID
+                            left join COMN_MasterADEMPLOYEES as cm on cm.EmpUserName=a.EmpName
                             where a.DeviceID=@DeviceID and a.AssignStatusID not in (4, 5)";
 
             DeviceUserDetailVM? deviceUserDetail = await _dbConnection.GetConnection().QueryFirstOrDefaultAsync<DeviceUserDetailVM>(query, new
@@ -143,5 +142,32 @@ namespace TMIS.DataAccess.ITIS.Repository
             return results;
         }
 
+        public async Task<IEnumerable<SelectListItem>> LoadLocationsFromAD()
+        {
+            const string sql = @"SELECT DISTINCT EmpLocation as Value, EmpLocation as Text FROM COMN_MasterADEMPLOYEES WHERE EmpLocation IS NOT NULL
+                                ORDER BY EmpLocation;";
+
+            var results = await _dbConnection.GetConnection().QueryAsync<SelectListItem>(sql);
+
+            return results;
+        }
+        public async Task<IEnumerable<SelectListItem>> LoadDepartmentsFromAD()
+        {
+            const string sql = @"SELECT DISTINCT EmpDepartment as Value, EmpDepartment as Text FROM COMN_MasterADEMPLOYEES WHERE EmpDepartment IS NOT NULL
+                                 ORDER BY EmpDepartment;";
+
+            var results = await _dbConnection.GetConnection().QueryAsync<SelectListItem>(sql);
+
+            return results;
+        }
+        public async Task<IEnumerable<SelectListItem>> LoadDesignationsFromAD()
+        {
+            const string sql = @"SELECT DISTINCT EmpDesignation as Value, EmpDesignation as Text FROM COMN_MasterADEMPLOYEES WHERE EmpDesignation IS NOT NULL
+                                ORDER BY EmpDesignation;";
+
+            var results = await _dbConnection.GetConnection().QueryAsync<SelectListItem>(sql);
+
+            return results;
+        }
     }
 }

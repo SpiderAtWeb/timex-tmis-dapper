@@ -676,6 +676,26 @@
 			</ul>
 		</li>
       }
+
+		@* TAPS *@
+		@if (User.IsInRole("SUPER-ADMIN") || User.IsInRole("GDRM-USER"))
+		{
+
+			<li class='menu-item@(currentPage.StartsWith("/TAPS") ? " active open" : "")'>
+				<a href="javascript:void(0);" class="menu-link menu-toggle">
+					<i class="menu-icon fa-solid fa-bus"></i>
+					<div>Admin Pannel</div>
+				</a>
+
+				<ul class="menu-sub">
+					<li class='menu-item@(currentPage == "/TAPS/ADSync" ? " active" : "")'>
+						<a asp-area="TAPS" asp-controller="ADSync" asp-action="Index" class="menu-link">
+							<div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Data Sync</div>
+						</a>
+					</li>
+				</ul>
+			</li>
+		}
     </ul>
 
 </aside>

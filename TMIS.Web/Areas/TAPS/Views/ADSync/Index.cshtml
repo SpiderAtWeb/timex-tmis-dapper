@@ -1,0 +1,60 @@
+@section VendorStyles {
+	<link rel="stylesheet" href="~/vendor/libs/datatables-bs5/datatables.bootstrap5.css">
+	<link href="~/vendor/libs/toastr/toastr.css" rel="stylesheet" />
+}
+
+@section PageScripts {
+
+	<script src="~/custom/tables-datatables-mc-request.js"></script>
+	<script src="~/custom/loading-hide.js"></script>
+
+	@if (TempData["success"] != null)
+	{
+		<script src="~/vendor/libs/toastr/toastr.js"></script>
+		<script type="text/javascript">
+			toastr.success('@TempData["success"]');
+		</script>
+		TempData.Clear();
+	}
+	@if (TempData["error"] != null)
+	{
+		<script src="~/vendor/libs/toastr/toastr.js"></script>
+		<script type="text/javascript">
+			toastr.error('@TempData["error"]');
+		</script>
+		TempData.Clear();
+	}
+
+}
+
+@{
+	ViewBag.Title = "AD Sync Page";
+}
+
+@await Html.PartialAsync("_Loading")
+<div class="card mb-6">
+	<h5 class="card-header page-header">
+		Active Directory Data Sync
+	</h5>
+	<form asp-action="SyncADToDatabase" method="post" class="card-body" enctype="multipart/form-data">
+		@if (ViewBag.ButtonStatus == false)
+		{
+			<div class="pt-1">
+				<button type="submit" class="btn btn-primary">Sync AD Data</button>
+			</div>
+			
+		}
+		@if (TempData["success"] != null)
+		{
+			<div class="alert alert-success mt-2">
+				@TempData["success"]
+			</div>
+		}
+		@if (TempData["error"] != null)
+		{
+			<div class="alert alert-error mt-2">
+				@TempData["error"]
+			</div>
+		}
+	</form>
+</div>

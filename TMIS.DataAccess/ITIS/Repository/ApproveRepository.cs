@@ -22,11 +22,9 @@ namespace TMIS.DataAccess.ITIS.Repository
         public async Task<IEnumerable<ApproveDeviceUserVM>> GetAllAsync()
         {
             string sql = @"select a.AssignmentID, a.DeviceID, t.DeviceType, d.DeviceName, d.SerialNumber, a.EmpName, a.Designation, a.AssignedDate, 
-                            l.LocationName, de.DepartmentName from ITIS_DeviceAssignments as a 
+                            a.AssignLocation as LocationName,  a.AssignDepartment as DepartmentName from ITIS_DeviceAssignments as a 
                             inner join ITIS_Devices as d on d.DeviceID=a.DeviceID
-                            inner join ITIS_DeviceTypes as t on t.DeviceTypeID=d.DeviceTypeID
-                            inner join COMN_MasterTwoLocations as l on l.Id=a.AssignLocation
-                            inner join COMN_MasterDepartments as de on de.DepartmentID=a.AssignDepartment
+                            inner join ITIS_DeviceTypes as t on t.DeviceTypeID=d.DeviceTypeID                            
                             where a.AssignStatusID = 2"; // replace with actual approver
 
             return await _dbConnection.GetConnection().QueryAsync<ApproveDeviceUserVM>(sql);

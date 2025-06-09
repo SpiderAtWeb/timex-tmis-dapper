@@ -18,5 +18,6 @@ namespace TMIS.DataAccess.ITIS.IRepository
         Task<ReturnDeviceVM> LoadInUseDevices();
         Task<DeviceUserDetailVM> LoadUserDetail(int deviceID);
         Task<bool> ReturnDevice(ReturnDeviceVM obj, IFormFile? image);
+        Task<DeviceUserDetailVM?> SelectedEmpValues(string empName);
     }
 }

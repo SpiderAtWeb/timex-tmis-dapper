@@ -1,13 +1,14 @@
 using log4net;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using TMIS.Controllers;
 using TMIS.DataAccess.COMON.IRpository;
 using TMIS.DataAccess.ITIS.IRepository;
 
 namespace TMIS.Areas.ITIS.Controllers
 {
   [Area("ITIS")]
-  public class SummaryController(ISessionHelper sessionHelper, IReportRepository reportRepository) : Controller
+  public class SummaryController(ISessionHelper sessionHelper, IReportRepository reportRepository) : BaseController
   {
     private readonly ILog _logger = LogManager.GetLogger(typeof(SummaryController));
     private readonly ISessionHelper _iSessionHelper = sessionHelper;

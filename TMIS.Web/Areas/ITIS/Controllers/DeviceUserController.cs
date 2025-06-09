@@ -1,5 +1,7 @@
+using System.Data.Entity;
 using log4net;
 using Microsoft.AspNetCore.Mvc;
+using TMIS.Controllers;
 using TMIS.DataAccess.COMON.IRpository;
 using TMIS.DataAccess.COMON.Rpository;
 using TMIS.DataAccess.ITIS.IRepository;
@@ -10,7 +12,7 @@ using TMIS.Models.ITIS.VM;
 namespace TMIS.Areas.ITIS.Controllers
 {
   [Area("ITIS")]
-  public class DeviceUserController(ISessionHelper sessionHelper, IDeviceUserRepository deviceUserRepository) : Controller
+  public class DeviceUserController(ISessionHelper sessionHelper, IDeviceUserRepository deviceUserRepository) : BaseController
   {
     private readonly ILog _logger = LogManager.GetLogger(typeof(DeviceUserController));
     private readonly ISessionHelper _iSessionHelper = sessionHelper;
@@ -117,6 +119,24 @@ namespace TMIS.Areas.ITIS.Controllers
 
       deviceUserVM.Device = null;
       return View(deviceUserVM);
+    }
+
+    [HttpGet]
+    public async Task<JsonResult> GetEmployeeDetails(string empName)
+    {
+      var employee = await _deviceUserRepository.SelectedEmpValues(empName);
+
+      if (employee != null)
+      {
+        return Json(new
+        {
+          designation = employee.Designation,
+          location = employee.AssignLocation,
+          department = employee.AssignDepartment
+        });
+      }
+
+      return Json(null);
     }
 
   }

@@ -7,6 +7,7 @@ using Dapper;
 using Microsoft.AspNetCore.Http;
 using TMIS.DataAccess.COMON.IRpository;
 using TMIS.DataAccess.ITIS.IRepository;
+using TMIS.DataAccess.TAPS.IRepository;
 using TMIS.Models.ITIS;
 using TMIS.Models.ITIS.VM;
 
@@ -14,22 +15,19 @@ namespace TMIS.DataAccess.ITIS.Repository
 {
     public class DeviceUserRepository(IDatabaseConnectionSys dbConnection,
                             ICommonList iCommonList, ISessionHelper sessionHelper,
-                            IITISLogdb iITISLogdb, ILdapService iLdapService) : IDeviceUserRepository
+                            IITISLogdb iITISLogdb) : IDeviceUserRepository
     {
         private readonly IDatabaseConnectionSys _dbConnection = dbConnection;
         private readonly ICommonList _icommonList = iCommonList;
         private readonly IITISLogdb _iITISLogdb = iITISLogdb;
         private readonly ISessionHelper _iSessionHelper = sessionHelper;
-        private readonly ILdapService _ldapService = iLdapService;
 
         public async Task<IEnumerable<DeviceUserVM>> GetAllAsync()
         {
             string sql = @"select a.AssignmentID, a.DeviceID, t.DeviceType, d.DeviceName, d.SerialNumber, a.EmpName, a.Designation, 
-                            a.AssignedDate, l.LocationName, de.DepartmentName, st.PropName as AssignStatus from ITIS_DeviceAssignments as a 
+                            a.AssignedDate, a.AssignLocation as LocationName, a.AssignDepartment as DepartmentName, st.PropName as AssignStatus from ITIS_DeviceAssignments as a 
                             inner join ITIS_Devices as d on d.DeviceID=a.DeviceID
-                            inner join ITIS_DeviceTypes as t on t.DeviceTypeID=d.DeviceTypeID
-                            inner join COMN_MasterTwoLocations as l on l.Id=a.AssignLocation
-                            inner join COMN_MasterDepartments as de on de.DepartmentID=a.AssignDepartment
+                            inner join ITIS_DeviceTypes as t on t.DeviceTypeID=d.DeviceTypeID                  
 							inner join ITIS_DeviceAssignStatus as st on st.Id=a.AssignStatusID
                             where a.AssignStatusID not in (4, 5)";
 
@@ -42,13 +40,13 @@ namespace TMIS.DataAccess.ITIS.Repository
 
             objCreateDeviceUserVM = new CreateDeviceUserVM
             {
-                LocationList = await _icommonList.LoadLocations(),
-                DepartmentList = await _icommonList.LoadDepartments(),
+                LocationList = await _icommonList.LoadLocationsFromAD(),
+                DepartmentList = await _icommonList.LoadDepartmentsFromAD(),
                 DeviceSerialList = await _icommonList.LoadInstoreSerialList(),
                 ApproverList = await _icommonList.LoadApproverList(),
-                EmployeeList = await _ldapService.GetEmployeesFromAD(),                
+                EmployeeList = await _icommonList.LoadEmployeeList(),
+                DesignationList = await _icommonList.LoadDesignationsFromAD(),
             };
-
             return objCreateDeviceUserVM;
         }
         
@@ -190,5 +188,18 @@ namespace TMIS.DataAccess.ITIS.Repository
 
             return objDeviceUserDetailVM;
         }
+        public async Task<DeviceUserDetailVM?> SelectedEmpValues(string empName)
+        {
+            var objDeviceUserDetailVM = new DeviceUserDetailVM();
+
+            string sql = @"select EmpDesignation as Designation, EmpLocation as AssignLocation, EmpDepartment as AssignDepartment from COMN_MasterADEMPLOYEES where EmpUserName=@EmpName";
+            
+            objDeviceUserDetailVM = await _dbConnection.GetConnection().QueryFirstOrDefaultAsync<DeviceUserDetailVM>(sql, new
+            {
+                EmpName = empName
+            });
+            return objDeviceUserDetailVM;
+        }
+
     }
 }

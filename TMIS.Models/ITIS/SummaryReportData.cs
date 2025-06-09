@@ -14,7 +14,7 @@ namespace TMIS.Models.ITIS
         public string? DeviceName {  get; set; }
         public string? PurchasedDate {  get; set; }
         public string? LocationName {  get; set; }
-        public int? LocationID {  get; set; }
+        public string? LocationID {  get; set; }
         public int? DeviceStatusID {  get; set; }
         public string? Status {  get; set; }
         public int? DeviceTypeID {  get; set; }

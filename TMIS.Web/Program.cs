@@ -13,6 +13,8 @@ using TMIS.DataAccess.PLMS.IRpository;
 using TMIS.DataAccess.PLMS.Rpository;
 using TMIS.DataAccess.SMIM.IRpository;
 using TMIS.DataAccess.SMIM.Repository;
+using TMIS.DataAccess.TAPS.IRepository;
+using TMIS.DataAccess.TAPS.Repository;
 using TMIS.DataAccess.TGPS.IRpository;
 using TMIS.DataAccess.TGPS.Rpository;
 
@@ -99,7 +101,6 @@ builder.Services.AddScoped<IAttributeRepository, AttributeRepository>();
 builder.Services.AddScoped<ICommonList, CommonList>();
 builder.Services.AddScoped<IDeviceRepository, DeviceRepository>();
 builder.Services.AddScoped<IDeviceUserRepository, DeviceUserRepository>();
-builder.Services.AddScoped<ILdapService, LdapService>();
 builder.Services.AddScoped<IApproveRepository, ApproveRepository>();
 builder.Services.AddScoped<IReportRepository, ReportRepository>();
 //TGPS
@@ -111,6 +112,8 @@ builder.Services.AddScoped<IResponse, Response>();
 //GDRM
 builder.Services.AddScoped<IGRGoods, GRGoods>();
 
+//TAPS
+builder.Services.AddScoped<ILdapServiceRepository, LdapServiceRepository>();
 
 
 builder.Services.AddScoped<ISessionHelper, SessionHelper>();

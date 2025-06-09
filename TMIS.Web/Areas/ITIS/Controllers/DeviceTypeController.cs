@@ -2,6 +2,7 @@ using log4net;
 using Microsoft.AspNetCore.Mvc;
 using Mono.TextTemplating;
 using TMIS.Areas.PLMS.Controllers;
+using TMIS.Controllers;
 using TMIS.DataAccess.COMON.IRpository;
 using TMIS.DataAccess.COMON.Rpository;
 using TMIS.DataAccess.ITIS.IRepository;
@@ -10,7 +11,7 @@ using TMIS.Models.ITIS;
 namespace TMIS.Areas.ITIS.Controllers
 {
   [Area("ITIS")]
-  public class DeviceTypeController(IDeviceTypeRepository deviceTypeRepository, ISessionHelper sessionHelper) : Controller
+  public class DeviceTypeController(IDeviceTypeRepository deviceTypeRepository, ISessionHelper sessionHelper) : BaseController
   {
     private readonly ILog _logger = LogManager.GetLogger(typeof(DeviceTypeController));
     private readonly IDeviceTypeRepository _deviceTypeRepository = deviceTypeRepository;

@@ -1,5 +1,6 @@
 using log4net;
 using Microsoft.AspNetCore.Mvc;
+using TMIS.Controllers;
 using TMIS.DataAccess.COMON.IRpository;
 using TMIS.DataAccess.ITIS.IRepository;
 using TMIS.Models.ITIS.VM;
@@ -7,7 +8,7 @@ using TMIS.Models.ITIS.VM;
 namespace TMIS.Areas.ITIS.Controllers
 {
   [Area("ITIS")]
-  public class AttributeController(IAttributeRepository attributeRepository, ISessionHelper sessionHelper) : Controller
+  public class AttributeController(IAttributeRepository attributeRepository, ISessionHelper sessionHelper) : BaseController
   {
     private readonly ILog _logger = LogManager.GetLogger(typeof(AttributeController));
     private readonly IAttributeRepository _attributeRepository = attributeRepository;
