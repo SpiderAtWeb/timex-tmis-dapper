@@ -4,5 +4,6 @@
     {
         public int ID { get; set; }
         public int ReasonId { get; set; }
+        public decimal ActualQty { get; set; }
     }
 }

@@ -1,0 +1,420 @@
+@model EmpPendingListShow
+
+@section VendorStyles {
+    <link rel="stylesheet" href="~/vendor/libs/datatables-bs5/datatables.bootstrap5.css">
+    <link href="~/vendor/libs/toastr/toastr.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/vendor/libs/select2/select2.css" />
+    <link href="~/styles/kendo.common.min.css" rel="stylesheet" />
+    <link href="~/styles/kendo.metro.min.css" rel="stylesheet" />
+}
+
+@section VendorScripts {
+    <script src="~/vendor/libs/toastr/toastr.js"></script>
+    <script src="~/vendor/libs/select2/select2.js"></script>
+    <script src="~/kendo/jszip.min.js"></script>
+    <script src="~/kendo/kendo.all.min.js"></script>
+}
+
+@section PageScripts {
+    <script src="~/custom/loading-hide.js"></script>
+    <script src="~/js/form-layouts.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $(".emp-btn").on("click", function () {
+                const empGpId = $(this).data("id");
+                const isOut = $(this).data("isout");
+
+                $("#selectedEmpGpId").val(empGpId);
+                $("#selectedEmpGpIsOut").val(isOut);
+
+                // Highlight the selected button
+                $(".emp-btn").removeClass("btn-primary").addClass("btn-secondary");
+                $(this).removeClass("btn-secondary").addClass("btn-primary");
+
+                // Load employee gatepass data via AJAX
+                $.ajax({
+                    url: '/GDRM/EmployeePass/GetEmployeeGatepassDetails',
+                    method: 'GET',
+                    data: { id: empGpId, isOut: isOut },
+                    success: function (data) {
+                        // Fill alert blocks                       ;
+                        $("#empGpNo").text(data.empGpNo);
+                        $("#gateName").text(data.gateName)
+                        $("#expLoc").text(data.expLoc);
+                        $("#expReason").text(data.expReason);
+                        $("#expOutTime").text(data.expOutTime ? new Date(data.expOutTime).toLocaleString() : '');
+                        $("#genUser").text(data.genUser);
+                        $("#responsedBy").text(data.responsedBy);
+                        $("#responsedDateTime").text(data.responsedDateTime);
+                        $("#isReturn").text(data.isReturn);
+
+                        // Fill employee table
+                        const tbody = $("#empDispatchingTable");
+                        tbody.empty();
+
+                        $.each(data.empGatepassDetails, function (index, emp) {
+                            let row = `
+                                <div class="row sp-row dispatching-row">
+                                    <div class="col-4 g-1">
+                                        <div class="alert alert-secondary" role="alert">
+                                            ${emp.empName}
+                                        </div>
+                                    </div>
+                                    <div class="col-4 g-1">
+                                        <div class="alert alert-secondary" role="alert">
+                                            ${emp.empEPF}
+                                        </div>
+                                    </div>
+                                    <div class="col-4 g-1">
+                                        <div class="alert alert-secondary" role="alert">
+                                           <input id="empGatepassDetails[${index}].actualTime" class="form-control time-val" type="time" id="html5-time-input" />
+                                            <input type="hidden" id="empGatepassDetails[${index}].id" class="dispatching-id" value="${emp.id}" />
+                                        </div>
+                                    </div>
+                                </div>`;
+                            tbody.append(row);
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            function clearEmployeeGatepassDetails() {
+                $("#empGpNo, #gateName, #expLoc, #expReason, #expOutTime, #expDate, #genUser, #responsedBy, #responsedDateTime,  #isNoReturn").text("...");
+                $("#empDispatchingTable").empty();
+                $("#selectedEmpGpId, #selectedEmpGpIsOut").val("");
+            }
+
+            // Handle tab switching
+            $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
+                const targetTabId = $(e.target).attr('data-bs-target');
+
+                clearEmployeeGatepassDetails();
+
+                // Remove highlights from all emp-btns
+                $('.emp-btn').removeClass('btn-primary').addClass('btn-secondary');
+
+                // Auto-click first emp-btn inside the activated tab
+                $(targetTabId).find('.emp-btn').first().trigger('click');
+            });
+
+            // Auto-trigger Dispatching tab's first .emp-btn on initial load
+            setTimeout(function () {
+                $("#EmpDispatching").find(".emp-btn").first().trigger("click");
+            }, 500);
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            $('#empApproveBtn').on('click', function () {
+                const action = $(this).data('action'); // "approve" or "reject"
+
+                // Collect data for Approve/Reject
+                const data = {
+                    gRId: parseInt($('#gRId').val()) || 0,
+                    isOut: $('#selectedEmpGpIsOut').val() == 'True' ? 1 : 0,
+                    selectedEmpGpId: parseInt($('#selectedEmpGpId').val()) || 0,
+                    EmpGpUpdateDetailList: [],
+                    actionType: action === 'approve'
+                };
+
+                console.log($('#selectedEmpGpIsOut').val());
+                console.log(data);
+
+                $('.dispatching-row').each(function () {
+                    const id = parseInt($(this).find('.dispatching-id').val()) || 0;
+                    const timeValue = $(this).find('.time-val').val();
+
+                    if (id > 0) {
+                        data.EmpGpUpdateDetailList.push({
+                            id: id,
+                            timeValue: timeValue
+                        });
+                    }
+                });
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/GDRM/EmployeePass/EmpGPUpdate',
+                    contentType: 'application/json',
+                    data: JSON.stringify(data),
+                    success: function (result) {
+                        if (result.isSuccess) {
+                            toastr.success(result.message);
+                            setTimeout(() => {
+                                location.reload();
+                            }, 500);
+                        } else {
+                            toastr.error(result.message);
+                            if (result.errorFieldId) {
+                                var $field = $('#' + result.errorFieldId);
+                                $field.addClass('input-validation-error').focus();
+                            }
+                        }
+                    },
+                    error: function () {
+                        toastr.error("Something went wrong. Please try again.");
+                    }
+                });
+            });
+        });
+    </script>
+}
+
+@section PageStyles {
+    <style>
+        .input-validation-error {
+            border-color: red !important;
+            background-color: #ffe6e6;
+        }
+
+        .alert-secondary {
+            color: #233c65 !important;
+            font-weight: bold !important;
+            height: 58px;
+            font-size: larger;
+        }
+
+        .sp-row {
+            margin-bottom: -10px !important
+        }
+
+        .alert {
+            padding: 0.5rem 0.5rem !important;
+            line-height: 2 !important;
+        }
+
+        .stepper-container {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .details-section {
+            background-color: #ffffff;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .detail-item {
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            border-left: 4px solid #007bff;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #495057;
+            font-size: 10px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            color: #212529;
+            font-size: 14px;
+        }
+
+        .employee-list-header {
+            background-color: #e9ecef;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .transport-section {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .btn-group-custom {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+    </style>
+}
+
+@await Html.PartialAsync("_Loading")
+
+@* ************** Content ************** *@
+<div class="panelDiv">
+    <div class="nav-align-top">
+        <ul class="nav nav-pills nav-justified" role="tablist">
+            <li class="nav-item">
+                <button type="button" class="nav-link active" role="tab" data-bs-toggle="tab" data-bs-target="#EmpDispatching" aria-controls="EmpDispatching" aria-selected="true">Employee OUT</button>
+            </li>
+            <li class="nav-item">
+                <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#EmpReceiving" aria-controls="EmpReceiving" aria-selected="false">Employee IN</button>
+            </li>
+        </ul>
+    </div>
+
+    <div class="tab-content p-0">
+        <div class="tab-pane fade show active" id="EmpDispatching" role="tabpanel">
+            <div class="card mb-2">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+                            <div class="mb-1">
+                                <small class="text-light fw-medium">Pending Dispatch Employee Passes Top 5</small>
+                            </div>
+                            <div class="btn-group-custom">
+                                @foreach (var item in Model.EmpNumbersList.Where(x => x.IsOut).Take(5))
+                                {
+                                    <button type="button" class="btn rounded-pill btn-secondary m-1 emp-btn" data-isout="@item.IsOut" data-id="@item.EmpGpId">
+                                        @item.EmpGpNumber
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="EmpReceiving" role="tabpanel">
+            <div class="card mb-2">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+                            <div class="mb-1">
+                                <small class="text-light fw-medium">Pending Receiving Employee Passes Top 5</small>
+                            </div>
+                            <div class="btn-group-custom">
+                                @foreach (var item in Model.EmpNumbersList.Where(x => !x.IsOut).Take(5))
+                                {
+                                    <button type="button" class="btn rounded-pill btn-secondary m-1 emp-btn" data-isout="@item.IsOut" data-id="@item.EmpGpId">
+                                        @item.EmpGpNumber
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-2">
+            <div class="card-body">
+
+                <!-- Gatepass Details Section -->
+                <div class="details-section">
+                    <h6 class="mb-3">Gate Pass Details</h6>
+                    <div class="details-grid">
+                        <div class="detail-item">
+                            <div class="detail-label">Gate Name</div>
+                            <div class="detail-value" id="gateName">...</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Expected Location</div>
+                            <div class="detail-value" id="expLoc">...</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Expected Reason</div>
+                            <div class="detail-value" id="expReason">...</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Expected Out Time</div>
+                            <div class="detail-value" id="expOutTime">...</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Generated By</div>
+                            <div class="detail-value" id="genUser">...</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Approved By</div>
+                            <div class="detail-value" id="responsedBy">...</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Approved Date Time</div>
+                            <div class="detail-value" id="responsedDateTime">...</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Is Return</div>
+                            <div class="detail-value" id="isReturn">...</div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <!-- Employee List -->
+                <div class="card">
+                    <div class="card-body">
+                        <div class="employee-list-header">
+                            <div class="row">
+                                <div class="col-4">Employee Name</div>
+                                <div class="col-4">EPF No</div>
+                                <div class="col-4">Actual Time</div>
+                            </div>
+                        </div>
+                        <div id="empDispatchingTable">
+                            <!-- Employee rows will be loaded here via AJAX -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons offset-10">
+                    <button type="button" id="empApproveBtn" class="btn btn-success w-100 h-100" data-action="approve">
+                        <i class="fas fa-check"></i> &nbsp; Update
+                    </button>                   
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-3 g-1">
+                    Guard Room Name
+                    <div class="alert alert-primary" role="alert">
+                        @Model.GRName
+                    </div>
+                    <input type="hidden" asp-for="@Model.GRId" id="gRId" />
+                </div>
+
+                <div class="col-3 g-1">
+                    Guard Room Location
+                    <div class="alert alert-primary" role="alert">
+                        @Model.GRLocation
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Hidden form fields -->
+<input type="hidden" id="selectedEmpGpId" />
+<input type="hidden" id="selectedEmpGpIsOut" />
+<input type="hidden" id="gRId" value="@(ViewBag.GRId ?? 0)" />

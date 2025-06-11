@@ -7,6 +7,9 @@
         public string GeneratedBy { get; set; } = string.Empty;
         public string Attention { get; set; } = string.Empty;
         public string Remarks { get; set; } = string.Empty;
+        public string ApprovedBy { get; set; } = string.Empty;
+        public int SendVehicleId { get; set; }
+        public int SendDriverId { get; set; }
         public List<GrGatepassDetails> grGatepassDetails { get; set; } = [];
     }
 }

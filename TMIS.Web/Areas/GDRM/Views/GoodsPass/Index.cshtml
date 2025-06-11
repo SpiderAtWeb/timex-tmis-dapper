@@ -46,6 +46,9 @@
                         $("#generatedDate").text(data.generatedDate);
                         $("#attention").text(data.attention);
                         $("#remarks").text(data.remarks);
+                        $("#approvedBy").text(data.approvedBy);
+                        $("#vehicleNoId").val(data.sendVehicleId).trigger('change');
+                        $("#driverNameId").val(data.sendDriverId).trigger('change');
 
                         // Fill item table
                         const tbody = $("#dispatchingTable");
@@ -60,7 +63,7 @@
                                                                 ${item.itemName}
                                                             </div>
                                                         </div>
-                                                        <div class="col-4 g-1">
+                                                        <div class="col-3 g-1">
                                                             <div class="alert alert-secondary" role="alert">
                                                                 ${item.itemDesc}
                                                             </div>
@@ -68,6 +71,11 @@
                                                         <div class="col-1 g-1">
                                                             <div class="alert alert-secondary" role="alert">
                                                                 ${item.quantity}
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-1 g-1">
+                                                            <div class="alert alert-danger" role="alert">
+                                                           <input type="number" class="actual-qty" value="${item.quantity}" style="border: none; width: 80px; background-color: transparent;">
                                                             </div>
                                                         </div>
                                                         <div class="col-1 g-1">
@@ -222,11 +230,13 @@
                 $('.dispatching-row').each(function () {
                     const id = parseInt($(this).find('.dispatching-id').val()) || 0;
                     const reasonId = parseInt($(this).find('.reason-select').val()) || 0;
+                    const actualQty = parseInt($(this).find('.actual-qty').val()) || 0;
 
                     if (id > 0 && reasonId > 0) {
                         data.gPGrUpdateDetailList.push({
                             id: id,
-                            reasonId: reasonId
+                            reasonId: reasonId,
+                            actualQty:actualQty
                         });
                     }
                 });
@@ -268,6 +278,97 @@
             border-color: red !important;
             background-color: #ffe6e6;
         }
+
+        .alert-secondary {
+            color: #233c65 !important;
+            font-weight: bold !important;
+        }
+
+        .sp-row {
+            margin-bottom: -10px !important
+        }
+
+        .alert {
+            padding: 0.5rem 0.5rem !important;
+            line-height: 2 !important;
+        }
+
+        .stepper-container {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .details-section {
+            background-color: #ffffff;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .detail-item {
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            border-left: 4px solid #007bff;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #495057;
+            font-size: 10px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            color: #212529;
+            font-size: 14px;
+        }
+
+        .employee-list-header {
+            background-color: #e9ecef;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .transport-section {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .btn-group-custom {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+    </style>
+
+    <style>
+        .input-validation-error {
+            border-color: red !important;
+            background-color: #ffe6e6;
+        }
     </style>
     <style>
 
@@ -286,6 +387,7 @@
         }
     </style>
 }
+
 @await Html.PartialAsync("_Loading")
 
 @* ************** Content ************** *@
@@ -365,33 +467,35 @@
 
             <hr>
 
-            <div class="row sp-row mb-1">
-                <div class="col-2 g-1">
-                    <small class="text-light fw-medium">Gatepass Subject</small>
-                    <div class="alert alert-secondary" role="alert" id="gpSubject">
-                        ...
-                    </div>
-                </div>
-                <div class="col-2 g-1">
-                    <small class="text-light fw-medium">Generated By</small>
-                    <div class="alert alert-secondary" role="alert" id="generatedBy">
-                        ...
-                    </div>
-                </div>
-                <div class="col-2 g-1">
-                    <small class="text-light fw-medium">Attention</small>
-                    <div class="alert alert-secondary" role="alert" id="attention">
-                        ...
-                    </div>
-                </div>
-                <div class="col-6 g-1">
-                    <small class="text-light fw-medium">Remarks</small>
-                    <div class="alert alert-secondary" role="alert" id="remarks">
-                        ...
-                    </div>
-                </div>
-            </div>
 
+                <div class="details-section">
+                    <h6 class="mb-3">Gate Pass Details</h6>
+                    <div class="details-grid mb-1">
+                        <div class="detail-item">
+                            <div class="detail-label">Gatepass Subject</div>
+                            <div class="detail-value" id="gpSubject">...</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Expected Location</div>
+                            <div class="detail-value" id="generatedBy">...</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Attention</div>
+                            <div class="detail-value" id="attention">...</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Approved By</div>
+                            <div class="detail-value" id="approvedBy">...</div>
+                        </div>                        
+                    </div>
+                    <div class="details-grid">
+                        <div class="detail-item">
+                            <div class="detail-label">Remarks</div>
+                            <div class="detail-value" id="remarks">...</div>
+                        </div>                       
+                    </div>
+                </div>
+                  
             <hr>
 
             <div class="mb-1">
@@ -447,7 +551,7 @@ else
             <div class="row">
                 <div class="col-9">
                     <div class="mb-1">
-                        <small class="text-light fw-medium">Pending Dispatch Gatepasses All</small>
+                        <small class="text-light fw-medium">Pending All Gatepasses</small>
                     </div>
 
                     @foreach (var item in Model.GPNumbersList.Skip(5))

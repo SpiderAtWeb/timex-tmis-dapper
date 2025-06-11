@@ -58,7 +58,7 @@ namespace TMIS.Areas.ITIS.Controllers
         TempData["success"] = "Record Deleted Successfully";
         _logger.Info("DEVICE TYPE DELETED [" + obj.DeviceTypeName + "] - [" + _iSessionHelper.GetShortName() + "]");
       }
-           
+
       return RedirectToAction("Index");
     }
 
@@ -92,7 +92,7 @@ namespace TMIS.Areas.ITIS.Controllers
 
       // Check if the ModelState is valid
       if (!ModelState.IsValid)
-      {    
+      {
         return View(deviceEditVM);
       }
 
@@ -110,7 +110,7 @@ namespace TMIS.Areas.ITIS.Controllers
     [HttpPost]
     public async Task<IActionResult> Create(DeviceType obj, IFormFile? image)
     {
-      if(await _deviceTypeRepository.CheckDeviceTypeExist(obj.DeviceTypeName!))
+      if (await _deviceTypeRepository.CheckDeviceTypeExist(obj.DeviceTypeName!))
       {
         ModelState.AddModelError("DeviceTypeName", "Device Type Already Available !");
       }
@@ -129,7 +129,7 @@ namespace TMIS.Areas.ITIS.Controllers
 
       _logger.Info("DEVICE TYPE CREATED [" + obj.DeviceTypeName + "] - [" + _iSessionHelper.GetShortName() + "]");
 
-      return RedirectToAction("Index");    
+      return RedirectToAction("Index");
     }
   }
 }

@@ -17,6 +17,7 @@ using TMIS.DataAccess.TAPS.IRepository;
 using TMIS.DataAccess.TAPS.Repository;
 using TMIS.DataAccess.TGPS.IRpository;
 using TMIS.DataAccess.TGPS.Rpository;
+using TMIS.Utility;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -71,6 +72,7 @@ builder.Services.AddScoped<IDatabaseConnectionSys, DatabaseConnectionSys>();
 builder.Services.AddScoped<IUserAccess, UserAccess>();
 builder.Services.AddScoped<ITwoFieldsMDataAccess, TwoFieldsMDataAccess>();
 builder.Services.AddScoped<IUserControls, UserControls>();
+builder.Services.AddScoped<IGmailSender, GmailSender>();
 
 //SMIM
 builder.Services.AddScoped<ICommon, Common>();
@@ -109,12 +111,15 @@ builder.Services.AddScoped<IGoodsGatePass, GoodsGatePass>();
 builder.Services.AddScoped<IAddressBank, AddressBank>();
 builder.Services.AddScoped<IEmployeePass, EmployeePass>();
 builder.Services.AddScoped<IResponse, Response>();
+builder.Services.AddScoped<IExportPDF, ExportPDF>();
 
 //GDRM
 builder.Services.AddScoped<IGRGoods, GRGoods>();
 
 //TAPS
 builder.Services.AddScoped<IAdminRepository, AdminRepository>();
+builder.Services.AddScoped<IGREmployee, GREmployee>();
+builder.Services.AddScoped<IGatepassService, GatepassService>();
 
 
 builder.Services.AddScoped<ISessionHelper, SessionHelper>();
@@ -164,10 +169,18 @@ app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 
+
 app.Use(async (context, next) =>
 {
   try
   {
+    //Allow anonymous access to gatepass approval API
+    if (context.Request.Path.StartsWithSegments("/api/gatepass"))
+    {
+      await next();
+      return;
+    }
+
     if (!context.User.Identity!.IsAuthenticated && !context.Request.Path.StartsWithSegments("/Auth/Account/Login"))
     {
       context.Response.Redirect("/Auth/Account/Login");

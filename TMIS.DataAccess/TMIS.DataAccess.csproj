@@ -12,6 +12,7 @@
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="7.0.0" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
     <PackageReference Include="System.DirectoryServices.Protocols" Version="9.0.5" />
+	<PackageReference Include="FastReport.OpenSource.Export.PdfSimple" Version="2025.2.0" />
   </ItemGroup>
 
   <ItemGroup>

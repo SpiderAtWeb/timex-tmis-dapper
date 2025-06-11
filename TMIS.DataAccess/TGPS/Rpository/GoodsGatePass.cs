@@ -8,10 +8,12 @@ using TMIS.Utility;
 
 namespace TMIS.DataAccess.TGPS.Rpository
 {
-    public class GoodsGatePass(IDatabaseConnectionSys dbConnection, ISessionHelper sessionHelper) : IGoodsGatePass
+    public class GoodsGatePass(IDatabaseConnectionSys dbConnection, ISessionHelper sessionHelper, IUserControls userControls, IGmailSender gmailSender) : IGoodsGatePass
     {
         private readonly IDatabaseConnectionSys _dbConnection = dbConnection;
         private readonly ISessionHelper _iSessionHelper = sessionHelper;
+        private readonly IUserControls _userControls = userControls;
+        private readonly IGmailSender _gmailSender = gmailSender;
 
         public async Task<IEnumerable<GoodsPassList>> GetList()
         {
@@ -31,7 +33,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
 
             try
             {
-                string referenceNumber = await GenerateGpRefAsync(connection, transaction);
+                string referenceNumber = await _userControls.GenerateGpRefAsync(connection, transaction, "[TGPS_XysGenerateNumber]", "TGP");
                 returnRefrence = referenceNumber;
 
                 // Insert Header and get GGpPassId
@@ -43,12 +45,14 @@ namespace TMIS.DataAccess.TGPS.Rpository
                     GeneratedUserId,
                     GeneratedDateTime,
                     Attention,
-                    ApprovedTo,
+                    ApprovedById,
                     IsApproved,
                     IsReturnable,
                     ReturnDays,
                     GGPRemarks,
-                    IsCompleted
+                    IsCompleted,
+                    BoiGatepass,
+                    IsExternal 
                 )
                 VALUES
                 (
@@ -57,12 +61,14 @@ namespace TMIS.DataAccess.TGPS.Rpository
                     @GeneratedUserId,
                     GETDATE(),
                     @Attention,
-                    @ApprovedTo,
+                    @ApprovedById,
                     0,
                     @IsReturnable,
                     @ReturnDays,
                     @GGPRemarks,
-                    0                    
+                    0,
+                    @BoiGatepass,
+                    @IsExternal
                 );
                 SELECT CAST(SCOPE_IDENTITY() AS INT);
             ";
@@ -75,10 +81,12 @@ namespace TMIS.DataAccess.TGPS.Rpository
                         model.GpSubject,
                         GeneratedUserId = _iSessionHelper.GetUserId(),
                         model.Attention,
-                        ApprovedTo = model.SendApprovalTo,
+                        ApprovedById = model.SendApprovalTo,
                         model.IsReturnable,
                         model.ReturnDays,
-                        GGPRemarks = model.Remarks
+                        GGPRemarks = model.Remarks,
+                        model.BoiGatepass,
+                        model.IsExternal
                     },
                     transaction
                 );
@@ -169,7 +177,6 @@ namespace TMIS.DataAccess.TGPS.Rpository
                 return "Error";
             }
         }
-
         private void PrepairEmail(int genId)
         {
             using var connection = _dbConnection.GetConnection();
@@ -183,7 +190,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
             GGPRemarks, 
             GeneratedBy,
             (
-                 SELECT STRING_AGG(LOC.AddressName, ' => ')
+                 SELECT STRING_AGG(LOC.BusinessName, ' => ')
                  FROM dbo.TGPS_TrGpGoodsRoutes AS RT
                  INNER JOIN dbo.TGPS_MasterGpGoodsAddress AS LOC ON RT.GGpLocId = LOC.Id
                 WHERE RT.GGpPassId = H.Id
@@ -223,21 +230,25 @@ namespace TMIS.DataAccess.TGPS.Rpository
             string[] myArray = myList.ToArray();
 
             // Send email
-            var gmailSender = new GmailSender();
-            gmailSender.GPRequestToApprove(myArray);
+            Task.Run(() => _gmailSender.GPRequestToApprove(myArray));
         }
 
-
-
-        public async Task<GoodPassVM> GetSelectData()
+        public async Task<GoodPassVM> GetFillData(bool isExternal)
         {
             var dbConnection = _dbConnection.GetConnection();
+
             var goodsFromSql = @"SELECT Id, Text FROM TGPS_VwUserLocations WHERE (UserId = @UserId) ORDER BY Text";
 
-            var goodsToSql = @"SELECT Id, AddressName AS Text FROM TGPS_MasterGpGoodsAddress 
-            WHERE IsDeleted = 0 ORDER BY Text";
+            var goodsToSql = @"SELECT Id, BusinessName AS Text FROM TGPS_MasterGpGoodsAddress 
+            WHERE IsDeleted = 0 AND (IsExternal = 0) ORDER BY Text";
 
-            var approvalListSql = "SELECT Id, UserShortName AS Text FROM [ADMIN].dbo._MasterUsers  WHERE (IsActive = 1) AND (IsGpAppUser = 1)";
+            if (isExternal)
+                goodsToSql = @"SELECT Id, BusinessName AS Text FROM TGPS_MasterGpGoodsAddress 
+            WHERE IsDeleted = 0 AND (IsExternal = 1) ORDER BY Text";
+
+            var approvalListSql = @"SELECT AppUserId AS Id, UserShortName AS Text
+            FROM  ADMIN.dbo.TGPS_VwUserApprovePersons WHERE (UserId = @UserId) AND (SystemType = N'TGP')";
+
             var unitsSql = "SELECT Id, PropName AS Text FROM TGPS_MasterTwoGpGoodsUOM ORDER BY PropName";
 
             var goodsFrom = await GetDataFromTable(goodsFromSql, dbConnection);
@@ -266,59 +277,6 @@ namespace TMIS.DataAccess.TGPS.Rpository
             return items;
         }
 
-        public async Task<string> GenerateGpRefAsync(IDbConnection connection, IDbTransaction transaction)
-        {
-            int currentYear = DateTime.Now.Year;
-
-            // 1. Try to get the generator for the current year
-            var selectSql = @"SELECT TOP 1 [Id], [GenYear], [GenNo], [LastGeneratedDate]
-            FROM [dbo].[TGPS_XysGenerateNumber] WHERE GenYear = @Year AND GpType='TGP'";
-
-            var generator = await connection.QuerySingleOrDefaultAsync<dynamic>(
-                selectSql, new { Year = currentYear }, transaction);
-
-            int genNo;
-            int id;
-
-            if (generator == null)
-            {
-                // 2. No record for this year — insert new
-                genNo = 1;
-
-                var insertSql = @"INSERT INTO [dbo].[TGPS_XysGenerateNumber]
-                    (GenYear, GenNo, LastGeneratedDate, GpType) VALUES (@GenYear, @GenNo, GETDATE(),'TEP' );
-                    SELECT CAST(SCOPE_IDENTITY() AS INT);";
-
-                await connection.ExecuteScalarAsync<int>(
-                    insertSql,
-                    new { GenYear = currentYear, GenNo = genNo + 1 },
-                    transaction
-                );
-            }
-            else
-            {
-                // 3. Record exists — increment and update
-                genNo = generator.GenNo;
-                id = generator.Id;
-
-                var updateSql = @"
-                UPDATE [dbo].[TGPS_XysGenerateNumber]
-                SET GenNo = @NewGenNo,
-                    LastGeneratedDate = GETDATE()
-                 WHERE Id = @Id AND GpType='TGP';";
-
-                await connection.ExecuteAsync(
-                    updateSql,
-                    new { NewGenNo = genNo + 1, Id = id },
-                    transaction
-                );
-            }
-
-            // 4. Format final reference number
-            string reference = $"TGP/{currentYear}/{genNo.ToString("D5")}";
-            return reference;
-        }
-
         public async Task<List<GpHistoryVM>> GetHistoryData(int gpId)
         {
             using (var connection = _dbConnection.GetConnection())
@@ -337,7 +295,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
                 var sql = @"
                 SELECT [Id], [GGpReference], [GpSubject], [GeneratedUser], [GeneratedDateTime],
                        [Attention], [GGPRemarks], [ApprovedBy], [ApprovedDateTime],
-                       [ItemName], [ItemDescription], [Quantity], [UOM]
+                       [ItemName], [ItemDescription], [Quantity], [UOM], [IsApproved], [BoiGatepass]
                 FROM   [TMIS].[dbo].[TGPS_VwGatePassList] 
                 WHERE  [Id] = @GPID;
 
@@ -347,7 +305,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
                 FROM [TMIS].[dbo].[TGPS_VwGatePassRoutes] 
                 WHERE [GGpPassId] = @GPID;
 
-             SELECT GpRouteId, ItemName, SendError, RecError
+             SELECT GpRouteId, ItemName, SendError, RecError, SendQty, RecQty
                     FROM TGPS_VwGatePassErrors
                     WHERE GGpPassId = @GPID;";
 
@@ -374,6 +332,8 @@ namespace TMIS.DataAccess.TGPS.Rpository
                         GGPRemarks = first.GGPRemarks,
                         ApprovedBy = first.ApprovedBy,
                         ApprovedDateTime = first.ApprovedDateTime?.ToString("yyyy-MM-dd HH:mm:ss") ?? "",
+                        IsApproved = first.IsApproved,
+                        BoiGatepass = first.BoiGatepass,
                         ShowGPItemVMList = g.Select(i => new ShowGPItemVM
                         {
                             ItemName = i.ItemName,

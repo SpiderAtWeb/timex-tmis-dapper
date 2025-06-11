@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace TMIS.Models.TGPS
 {
@@ -12,18 +7,18 @@ namespace TMIS.Models.TGPS
         public int Id { get; set; }
 
         [Required(ErrorMessage = "Address Name is required")]
-        public string AddressName { get; set; } = string.Empty;
+        public string BusinessName { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Address Lane 1 is required")]
-        public string AddressAddressLane1 { get; set; } = string.Empty;
+        [Required(ErrorMessage = "Address Description is required")]
+        public string Address { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Address Lane 2 is required")]
-        public string AddressAddressLane2 { get; set; } = string.Empty;
+        [Required(ErrorMessage = "Address City is required")]
+        public string City { get; set; } = string.Empty;
 
-          [Required(ErrorMessage = "Address Lane 3 is required")]
-        public string AddressAddressLane3 { get; set; } = string.Empty;
+        [Required(ErrorMessage = "Address Province is required")]
+        public string State { get; set; } = string.Empty;
 
-        [Phone(ErrorMessage = "Invalid phone number")]
-        public string ContactNos { get; set; } = string.Empty;
+        [Phone(ErrorMessage = "Invalid Contact number")]
+        public string Phone { get; set; } = string.Empty;
     }
 }
