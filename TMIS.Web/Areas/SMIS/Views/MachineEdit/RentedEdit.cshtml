@@ -107,24 +107,6 @@
             </div>
             <div class="col-md-4">
                 <div class="form-floating form-floating-outline">
-                    <select asp-for="@Model.McInventory!.CompanyGroupId" asp-items="@Model.GroupList" class="select2 form-select" data-allow-clear="true">
-                        <option Disabled Selected>- Select Group -</option>
-                    </select>
-                    <label for="multicol-country">Group</label>
-                    <span asp-validation-for="McInventory!.CompanyGroupId" class="text-warning"></span>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="form-floating form-floating-outline">
-                    <select asp-for="@Model.McInventory!.OwnedClusterId" asp-items="@Model.OwnedClusterList" class="select2 form-select" data-allow-clear="true">
-                        <option Disabled Selected>- Select Cluster -</option>
-                    </select>
-                    <label for="multicol-country">Cluster</label>
-                    <span asp-validation-for="McInventory!.OwnedClusterId" class="text-warning"></span>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="form-floating form-floating-outline">
                     <select asp-for="@Model.McInventory!.OwnedUnitId" asp-items="@Model.OwnedUnitList" class="select2 form-select" data-allow-clear="true">
                         <option Disabled Selected>- Select Unit -</option>
                     </select>
@@ -134,14 +116,13 @@
             </div>
             <div class="col-md-4">
                 <div class="form-floating form-floating-outline">
-                    <select asp-for="@Model.McInventory!.LocationId" asp-items="@Model.LocationsList" class="select2 form-select" data-allow-clear="true">
+                    <select asp-for="@Model.McInventory!.LocationId" asp-items="@Model.LinesList" class="select2 form-select" data-allow-clear="true">
                         <option Disabled Selected>- Select Location -</option>
                     </select>
                     <label for="multicol-country">Location</label>
                     <span asp-validation-for="McInventory!.LocationId" class="text-warning"></span>
                 </div>
             </div>
-
             <div class="col-md-4">
                 <div class="form-floating form-floating-outline">
                     <input asp-for="McInventory!.DateBorrow" type="date" id="dateBorrow" class="form-control dob-picker" placeholder="YYYY-MM-DD" />

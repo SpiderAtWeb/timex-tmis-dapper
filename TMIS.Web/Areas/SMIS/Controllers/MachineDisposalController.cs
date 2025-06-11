@@ -54,7 +54,7 @@ namespace TMIS.Areas.SMIS.Controllers
 
       await _db.SaveMachineObsoleteAsync(oMachinesData!);
 
-      TempData["Success"] = "Record created successfully";
+      TempData["success"] = "Record created successfully";
 
       _logger.Info("[ " + _iSessionHelper.GetShortName() + " ] - DISPOSED [" + oMachinesData!.QrCode + "]");
       return RedirectToAction("Index");

@@ -9,8 +9,8 @@ namespace TMIS.Utility
     public interface IGmailSender
     {
         public void McRequestToApprove(params string[] myArray);
-        public void GPRequestToApprove(params string[] myArray);
-        public void EPRequestToApprove(params string[] myArray);
+        public void GPRequestToApprove(string mailTo, string[] myArray);
+        public void EPRequestToApprove(string mailTo, string[] myArray);
 
     }
 }

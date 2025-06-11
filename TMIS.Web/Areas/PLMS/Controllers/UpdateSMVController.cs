@@ -31,7 +31,7 @@ namespace TMIS.Areas.PLMS.Controllers
       try
       {
         var result = await _smv.SaveSMV(id, smvValue, smvComment); // Call your service method
-        TempData["Success"] = result;
+        TempData["success"] = result;
 
         return RedirectToAction("Index", "UpdateSMV");
 

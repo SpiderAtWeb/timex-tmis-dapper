@@ -93,11 +93,10 @@ public class GenGoodsPassController(IGoodsGatePass db, IExportPDF exportPDF) : B
     }
 
     _logger.Info("Gatepass generated successfully");
-    TempData["Success"] = result + " - Gatepass generated successfully";
+    TempData["success"] = result + " - Gatepass generated successfully";
 
     return Ok(new { success = true, message = "Gatepass generated successfully" });
   }
-
 
   [HttpPost]
   public async Task<IActionResult> ExternalCreate([FromBody] GatepassVM gatepassVM)
@@ -154,7 +153,7 @@ public class GenGoodsPassController(IGoodsGatePass db, IExportPDF exportPDF) : B
     }
 
     _logger.Info("Gatepass generated successfully");
-    TempData["Success"] = result + " - Gatepass generated successfully";
+    TempData["success"] = result + " - Gatepass generated successfully";
 
     return Ok(new { success = true, message = "Gatepass generated successfully" });
   }

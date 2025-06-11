@@ -22,6 +22,14 @@
 @section PageScripts {
     <script src="~/custom/tables-datatables-mc-request.js"></script>
     <script src="~/custom/loading-hide.js"></script>
+
+    @if (TempData["success"] != null)
+    {
+        <script type="text/javascript">
+            toastr.success('@TempData["success"]');
+        </script>
+        TempData.Clear();
+    }
 }
 
 @* ************** Content ************** *@

@@ -57,7 +57,7 @@ namespace TMIS.Areas.SMIS.Controllers
 
       await _db.SaveMachineTransferAsync(mcRequestDetailsVM!);
 
-      TempData["Success"] = "Record Created Successfully";
+      TempData["success"] = "Record Created Successfully";
 
       _logger.Info("[ " + _iSessionHelper.GetShortName() + " ] - REQUEST CREATED [" + mcRequestDetailsVM!.oMcData!.QrCode + "]");
       return RedirectToAction("Index");

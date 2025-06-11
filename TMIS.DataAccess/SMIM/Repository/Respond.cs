@@ -13,22 +13,22 @@ namespace TMIS.DataAccess.SMIM.Repository
 
         public IEnumerable<RespondVM> GetRequestList()
         {
-            string query = "SELECT [Id], [QrCode], [SerialNo], [MachineType], [ReqUnit], [ReqLocation], [TrUserId], [ReqRemark], [DateCreate] FROM [VwMcRequest] WHERE isCompleted = 0";
+            string query = "SELECT [Id], [QrCode], [SerialNo], [MachineType], [ReqUnit], [ReqLocation], [TrUserId], [ReqRemark], [DateCreate] FROM [SMIM_VwMcRequest] WHERE isCompleted = 0";
             return _dbConnection.GetConnection().Query<RespondVM>(query);
         }
 
         public RespondDetailsVM GetReqDetailsList(int id)
         {
 
-            var sqlRq = "SELECT [McId] FROM [VwMcRequest] WHERE Id = @Id ;";
+            var sqlRq = "SELECT [McId] FROM [SMIM_VwMcRequest] WHERE Id = @Id ;";
             var para = new { Id = id };
             var mcId = _dbConnection.GetConnection().QueryFirstOrDefault<int?>(sqlRq, para);
 
 
             var sql = @"
-            SELECT [Id],[QrCode], [SerialNo], [MachineType], [ReqUnit], [ReqLocation], [TrUserId], [ReqRemark], [DateCreate] FROM [VwMcRequest] WHERE Id = @Id;
-            SELECT QrCode, SerialNo, ServiceSeq, MachineModel, MachineBrand, MachineType, CompanyGroup,
-            OwnedCluster, CurrentUnit, Location, DatePurchased, DateBorrow, IsOwned, ImageFR, ImageBK FROM VwMcInventory WHERE Id = @McId;";
+            SELECT [Id],[QrCode], [SerialNo], [MachineType], [ReqUnit], [ReqLocation], [TrUserId], [ReqRemark], [DateCreate] FROM [SMIM_VwMcRequest] WHERE Id = @Id;
+            SELECT QrCode, SerialNo, ServiceSeq, MachineModel, MachineBrand, MachineType,
+            CurrentUnit, Location, DatePurchased, DateBorrow, IsOwned, ImageFR, ImageBK FROM SMIM_VwMcInventory WHERE Id = @McId;";
 
             var oPara = new { Id = id, McId = mcId };
 
@@ -39,8 +39,8 @@ namespace TMIS.DataAccess.SMIM.Repository
 
                 return new RespondDetailsVM
                 {
-                    oRespondVM = _respondVM,
-                    oMachinesData = _machinesData
+                    RespondVM = _respondVM,
+                    MachinesData = _machinesData
                 };
             }
         }
@@ -52,7 +52,7 @@ namespace TMIS.DataAccess.SMIM.Repository
 
             try
             {
-                var sqlRq = "SELECT [McId] FROM [VwMcRequest] WHERE Id = @Id;";
+                var sqlRq = "SELECT [McId] FROM [SMIM_VwMcRequest] WHERE Id = @Id;";
                 var mcId = _dbConnection.GetConnection().QueryFirstOrDefault<int?>(sqlRq, new { Id = iD });
 
                 if (!mcId.HasValue)
@@ -67,14 +67,14 @@ namespace TMIS.DataAccess.SMIM.Repository
 
                 // Update machine inventory status
                 string updateMnQuery = @"
-                UPDATE [dbo].[SMIM_TrMachineInventory]
+                UPDATE [dbo].[SMIM_TrInventory]
                 SET [CurrentStatusId] = @MnStatus, [LastUpdateTime] = @NowDT
                 WHERE [Id] = @McId";
                 int rowsAffected = _dbConnection.GetConnection().Execute(updateMnQuery, new { MnStatus = mnStatus, McId = mcId, NowDT = nowDT });
 
                 // Update machine transfer status
                 string updateTransferQuery = @"
-                UPDATE [dbo].[SMIM_TrMachineTransfers]
+                UPDATE [dbo].[SMIM_TrTransfers]
                 SET [TrStatusId] = @StatusId, [isCompleted] = 1, [DateResponseDate] = @NowDT, [ResposeUserId] = 100
                 WHERE [Id] = @iD";
                 rowsAffected += _dbConnection.GetConnection().Execute(updateTransferQuery, new { StatusId = statusId, NowDT = nowDT, iD });

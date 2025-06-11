@@ -110,14 +110,14 @@ namespace TMIS.Areas.SMIS.Controllers
     [HttpGet]
     public IActionResult LocationsGetAll()
     {
-      IEnumerable<TwoFieldsMData> fieldList = _db.GetList("SMIM_MdCompanyLocations");
+      IEnumerable<TwoFieldsMData> fieldList = _db.GetList("SMIM_MasterTwoSewingLines");
       return Json(new { data = fieldList });
     }
 
     [HttpPost]
     public IActionResult LocationsGetInsert(TwoFieldsMData twoFieldsMData)
     {
-      string[] insertResult = _db.InsertRecord(twoFieldsMData, "SMIM_MdCompanyLocations");
+      string[] insertResult = _db.InsertRecord(twoFieldsMData, "SMIM_MasterTwoSewingLines");
 
       if (insertResult[0] == "1")
       {
@@ -136,7 +136,7 @@ namespace TMIS.Areas.SMIS.Controllers
     [HttpPost]
     public IActionResult LocationsGetUpdate(TwoFieldsMData twoFieldsMData)
     {
-      string[] updateResult = _db.UpdateRecord(twoFieldsMData, "SMIM_MdCompanyLocations");
+      string[] updateResult = _db.UpdateRecord(twoFieldsMData, "SMIM_MasterTwoSewingLines");
 
       // Check the first element of the result array to determine success
       if (updateResult[0] == "1")
@@ -158,7 +158,7 @@ namespace TMIS.Areas.SMIS.Controllers
     [HttpGet]
     public IActionResult LocationsGetDelete(int? id)
     {
-      _db.DeleteRecord(id, "SMIM_MdCompanyLocations");
+      _db.DeleteRecord(id, "SMIM_MasterTwoSewingLines");
       return Json(new { success = true, message = "Deleted Successful" });
     }
     #endregion

@@ -32,7 +32,7 @@ namespace TMIS.Areas.PLMS.Controllers
         if (!string.IsNullOrEmpty(buyerComment) && id > 0)
         {
           var result = await _feedback.SaveFeedbackAsync(id, buyerComment, actionType);
-          TempData["Success"] = result;
+          TempData["success"] = result;
         }
         // Redirect or return a view after saving the comment
         return RedirectToAction("Index", "CustomerResponse");      

@@ -58,7 +58,7 @@ namespace TMIS.Areas.PLMS.Controllers
       }
 
       var result = await _db.SaveMasterInquiryAsync(inquiryVM, artwork);
-      TempData["Success"] = result;
+      TempData["success"] = result;
       return RedirectToAction("Index");
     }
 

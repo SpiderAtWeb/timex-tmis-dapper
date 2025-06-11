@@ -7,7 +7,7 @@
         public string SerialNo { get; set; } = string.Empty;
         public string FarCode { get; set; } = string.Empty;
         public bool IsOwned { get; set; }
-        public string OwnershipStatus => IsOwned ? "Own" : "Rented";
+        public string OwnershipStatus => IsOwned ? "Owned" : "Rented";
         public DateTime? DatePurchased { get; set; }
         public DateTime? DateBorrow { get; set; }
         public DateTime? DateDue { get; set; }

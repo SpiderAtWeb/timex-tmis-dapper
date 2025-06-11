@@ -34,20 +34,20 @@ namespace TMIS.Areas.SMIS.Controllers
     [HttpPost]
     public IActionResult UpdateStatus(RespondDetailsVM oResponse, string action)
     {
-      if (oResponse?.oRespondVM?.Id == null)
+      if (oResponse?.RespondVM?.Id == null)
       {
         return View();
       }
 
       bool val = action == "approve";
 
-      string[] updateRecord = _db.UpdateStatus(val, oResponse.oRespondVM.Id);
+      string[] updateRecord = _db.UpdateStatus(val, oResponse.RespondVM.Id);
 
       if (updateRecord[0] == "1")
       {
         _logger.Info("[ " + _iSessionHelper.GetShortName() + " ] - REQUEST [" + action + "]");
 
-        TempData["Success"] = "Record updated successfully.";
+        TempData["success"] = "Record updated successfully.";
       }
       else
       {

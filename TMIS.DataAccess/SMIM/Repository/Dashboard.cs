@@ -24,7 +24,7 @@ namespace TMIS.DataAccess.SMIM.Repository
                 COUNT(CASE WHEN CurrentStatusId = 6 THEN 1 END) AS CountRunning,
 	            COUNT(CASE WHEN CurrentStatusId = 9 THEN 1 END) AS CountDisposed,
 	            COUNT(CASE WHEN CurrentStatusId = 10 THEN 1 END) AS CountTerminate
-            FROM SMIM_TrMachineInventory";
+            FROM SMIM_TrInventory";
 
             var resultSet = await _dbConnection.GetConnection().QuerySingleOrDefaultAsync<IconData>(resultSetQuery);
 
@@ -53,9 +53,9 @@ namespace TMIS.DataAccess.SMIM.Repository
             var query = @"
             SELECT 
                 [MdCompanyUnits] AS Units,
-                [MdMachineTypes] AS MachineType,
+                [MachineType],
                 [OwStatus] AS Status
-            FROM [dbo].[VwDashBoardSmry] WHERE (OwnedClusterId = @OwnedClusterId)";
+            FROM [dbo].[SMIM_VwDashBoardSmry] WHERE (OwnedClusterId = @OwnedClusterId)";
 
             return await _dbConnection.GetConnection().QueryAsync<DashboardSummary>(query, new { OwnedClusterId = ownedClusterId });
         }
@@ -70,7 +70,7 @@ namespace TMIS.DataAccess.SMIM.Repository
                         WHEN IsOwned = 1 THEN 'Owned' 
                         ELSE 'Rented' 
                     END AS OwnershipStatus
-                FROM VwPivotData
+                FROM SMIM_VwPivotData
             WHERE        (OwnedClusterId = @OwnedClusterId) ORDER BY CurrentUnit, Location, MachineType";
 
             return await _dbConnection.GetConnection().QueryAsync<PivotDataVM>(query, new { OwnedClusterId = ownedClusterId });
@@ -111,9 +111,7 @@ namespace TMIS.DataAccess.SMIM.Repository
               ,[ServiceSeq]
               ,[MachineBrand]
               ,[MachineType]
-              ,[CompanyGroup]
               ,[Location]
-              ,[OwnedCluster]
               ,[OwnedUnit]
               ,[CurrentUnit]
               ,[MachineModel]
@@ -123,7 +121,7 @@ namespace TMIS.DataAccess.SMIM.Repository
               ,[Comments]
               ,[Status]
               ,[LastScanDateTime]
-               FROM [dbo].[VwMcInventory] WHERE IsDelete = 0 ORDER BY [CurrentUnit] ASC,[LastScanDateTime] DESC, [QrCode] ASC";  // SQL query for paging
+               FROM [dbo].[SMIM_VwMcInventory] WHERE IsDelete = 0 ORDER BY [CurrentUnit] ASC,[LastScanDateTime] DESC, [QrCode] ASC";  // SQL query for paging
 
             var result = await _dbConnection.GetConnection().QueryAsync<InventoryItem>(query);
             return result;
@@ -131,7 +129,7 @@ namespace TMIS.DataAccess.SMIM.Repository
 
         public Task<IEnumerable<SelectListItem>> GetClusterDetails()
         {
-            string query = "SELECT CAST(Id AS NVARCHAR) AS Value, PropName AS Text FROM  SMIM_MdCompanyClusters WHERE (IsDelete = 0) ORDER BY Id";
+            string query = "SELECT CAST(Id AS NVARCHAR) AS Value, PropName AS Text FROM  COMN_MasterTwoClusters WHERE (IsDelete = 0) ORDER BY Id";
             return _dbConnection.GetConnection().QueryAsync<SelectListItem>(query);
         }
 

@@ -57,17 +57,10 @@ namespace TMIS.DataAccess.GDRM.Rpository
             using var connection = _dbConnection.GetConnection();
 
             // Get one guard room's info (adjust as needed — currently just takes first one)
-            string sqlGuardRoom = @"SELECT A.Id AS GRId, B.PropName AS GRName, dbo.COMN_MasterTwoLocations.Id AS GRLocationId, 
-                         dbo.COMN_MasterTwoLocations.LocationName AS GRLocation
-            FROM            [ADMIN].dbo.TGPS_MasterGRooms AS A INNER JOIN
-                                     [ADMIN].dbo.TGPS_MasterGRooms AS B ON A.Id = B.Id INNER JOIN
-                                     dbo.COMN_MasterTwoLocations ON A.Id = dbo.COMN_MasterTwoLocations.Id INNER JOIN
-                                     ADMIN.dbo._MasterUsers AS U ON A.Id = U.DefGRoomId
-            WHERE        (U.Id = @UserId)";
+            string sqlGuardRoom = @"SELECT [GrLocRelId], [GrName] FROM [TGPS_VwGRUsers] WHERE (Id = @UserId)";
 
             var oGPPendingListShow = await connection.QueryFirstOrDefaultAsync<GPPendingListShow>(sqlGuardRoom, new { UserId = _iSessionHelper.GetUserId() })
                                   ?? new GPPendingListShow();
-
             // Get Driver List
             string sqlDriver = @"SELECT Id AS Value, PropName AS Text 
             FROM TGPS_MasterTwoGpDrivers WHERE IsDelete = 0";
@@ -79,7 +72,7 @@ namespace TMIS.DataAccess.GDRM.Rpository
             // Get GP Numbers List via Stored Procedure
             var gpNumbersList = (await connection.QueryAsync<GPNumbers>(
                 "TGPS_SpGPPendingList",
-                new { GpLocId = oGPPendingListShow.GRLocationId },
+                new { GpLocId = oGPPendingListShow.GrLocRelId },
                 commandType: CommandType.StoredProcedure)).ToList();
 
             var gpDriverList = (await connection.QueryAsync<SelectListItem>(sqlDriver)).ToList();

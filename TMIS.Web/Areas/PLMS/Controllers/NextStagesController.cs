@@ -32,7 +32,7 @@ namespace TMIS.Areas.PLMS.Controllers
     public async Task<IActionResult> CreateNext(InquiryVM inquiryVM, IFormFile? artwork)
     {
       var result = await _nextStages.SaveNextInquiryAsync(inquiryVM, artwork);
-      TempData["Success"] = result;
+      TempData["success"] = result;
       return RedirectToAction("Index");
     }
   }

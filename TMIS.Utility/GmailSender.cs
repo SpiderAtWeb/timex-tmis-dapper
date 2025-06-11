@@ -152,12 +152,12 @@ namespace TMIS.Utility
             SendMail(recipientEmailTo, recipientEmailCc, recipientEmailBcc, sBody, subject);
         }
 
-        public void EPRequestToApprove(params string[] myArray)
+        //TIMEX Emp Permit To Approve
+        public void EPRequestToApprove(string mailTo, string[] myArray)
         {
             if (myArray.Length < 6)
                 throw new ArgumentException("Expected at least 6 header fields");
             string baseUrl = _configuration["BaseUrl"] ?? "https://localhost:44383"; // Configure this in appsettings.json
-
 
             string empGpNo = myArray[0];
             string gateName = myArray[1];
@@ -167,8 +167,10 @@ namespace TMIS.Utility
             string isReturn = myArray[5];
             string genUser = myArray[6];
 
-            string approveUrl = $"{baseUrl}/api/gatepass/emp-approve?gatepassNumber={empGpNo}&action=approve";
-            string rejectUrl = $"{baseUrl}/api/gatepass/emp-approve?gatepassNumber={empGpNo}&action=reject";
+            var encGpCode = SecurityBox.EncryptString(empGpNo);
+
+            string approveUrl = $"{baseUrl}/api/gatepass/emp-approve?gatepassNumber={encGpCode}&action=approve";
+            string rejectUrl = $"{baseUrl}/api/gatepass/emp-approve?gatepassNumber={encGpCode}&action=reject";
 
             // Build HTML table rows for details starting from index 6
             string itemTable = @"<table role=""presentation"" cellspacing=""0"" cellpadding=""0"" border=""0"" width=""100%"" style=""background-color: #ffffff; border-radius: 10px; margin-bottom: 15px; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"">
@@ -200,7 +202,6 @@ namespace TMIS.Utility
             itemTable += "</table></td></tr></table>";
 
             string subject = $"Exit Permit To Approve [{empGpNo}] (TMIS)";
-
 
             string sBody = $@"<!DOCTYPE html>
                             <html>
@@ -337,15 +338,15 @@ namespace TMIS.Utility
                             </body>
                             </html>";
 
-            string recipientEmailTo = "rasika.dalpathadu@timexsl.com";
+            string recipientEmailTo = mailTo;
             string recipientEmailCc = "";
-            string recipientEmailBcc = "";
+            string recipientEmailBcc = "rasika.dalpathadu@timexsl.com";
 
             SendMail(recipientEmailTo, recipientEmailCc, recipientEmailBcc, sBody, subject);
         }
 
         //TIMEX Gate Pass To Approve
-        public void GPRequestToApprove(params string[] myArray)
+        public void GPRequestToApprove(string mailTo, string[] myArray)
         {
             if (myArray.Length < 6)
                 throw new ArgumentException("Expected at least 6 header fields");
@@ -359,8 +360,11 @@ namespace TMIS.Utility
             string gGPRemarks = myArray[4];
             string generatedBy = myArray[5];
 
-            string approveUrl = $"{baseUrl}/api/gatepass/gp-approve?gatepassNumber={gPCode}&action=approve";
-            string rejectUrl = $"{baseUrl}/api/gatepass/gp-approve?gatepassNumber={gPCode}&action=reject";
+
+            var encGpCode = SecurityBox.EncryptString(gPCode);
+
+            string approveUrl = $"{baseUrl}/api/gatepass/gp-approve?gatepassNumber={encGpCode}&action=approve";
+            string rejectUrl = $"{baseUrl}/api/gatepass/gp-approve?gatepassNumber={encGpCode}&action=reject";
 
             // Build HTML table rows for details starting from index 6
             string itemTable = @"<table role=""presentation"" cellspacing=""0"" cellpadding=""0"" border=""0"" width=""100%"" style=""background-color: #ffffff; border-radius: 10px; margin-bottom: 15px; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"">
@@ -538,7 +542,7 @@ namespace TMIS.Utility
                             </body>
                             </html>";
 
-            string recipientEmailTo = "rasika.dalpathadu@timexsl.com";
+            string recipientEmailTo = mailTo;
             string recipientEmailCc = "";
             string recipientEmailBcc = "rasika.dalpathadu@timexsl.com";
 

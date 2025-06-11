@@ -14,20 +14,20 @@ namespace TMIS.DataAccess.SMIM.Repository
 
         public async Task<IEnumerable<TransMC>> GetList()
         {
-            string query = "SELECT [Id], [QrCode], [SerialNo], [MachineType], [CurrentUnit], [CurrentStatus], [Location] FROM [VwMcInventory] WHERE [CurrentStatus] IN (1,2) AND (IsOwned = 1) AND CurrentUnitId IN @AccessPlants ORDER BY QrCode;";
+            string query = "SELECT [Id], [QrCode], [SerialNo], [MachineType], [CurrentUnit], [CurrentStatus], [Location] FROM [SMIM_VwMcInventory] WHERE [CurrentStatus] IN (1,2) AND (IsOwned = 1) AND CurrentUnitId IN @AccessPlants ORDER BY QrCode;";
             return await _dbConnection.GetConnection().QueryAsync<TransMC>(query, new { AccessPlants = _iSessionHelper.GetLocationList() });
         }
 
         public async Task<MachinesData> GetMachineData(int pMcId)
         {
-            var query = "SELECT * FROM VwMcInventory WHERE Id = @MachineId;";
+            var query = "SELECT * FROM SMIM_VwMcInventory WHERE Id = @MachineId;";
             return await _dbConnection.GetConnection().QuerySingleOrDefaultAsync<MachinesData>(query, new { MachineId = pMcId })
                    ?? new MachinesData(); // Return a default instance
         }
 
         public async Task SaveMachineObsoleteAsync(MachinesData oModel)
         {
-            var queryUpdate = @"UPDATE SMIM_TrMachineInventory SET [CurrentStatusId] = @NewStatus, [Comments]= @Comments, [DateUpdate] = @Now WHERE Id = @MachineId";
+            var queryUpdate = @"UPDATE SMIM_TrInventory SET [CurrentStatusId] = @NewStatus, [Comments]= @Comments, [DateUpdate] = @Now WHERE Id = @MachineId";
 
             _dbConnection.GetConnection().Open();
             using (var trns = _dbConnection.GetConnection().BeginTransaction())

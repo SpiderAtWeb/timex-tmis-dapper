@@ -10,7 +10,7 @@ namespace TMIS.DataAccess.SMIM.Repository
 
         public async Task<IEnumerable<string>> GetQrCode()
         {
-            string query = "SELECT QrCode FROM SMIM_TrMachineInventory WHERE (IsDelete = 0) ORDER BY QrCode";
+            string query = "SELECT QrCode FROM SMIM_TrInventory WHERE (IsDelete = 0) ORDER BY QrCode";
             return await _dbConnection.GetConnection().QueryAsync<string>(query);
 
         }

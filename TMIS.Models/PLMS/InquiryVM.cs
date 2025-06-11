@@ -18,7 +18,7 @@ namespace TMIS.Models.PLMS
 
         public InquiryVM()
         {
-            ActivityList = []; // Initialize the list in the constructor
+            ActivityList = [];
         }
     }
 }

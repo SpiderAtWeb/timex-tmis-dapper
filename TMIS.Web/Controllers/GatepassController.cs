@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TMIS.DataAccess.TGPS.IRpository;
+using TMIS.Utility;
 
 namespace TMIS.Controllers
 {
@@ -15,10 +16,13 @@ namespace TMIS.Controllers
     [AllowAnonymous] // This allows access without authentication
     public async Task<ActionResult> ApproveGatepass([FromQuery] string gatepassNumber, [FromQuery] string action)
     {
+      var decGpCode = SecurityBox.DecryptString(gatepassNumber);
+
       try
-      {
+      {      
+
         // Validate parameters
-        if (string.IsNullOrEmpty(gatepassNumber) || string.IsNullOrEmpty(action))
+        if (string.IsNullOrEmpty(decGpCode) || string.IsNullOrEmpty(action))
         {
           return BadRequest("Missing required parameters: gatepassNumber and action");
         }
@@ -30,30 +34,30 @@ namespace TMIS.Controllers
         }
 
         // Check if gatepass exists
-        var gatepassInfo =  _gatepassService.GetGatepassInfoAsync(gatepassNumber);
+        var gatepassInfo =  _gatepassService.GetGatepassInfoAsync(decGpCode);
         if (gatepassInfo == null)
         {
-          return NotFound($"Gatepass {gatepassNumber} not found");
+          return NotFound($"Gatepass {decGpCode} not found");
         }
 
         // Check if already processed
         if (gatepassInfo == "Approved" || gatepassInfo == "Rejected")
         {
-          var html = GenerateAlreadyProcessedHtml(gatepassNumber, gatepassInfo);
+          var html = GenerateAlreadyProcessedHtml(decGpCode, gatepassInfo);
           return Content(html, "text/html");
         }
 
         // Update status
         var status = action.Equals("approve") ? 1 : 2;
-        var result = await _gatepassService.GGPUpdatAsync(gatepassNumber, status);
+        var result = await _gatepassService.GGPUpdatAsync(decGpCode, status);
 
         if (result > 0)
         {
-          _logger.LogInformation($"Gatepass {gatepassNumber} has been {status} successfully via email link");
+          _logger.LogInformation($"Gatepass {decGpCode} has been {status} successfully via email link");
 
           // Return success HTML page
           var mStatus = action.Equals("approve") ? "Approved" : "Rejected";
-          var successHtml = GenerateSuccessHtml(gatepassNumber, mStatus);
+          var successHtml = GenerateSuccessHtml(decGpCode, mStatus);
           return Content(successHtml, "text/html");
         }
 
@@ -62,7 +66,7 @@ namespace TMIS.Controllers
       }
       catch (Exception ex)
       {
-        _logger.LogError(ex, $"Error processing gatepass approval for {gatepassNumber}");
+        _logger.LogError(ex, $"Error processing gatepass approval for {decGpCode}");
         var errorHtml = GenerateErrorHtml($"An error occurred: {ex.Message}");
         return Content(errorHtml, "text/html");
       }
@@ -72,10 +76,13 @@ namespace TMIS.Controllers
     [AllowAnonymous] // This allows access without authentication
     public async Task<ActionResult> ApproveEmppass([FromQuery] string gatepassNumber, [FromQuery] string action)
     {
+      var decGpCode = SecurityBox.DecryptString(gatepassNumber);
+
       try
-      {
+      {     
+
         // Validate parameters
-        if (string.IsNullOrEmpty(gatepassNumber) || string.IsNullOrEmpty(action))
+        if (string.IsNullOrEmpty(decGpCode) || string.IsNullOrEmpty(action))
         {
           return BadRequest("Missing required parameters: gatepassNumber and action");
         }
@@ -87,30 +94,30 @@ namespace TMIS.Controllers
         }
 
         // Check if gatepass exists
-        var gatepassInfo = _gatepassService.GetEGatepassInfoAsync(gatepassNumber);
+        var gatepassInfo = _gatepassService.GetEGatepassInfoAsync(decGpCode);
         if (gatepassInfo == null)
         {
-          return NotFound($"Gatepass {gatepassNumber} not found");
+          return NotFound($"Gatepass {decGpCode} not found");
         }
 
         // Check if already processed
         if (gatepassInfo == "Approved" || gatepassInfo == "Rejected")
         {
-          var html = GenerateAlreadyProcessedHtml(gatepassNumber, gatepassInfo);
+          var html = GenerateAlreadyProcessedHtml(decGpCode, gatepassInfo);
           return Content(html, "text/html");
         }
 
         // Update status
         var status = action.Equals("approve") ? 1 : 2;
-        var result = await _gatepassService.EGPUpdatAsync(gatepassNumber, status);
+        var result = await _gatepassService.EGPUpdatAsync(decGpCode, status);
 
         if (result > 0)
         {
-          _logger.LogInformation($"Gatepass {gatepassNumber} has been {status} successfully via email link");
+          _logger.LogInformation($"Gatepass {decGpCode} has been {status} successfully via email link");
 
           // Return success HTML page
           var mStatus = action.Equals("approve") ? "Approved" : "Rejected";
-          var successHtml = GenerateSuccessHtml(gatepassNumber, mStatus);
+          var successHtml = GenerateSuccessHtml(decGpCode, mStatus);
           return Content(successHtml, "text/html");
         }
 
@@ -119,7 +126,7 @@ namespace TMIS.Controllers
       }
       catch (Exception ex)
       {
-        _logger.LogError(ex, $"Error processing gatepass approval for {gatepassNumber}");
+        _logger.LogError(ex, $"Error processing gatepass approval for {decGpCode}");
         var errorHtml = GenerateErrorHtml($"An error occurred: {ex.Message}");
         return Content(errorHtml, "text/html");
       }

@@ -33,7 +33,7 @@ namespace TMIS.Areas.PLMS.Controllers
       try
       {
         var result = await _costing.SaveCosting(id, costPrice, priceComment, fob); // Call your service method
-        TempData["Success"] = result;
+        TempData["success"] = result;
 
         return RedirectToAction("Index", "UpdatePrice");
 

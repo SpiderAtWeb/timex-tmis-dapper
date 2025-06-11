@@ -19,27 +19,26 @@ namespace TMIS.DataAccess.SMIM.Repository
         public async Task<IEnumerable<TransMC>> GetList()
         {
 
-            string query = "SELECT [Id], [QrCode], [SerialNo], [MachineType], [CurrentUnit], [CurrentStatus], [Location] FROM [VwMcInventory] WHERE [CurrentStatus] IN (1,2) AND (IsOwned = 1) AND CurrentUnitId IN @AccessPlants ORDER BY QrCode;";
+            string query = "SELECT [Id], [QrCode], [SerialNo], [MachineType], [CurrentUnit], [CurrentStatus], [Location] FROM [SMIM_VwMcInventory] WHERE [CurrentStatus] IN (1,2) AND (IsOwned = 1) AND CurrentUnitId IN @AccessPlants ORDER BY QrCode;";
             return await _dbConnection.GetConnection().QueryAsync<TransMC>(query, new { AccessPlants = _iSessionHelper.GetLocationList() });
         }
 
         public async Task<IEnumerable<TransMCUser>> GetListUser(string pDate)
         {
-            string query = "SELECT Id, QrCode, SerialNo, MachineType, CurrentUnit, TrStatusId FROM VwMcRequest WHERE (DateTr = CONVERT(DATETIME, '" + pDate + " 00:00:00', 102))";
+            string query = "SELECT Id, QrCode, SerialNo, MachineType, CurrentUnit, TrStatusId FROM SMIM_VwMcRequest WHERE (DateTr = CONVERT(DATETIME, '" + pDate + " 00:00:00', 102))";
             return await _dbConnection.GetConnection().QueryAsync<TransMCUser>(query);
         }
 
         public async Task<MachinesData> GetMachineData(int pMcId)
         {
-            var query = "SELECT * FROM VwMcInventory WHERE Id = @MachineId;";
+            var query = "SELECT * FROM SMIM_VwMcInventory WHERE Id = @MachineId;";
             return await _dbConnection.GetConnection().QuerySingleOrDefaultAsync<MachinesData>(query, new { MachineId = pMcId })
                    ?? new MachinesData(); // Return a default instance
         }
 
         public async Task<IEnumerable<SelectListItem>> GetLocationsList()
         {
-            var query = "SELECT Id, PropName FROM SMIM_MdCompanyLocations WHERE IsDelete = 0;";
-
+            var query = "SELECT Id, PropName FROM SMIM_MasterTwoSewingLines WHERE IsDelete = 0;";
 
             var locations = await _dbConnection.GetConnection().QueryAsync(query);
             return locations.Select(location => new SelectListItem
@@ -51,7 +50,7 @@ namespace TMIS.DataAccess.SMIM.Repository
 
         public async Task<IEnumerable<SelectListItem>> GetUnitsList()
         {
-            var query = "SELECT Id, PropName FROM SMIM_MdCompanyUnits WHERE IsDelete = 0 AND Id NOT IN @AccessPlants ORDER BY PropName";
+            var query = "SELECT Id, PropName FROM COMN_VwTwoCompLocs WHERE IsDelete = 0 AND Id NOT IN @AccessPlants ORDER BY PropName";
 
             var units = await _dbConnection.GetConnection().QueryAsync(query, new { AccessPlants = _iSessionHelper.GetLocationList() });
             return units.Select(unit => new SelectListItem
@@ -64,15 +63,15 @@ namespace TMIS.DataAccess.SMIM.Repository
         public async Task SaveMachineTransferAsync(McRequestDetailsVM oModel)
         {
             string queryInsert = @"
-            INSERT INTO [dbo].[SMIM_TrMachineTransfers]
+            INSERT INTO [dbo].[SMIM_TrTransfers]
             ([McId], [UnitId], [LocationId], [TrStatusId], [TrUserId], [DateTr], [DateCreate], [ReqRemark], [isCompleted])
             OUTPUT INSERTED.Id
             VALUES
             (@McId, @UnitId, @LocationId, 3, @UserId, @NowDT, @NowDT, @ReqRemark, 0)";
 
-            var queryUpdate = @"UPDATE SMIM_TrMachineInventory SET CurrentStatusId = @NewStatus WHERE Id = @MachineId";
+            var queryUpdate = @"UPDATE SMIM_TrInventory SET CurrentStatusId = @NewStatus WHERE Id = @MachineId";
 
-            _dbConnection.GetConnection().Open();
+            _dbConnection.GetConnection();
             using (var transaction = _dbConnection.GetConnection().BeginTransaction())
             {
                 try
@@ -113,8 +112,8 @@ namespace TMIS.DataAccess.SMIM.Repository
         {
             string query = @"
             SELECT QrCode, SerialNo, MachineModel, MachineBrand, MachineType, 
-                           CurrentUnit, Location, ReqUnit, ReqLocation, ReqRemark
-            FROM VwMcRequest
+                           CurrentUnit, ReqUnit, ReqLocation, ReqRemark, Location
+            FROM SMIM_VwMcRequest
             WHERE (Id = @GenId)";
 
             // Execute the query and fetch the results
@@ -151,7 +150,7 @@ namespace TMIS.DataAccess.SMIM.Repository
 
         public IEnumerable<TransMC> GetRequestList()
         {
-            string query = "SELECT [Id], [QrCode], [SerialNo], [MachineType], [CurrentUnit], [CurrentStatus], [Location] FROM [VwMcInventory] WHERE [CurrentStatus] = 3;";
+            string query = "SELECT [Id], [QrCode], [SerialNo], [MachineType], [CurrentUnit], [CurrentStatus], [Location] FROM [SMIM_VwMcInventory] WHERE [CurrentStatus] = 3;";
             return _dbConnection.GetConnection().Query<TransMC>(query);
         }
     }

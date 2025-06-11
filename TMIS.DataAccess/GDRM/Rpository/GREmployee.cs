@@ -37,38 +37,19 @@ namespace TMIS.DataAccess.GDRM.Rpository
             using var connection = _dbConnection.GetConnection();
 
             // Get guard room info
-            string sqlGuardRoom = @"SELECT A.Id AS GRId, B.PropName AS GRName, dbo.COMN_MasterTwoLocations.Id AS GRLocationId, 
-                               dbo.COMN_MasterTwoLocations.LocationName AS GRLocation
-                               FROM [ADMIN].dbo.TGPS_MasterGRooms AS A 
-                               INNER JOIN [ADMIN].dbo.TGPS_MasterGRooms AS B ON A.Id = B.Id 
-                               INNER JOIN dbo.COMN_MasterTwoLocations ON A.Id = dbo.COMN_MasterTwoLocations.Id 
-                               INNER JOIN ADMIN.dbo._MasterUsers AS U ON A.Id = U.DefGRoomId
-                               WHERE (U.Id = @UserId)";
+            string sqlGuardRoom = @"SELECT [GrLocRelId], [GrName] FROM [TGPS_VwGRUsers] WHERE (Id = @UserId)";
 
             var oEmpPendingListShow = await connection.QueryFirstOrDefaultAsync<EmpPendingListShow>(sqlGuardRoom, new { UserId = _iSessionHelper.GetUserId() })
                                      ?? new EmpPendingListShow();
 
-            // Get Driver List (reusing the same drivers from goods pass)
-            string sqlDriver = @"SELECT Id AS Value, PropName AS Text 
-                            FROM TGPS_MasterTwoGpDrivers WHERE IsDelete = 0";
-
-            // Get Vehicle List (reusing the same vehicles from goods pass)
-            string sqlVehicles = @"SELECT Id AS Value, PropName AS Text 
-                              FROM TGPS_MasterTwoGpVehicles WHERE IsDelete = 0";
-
             // Get Employee GP Numbers List via Stored Procedure
             var empNumbersList = (await connection.QueryAsync<EmpNumbers>(
                 "TGPS_SpEmpGPPendingList", // You'll need to create this stored procedure
-                new { EmpGpLocId = oEmpPendingListShow.GRLocationId },
+                new { EmpGpLocId = oEmpPendingListShow.GrLocRelId },
                 commandType: CommandType.StoredProcedure)).ToList();
-
-            var empDriverList = (await connection.QueryAsync<SelectListItem>(sqlDriver)).ToList();
-            var empVehiclesList = (await connection.QueryAsync<SelectListItem>(sqlVehicles)).ToList();
 
             // Assign the data
             oEmpPendingListShow.EmpNumbersList = empNumbersList;
-            oEmpPendingListShow.EmpDriversList = empDriverList;
-            oEmpPendingListShow.EmpVehicleNoList = empVehiclesList;
 
             return oEmpPendingListShow;
         }

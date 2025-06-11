@@ -17,9 +17,7 @@ namespace TMIS.Models.SMIS.VM
         public string ServiceSeq { get; set; } = string.Empty;
         public string MachineBrand { get; set; } = string.Empty;
         public string MachineType { get; set; } = string.Empty;
-        public string CompanyGroup { get; set; } = string.Empty;
         public string Location { get; set; } = string.Empty;
-        public string OwnedCluster { get; set; } = string.Empty;
         public string OwnedUnit { get; set; } = string.Empty;
         public string CurrentUnit { get; set; } = string.Empty;
         public string MachineModel { get; set; } = string.Empty;

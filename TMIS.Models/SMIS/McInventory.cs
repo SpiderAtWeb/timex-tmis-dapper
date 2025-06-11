@@ -35,13 +35,7 @@ namespace TMIS.Models.SMIS
         public int MachineTypeId { get; set; }
 
         [Required]
-        public int CompanyGroupId { get; set; }
-
-        [Required]
         public int LocationId { get; set; }
-
-        [Required]
-        public int OwnedClusterId { get; set; }
 
         [Required]
         public int OwnedUnitId { get; set; }

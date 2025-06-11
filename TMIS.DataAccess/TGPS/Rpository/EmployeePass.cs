@@ -1,13 +1,10 @@
 ﻿using Dapper;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using SkiaSharp;
 using System.Data;
 using TMIS.DataAccess.COMON.IRpository;
 using TMIS.DataAccess.TGPS.IRpository;
-using TMIS.Models.Auth;
 using TMIS.Models.TGPS;
 using TMIS.Utility;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace TMIS.DataAccess.TGPS.Rpository
 {
@@ -22,7 +19,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
         {
             string sql = @"SELECT  Id, [EmpGpNo], [GateName], [ExpLoc], [ExpReason], [ExpOutTime], [IsReturn], [IsApproved]
             FROM            TGPS_VwEGPHeaders
-            WHERE        (GenUserId = @GenUser)";
+            WHERE        (GenUserId = @GenUser) ORDER BY EmpGpNo DESC";
 
             return await _dbConnection.GetConnection().QueryAsync<EmpPassVM>(sql, new { GenUser = _iSessionHelper.GetUserId() });
         }
@@ -31,11 +28,12 @@ namespace TMIS.DataAccess.TGPS.Rpository
         {
             using var dbConnection = _dbConnection.GetConnection();
 
-            var goodsFromSql = @"SELECT U.DefGRoomId AS Id, A.PropName AS Text
-            FROM            ADMIN.dbo.TGPS_MasterGRooms AS A INNER JOIN
-                                     ADMIN.dbo.TGPS_RelGRoomsLoc INNER JOIN
-                                     ADMIN.dbo._MasterUsers AS U ON ADMIN.dbo.TGPS_RelGRoomsLoc.Id = U.DefGRoomId ON A.Id = ADMIN.dbo.TGPS_RelGRoomsLoc.GuardRoomId
-            WHERE        (U.Id =  @UserId)";
+            var goodsFromSql = @"SELECT        ADMIN.dbo.TGPS_RelGRoomsLoc.Id, ADMIN.dbo.TGPS_MasterGRooms.PropName AS Text
+            FROM            ADMIN.dbo._MasterUsers INNER JOIN
+                                     ADMIN.dbo._TrPermissionLocation ON ADMIN.dbo._MasterUsers.Id = ADMIN.dbo._TrPermissionLocation.UserId INNER JOIN
+                                     ADMIN.dbo.TGPS_RelGRoomsLoc ON ADMIN.dbo._TrPermissionLocation.LocRelId = ADMIN.dbo.TGPS_RelGRoomsLoc.LocRelId INNER JOIN
+                                     ADMIN.dbo.TGPS_MasterGRooms ON ADMIN.dbo.TGPS_RelGRoomsLoc.GuardRoomId = ADMIN.dbo.TGPS_MasterGRooms.Id
+            WHERE        (ADMIN.dbo._MasterUsers.Id = @UserId)";
 
             var approvalListSql = @"SELECT AppUserId AS Id, UserShortName AS Text
             FROM  ADMIN.dbo.TGPS_VwUserApprovePersons WHERE (UserId = @UserId) AND (SystemType = N'TEP')";
@@ -136,7 +134,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
         {
             using var connection = _dbConnection.GetConnection();
 
-            string headerQuery = @"SELECT  EmpGpNo, GateName, ExpLoc, ExpReason, ExpOutTime, IsReturn, GenUser
+            string headerQuery = @"SELECT  EmpGpNo, GateName, ExpLoc, ExpReason, ExpOutTime, IsReturn, GenUser, ApprovedById
             FROM TGPS_VwEGPHeaders WHERE (Id = @GenId)";
 
             var header = connection.Query(headerQuery, new { GenId = genId }).FirstOrDefault();
@@ -166,10 +164,16 @@ namespace TMIS.DataAccess.TGPS.Rpository
             }
 
             // Convert to array
-            string[] myArray = myList.ToArray();
+            string[] myArray = [.. myList];
+
+            // Prepare email recipient
+            string mailTo = connection.QuerySingleOrDefault<string>(
+                "SELECT UserEmail FROM ADMIN.dbo._MasterUsers WHERE Id = @Id",
+                new { Id = header.ApprovedById }
+            ) ?? throw new InvalidOperationException("No email found for the approved user.");
 
             // Send email
-            Task.Run(() => _gmailSender.EPRequestToApprove(myArray));
+            Task.Run(() => _gmailSender.EPRequestToApprove(mailTo, myArray));
         }
 
         public async Task<EmpPassVM> GetEmpPassesAsync(int id)

@@ -39,15 +39,7 @@ namespace TMIS.Helper
         modelState.AddModelError("McInventory.MachineTypeId", "Machine Type is Required.");
       }
 
-      // Other IDs Validation
-      if (mcCreatedRnVM.McInventory.CompanyGroupId == 0)
-      {
-        modelState.AddModelError("McInventory.CompanyGroupId", "Group is Required.");
-      }
-      if (mcCreatedRnVM.McInventory.OwnedClusterId == 0)
-      {
-        modelState.AddModelError("McInventory.OwnedClusterId", "Cluster is Required.");
-      }
+      // Other IDs Validation     
       if (mcCreatedRnVM.McInventory.OwnedUnitId == 0)
       {
         modelState.AddModelError("McInventory.OwnedUnitId", "Unit is Required.");
@@ -124,15 +116,7 @@ namespace TMIS.Helper
         modelState.AddModelError("McInventory.MachineTypeId", "Machine Type is Required.");
       }
 
-      // Other IDs Validation
-      if (mcCreateVM.McInventory.CompanyGroupId == 0)
-      {
-        modelState.AddModelError("McInventory.CompanyGroupId", "Group is Required.");
-      }
-      if (mcCreateVM.McInventory.OwnedClusterId == 0)
-      {
-        modelState.AddModelError("McInventory.OwnedClusterId", "Cluster is Required.");
-      }
+      // Other IDs Validation     
       if (mcCreateVM.McInventory.OwnedUnitId == 0)
       {
         modelState.AddModelError("McInventory.OwnedUnitId", "Unit is Required.");

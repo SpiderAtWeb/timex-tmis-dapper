@@ -5,18 +5,20 @@
     <div class="card-body">
         <h6 class="text-success">Location want to transfer</h6>
         <form asp-action="UpdateStatus" method="post">
-            <input type="hidden" asp-for="oRespondVM!.Id" />
+            <input type="hidden" asp-for="RespondVM!.Id" />
+
+
             <div class="row g-6">
                 <div class="col-md-4">
                     <div class="form-floating form-floating-outline">
-                        <input asp-for="oRespondVM!.ReqUnit" type="text" id="trNewUnit" class="form-control text-warning" />
+                        <input asp-for="RespondVM!.ReqUnit" type="text" id="trNewUnit" class="form-control text-warning" />
                         <label for="trNewUnit">Unit</label>
                     </div>
                 </div>
 
                 <div class="col-md-4">
                     <div class="form-floating form-floating-outline">
-                        <input asp-for="oRespondVM!.ReqLocation" type="text" id="trNewLoc" class="form-control text-warning" />
+                        <input asp-for="RespondVM!.ReqLocation" type="text" id="trNewLoc" class="form-control text-warning" />
                         <label for="trNewLoc">Location</label>
                     </div>
                 </div>
@@ -36,105 +38,97 @@
 
         <hr class="my-4">
         <h6>Selected Sew Machine</h6>
-        <div class="row g-4">
-            <div class="col-md-4">
+
+        <div class="row g-1 mb-3">
+            <div class="col-md-3">
                 <div class="form-floating form-floating-outline">
-                    <input asp-for="oMachinesData!.QrCode" type="text" class="form-control" placeholder="TSM00007" />
+                    <input asp-for="MachinesData!.QrCode" type="text" class="form-control" placeholder="TSM00007" />
                     <label for="oMcData.QrCode">QR Code</label>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="form-floating form-floating-outline">
-                    <input asp-for="oMachinesData!.SerialNo" type="text" class="form-control" placeholder="john.doe" />
+                    <input asp-for="MachinesData!.SerialNo" type="text" class="form-control" placeholder="john.doe" />
                     <label for="serialNo">Serial No</label>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="form-floating form-floating-outline">
-                    <input asp-for="oMachinesData!.ServiceSeq" type="text" id="serviceSeq" class="form-control" placeholder="100" />
+                    <input asp-for="MachinesData!.ServiceSeq" type="text" id="serviceSeq" class="form-control" placeholder="100" />
                     <label for="serviceSeq">Service Sequence (Days)</label>
                 </div>
             </div>
 
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="form-floating form-floating-outline">
-                    <input asp-for="oMachinesData!.MachineModel" type="text" id="MachineModel" class="form-control" placeholder="john.doe" />
+                    <input asp-for="MachinesData!.MachineModel" type="text" id="MachineModel" class="form-control" placeholder="john.doe" />
                     <label for="MachineModel">Machine Model</label>
                 </div>
             </div>
+        </div>
 
-            <div class="col-md-4">
+        <div class="row g-1 mb-3">
+            <div class="col-3">
                 <div class="form-floating form-floating-outline">
-                    <input asp-for="oMachinesData!.MachineBrand" type="text" id="MachineBrand" class="form-control" placeholder="john.doe" />
+                    <input asp-for="MachinesData!.MachineBrand" type="text" id="MachineBrand" class="form-control" placeholder="john.doe" />
 
                     <label for="MachineBrand">Machine Brand</label>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-3">
                 <div class="form-floating form-floating-outline">
-                    <input asp-for="oMachinesData!.MachineType" type="text" id="MachineType" class="form-control" placeholder="john.doe" />
+                    <input asp-for="MachinesData!.MachineType" type="text" id="MachineType" class="form-control" placeholder="john.doe" />
                     <label for="MachineType">Machine Type</label>
                 </div>
             </div>
-
-            <div class="col-md-4">
+            <div class="col-3">
                 <div class="form-floating form-floating-outline">
-                    <input asp-for="oMachinesData!.CompanyGroup" type="text" id="CompanyGroup" class="form-control" placeholder="john.doe" />
-
-                    <label for="CompanyGroup">Group</label>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="form-floating form-floating-outline">
-                    <input asp-for="oMachinesData!.OwnedCluster" type="text" id="OwnedCluster" class="form-control" placeholder="john.doe" />
-
-                    <label for="OwnedCluster">Cluster</label>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="form-floating form-floating-outline">
-                    <input asp-for="oMachinesData!.CurrentUnit" type="text" id="CurrentUnit" class="form-control" placeholder="john.doe" />
+                    <input asp-for="MachinesData!.CurrentUnit" type="text" id="CurrentUnit" class="form-control" placeholder="john.doe" />
 
                     <label for="CurrentUnit">Unit</label>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-3">
                 <div class="form-floating form-floating-outline">
-                    <input asp-for="oMachinesData!.Location" type="text" id="Location" class="form-control" placeholder="john.doe" />
-                    <label for="Location">Location</label>
+                    <input asp-for="MachinesData!.Location" type="text" id="Location" class="form-control" placeholder="john.doe" />
+                    <label for="Location">Line</label>
                 </div>
             </div>
 
+        </div>
 
-            <div class="col-md-4">
-                @if (Model.oMachinesData!.IsOwned)
+
+        <div class="row g-1">
+            <div class="col-3">
+                @if (Model.MachinesData!.IsOwned)
                 {
                     <div class="form-floating form-floating-outline">
-                        <input readonly asp-for="oMachinesData!.DatePurchased" type="date" id="datePurchased" class="form-control" placeholder="YYYY-MM-DD" />
+                        <input readonly asp-for="MachinesData!.DatePurchased" type="date" id="datePurchased" class="form-control" placeholder="YYYY-MM-DD" />
                         <label for="datePurchased">Purchased Date</label>
                     </div>
                 }
                 else
                 {
                     <div class="form-floating form-floating-outline">
-                        <input readonly asp-for="oMachinesData!.DateBorrow" type="date" id="datePurchased" class="form-control" placeholder="YYYY-MM-DD" />
+                        <input readonly asp-for="MachinesData!.DateBorrow" type="date" id="datePurchased" class="form-control" placeholder="YYYY-MM-DD" />
                         <label for="datePurchased">Borrow Date</label>
                     </div>
                 }
 
             </div>
-            <div class="col-md-4">
+            <div class="col-3">
                 <div class="form-floating form-floating-outline">
-                    <input asp-for="oMachinesData!.OwnershipStatus" type="text" id="OwnershipStatus" class="form-control" placeholder="TSM00007" />
-                    <label for="OwnershipStatus">Own/Rented</label>
+                    <input asp-for="MachinesData!.OwnershipStatus" type="text" id="OwnershipStatus" class="form-control" placeholder="TSM00007" />
+                    <label for="OwnershipStatus">Owned/Rented</label>
                 </div>
             </div>
-            <div class="col-md-4">
+
+
+            <div class="col-3">
                 <div class="image-preview">
-                    @if (Model.oMachinesData.ImageFR != null && Model.oMachinesData.ImageFR.Length > 0)
+                    @if (Model.MachinesData.ImageFR != null && Model.MachinesData.ImageFR.Length > 0)
                     {
-                        var base64Image = Convert.ToBase64String(Model.oMachinesData.ImageFR);
+                        var base64Image = Convert.ToBase64String(Model.MachinesData.ImageFR);
                         <img id="frontImg" src="data:image/jpeg;base64,@base64Image" alt="Image Preview" style="max-width: 100%; height: auto;border-radius:10px" />
                     }
                     else
@@ -143,11 +137,11 @@
                     }
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-3">
                 <div class="image-preview">
-                    @if (Model.oMachinesData.ImageBK != null && Model.oMachinesData.ImageBK.Length > 0)
+                    @if (Model.MachinesData.ImageBK != null && Model.MachinesData.ImageBK.Length > 0)
                     {
-                        var base64Image = Convert.ToBase64String(Model.oMachinesData.ImageBK);
+                        var base64Image = Convert.ToBase64String(Model.MachinesData.ImageBK);
                         <img id="bakcImg" src="data:image/jpeg;base64,@base64Image" alt="Image Preview" style="max-width: 100%; height: auto;border-radius:10px" />
                     }
                     else
@@ -156,14 +150,12 @@
                     }
                 </div>
             </div>
-            <div class="col-md-4 ">
-                <div class="form-floating form-floating-outline row">
-                    <div class="pt-1 col-6">
-                        <a asp-controller="ApprovalRequest" asp-action="Index" class="btn btn-outline-secondary w-100">Back to List</a>
-                    </div>
-                </div>
-            </div>
         </div>
+        <div class="pt-3">
+            <a asp-controller="ApprovalRequest" asp-action="Index" class="btn btn-outline-secondary">Back to List</a>
+
+        </div>
+
     </div>
 </div>
 

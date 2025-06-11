@@ -24,7 +24,7 @@ namespace TMIS.DataAccess.COMON.Rpository
                 return new User();
 
             // Get User Access Locations
-            var sqlUserLocList = @"SELECT LocationId FROM _TrPermissionLocation WHERE (UserId = @UserId)";
+            var sqlUserLocList = @"SELECT LocRelId FROM _TrPermissionLocation WHERE (UserId = @UserId)";
 
             var _userLocationList = await connection.QueryAsync<int>(sqlUserLocList, new { UserId = user.Id });
             user.UserLocationList = _userLocationList.ToArray();

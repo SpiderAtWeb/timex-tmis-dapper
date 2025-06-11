@@ -592,7 +592,7 @@
          }
 
 
-        @if (User.IsInRole("SUPER-ADMIN") || User.IsInRole("GDRM-USER"))
+        @if (User.IsInRole("SUPER-ADMIN") || User.IsInRole("TGPS-ADMIN") || User.IsInRole("GDRM-USER"))
         {
             <li class='menu-item@(currentPage.StartsWith("/GDRM") ? " active open" : "")'>
                 <a href="javascript:void(0);" class="menu-link menu-toggle">

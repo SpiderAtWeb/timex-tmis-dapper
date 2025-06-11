@@ -194,7 +194,8 @@ namespace TMIS.DataAccess.TGPS.Rpository
                  FROM dbo.TGPS_TrGpGoodsRoutes AS RT
                  INNER JOIN dbo.TGPS_MasterGpGoodsAddress AS LOC ON RT.GGpLocId = LOC.Id
                 WHERE RT.GGpPassId = H.Id
-            ) AS GpTo
+            ) AS GpTo,
+            ApprovedById
             FROM TGPS_VwGGPHeader AS H
             WHERE Id = @genId;            ";
 
@@ -227,17 +228,24 @@ namespace TMIS.DataAccess.TGPS.Rpository
             }
 
             // Convert to array
-            string[] myArray = myList.ToArray();
+            string[] myArray = [.. myList];
+
+            string approveByMail = connection.Query<string>("SELECT UserEmail FROM ADMIN.dbo._MasterUsers WHERE Id = @Id",
+            new { Id = header.ApprovedById }).FirstOrDefault() ?? throw new InvalidOperationException("No email found for the approved user."); ;
 
             // Send email
-            Task.Run(() => _gmailSender.GPRequestToApprove(myArray));
+            Task.Run(() => _gmailSender.GPRequestToApprove(approveByMail, myArray));
         }
 
         public async Task<GoodPassVM> GetFillData(bool isExternal)
         {
             var dbConnection = _dbConnection.GetConnection();
 
-            var goodsFromSql = @"SELECT Id, Text FROM TGPS_VwUserLocations WHERE (UserId = @UserId) ORDER BY Text";
+            var goodsFromSql = @"SELECT        ADMIN.dbo.TGPS_RelGRoomsLoc.Id , dbo.TGPS_MasterGpGoodsAddress.BusinessName AS Text
+FROM            ADMIN.dbo.TGPS_RelGRoomsLoc INNER JOIN
+                         ADMIN.dbo._MasterUsers ON ADMIN.dbo.TGPS_RelGRoomsLoc.Id = ADMIN.dbo._MasterUsers.DefGrLocRelId INNER JOIN
+                         dbo.TGPS_MasterGpGoodsAddress ON ADMIN.dbo.TGPS_RelGRoomsLoc.LocRelId = dbo.TGPS_MasterGpGoodsAddress.MasterMapId
+WHERE        (ADMIN.dbo._MasterUsers.Id = @UserId)";
 
             var goodsToSql = @"SELECT Id, BusinessName AS Text FROM TGPS_MasterGpGoodsAddress 
             WHERE IsDeleted = 0 AND (IsExternal = 0) ORDER BY Text";
