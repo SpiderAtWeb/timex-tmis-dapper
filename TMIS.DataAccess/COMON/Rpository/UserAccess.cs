@@ -27,7 +27,7 @@ namespace TMIS.DataAccess.COMON.Rpository
             var sqlUserLocList = @"SELECT LocRelId FROM _TrPermissionLocation WHERE (UserId = @UserId)";
 
             var _userLocationList = await connection.QueryAsync<int>(sqlUserLocList, new { UserId = user.Id });
-            user.UserLocationList = _userLocationList.ToArray();
+            user.UserLocationList = [.. _userLocationList];
 
             // Get User Roles
             var sqlUserRolesList = @"SELECT  _MasterUserRoles.UserRole
@@ -36,7 +36,7 @@ namespace TMIS.DataAccess.COMON.Rpository
             WHERE        (_TrPermissionRoles.UserId =  @UserId)";
 
             var _userRolesList = await connection.QueryAsync<string>(sqlUserRolesList, new { UserId = user.Id });
-            user.UserRolesList = _userRolesList.ToArray();         
+            user.UserRolesList = [.. _userRolesList];         
 
             _iSessionHelper.SetUserSession(user.Id.ToString(), user.UserShortName, user.UserRolesList, user.UserLocationList);
             return user;
