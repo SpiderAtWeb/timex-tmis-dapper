@@ -7,18 +7,13 @@ using TMIS.Models.SMIS;
 
 namespace TMIS.Areas.SMIS.Controllers
 {
-  [Authorize(Roles = "admin")]
+  [Authorize(Roles = "SUPER-ADMIN")]
   [Area("SMIS")]
   public class MasterCompanyController(ITwoFieldsMDataAccess db, ISessionHelper sessionHelper) : BaseController
   {
     private readonly ITwoFieldsMDataAccess _db = db;
     private readonly ILog _logger = LogManager.GetLogger(typeof(MasterCompanyController));
     private readonly ISessionHelper _iSessionHelper = sessionHelper;
-
-    public IActionResult Index()
-    {
-      return View();
-    }
 
     public IActionResult Locations()
     {
@@ -53,14 +48,14 @@ namespace TMIS.Areas.SMIS.Controllers
     [HttpGet]
     public IActionResult GroupGetAll()
     {
-      IEnumerable<TwoFieldsMData> fieldList = _db.GetList("SMIM_MdCompanyGroups");
+      IEnumerable<TwoFieldsMData> fieldList = _db.GetList("COMN_MasterTwoGroups");
       return Json(new { data = fieldList });
     }
 
     [HttpPost]
     public IActionResult GroupGetInsert(TwoFieldsMData twoFieldsMData)
     {
-      string[] insertResult = _db.InsertRecord(twoFieldsMData, "SMIM_MdCompanyGroups");
+      string[] insertResult = _db.InsertRecord(twoFieldsMData, "COMN_MasterTwoGroups");
 
       if (insertResult[0] == "1")
       {
@@ -79,7 +74,7 @@ namespace TMIS.Areas.SMIS.Controllers
     [HttpPost]
     public IActionResult GroupGetUpdate(TwoFieldsMData twoFieldsMData)
     {
-      string[] updateResult = _db.UpdateRecord(twoFieldsMData, "SMIM_MdCompanyGroups");
+      string[] updateResult = _db.UpdateRecord(twoFieldsMData, "COMN_MasterTwoGroups");
 
       // Check the first element of the result array to determine success
       if (updateResult[0] == "1")
@@ -100,7 +95,7 @@ namespace TMIS.Areas.SMIS.Controllers
     [HttpGet]
     public IActionResult GroupGetDelete(int? id)
     {
-      _db.DeleteRecord(id, "SMIM_MdCompanyGroups");
+      _db.DeleteRecord(id, "COMN_MasterTwoGroups");
       return Json(new { success = true, message = "Deleted Successful" });
     }
     #endregion
@@ -168,14 +163,14 @@ namespace TMIS.Areas.SMIS.Controllers
     [HttpGet]
     public IActionResult OwnedClusterGetAll()
     {
-      IEnumerable<TwoFieldsMData> fieldList = _db.GetList("SMIM_MdCompanyClusters");
+      IEnumerable<TwoFieldsMData> fieldList = _db.GetList("COMN_MasterTwoClusters");
       return Json(new { data = fieldList });
     }
 
     [HttpPost]
     public IActionResult OwnedClusterGetInsert(TwoFieldsMData twoFieldsMData)
     {
-      string[] insertResult = _db.InsertRecord(twoFieldsMData, "SMIM_MdCompanyClusters");
+      string[] insertResult = _db.InsertRecord(twoFieldsMData, "COMN_MasterTwoClusters");
 
       if (insertResult[0] == "1")
       {
@@ -194,7 +189,7 @@ namespace TMIS.Areas.SMIS.Controllers
     [HttpPost]
     public IActionResult OwnedClusterGetUpdate(TwoFieldsMData twoFieldsMData)
     {
-      string[] updateResult = _db.UpdateRecord(twoFieldsMData, "SMIM_MdCompanyClusters");
+      string[] updateResult = _db.UpdateRecord(twoFieldsMData, "COMN_MasterTwoClusters");
 
       // Check the first element of the result array to determine success
       if (updateResult[0] == "1")
@@ -216,7 +211,7 @@ namespace TMIS.Areas.SMIS.Controllers
     [HttpGet]
     public IActionResult OwnedClusterGetDelete(int? id)
     {
-      _db.DeleteRecord(id, "SMIM_MdCompanyClusters");
+      _db.DeleteRecord(id, "COMN_MasterTwoClusters");
       return Json(new { success = true, message = "Deleted Successful" });
     }
     #endregion
@@ -226,14 +221,14 @@ namespace TMIS.Areas.SMIS.Controllers
     [HttpGet]
     public IActionResult OwnedUnitGetAll()
     {
-      IEnumerable<TwoFieldsMData> fieldList = _db.GetList("SMIM_MdCompanyUnits");
+      IEnumerable<TwoFieldsMData> fieldList = _db.GetList("COMN_MasterTwoLocations");
       return Json(new { data = fieldList });
     }
 
     [HttpPost]
     public IActionResult OwnedUnitGetInsert(TwoFieldsMData twoFieldsMData)
     {
-      string[] insertResult = _db.InsertRecord(twoFieldsMData, "SMIM_MdCompanyUnits");
+      string[] insertResult = _db.InsertRecord(twoFieldsMData, "COMN_MasterTwoLocations");
 
       if (insertResult[0] == "1")
       {
@@ -252,7 +247,7 @@ namespace TMIS.Areas.SMIS.Controllers
     [HttpPost]
     public IActionResult OwnedUnitGetUpdate(TwoFieldsMData twoFieldsMData)
     {
-      string[] updateResult = _db.UpdateRecord(twoFieldsMData, "SMIM_MdCompanyUnits");
+      string[] updateResult = _db.UpdateRecord(twoFieldsMData, "COMN_MasterTwoLocations");
 
       // Check the first element of the result array to determine success
       if (updateResult[0] == "1")
@@ -274,7 +269,7 @@ namespace TMIS.Areas.SMIS.Controllers
     [HttpGet]
     public IActionResult OwnedUnitGetDelete(int? id)
     {
-      _db.DeleteRecord(id, "SMIM_MdCompanyUnits");
+      _db.DeleteRecord(id, "COMN_MasterTwoLocations");
       return Json(new { success = true, message = "Deleted Successful" });
     }
     #endregion

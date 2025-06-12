@@ -241,26 +241,42 @@ namespace TMIS.DataAccess.TGPS.Rpository
         {
             var dbConnection = _dbConnection.GetConnection();
 
-            var goodsFromSql = @"SELECT        ADMIN.dbo.TGPS_RelGRoomsLoc.Id , dbo.TGPS_MasterGpGoodsAddress.BusinessName AS Text
-FROM            ADMIN.dbo.TGPS_RelGRoomsLoc INNER JOIN
-                         ADMIN.dbo._MasterUsers ON ADMIN.dbo.TGPS_RelGRoomsLoc.Id = ADMIN.dbo._MasterUsers.DefGrLocRelId INNER JOIN
-                         dbo.TGPS_MasterGpGoodsAddress ON ADMIN.dbo.TGPS_RelGRoomsLoc.LocRelId = dbo.TGPS_MasterGpGoodsAddress.MasterMapId
-WHERE        (ADMIN.dbo._MasterUsers.Id = @UserId)";
 
-            var goodsToSql = @"SELECT Id, BusinessName AS Text FROM TGPS_MasterGpGoodsAddress 
-            WHERE IsDeleted = 0 AND (IsExternal = 0) ORDER BY Text";
+            var goodsFromSql = @"SELECT Id, Text FROM TGPS_VwGPUserLocs WHERE (UserId = @UserId)";
+            var goodsFrom = await GetDataFromTable(goodsFromSql, dbConnection);
 
-            if (isExternal)
-                goodsToSql = @"SELECT Id, BusinessName AS Text FROM TGPS_MasterGpGoodsAddress 
-            WHERE IsDeleted = 0 AND (IsExternal = 1) ORDER BY Text";
+            // Extract goodsFrom IDs
+            var goodsFromIds = goodsFrom.Select(x => x.Value).ToList();
+
+            // Step 2: Prepare the goodsTo SQL based on isExternal
+            string goodsToSqlBase = @"SELECT Id, BusinessName AS Text FROM TGPS_MasterGpGoodsAddress 
+                          WHERE IsDeleted = 0 AND (IsExternal = @IsExternal)";
+
+            if (goodsFromIds.Any())
+            {
+                // Create a comma-separated string of IDs to exclude
+                string excludedIds = string.Join(",", goodsFromIds);
+                goodsToSqlBase += $" AND Id NOT IN ({excludedIds})";
+            }
+
+            goodsToSqlBase += " ORDER BY Text";
+
+            // Execute with isExternal parameter
+            //var goodsTo = await GetDataFromTable(goodsToSqlBase, dbConnection, new { IsExternal = isExternal });
+
+            var results = await dbConnection.QueryAsync(goodsToSqlBase, new { IsExternal = isExternal });
+            var goodsTo = results.Select(x => new SelectListItem
+            {
+                Value = x.Id.ToString(),
+                Text = x.Text
+            }).ToList();
 
             var approvalListSql = @"SELECT AppUserId AS Id, UserShortName AS Text
-            FROM  ADMIN.dbo.TGPS_VwUserApprovePersons WHERE (UserId = @UserId) AND (SystemType = N'TGP')";
+                        FROM ADMIN.dbo.TGPS_VwUserApprovePersons 
+                        WHERE (UserId = @UserId) AND (SystemType = N'TGP')";
 
             var unitsSql = "SELECT Id, PropName AS Text FROM TGPS_MasterTwoGpGoodsUOM ORDER BY PropName";
 
-            var goodsFrom = await GetDataFromTable(goodsFromSql, dbConnection);
-            var goodsTo = await GetDataFromTable(goodsToSql, dbConnection);
             var approvalList = await GetDataFromTable(approvalListSql, dbConnection);
             var units = await GetDataFromTable(unitsSql, dbConnection);
 
