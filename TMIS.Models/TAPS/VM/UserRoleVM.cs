@@ -12,14 +12,14 @@ namespace TMIS.Models.TAPS.VM
 {
     public class UserRoleVM
     {
-        [Required]
+        [Range(1, int.MaxValue, ErrorMessage = "Please select a valid user.")]
         [DisplayName("User")]
         public int selectedUserID { get; set; }
-        [Required]
+        [Range(1, int.MaxValue, ErrorMessage = "Please select a valid user role.")]
         [DisplayName("User Role")]
         public int selectedUserRoleID { get; set; }
         public IEnumerable<SelectListItem>? UserRoleList { get; set; }
         public IEnumerable<SelectListItem>? UserList { get; set; }
-        public List<UserRole>? Attributes { get; set; }
+        public List<UserRole>? UsersRoles { get; set; }
     }
 }

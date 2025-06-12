@@ -8,13 +8,16 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using TMIS.DataAccess.COMON.IRpository;
 using TMIS.DataAccess.ITIS.IRepository;
 using TMIS.DataAccess.TAPS.IRepository;
+using TMIS.Models.Auth;
+using TMIS.Models.ITIS;
 using TMIS.Models.TAPS;
 
 namespace TMIS.DataAccess.TAPS.Repository
 {
-    public class AdminRepository(IDatabaseConnectionAdm dbConnection, IITISLogdb iITISLogdb) : IAdminRepository
+    public class AdminRepository(IDatabaseConnectionAdm dbConnection, IDatabaseConnectionSys dbConnectionSys, IITISLogdb iITISLogdb) : IAdminRepository
     {
         private readonly IDatabaseConnectionAdm _dbConnection = dbConnection;
+        private readonly IDatabaseConnectionSys _dbConnectionSys = dbConnectionSys;
         private readonly IITISLogdb _iITISLogdb = iITISLogdb;
 
         public async Task<IEnumerable<SelectListItem>> LoadUsers()
@@ -39,6 +42,54 @@ namespace TMIS.DataAccess.TAPS.Repository
             var result = await _dbConnection.GetConnection().QueryAsync<UserRole>(query, new { UserId });
 
             return result;
+        }
+
+        public async Task<bool> CheckRoleExistToUser(int userID, int roleID)
+        {
+            string query = @"SELECT COUNT(*) FROM _TrPermissionRoles WHERE UserId = @UserId AND UserRoleId = @UserRoleId;";
+
+            int count = await _dbConnection.GetConnection().ExecuteScalarAsync<int>(query, new
+            {
+                UserId = userID,
+                UserRoleId = roleID
+            });
+            return count > 0;
+        }
+        public async Task<bool> AssignUserRole(int userID, int roleID)
+        {
+            string query = @"INSERT INTO _TrPermissionRoles (UserId, UserRoleId)
+                            VALUES (@UserId,@UserRoleId);";
+
+            int rowAfected = await _dbConnection.GetConnection().ExecuteAsync(query, new
+            {
+                UserId = userID,
+                UserRoleId = roleID
+            });
+
+            return rowAfected > 0;
+        }
+
+        public void DeleteUserRole(int userID, int roleID)
+        {
+            string query = @"DELETE FROM _TrPermissionRoles WHERE UserId = @UserId AND UserRoleId = @UserRoleId;";
+            int row = _dbConnection.GetConnection().Execute(query, new
+            {
+                UserId = userID,
+                UserRoleId = roleID
+            });
+
+            if (row > 0) 
+            {
+                Logdb logdb = new()
+                {
+                    TrObjectId = userID,
+                    TrLog = $"Unassigned role from user. User ID: {userID}, Role ID: {roleID}, Status: DELETED"
+
+                };
+
+                _iITISLogdb.InsertLog(_dbConnectionSys, logdb);
+            }
+
         }
     }
 }
