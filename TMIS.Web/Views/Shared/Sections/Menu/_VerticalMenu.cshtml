@@ -716,7 +716,7 @@
                 }
 
 
-        @if (User.IsInRole("SUPER-ADMIN") || User.IsInRole("TAPS-USER"))
+        @if (User.IsInRole("SUPER-ADMIN"))
         {
 
 			<li class='menu-item@(currentPage.StartsWith("/TAPS") ? " active open" : "")'>
