@@ -34,7 +34,6 @@ namespace TMIS.Areas.TGPS.Controllers
     {
       if (!ModelState.IsValid)
       {
-        // Extract errors
         var errors = ModelState
             .Where(x => x.Value!.Errors.Count > 0)
             .ToDictionary(
@@ -45,17 +44,38 @@ namespace TMIS.Areas.TGPS.Controllers
         return BadRequest(new { success = false, errors });
       }
 
-      if (model.Id == 0)
+      try
       {
-        var id = await _db.InsertAsync(model);
-        return Json(new { success = true, message = "Address Successfully Created", id });
+        if (model.Id == 0)
+        {
+          var id = await _db.InsertAsync(model);
+          return Json(new { success = true, message = "Address Successfully Created", id });
+        }
+        else
+        {
+          await _db.UpdateAsync(model);
+          return Json(new { success = true, message = "Address Successfully Updated" });
+        }
       }
-      else
+      catch (InvalidOperationException ex)
       {
-        await _db.UpdateAsync(model);
-        return Json(new { success = true, message = "Address Successfully Updated" });
+        // Return a model-like error for consistency with client-side validation
+        return BadRequest(new
+        {
+          success = false,
+          errors = new Dictionary<string, string[]>
+            {
+                { "BusinessName", new[] { ex.Message } }
+            }
+        });
+      }
+      catch (Exception ex)
+      {
+        // Log the error if needed
+        return StatusCode(500, new { success = false, message = "An unexpected error occurred.", detail = ex.Message });
       }
     }
+
 
 
     [HttpGet]

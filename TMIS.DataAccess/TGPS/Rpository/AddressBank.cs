@@ -28,25 +28,33 @@ namespace TMIS.DataAccess.TGPS.Rpository
 
         public async Task<int> InsertAsync(AddressModel model)
         {
-
             try
             {
                 model.Phone = string.Concat(model.Phone.Where(c => !char.IsWhiteSpace(c)));
 
-                const string sql = @"INSERT INTO [TMIS].[dbo].[TGPS_MasterGpGoodsAddress]
-                            ( [BusinessName], [Address], [City], [State], [Phone], IsDeleted, IsExternal)
-                     VALUES (@BusinessName, @Address, @City, @State, @Phone, 0, 1);
-                            SELECT CAST(SCOPE_IDENTITY() as int);";
+                const string checkSql = @"SELECT COUNT(1) FROM [TMIS].[dbo].[TGPS_MasterGpGoodsAddress]
+                              WHERE BusinessName = @BusinessName AND IsDeleted = 0";
 
                 using var connection = _dbConnection.GetConnection();
-                return await connection.ExecuteScalarAsync<int>(sql, model);
+
+                var exists = await connection.ExecuteScalarAsync<int>(checkSql, new { model.BusinessName });
+
+                if (exists > 0)
+                {
+                    throw new InvalidOperationException("BusinessName already exists.");
+                }
+
+                const string insertSql = @"INSERT INTO [TMIS].[dbo].[TGPS_MasterGpGoodsAddress]
+                               ([BusinessName], [Address], [City], [State], [Phone], IsDeleted, IsExternal)
+                               VALUES (@BusinessName, @Address, @City, @State, @Phone, 0, 1);
+                               SELECT CAST(SCOPE_IDENTITY() as int);";
+
+                return await connection.ExecuteScalarAsync<int>(insertSql, model);
             }
             catch
             {
-
                 throw;
             }
-
         }
 
         public async Task<int> UpdateAsync(AddressModel model)
