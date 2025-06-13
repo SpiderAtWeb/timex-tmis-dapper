@@ -20,6 +20,7 @@ namespace TMIS.Areas.TAPS.Controllers
 
       NewUserVM newUserVM = new();
       newUserVM.UserEmailList = await _adminRepository.LoadEmployeeList();
+      newUserVM.LocationList = await _adminRepository.LoadLocationList();
       return View(newUserVM);
     }
 
@@ -35,6 +36,7 @@ namespace TMIS.Areas.TAPS.Controllers
       if (!ModelState.IsValid)
       {
         obj.UserEmailList = await _adminRepository.LoadEmployeeList();
+        obj.LocationList = await _adminRepository.LoadLocationList();
         return View(obj);
       }
 

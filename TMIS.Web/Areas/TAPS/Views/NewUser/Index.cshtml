@@ -36,10 +36,10 @@
 	}
 
 	<script>
-		$('.select2').select2({
+		$('select[name="UserEmail"]').select2({
 		  placeholder: "- Choose or enter a user -",
 		  allowClear: true,
-		  tags: true, // 👈 This allows custom entries
+		  tags: true, // This allows custom entries
 		  createTag: function (params) {
 			  var term = $.trim(params.term);
 			  if (term === '') {
@@ -55,6 +55,10 @@
 			  // Place the new tag at the end of the results
 			  data.push(tag);
 		  }
+		});
+		$('select[name="Location"]').select2({
+			placeholder: "- select location -",
+			allowClear: true			
 		});
 	</script>
 
@@ -76,6 +80,16 @@
 
 					<label asp-for="UserEmail"></label>
 					<span asp-validation-for="UserEmail" class="text-warning"></span>
+				</div>
+			</div>
+			<div class="col-md-4">
+				<div class="form-floating form-floating-outline">
+					<select asp-for="@Model.Location" asp-items="@Model.LocationList" class="select2 form-select" data-allow-clear="true">
+						<option value="" Disabled Selected>- select location -</option>
+					</select>
+
+					<label asp-for="Location"></label>
+					<span asp-validation-for="Location" class="text-warning"></span>
 				</div>
 			</div>
 			<div class="col-md-4">

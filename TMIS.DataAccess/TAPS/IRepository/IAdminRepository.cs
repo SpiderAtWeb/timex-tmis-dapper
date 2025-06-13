@@ -20,5 +20,6 @@ namespace TMIS.DataAccess.TAPS.IRepository
         Task<IEnumerable<SelectListItem>> LoadEmployeeList();
         Task<bool> InsertNewUser(NewUserVM newUserVM);
         Task<bool> CheckUserEmailExist(string userEmail);
+        Task<IEnumerable<SelectListItem>> LoadLocationList();
     }
 }

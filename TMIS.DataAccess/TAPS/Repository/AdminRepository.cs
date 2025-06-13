@@ -110,15 +110,16 @@ namespace TMIS.DataAccess.TAPS.Repository
 
         public async Task<bool> InsertNewUser(NewUserVM newUserVM)
         {
-            string query = @"INSERT INTO _MasterUsers (UserEmail, UserPassword, UserShortName, IsActive)
-                            VALUES (@UserEmail, @UserPassword, @UserShortName, 1);
+            string query = @"INSERT INTO _MasterUsers (UserEmail, UserPassword, UserShortName, IsActive, DefLocId)
+                            VALUES (@UserEmail, @UserPassword, @UserShortName, 1, @DefLocId);
                             SELECT CAST(SCOPE_IDENTITY() AS INT) AS InsertedId;";
 
             var insertedId = await _dbConnection.GetConnection().QuerySingleOrDefaultAsync<int?>(query, new
             {
                 UserEmail = newUserVM.UserEmail,
                 UserPassword = newUserVM.UserPassword,
-                UserShortName = newUserVM.UserShortName
+                UserShortName = newUserVM.UserShortName,
+                DefLocId = newUserVM.Location
             });
 
             if (insertedId.HasValue)
@@ -133,6 +134,13 @@ namespace TMIS.DataAccess.TAPS.Repository
                 _iTAPSLogdb.InsertLog(logdb);
             }
             return insertedId > 0;
+        }
+        public async Task<IEnumerable<SelectListItem>> LoadLocationList()
+        {
+            string query = @"select Id as Value, PropName AS Text from COMN_VwTwoCompLocs";
+            //replace with real datasource
+            var results = await _dbConnectionSys.GetConnection().QueryAsync<SelectListItem>(query);
+            return results;
         }
     }
 }
