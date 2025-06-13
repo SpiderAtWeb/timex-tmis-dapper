@@ -120,6 +120,7 @@ builder.Services.AddScoped<IGRGoods, GRGoods>();
 builder.Services.AddScoped<IAdminRepository, AdminRepository>();
 builder.Services.AddScoped<IGREmployee, GREmployee>();
 builder.Services.AddScoped<IGatepassService, GatepassService>();
+builder.Services.AddScoped<ITAPSLogdbRepository, TAPSLogdbRepository>();
 
 
 builder.Services.AddScoped<ISessionHelper, SessionHelper>();

@@ -1,0 +1,100 @@
+@using TMIS.Models.TAPS.VM
+@model NewUserVM
+
+@section VendorStyles {
+	<link rel="stylesheet" href="~/vendor/libs/datatables-bs5/datatables.bootstrap5.css">
+	<link href="~/vendor/libs/toastr/toastr.css" rel="stylesheet" />
+	<link rel="stylesheet" href="~/vendor/libs/select2/select2.css" />
+	<link rel="stylesheet" href="~/vendor/libs/flatpickr/flatpickr.css" />
+}
+
+@section VendorScripts {
+	<script src="~/vendor/libs/flatpickr/flatpickr.js"></script>
+	<script src="~/vendor/libs/select2/select2.js"></script>
+}
+
+@section PageScripts {
+	<script src="~/vendor/libs/toastr/toastr.js"></script>
+	<script src="~/custom/tables-datatables-mc-request.js"></script>
+	<script src="~/custom/loading-hide.js"></script>
+
+	@if (TempData["success"] != null)
+	{
+		<script src="~/vendor/libs/toastr/toastr.js"></script>
+		<script type="text/javascript">
+			toastr.success('@TempData["success"]');
+		</script>
+		TempData.Clear();
+	}
+	@if (TempData["error"] != null)
+	{
+		<script src="~/vendor/libs/toastr/toastr.js"></script>
+		<script type="text/javascript">
+			toastr.success('@TempData["error"]');
+		</script>
+		TempData.Clear();
+	}
+
+	<script>
+		$('.select2').select2({
+		  placeholder: "- Choose or enter a user -",
+		  allowClear: true,
+		  tags: true, // 👈 This allows custom entries
+		  createTag: function (params) {
+			  var term = $.trim(params.term);
+			  if (term === '') {
+				  return null;
+			  }
+			  return {
+				  id: term,
+				  text: term,
+				  newOption: true
+			  };
+		  },
+		  insertTag: function (data, tag) {
+			  // Place the new tag at the end of the results
+			  data.push(tag);
+		  }
+		});
+	</script>
+
+}
+
+@await Html.PartialAsync("_Loading")
+
+<div class="card mb-6">
+	<h5 class="card-header page-header">
+		New User
+	</h5>
+	<form asp-action="Index" method="post" class="card-body" id="myForm" enctype="multipart/form-data">
+		<div class="row g-4">
+			<div class="col-md-4">
+				<div class="form-floating form-floating-outline">
+					<select asp-for="@Model.UserEmail" asp-items="@Model.UserEmailList" class="select2 form-select" data-allow-clear="true">
+						<option value="" Disabled Selected>- Choose or enter a user -</option>
+					</select>
+
+					<label asp-for="UserEmail"></label>
+					<span asp-validation-for="UserEmail" class="text-warning"></span>
+				</div>
+			</div>
+			<div class="col-md-4">
+				<div class="form-floating form-floating-outline">
+					<input asp-for="@Model.UserShortName" type="text" id="style-no" class="form-control" placeholder="Jone Doe" />
+					<label asp-for="@Model.UserShortName"></label>
+					<span asp-validation-for="@Model.UserShortName" class="customerError text-warning"></span>
+				</div>
+			</div>
+			<div class="col-md-4">
+				<div class="form-floating form-floating-outline">
+					<input asp-for="@Model.UserPassword" type="text" id="style-no" class="form-control" placeholder="***" />
+					<label asp-for="@Model.UserPassword"></label>
+					<span asp-validation-for="@Model.UserPassword" class="customerError text-warning"></span>
+				</div>
+			</div>
+			<div class="pt-1">
+				<button type="submit" class="btn btn-primary me-1">ADD USER</button>
+			</div>			
+		</div>
+	</form>
+</div>
