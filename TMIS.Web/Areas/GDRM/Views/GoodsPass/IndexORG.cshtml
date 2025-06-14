@@ -1,0 +1,590 @@
+@model GPPendingListShow
+
+@section VendorStyles {
+    <link rel="stylesheet" href="~/vendor/libs/datatables-bs5/datatables.bootstrap5.css">
+    <link href="~/vendor/libs/toastr/toastr.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/vendor/libs/select2/select2.css" />
+    <link href="~/styles/kendo.common.min.css" rel="stylesheet" />
+    <link href="~/styles/kendo.metro.min.css" rel="stylesheet" />
+}
+
+@section VendorScripts {
+    <script src="~/vendor/libs/toastr/toastr.js"></script>
+    <script src="~/vendor/libs/select2/select2.js"></script>
+    <script src="~/kendo/jszip.min.js"></script>
+    <script src="~/kendo/kendo.all.min.js"></script>
+}
+
+@section PageScripts {
+    <script src="~/custom/loading-hide.js"></script>
+    <script src="~/js/form-layouts.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $(".gp-btn").on("click", function () {
+                const gpId = $(this).data("id");
+                const isOut = $(this).data("isout");
+
+                $("#slectedGpId").val(gpId);
+                $("#slectedGpIsOut").val(isOut);
+
+                // Highlight the selected button
+                $(".gp-btn").removeClass("btn-primary").addClass("btn-secondary");
+                $(this).removeClass("btn-secondary").addClass("btn-primary");
+
+                // Load gatepass data via AJAX
+                $.ajax({
+                    url: '/GDRM/GoodsPass/GetGatepassDetails',
+                    method: 'GET',
+                    data: { id: gpId, isOut: isOut },
+                    success: function (data) {                      
+
+                        // Fill alert blocks
+                        $("#gpSubject").text(data.gpSubject);
+                        $("#gpFrom").text(data.gpFrom);
+                        $("#generatedBy").text(data.generatedBy);
+                        $("#generatedDate").text(data.generatedDate);
+                        $("#attention").text(data.attention);
+                        $("#remarks").text(data.remarks);
+                        $("#approvedBy").text(data.approvedBy);
+                        $("#vehicleNoId").val(data.sendVehicleId).trigger('change');
+                        $("#driverNameId").val(data.sendDriverId).trigger('change');
+
+                        // Fill item table
+                        const tbody = $("#dispatchingTable");
+
+
+                        tbody.empty();
+                        $.each(data.grGatepassDetails, function (index, item) {
+                            let row = `
+                                                            <div class="row sp-row dispatching-row">
+                                                        <div class="col-2 g-1">
+                                                            <div class="alert alert-secondary" role="alert">
+                                                                ${item.itemName}
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-3 g-1">
+                                                            <div class="alert alert-secondary" role="alert">
+                                                                ${item.itemDesc}
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-1 g-1">
+                                                            <div class="alert alert-secondary" role="alert">
+                                                                ${item.quantity}
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-1 g-1">
+                                                            <div class="alert alert-danger" role="alert">
+                                                           <input type="number" class="actual-qty" value="${item.quantity}" style="border: none; width: 80px; background-color: transparent;">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-1 g-1">
+                                                            <div class="alert alert-secondary" role="alert">
+                                                                ${item.gpUnits}
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-4 g-1">
+                                                            <select id="grGatepassDetails[${index}].ReasonId" class="form-select reason-select">
+                                                                <option disabled selected>- Select -</option>
+                                                                ${item.grDispReasonList.map(reason => `
+                                                                    <option value="${reason.value}">${reason.text}</option>
+                                                                `).join('')}
+                                                            </select>
+                                                            <input type="hidden" id="grGatepassDetails[${index}].ID" class="dispatching-id" value="${item.id}" />
+                                                        </div>
+                                                    </div>`;
+                            tbody.append(row);
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            $('.gp-btn').on('click', function () {
+                const $row = $(this).closest('tr'); // Get the row
+                const gpId = $(this).data('id');    // Get the ID from the button
+                const gatePassNo = $row.find('td').eq(1).text().trim(); // Get GatePassNo from 2nd <td>
+
+                // Show loading with GatePassNo
+                $("#loading-message").show().text(`Loading steps for Gate Pass: ${gatePassNo}...`);
+
+                $.ajax({
+                    url: `/GDRM/GoodsPass/GetGatePassSteps?id=${gpId}`,
+                    type: "GET",
+                    success: function (data) {
+                        if (data && data.length > 0) {
+                            const steps = [];
+                            const dateList = [];
+
+                            data.forEach(step => {
+                                steps.push({
+                                    label: step.stepLabel,
+                                    icon: step.stepUpdate === 1 ? "check" : "preview",
+                                    selected: step.stepUpdate === 1
+                                });
+
+                                dateList.push({
+                                    Date: step.stepDateTime
+                                        ? new Date(step.stepDateTime).toLocaleString()
+                                        : "",
+                                    status: step.stepText || ""
+                                });
+                            });
+
+                            initStepper(steps);
+                            appendDateTimeToSteps(dateList);
+
+                            // Show GatePassNo after load
+                            $("#loading-message").text("");
+                        } else {
+                            $("#loading-message").text("No steps found for Gate Pass: " + gatePassNo);
+                        }
+                    },
+                    error: function () {
+                        $("#loading-message").text("Failed to load step data.");
+                    }
+                });
+
+                function initStepper(steps) {
+                    $("#stepper").kendoStepper({
+                        orientation: "horizontal",
+                        steps: steps,
+                        select: function (e) {
+                            e.preventDefault(); // Read-only
+                        }
+                    }).data("kendoStepper");
+                }
+
+                function appendDateTimeToSteps(dateList) {
+                    $("#stepper .k-step-label").each(function (index) {
+                        if (!$(this).find(".step-date").length && dateList[index]) {
+                            $(this).append(
+                                `<div class="step-date" style="font-size: 10px; color: gray;">
+                                                                                ${dateList[index].Date}<br>${dateList[index].status}
+                                                                             </div>`
+                            );
+                        }
+                    });
+                }
+            });
+        });
+
+    </script>
+
+    <script>
+    $(document).ready(function () {
+
+        function clearGatepassDetails() {
+            $("#gpSubject, #gpFrom, #generatedBy, #generatedDate, #attention, #remarks").text("...");
+            $("#dispatchingTable").empty();
+            $("#stepper").empty();
+            $("#vehicleNoId").val(null).trigger("change");
+            $("#driverNameId").val(null).trigger("change");
+            $("#slectedGpId, #slectedGpIsOut").val("");
+        }
+
+        // Handle tab switching
+        $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
+            const targetTabId = $(e.target).attr('data-bs-target'); // #Dispatching or #Receiving
+
+            clearGatepassDetails();
+
+            // Remove highlights from all gp-btns
+            $('.gp-btn').removeClass('btn-primary').addClass('btn-secondary');
+
+            // Auto-click first gp-btn inside the activated tab
+            $(targetTabId).find('.gp-btn').first().trigger('click');
+        });
+
+        // Auto-trigger Dispatching tab's first .gp-btn on initial load
+        setTimeout(function () {
+            $("#Dispatching").find(".gp-btn").first().trigger("click");
+        }, 500);
+    });
+</script>
+
+
+    <script>
+        $(document).ready(function () {
+            $('#approveBtn, #rejectBtn').on('click', function () {
+
+                const action = $(this).data('action'); // "approve" or "reject"
+
+                // Collect data for Approve
+                const data = {                 
+                    gRId: parseInt($('#gRId').val()) || 0,
+                    isOut: $('#slectedGpIsOut').val() == 'True' ? 1 : 0,
+                    selectedGpId: parseInt($('#slectedGpId').val()) || 0, 
+                    vehicleNoId: parseInt($('#vehicleNoId').val()) || 0,
+                    driverNameId: parseInt($('#driverNameId').val()) || 0,
+                    gPGrUpdateDetailList: [],
+                    actionType: action // send the action type
+                };
+
+               console.log($('#slectedGpIsOut').val());
+               console.log(data);
+
+                $('.dispatching-row').each(function () {
+                    const id = parseInt($(this).find('.dispatching-id').val()) || 0;
+                    const reasonId = parseInt($(this).find('.reason-select').val()) || 0;
+                    const actualQty = parseInt($(this).find('.actual-qty').val()) || 0;
+
+                    if (id > 0 && reasonId > 0) {
+                        data.gPGrUpdateDetailList.push({
+                            id: id,
+                            reasonId: reasonId,
+                            actualQty:actualQty
+                        });
+                    }
+                });
+
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/GDRM/GoodsPass/GPUpdate',
+                    contentType: 'application/json',
+                    data: JSON.stringify(data),
+                    success: function (result) {
+                        if (result.isSuccess) {
+                            toastr.success(result.message);
+                            setTimeout(() => {
+                                location.reload(); // Reload after a short delay to show the toast
+                            }, 500); // 1 second delay for better user experience
+                        } else {
+                            toastr.error(result.message);
+                            if (result.errorFieldId) {
+                                var $field = $('#' + result.errorFieldId);
+                                $field.addClass('input-validation-error').focus();
+                            }
+                        }
+                    },
+                    error: function () {
+                        toastr.error("Something went wrong. Please try again.");
+                    }
+                });
+            });
+        });
+
+    </script>
+
+}
+
+@section PageStyles {
+    <style>
+        .input-validation-error {
+            border-color: red !important;
+            background-color: #ffe6e6;
+        }
+
+        .alert-secondary {
+            color: #233c65 !important;
+            font-weight: bold !important;
+        }
+
+        .sp-row {
+            margin-bottom: -10px !important
+        }
+
+        .alert {
+            padding: 0.5rem 0.5rem !important;
+            line-height: 2 !important;
+        }
+
+        .stepper-container {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .details-section {
+            background-color: #ffffff;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .detail-item {
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            border-left: 4px solid #007bff;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #495057;
+            font-size: 10px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            color: #212529;
+            font-size: 14px;
+        }
+
+        .employee-list-header {
+            background-color: #e9ecef;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .transport-section {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .btn-group-custom {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+    </style>
+
+    <style>
+        .input-validation-error {
+            border-color: red !important;
+            background-color: #ffe6e6;
+        }
+    </style>
+    <style>
+
+        .alert-secondary {
+            color: #233c65 !important;
+            font-weight: bold !important;
+        }
+
+        .sp-row {
+            margin-bottom: -10px !important
+        }
+
+        .alert {
+            padding: 0.5rem 0.5rem !important;
+            line-height: 2 !important;
+        }
+    </style>
+}
+
+@await Html.PartialAsync("_Loading")
+
+@* ************** Content ************** *@
+<!-- Ajax Sourced Server-side -->
+<div class="panelDiv">
+    <div class="nav-align-top">
+        <ul class="nav nav-pills nav-justified" role="tablist">
+            <li class="nav-item">
+                <button type="button" class="nav-link active" role="tab" data-bs-toggle="tab" data-bs-target="#Dispatching" aria-controls="Dispatching" aria-selected="true">Dispatching</button>
+            </li>
+            <li class="nav-item">
+                <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#Receiving" aria-controls="Receiving" aria-selected="false">Receiving</button>
+            </li>
+        </ul>
+    </div>
+
+
+    <div class="tab-content p-0">
+        <div class="tab-pane fade show active" id="Dispatching" role="tabpanel">
+            <div class="card mb-2">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+                            <div class="mb-1">
+                                <small class="text-light fw-medium">Pending Dispatch Gatepasses Top 5</small>
+                            </div>
+
+                            @foreach (var item in Model.GPNumbersList.Where(x => x.IsOut).Take(5))
+                            {
+                                <button type="button" class="btn rounded-pill btn-secondary m-1 gp-btn" data-isout="@item.IsOut" data-id="@item.GPRouteId">
+                                    @item.GPNumber
+                                </button>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="tab-pane fade" id="Receiving" role="tabpanel">
+            <div class="card mb-2">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+                            <div class="mb-1">
+                                <small class="text-light fw-medium">Pending Receiving Gatepasses Top 5</small>
+                            </div>
+
+                            @foreach (var item in Model.GPNumbersList.Where(x => !x.IsOut).Take(5))
+                            {
+                                <button type="button" class="btn rounded-pill btn-secondary m-1 gp-btn" data-isout="@item.IsOut" data-id="@item.GPRouteId">
+                                 @item.GPNumber
+                            </button>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (Model.GPNumbersList.Count > 0)
+    {  <div class="card mb-2">
+        <div class="card-body">
+            <input type="hidden" id="slectedGpId" />
+            <input type="hidden" id="slectedGpIsOut" />
+
+            <div id="example">
+                <div id="loading-message" style="display:none; text-align:center; color: blue; font-size: 14px; margin-bottom: 10px;">
+                    Loading step data, please wait...
+                </div>
+                <div class="demo-section k-content wide">
+                    <nav id="stepper"></nav>
+                </div>
+            </div>
+
+            <hr>
+
+
+                <div class="details-section">
+                    <h6 class="mb-3">Gate Pass Details</h6>
+                    <div class="details-grid mb-1">
+                        <div class="detail-item">
+                            <div class="detail-label">Gatepass Subject</div>
+                            <div class="detail-value" id="gpSubject">...</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Expected Location</div>
+                            <div class="detail-value" id="generatedBy">...</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Attention</div>
+                            <div class="detail-value" id="attention">...</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Approved By</div>
+                            <div class="detail-value" id="approvedBy">...</div>
+                        </div>                        
+                    </div>
+                    <div class="details-grid">
+                        <div class="detail-item">
+                            <div class="detail-label">Remarks</div>
+                            <div class="detail-value" id="remarks">...</div>
+                        </div>                       
+                    </div>
+                </div>
+                  
+            <hr>
+
+            <div class="mb-1">
+                <small class="text-light fw-medium">Gatepasses Items List</small>
+                <div id="dispatchingTable">
+                </div>
+            </div>
+
+            <hr>
+
+            <div class="row mt-4">
+                <div class="col-4 g-1">
+                    <div class="form-floating form-floating-outline">
+                        <select asp-items="@Model.GPVehicleNoList" id="vehicleNoId" class="select2 form-select" data-allow-clear="true">
+                            <option Disabled Selected>- Select -</option>
+                        </select>
+                        <label for="vehicleNoId">Vehicle No</label>
+                    </div>
+                </div>
+                <div class="col-4 g-1">
+                    <div class="form-floating form-floating-outline">
+                        <select asp-items="@Model.GPDriversList" id="driverNameId" class="select2 form-select" data-allow-clear="true">
+                            <option Disabled Selected>- Select -</option>
+                        </select>
+                        <label for="driverNameId">Driver Name</label>
+                    </div>
+                </div>
+                <div class="col-2 g-1">
+                    <button id="approveBtn" data-action="true" type="button" class="btn btn-success w-100 h-100">Approve</button>
+                </div>
+                <div class="col-2 g-1">
+                    <button id="rejectBtn" data-action="false" type="button" class="btn btn-danger w-100 h-100">Reject</button>
+                </div>
+            </div>
+
+          
+        </div>
+    </div>
+    }
+else
+    {
+       <div class="card mb-2">
+        <div class="card-body">
+        <div class="alert alert-info" role="alert">
+            No pending gatepasses available.
+        </div>
+        </div>
+    </div>
+    }
+
+    <div class="card mb-2">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-9">
+                    <div class="mb-1">
+                        <small class="text-light fw-medium">Pending All Gatepasses</small>
+                    </div>
+
+                    @foreach (var item in Model.GPNumbersList.Skip(5))
+                    {
+                        var buttonClass = item.IsOut ? "btn-secondary" : "btn-success";
+
+                        <button type="button"
+                                data-bs-toggle="tooltip"
+                                data-bs-placement="top"
+                                title="@item.GpTo"
+                                class="btn rounded-pill @buttonClass m-1 gp-btn"
+                                data-isout="@item.IsOut"
+                                data-no="@item.GPNumber"
+                                data-id="@item.GPRouteId">
+                            @item.GPNumber
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-3 g-1">
+                    Guard Room Name
+                    <div class="alert alert-primary" role="alert">
+                        @Model.GRName
+                    </div>
+                    <input type="hidden" asp-for="@Model.GrLocRelId" id="gRId" />
+                </div>              
+            </div>
+        </div>
+    </div>
+</div>
