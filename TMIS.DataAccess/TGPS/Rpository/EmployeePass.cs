@@ -28,7 +28,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
         {
             using var dbConnection = _dbConnection.GetConnection();
 
-            var goodsFromSql = @"SELECT GrLocRelId AS Id, GrName AS Text FROM TGPS_VwEmpUsersGR WHERE (Id = @UserId)";
+            var goodsFromSql = @"SELECT GrLocRelId AS Id, GrName AS Text FROM TGPS_VwGRUsers WHERE (Id = @UserId)";
 
             var approvalListSql = @"SELECT AppUserId AS Id, UserShortName AS Text
             FROM  ADMIN.dbo.TGPS_VwUserApprovePersons WHERE (UserId = @UserId) AND (SystemType = N'TEP')";
