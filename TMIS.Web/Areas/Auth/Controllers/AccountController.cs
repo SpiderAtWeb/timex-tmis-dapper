@@ -57,11 +57,16 @@ namespace TMIS.Areas.Auth.Controllers
           var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
           // Sign in the user
-          await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal, new AuthenticationProperties
+          await HttpContext.SignInAsync(
+            CookieAuthenticationDefaults.AuthenticationScheme,
+            claimsPrincipal,
+            new AuthenticationProperties
           {
-            IsPersistent = true,
-            ExpiresUtc = DateTime.UtcNow.AddMinutes(30)
-          });
+            IsPersistent = inputModel.RememberMe,
+              ExpiresUtc = inputModel.RememberMe
+                          ? DateTime.UtcNow.AddDays(7)  // 7 days if remembered
+                          : DateTime.UtcNow.AddMinutes(30)  // 30 mins otherwise
+            });
           _logger.Info("USER SIGN IN UN -  [" + inputModel.Email + "] – PW [" + inputModel.Password + "]");
 
 

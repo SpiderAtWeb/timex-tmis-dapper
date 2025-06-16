@@ -192,18 +192,18 @@
                             <div>Machines</div>
                         </a>
                         <ul class="menu-sub">
-                            <li class='menu-item@(currentPage == "/SMIS/MasterMachine/MachineTypes" ? " active" : "")'>
-                                <a asp-area="SMIS" asp-controller="MasterMachine" asp-action="MachineTypes" class="menu-link">
+                            <li class='menu-item@(currentPage == "/SMIS/MasterMachine/McTypes" ? " active" : "")'>
+                                <a asp-area="SMIS" asp-controller="MasterMachine" asp-action="McTypes" class="menu-link">
                                     <div> <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span> Types</div>
                                 </a>
                             </li>
-                            <li class='menu-item@(currentPage == "/SMIS/MasterMachine/MachineBrands" ? " active" : "")'>
-                                <a asp-area="SMIS" asp-controller="MasterMachine" asp-action="MachineBrands" class="menu-link">
+                            <li class='menu-item@(currentPage == "/SMIS/MasterMachine/McBrands" ? " active" : "")'>
+                                <a asp-area="SMIS" asp-controller="MasterMachine" asp-action="McBrands" class="menu-link">
                                     <div> <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span> Brands</div>
                                 </a>
                             </li>
-                            <li class='menu-item@(currentPage == "/SMIS/MasterMachine/MachineModels" ? " active" : "")'>
-                                <a asp-area="SMIS" asp-controller="MasterMachine" asp-action="MachineModels" class="menu-link">
+                            <li class='menu-item@(currentPage == "/SMIS/MasterMachine/McModels" ? " active" : "")'>
+                                <a asp-area="SMIS" asp-controller="MasterMachine" asp-action="McModels" class="menu-link">
                                     <div> <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span> Models</div>
                                 </a>
                             </li>
@@ -241,19 +241,19 @@
                     </li>
 
 
-                    <li class='menu-item@(currentPage.StartsWith("/SMIS/MdRenting") ? " active open" : "")'>
+                    <li class='menu-item@(currentPage.StartsWith("/SMIS/MasterRenting") ? " active open" : "")'>
                         <a href="javascript:void(0);" class="menu-link menu-toggle">
                             <i class="menu-icon fa-solid fa-handshake-simple"></i>
                             <div>Renting</div>
                         </a>
                         <ul class="menu-sub">
-                            <li class='menu-item@(currentPage == "/SMIS/MdRenting/RentSupplier" ? " active" : "")'>
-                                <a asp-area="SMIS" asp-controller="MdRenting" asp-action="RentSuppliers" class="menu-link">
+                            <li class='menu-item@(currentPage == "/SMIS/MasterRenting/RentSupplier" ? " active" : "")'>
+                                <a asp-area="SMIS" asp-controller="MasterRenting" asp-action="RentSuppliers" class="menu-link">
                                     <div><span>    <i class="menu-icon fa-solid fa-angles-right"></i></span> Suppliers</div>
                                 </a>
                             </li>
-                            <li class='menu-item@(currentPage == "/SMIS/MDRenting/CostMethods" ? " active" : "")'>
-                                <a asp-area="SMIS" asp-controller="MdRenting" asp-action="CostMethods" class="menu-link">
+                            <li class='menu-item@(currentPage == "/SMIS/MasterRenting/CostMethods" ? " active" : "")'>
+                                <a asp-area="SMIS" asp-controller="MasterRenting" asp-action="CostMethods" class="menu-link">
                                     <div> <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span> Cost Methods</div>
                                 </a>
                             </li>
@@ -510,8 +510,10 @@
                         </li>
                     </ul> *@
                     </li>
-
+                
                     <!-- Transactions -> Administration  -->
+                @if (User.IsInRole("SUPER-ADMIN") || User.IsInRole("TGPS-ADMIN"))
+                {
                     <li class='menu-item@(currentPage.Contains("/TGPS/Response") ? " active open" : "")'>
                         <a href="javascript:void(0);" class="menu-link menu-toggle">
                             <i class="menu-icon fa-solid fa-pen-nib"></i>
@@ -540,6 +542,7 @@
                     </ul> *@
                     </li>
 
+                    }
                     <!-- Master Data -->
                     <li class="menu-header">
                         <span class="menu-header-text">Master Data</span>
@@ -587,6 +590,7 @@
                             </li>
                         </ul>
                     </li>
+                      
                 </ul>
             </li>
          }

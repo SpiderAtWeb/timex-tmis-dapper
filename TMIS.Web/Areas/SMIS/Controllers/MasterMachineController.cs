@@ -7,7 +7,7 @@ using TMIS.Models.SMIS;
 
 namespace TMIS.Areas.SMIS.Controllers
 {
-  [Authorize(Roles = "admin")]
+  [Authorize(Roles = "SUPER-ADMIN")]
   [Area("SMIS")]
   public class MasterMachineController(ITwoFieldsMDataAccess db, ISessionHelper sessionHelper) : BaseController
   {
@@ -15,26 +15,21 @@ namespace TMIS.Areas.SMIS.Controllers
     private readonly ILog _logger = LogManager.GetLogger(typeof(MasterMachineController));
     private readonly ISessionHelper _iSessionHelper = sessionHelper;
 
-    public IActionResult Index()
-    {
-      return View();
-    }
-
-    public IActionResult MachineTypes()
+    public IActionResult McTypes()
     {
       _logger.Info("[ " + _iSessionHelper.GetShortName() + " ] - PAGE VISIT MC TYPES");
 
       return View();
     }
 
-    public IActionResult MachineBrands()
+    public IActionResult McBrands()
     {
       _logger.Info("[ " + _iSessionHelper.GetShortName() + " ] - PAGE VISIT MC BRANDS");
 
       return View();
     }
 
-    public IActionResult MachineModels()
+    public IActionResult McModels()
     {
       _logger.Info("[ " + _iSessionHelper.GetShortName() + " ] - PAGE VISIT MC MODELS");
 
@@ -48,14 +43,14 @@ namespace TMIS.Areas.SMIS.Controllers
     [HttpGet]
     public IActionResult TypeGetAll()
     {
-      IEnumerable<TwoFieldsMData> fieldList = _db.GetList("SMIM_MdMachineTypes");
+      IEnumerable<TwoFieldsMData> fieldList = _db.GetList("SMIM_MasterTwoTypes");
       return Json(new { data = fieldList });
     }
 
     [HttpPost]
     public IActionResult TypeGetInsert(TwoFieldsMData twoFieldsMData)
     {
-      string[] insertResult = _db.InsertRecord(twoFieldsMData, "SMIM_MdMachineTypes");
+      string[] insertResult = _db.InsertRecord(twoFieldsMData, "SMIM_MasterTwoTypes");
 
       if (insertResult[0] == "1")
       {
@@ -74,7 +69,7 @@ namespace TMIS.Areas.SMIS.Controllers
     [HttpPost]
     public IActionResult TypeGetUpdate(TwoFieldsMData twoFieldsMData)
     {
-      string[] updateResult = _db.UpdateRecord(twoFieldsMData, "SMIM_MdMachineTypes");
+      string[] updateResult = _db.UpdateRecord(twoFieldsMData, "SMIM_MasterTwoTypes");
 
       // Check the first element of the result array to determine success
       if (updateResult[0] == "1")
@@ -96,7 +91,7 @@ namespace TMIS.Areas.SMIS.Controllers
     [HttpGet]
     public IActionResult TypeGetDelete(int? id)
     {
-      _db.DeleteRecord(id, "SMIM_MdMachineTypes");
+      _db.DeleteRecord(id, "SMIM_MasterTwoTypes");
       return Json(new { success = true, message = "Deleted Successful" });
     }
     #endregion
@@ -106,14 +101,14 @@ namespace TMIS.Areas.SMIS.Controllers
     [HttpGet]
     public IActionResult BrandsGetAll()
     {
-      IEnumerable<TwoFieldsMData> fieldList = _db.GetList("SMIM_MdMachineBrands");
+      IEnumerable<TwoFieldsMData> fieldList = _db.GetList("SMIM_MasterTwoBrands");
       return Json(new { data = fieldList });
     }
 
     [HttpPost]
     public IActionResult BrandsGetInsert(TwoFieldsMData twoFieldsMData)
     {
-      string[] insertResult = _db.InsertRecord(twoFieldsMData, "SMIM_MdMachineBrands");
+      string[] insertResult = _db.InsertRecord(twoFieldsMData, "SMIM_MasterTwoBrands");
 
       if (insertResult[0] == "1")
       {
@@ -132,7 +127,7 @@ namespace TMIS.Areas.SMIS.Controllers
     [HttpPost]
     public IActionResult BrandsGetUpdate(TwoFieldsMData twoFieldsMData)
     {
-      string[] updateResult = _db.UpdateRecord(twoFieldsMData, "SMIM_MdMachineBrands");
+      string[] updateResult = _db.UpdateRecord(twoFieldsMData, "SMIM_MasterTwoBrands");
 
       // Check the first element of the result array to determine success
       if (updateResult[0] == "1")
@@ -154,7 +149,7 @@ namespace TMIS.Areas.SMIS.Controllers
     [HttpGet]
     public IActionResult BrandsGetDelete(int? id)
     {
-      _db.DeleteRecord(id, "SMIM_MdMachineBrands");
+      _db.DeleteRecord(id, "SMIM_MasterTwoBrands");
       return Json(new { success = true, message = "Deleted Successful" });
     }
     #endregion
@@ -164,14 +159,14 @@ namespace TMIS.Areas.SMIS.Controllers
     [HttpGet]
     public IActionResult ModelGetAll()
     {
-      IEnumerable<TwoFieldsMData> fieldList = _db.GetList("SMIM_MdMachineModels");
+      IEnumerable<TwoFieldsMData> fieldList = _db.GetList("SMIM_MasterTwoModels");
       return Json(new { data = fieldList });
     }
 
     [HttpPost]
     public IActionResult ModelGetInsert(TwoFieldsMData twoFieldsMData)
     {
-      string[] insertResult = _db.InsertRecord(twoFieldsMData, "SMIM_MdMachineModels");
+      string[] insertResult = _db.InsertRecord(twoFieldsMData, "SMIM_MasterTwoModels");
 
       if (insertResult[0] == "1")
       {
@@ -190,7 +185,7 @@ namespace TMIS.Areas.SMIS.Controllers
     [HttpPost]
     public IActionResult ModelGetUpdate(TwoFieldsMData twoFieldsMData)
     {
-      string[] updateResult = _db.UpdateRecord(twoFieldsMData, "SMIM_MdMachineModels");
+      string[] updateResult = _db.UpdateRecord(twoFieldsMData, "SMIM_MasterTwoModels");
 
       // Check the first element of the result array to determine success
       if (updateResult[0] == "1")
@@ -212,7 +207,7 @@ namespace TMIS.Areas.SMIS.Controllers
     [HttpGet]
     public IActionResult ModelGetDelete(int? id)
     {
-      _db.DeleteRecord(id, "SMIM_MdMachineModels");
+      _db.DeleteRecord(id, "SMIM_MasterTwoModels");
       return Json(new { success = true, message = "Deleted Successful" });
     }
     #endregion

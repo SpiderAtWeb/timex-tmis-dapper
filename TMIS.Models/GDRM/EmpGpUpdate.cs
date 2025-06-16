@@ -6,6 +6,6 @@
         public int IsOut { get; set; }
         public int SelectedEmpGpId { get; set; }
         public bool ActionType { get; set; }
-        public List<EmpGpUpdateDetail> EmpGpUpdateDetailList { get; set; } = new();
+        public List<EmpGpUpdateDetail> EmpGpUpdateDetailList { get; set; } = [];
     }
 }

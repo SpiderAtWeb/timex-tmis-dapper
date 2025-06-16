@@ -28,12 +28,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
         {
             using var dbConnection = _dbConnection.GetConnection();
 
-            var goodsFromSql = @"SELECT        ADMIN.dbo.TGPS_RelGRoomsLoc.Id, ADMIN.dbo.TGPS_MasterGRooms.PropName AS Text
-            FROM            ADMIN.dbo._MasterUsers INNER JOIN
-                                     ADMIN.dbo._TrPermissionLocation ON ADMIN.dbo._MasterUsers.Id = ADMIN.dbo._TrPermissionLocation.UserId INNER JOIN
-                                     ADMIN.dbo.TGPS_RelGRoomsLoc ON ADMIN.dbo._TrPermissionLocation.LocRelId = ADMIN.dbo.TGPS_RelGRoomsLoc.LocRelId INNER JOIN
-                                     ADMIN.dbo.TGPS_MasterGRooms ON ADMIN.dbo.TGPS_RelGRoomsLoc.GuardRoomId = ADMIN.dbo.TGPS_MasterGRooms.Id
-            WHERE        (ADMIN.dbo._MasterUsers.Id = @UserId)";
+            var goodsFromSql = @"SELECT GrLocRelId AS Id, GrName AS Text FROM TGPS_VwGRUsers WHERE (Id = @UserId)";
 
             var approvalListSql = @"SELECT AppUserId AS Id, UserShortName AS Text
             FROM  ADMIN.dbo.TGPS_VwUserApprovePersons WHERE (UserId = @UserId) AND (SystemType = N'TEP')";

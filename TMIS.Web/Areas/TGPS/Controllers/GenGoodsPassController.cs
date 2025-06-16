@@ -101,7 +101,6 @@ public class GenGoodsPassController(IGoodsGatePass db, IExportPDF exportPDF) : B
   [HttpPost]
   public async Task<IActionResult> ExternalCreate([FromBody] GatepassVM gatepassVM)
   {
-
     if (gatepassVM == null)
     {
       _logger.Error("GatepassVM is null");
@@ -188,8 +187,6 @@ public class GenGoodsPassController(IGoodsGatePass db, IExportPDF exportPDF) : B
       _logger.Error($"Failed to download PDF for report ID: {id}");
       return NotFound("PDF not found.");
     }
-
-
     return File(pdfBytes, "application/pdf", $"GATEPASS-{gpRef}.pdf");
   }
 }

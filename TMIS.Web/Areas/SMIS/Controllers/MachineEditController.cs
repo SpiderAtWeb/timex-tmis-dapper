@@ -117,8 +117,8 @@ namespace TMIS.Areas.SMIS.Controllers
     {
       await _db.LoadRentedMachineListsAsync(mcCreatedRnVM);
 
-      mcCreatedRnVM.SupplierList = await _userControls.LoadDropDownsAsync("SMIM_MdMachineSuppliers");
-      mcCreatedRnVM.CostMethodsList = await _userControls.LoadDropDownsAsync("SMIM_MdCostMethods");
+      mcCreatedRnVM.SupplierList = await _userControls.LoadDropDownsAsync("SMIM_MasterTwoRentSuppliers");
+      mcCreatedRnVM.CostMethodsList = await _userControls.LoadDropDownsAsync("SMIM_MasterTwoCostDuration");
 
       MachineValidator.ValidateRentedMachine(mcCreatedRnVM, ModelState);
 
