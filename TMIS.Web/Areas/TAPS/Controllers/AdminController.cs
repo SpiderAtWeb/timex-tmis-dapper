@@ -28,5 +28,57 @@ namespace TMIS.Areas.TAPS.Controllers
       };
       return View(userRoleVM);
     }
+
+    [HttpGet]
+    public async Task<IActionResult> GetUserDetails(int userID)
+    {
+      var userRoles = await _adminRepository.LoadUserRole(userID);
+      return Json(userRoles);
+    }
+
+    [HttpPost]
+    public IActionResult UnAssignUserRole(int userId, int userRoleId)
+    {    
+      _adminRepository.DeleteUserRole(userId, userRoleId);
+      return Json(new { success = true });
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Index(UserRoleVM userRole)
+    {
+      var roles = await _adminRepository.LoadUserRoles();
+      var users = await _adminRepository.LoadUsers();
+
+      UserRoleVM userRoleVM = new()
+      {
+        UserList = users,
+        UserRoleList = roles
+      };
+      var exist = await _adminRepository.CheckRoleExistToUser(userRole.selectedUserID, userRole.selectedUserRoleID);
+
+      if (exist)
+      {
+        ModelState.AddModelError("selectedUserRoleID", "This role is already assigned to the user.");
+      }
+      // Check if the ModelState is valid
+      if (!ModelState.IsValid)
+      {
+        return View(userRoleVM);
+      }
+      
+      var rowAffected = await _adminRepository.AssignUserRole(userRole.selectedUserID, userRole.selectedUserRoleID);
+
+      if (rowAffected)
+      {
+        TempData["success"] = "User Role Assigned Successfully";
+        _logger.Info("USER ROLE ASSIGNED [" + userRole.selectedUserID + "] - [" + _iSessionHelper.GetShortName() + "]");
+      }
+      else
+      {
+        TempData["error"] = "Failed to Assign User Role";
+        _logger.Error("FAILED TO ASSIGN USER ROLE [" + userRole.selectedUserID + "] - [" + _iSessionHelper.GetShortName() + "]");
+      }
+      return RedirectToAction("Index");
+    }
   }
 }

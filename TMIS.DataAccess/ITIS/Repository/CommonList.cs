@@ -28,7 +28,7 @@ namespace TMIS.DataAccess.ITIS.Repository
 
         public async Task<IEnumerable<SelectListItem>> LoadLocations()
         {
-            string query = @"select id as Value, LocationName AS Text from COMN_MasterTwoLocations 
+            string query = @"select id as Value, PropName AS Text from COMN_MasterTwoLocations 
                             where IsDelete=0 ORDER BY Text";
             var results = await _dbConnection.GetConnection().QueryAsync<SelectListItem>(query);
             return results;
@@ -86,7 +86,7 @@ namespace TMIS.DataAccess.ITIS.Repository
 
             string query = @"select d.DeviceName, d.SerialNumber, d.FixedAssetCode, d.PurchasedDate,d.depreciation, d.Remark,
                             d.IsRented, d.IsBrandNew, v.Name as Vendor, d.Image1Data, d.Image2Data, d.Image3Data, d.Image4Data,
-                            s.PropName as Status, l.LocationName as Location
+                            s.PropName as Status, l.PropName as Location
                             from ITIS_Devices as d
                             left join ITIS_VendorTemp as v on v.ID=d.VendorID
                             left join ITIS_DeviceStatus as s on s.Id = d.DeviceStatusID
