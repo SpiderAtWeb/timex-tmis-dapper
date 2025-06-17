@@ -7,7 +7,7 @@ using TMIS.Models.SMIS;
 
 namespace TMIS.Areas.SMIS.Controllers
 {
-  [Authorize(Roles = "admin")]
+  [Authorize(Roles = "SUPER-ADMIN")]
   [Area("SMIS")]
   public class MasterRentingController(ITwoFieldsMDataAccess db, ISessionHelper sessionHelper) : BaseController
   {
@@ -41,14 +41,14 @@ namespace TMIS.Areas.SMIS.Controllers
     [HttpGet]
     public IActionResult RentSupGetAll()
     {
-      IEnumerable<TwoFieldsMData> fieldList = _db.GetList("SMIM_MdMachineSuppliers");
+      IEnumerable<TwoFieldsMData> fieldList = _db.GetList("SMIM_MasterTwoRentSuppliers");
       return Json(new { data = fieldList });
     }
 
     [HttpPost]
     public IActionResult RentSupGetInsert(TwoFieldsMData twoFieldsMData)
     {
-      string[] insertResult = _db.InsertRecord(twoFieldsMData, "SMIM_MdMachineSuppliers");
+      string[] insertResult = _db.InsertRecord(twoFieldsMData, "SMIM_MasterTwoRentSuppliers");
 
       if (insertResult[0] == "1")
       {
@@ -67,7 +67,7 @@ namespace TMIS.Areas.SMIS.Controllers
     [HttpPost]
     public IActionResult RentSupGetUpdate(TwoFieldsMData twoFieldsMData)
     {
-      string[] updateResult = _db.UpdateRecord(twoFieldsMData, "SMIM_MdMachineSuppliers");
+      string[] updateResult = _db.UpdateRecord(twoFieldsMData, "SMIM_MasterTwoRentSuppliers");
 
       // Check the first element of the result array to determine success
       if (updateResult[0] == "1")
@@ -89,7 +89,7 @@ namespace TMIS.Areas.SMIS.Controllers
     [HttpGet]
     public IActionResult RentSupGetDelete(int? id)
     {
-      _db.DeleteRecord(id, "SMIM_MdMachineSuppliers");
+      _db.DeleteRecord(id, "SMIM_MasterTwoRentSuppliers");
       return Json(new { success = true, message = "Deleted Successful" });
     }
     #endregion
@@ -99,14 +99,14 @@ namespace TMIS.Areas.SMIS.Controllers
     [HttpGet]
     public IActionResult CostGetAll()
     {
-      IEnumerable<TwoFieldsMData> fieldList = _db.GetList("SMIM_MdCostMethods");
+      IEnumerable<TwoFieldsMData> fieldList = _db.GetList("SMIM_MasterTwoCostDuration");
       return Json(new { data = fieldList });
     }
 
     [HttpPost]
     public IActionResult CostGetInsert(TwoFieldsMData twoFieldsMData)
     {
-      string[] insertResult = _db.InsertRecord(twoFieldsMData, "SMIM_MdCostMethods");
+      string[] insertResult = _db.InsertRecord(twoFieldsMData, "SMIM_MasterTwoCostDuration");
 
       if (insertResult[0] == "1")
       {
@@ -125,7 +125,7 @@ namespace TMIS.Areas.SMIS.Controllers
     [HttpPost]
     public IActionResult CostGetUpdate(TwoFieldsMData twoFieldsMData)
     {
-      string[] updateResult = _db.UpdateRecord(twoFieldsMData, "SMIM_MdCostMethods");
+      string[] updateResult = _db.UpdateRecord(twoFieldsMData, "SMIM_MasterTwoCostDuration");
 
       // Check the first element of the result array to determine success
       if (updateResult[0] == "1")
@@ -147,7 +147,7 @@ namespace TMIS.Areas.SMIS.Controllers
     [HttpGet]
     public IActionResult CostGetDelete(int? id)
     {
-      _db.DeleteRecord(id, "SMIM_MdCostMethods");
+      _db.DeleteRecord(id, "SMIM_MasterTwoCostDuration");
       return Json(new { success = true, message = "Deleted Successful" });
     }
     #endregion

@@ -48,37 +48,38 @@
         <input type="hidden" asp-for="McInventory!.CurrentStatusId" />
 
         <h6>Sew Machine Attributes</h6>
-        <div class="row g-4">
-            <div class="col-md-4">
+        <div class="row g-1 mb-3">
+            <div class="col-3">
                 <div class="form-floating form-floating-outline">
                     <input asp-for="McInventory!.QrCode" type="text" id="qrCode" class="form-control" placeholder="TSM00007" />
                     <label for="qrCode">QR Code</label>
                     <span asp-validation-for="McInventory!.QrCode" class="text-warning"></span>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-3">
                 <div class="form-floating form-floating-outline">
                     <input asp-for="McInventory!.SerialNo" type="text" id="serialNo" class="form-control" placeholder="4DOFE05030" />
                     <label for="serialNo">Serial No</label>
                     <span asp-validation-for="McInventory!.SerialNo" class="text-warning"></span>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-3">
                 <div class="form-floating form-floating-outline">
                     <input asp-for="McInventory!.FarCode" type="text" id="farCode" class="form-control" placeholder="300000003227" />
                     <label for="farCode">FAR Code</label>
                     <span asp-validation-for="McInventory!.FarCode" class="text-warning"></span>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-3">
                 <div class="form-floating form-floating-outline">
                     <input asp-for="McInventory!.ServiceSeq" type="number" id="ServiceSeq" class="form-control" placeholder="100" />
                     <label for="ServiceSeq">Service Sequence (Days)</label>
                     <span asp-validation-for="McInventory!.ServiceSeq" class="text-warning"></span>
                 </div>
             </div>
-
-            <div class="col-md-4">
+        </div>
+        <div class="row g-1  mb-3">
+            <div class="col-3">
                 <div class="form-floating form-floating-outline">
                     <select asp-for="McInventory!.MachineModelId" asp-items="@Model.ModelsList" class="select2 form-select" data-allow-clear="true">
                         <option Disabled Selected>- Select Model -</option>
@@ -89,7 +90,7 @@
                 </div>
             </div>
 
-            <div class="col-md-4">
+            <div class="col-3">
                 <div class="form-floating form-floating-outline">
                     <select asp-for="McInventory!.MachineBrandId" asp-items="@Model.BrandsList" class="select2 form-select" data-allow-clear="true">
                         <option Disabled Selected>- Select Brand -</option>
@@ -99,7 +100,7 @@
                     <span asp-validation-for="McInventory!.MachineBrandId" class="text-warning"></span>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-3">
                 <div class="form-floating form-floating-outline">
 
                     <select asp-for="@Model.McInventory!.MachineTypeId" asp-items="@Model.TypesList" class="select2 form-select" data-allow-clear="true">
@@ -110,14 +111,16 @@
                     <span asp-validation-for="McInventory!.MachineTypeId" class="text-warning"></span>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-3">
                 <div class="form-floating form-floating-outline">
                     <input asp-for="McInventory!.DatePurchased" type="date" id="datePurchased" class="form-control dob-picker" placeholder="YYYY-MM-DD" />
                     <label for="datePurchased">Purchased Date</label>
                     <span asp-validation-for="McInventory!.DatePurchased" class="text-warning"></span>
                 </div>
             </div>
-            <div class="col-md-4">
+        </div>
+        <div class="row g-1 mb-3">
+            <div class="col-3">
                 <div class="form-floating form-floating-outline">
                     <input asp-for="McInventory!.Cost" type="number" id="cost" class="form-control" placeholder="25000" />
                     <label for="qrCode">Cost</label>
@@ -125,17 +128,19 @@
                 </div>
             </div>
 
-            <div class="col-4">
+            <div class="col-3">
                 <input class="form-control" type="file" name="imageFR">
                 <label for="formFile" class="form-label">Image 01</label>
             </div>
-            <div class="col-4">
+            <div class="col-3">
                 <input class="form-control" type="file" name="imageBK">
                 <label for="formFile" class="form-label">Image 02</label>
             </div>
-            <div class="col-4">
+        </div>
+        <div class="row g-1">
+            <div class="col-3">
             </div>
-            <div class="col-md-4">
+            <div class="col-3">
                 <div class="image-preview">
                     @if (Model.McInventory!.ImageFR != null && Model.McInventory.ImageFR.Length > 0)
                     {
@@ -150,6 +155,7 @@
                     <input type="hidden" asp-for="McInventory!.RemoveImageFront" id="removeImageFront" value="false" />
                 </div>
             </div>
+
             <div class="col-md-4">
                 <div class="image-preview">
                     @if (Model.McInventory.ImageBK != null && Model.McInventory.ImageBK.Length > 0)
@@ -165,11 +171,12 @@
                     <input type="hidden" asp-for="McInventory!.RemoveImageBack" id="removeImageBack" value="false" />
                 </div>
             </div>
-            <div class="pt-6">
-                <a asp-controller="MachineEdit" asp-action="Index" class="btn btn-outline-secondary">Back to List</a>
-                <button type="submit" class="btn btn-primary">Update</button>
-            </div>
         </div>
+        <div class="pt-6">
+            <a asp-controller="MachineEdit" asp-action="Index" class="btn btn-outline-secondary">Back to List</a>
+            <button type="submit" class="btn btn-primary">Update</button>
+        </div>
+
     </form>
 </div>
 

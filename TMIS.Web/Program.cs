@@ -138,7 +138,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 
 // Configure authorization
 builder.Services.AddAuthorizationBuilder()
-    .AddPolicy("AdminOnly", policy => policy.RequireRole("admin"));
+    .AddPolicy("AdminOnly", policy => policy.RequireRole("SUPER-ADMIN"));
 
 var app = builder.Build();
 

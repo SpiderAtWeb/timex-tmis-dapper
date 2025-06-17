@@ -69,7 +69,7 @@ namespace TMIS.DataAccess.GDRM.Rpository
                 {
                     // Update for outgoing
                     string sqlUpdateM = @"UPDATE [dbo].[TGPS_TrGpEmpHeader]
-                       SET [IsOutUpdated] = 1
+                       SET [IsOutUpdated] = @IsOut
                           ,[IsInUpdate] = 0,
                            [GRUserId] = @GRUserId   
                      WHERE [ID] = @EmpGpId";
@@ -78,6 +78,7 @@ namespace TMIS.DataAccess.GDRM.Rpository
                         sqlUpdateM,
                         new
                         {
+                            IsOut = empGpUpdate.ActionType ? 1 : 2,
                             EmpGpId = empGpUpdate.SelectedEmpGpId,
                             GRUserId = _iSessionHelper.GetUserId()
                         },
@@ -112,7 +113,7 @@ namespace TMIS.DataAccess.GDRM.Rpository
                     // Update for receiving
                     string sqlUpdateM = @"UPDATE [dbo].[TGPS_TrGpEmpHeader]
                        SET [IsOutUpdated] = 1
-                          ,[IsInUpdate] = 1,
+                          ,[IsInUpdate] = @IsIn,
                            [GRUserId] = @GRUserId   
                      WHERE [ID] = @EmpGpId";
 
@@ -120,6 +121,7 @@ namespace TMIS.DataAccess.GDRM.Rpository
                         sqlUpdateM,
                         new
                         {
+                            IsIn = empGpUpdate.ActionType ? 1 : 2,
                             EmpGpId = empGpUpdate.SelectedEmpGpId,
                             GRUserId = _iSessionHelper.GetUserId()
                         },
@@ -151,7 +153,7 @@ namespace TMIS.DataAccess.GDRM.Rpository
                 }
 
                 transaction.Commit();
-                return await Task.FromResult(new EmpGpUpdateResult { IsSuccess = true, Message = "Employee dispatching completed successfully." });
+                return await Task.FromResult(new EmpGpUpdateResult { IsSuccess = true, Message = "Employee Transaction completed successfully." });
             }
             catch (Exception ex)
             {

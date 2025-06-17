@@ -1,5 +1,4 @@
 ﻿using Dapper;
-using Microsoft.AspNetCore.Http;
 using TMIS.DataAccess.COMON.IRpository;
 using TMIS.Models.Auth;
 
@@ -36,7 +35,7 @@ namespace TMIS.DataAccess.COMON.Rpository
             WHERE        (_TrPermissionRoles.UserId =  @UserId)";
 
             var _userRolesList = await connection.QueryAsync<string>(sqlUserRolesList, new { UserId = user.Id });
-            user.UserRolesList = [.. _userRolesList];         
+            user.UserRolesList = [.. _userRolesList];
 
             _iSessionHelper.SetUserSession(user.Id.ToString(), user.UserShortName, user.UserRolesList, user.UserLocationList);
             return user;
