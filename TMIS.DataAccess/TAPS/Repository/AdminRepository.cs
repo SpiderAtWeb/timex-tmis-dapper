@@ -113,7 +113,7 @@ namespace TMIS.DataAccess.TAPS.Repository
             string query = @"INSERT INTO _MasterUsers (UserEmail, UserPassword, UserShortName, IsActive, DefLocId)
                             VALUES (@UserEmail, @UserPassword, @UserShortName, 1, @DefLocId);
                             SELECT CAST(SCOPE_IDENTITY() AS INT) AS InsertedId;";
-
+            //_TrPermissionLocation insert to this table
             var insertedId = await _dbConnection.GetConnection().QuerySingleOrDefaultAsync<int?>(query, new
             {
                 UserEmail = newUserVM.UserEmail,
