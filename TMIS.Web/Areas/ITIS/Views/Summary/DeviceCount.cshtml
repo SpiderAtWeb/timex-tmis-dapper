@@ -1,0 +1,121 @@
+@section VendorStyles {
+	<link href="~/styles/kendo.common.min.css" rel="stylesheet" />
+	<link href="~/styles/kendo.metro.min.css" rel="stylesheet" />
+}
+
+@section VendorScripts {
+	<script src="~/kendo/jszip.min.js"></script>
+	<script src="~/kendo/kendo.all.min.js"></script>
+}
+
+@section PageScripts {
+	<script>
+		$(document).ready(function () {			
+			var pivotgrid = $("#pivotgrid").kendoPivotGrid({
+				filterable: true,
+				sortable: true,
+				columnWidth: 120,
+				height: 570,
+				toolbar: ["excel"],
+				excel: {
+					fileName: "summary.xlsx",
+					proxyURL: "/proxy"
+				},
+				dataSource: {
+					transport: {
+						read: {
+							url: "/ITIS/Summary/GetAllDataList",
+							dataType: "jsonp"
+						}
+					},
+					schema: {
+						model: {
+							fields: {
+								DeviceType: { type: "string" },
+								Location: { type: "string" },
+							}
+						},
+						cube: {
+							dimensions: {
+								DeviceType: { caption: "DeviceType" },
+								Location: { caption: "Location" },
+							},
+							measures: {
+								"Count": { field: "DeviceType", format: "{0}", aggregate: "count" },
+							}
+						}
+					},
+					columns: [{ name: ["Location"], expand: true }, { name: ["Status"], expand: true }],
+					rows: [{ name: ["DeviceType"], expand: true }],
+					measures: ["Count"],
+
+				},
+			}).data("kendoPivotGrid");
+
+			// Configure the export button
+			$("#export").kendoButton({
+				icon: "file-excel",
+				click: function () {
+					pivotgrid.saveAsExcel();
+				}
+			});
+
+			// Configure the PivotConfigurator
+			$("#configurator").kendoPivotConfigurator({
+				dataSource: pivotgrid.dataSource,
+				filterable: true,
+				sortable: true,
+				height: 570
+			});
+
+			// Configure the PivotConfigurator button
+			$("#pivotbutton").kendoPivotConfiguratorButton({
+				configurator: "configurator"
+			});
+		});
+	</script>
+	<script src="~/custom/loading-hide.js"></script>
+}
+
+@section PageStyles {
+	<style>
+		#example {
+			font-size: 12px;
+		}
+
+		#pivotbutton {
+			z-index: 1000;
+			position: absolute;
+			bottom: 5px;
+			padding: 10px;
+		}
+
+		.k-chip-md {
+			background-color: #8def00;
+		}
+	</style>
+
+
+}
+
+@* ************** Content ************** *@
+<!-- Ajax Sourced Server-side -->
+@await Html.PartialAsync("_Loading")
+
+<div class="panelDiv">
+	<div class="card">
+		<h5 class="card-header page-header">Summary</h5>
+		<div class="row ms-1 me-1 pb-2">
+			<div id="example">
+				<button id="export">Export to Excel</button>
+				<hr class="k-hr" />
+				<div class="k-pivotgrid-wrapper">
+					<div id="configurator"></div>
+					<div id="pivotbutton">                </div>
+					<div id="pivotgrid"></div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+</div>

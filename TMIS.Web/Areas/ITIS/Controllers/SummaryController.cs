@@ -34,5 +34,26 @@ namespace TMIS.Areas.ITIS.Controllers
         return Json(data);
       }
     }
+
+    public IActionResult DeviceCount()
+    {
+      _logger.Info("[ " + _iSessionHelper.GetShortName() + " ] - PAGE VISIT DEVICE COUNT");
+      return View();
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetAllDevicesCount(string callback)
+    {
+      var data = await _reportRepository.GetAllDevicesCount();
+      var jsonResponse = JsonConvert.SerializeObject(data);
+      if (!string.IsNullOrEmpty(callback))
+      {
+        return Content($"{callback}({jsonResponse});", "application/javascript");
+      }
+      else
+      {
+        return Json(data);
+      }
+    }
   }
 }
