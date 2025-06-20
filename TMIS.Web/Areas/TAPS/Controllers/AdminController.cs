@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using log4net;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using TMIS.Areas.ITIS.Controllers;
 using TMIS.Controllers;
 using TMIS.DataAccess.COMON.IRpository;
@@ -79,6 +80,81 @@ namespace TMIS.Areas.TAPS.Controllers
         _logger.Error("FAILED TO ASSIGN USER ROLE [" + userRole.selectedUserID + "] - [" + _iSessionHelper.GetShortName() + "]");
       }
       return RedirectToAction("Index");
+    }
+
+    public async Task<IActionResult> AssignApprover()
+    {
+      _logger.Info("[" + _iSessionHelper.GetShortName() + "] - PAGE VISIT TYPE INDEX");  
+      var users = await _adminRepository.LoadUsers();
+
+    
+      AssignApproverVM assignApproverVM = new()
+      {
+        UserList = users,
+        SystemTypeList = new List<SelectListItem>
+        {
+            new SelectListItem { Value = "TGP", Text = "TGP" },
+            new SelectListItem { Value = "TEP", Text = "TEP" }
+        }
+      };
+      return View(assignApproverVM);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> AssignApprover(AssignApproverVM obj)
+    {
+      var users = await _adminRepository.LoadUsers();
+
+      obj.UserList = users;
+      obj.SystemTypeList = new List<SelectListItem>
+      {
+          new SelectListItem { Value = "TGP", Text = "TGP" },
+          new SelectListItem { Value = "TEP", Text = "TEP" }
+      };      
+      var exist = await _adminRepository.CheckApproverExistToUser(obj);
+
+      if (exist)
+      {
+        ModelState.AddModelError("selectedUserID", "This Approver is already assigned to the user.");
+      }
+      // Check if the ModelState is valid
+      if (!ModelState.IsValid)
+      {
+        return View(obj);
+      }
+
+      var rowAffected = await _adminRepository.InsertApprover(obj);
+
+      if (rowAffected)
+      {
+        TempData["success"] = "Approver Assigned Successfully";
+        _logger.Info("APPROVER ASSIGNED TO [" + obj.selectedUserID + "] - [" + _iSessionHelper.GetShortName() + "]");
+      }
+      else
+      {
+        TempData["error"] = "Failed to Assign Approver";
+        _logger.Error("FAILED TO APPROVER ASSIGNED [" + obj.selectedUserID + "] - [" + _iSessionHelper.GetShortName() + "]");
+      }
+      return RedirectToAction("AssignApprover");
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetApprovers(int userID)
+    {
+      var approvers = await _adminRepository.LoadUserApprovers(userID);
+      return Json(approvers);
+    }
+    [HttpPost]
+    public IActionResult UnAssignApprover(int userId, int approverId, string systemType)
+    {
+      AssignApproverVM obj = new()
+      {
+        selectedUserID = userId,
+        selectedApproverID = approverId,
+        selectedSystemTypeID = systemType
+      };
+      _adminRepository.DeleteApprover(obj);
+      return Json(new { success = true });
     }
   }
 }

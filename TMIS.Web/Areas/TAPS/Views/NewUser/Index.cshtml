@@ -71,8 +71,8 @@
 		New User
 	</h5>
 	<form asp-action="Index" method="post" class="card-body" id="myForm" enctype="multipart/form-data">
-		<div class="row g-4">
-			<div class="col-md-4">
+		<div class="row g-1">
+			<div class="col-md-3">
 				<div class="form-floating form-floating-outline">
 					<select asp-for="@Model.UserEmail" asp-items="@Model.UserEmailList" class="select2 form-select" data-allow-clear="true">
 						<option value="" Disabled Selected>- Choose or enter a user -</option>
@@ -82,7 +82,7 @@
 					<span asp-validation-for="UserEmail" class="text-warning"></span>
 				</div>
 			</div>
-			<div class="col-md-4">
+			<div class="col-md-3">
 				<div class="form-floating form-floating-outline">
 					<select asp-for="@Model.Location" asp-items="@Model.LocationList" class="select2 form-select" data-allow-clear="true">
 						<option value="" Disabled Selected>- select location -</option>
@@ -92,14 +92,14 @@
 					<span asp-validation-for="Location" class="text-warning"></span>
 				</div>
 			</div>
-			<div class="col-md-4">
+			<div class="col-md-3">
 				<div class="form-floating form-floating-outline">
 					<input asp-for="@Model.UserShortName" type="text" id="style-no" class="form-control" placeholder="Jone Doe" />
 					<label asp-for="@Model.UserShortName"></label>
 					<span asp-validation-for="@Model.UserShortName" class="customerError text-warning"></span>
 				</div>
 			</div>
-			<div class="col-md-4">
+			<div class="col-md-3">
 				<div class="form-floating form-floating-outline">
 					<input asp-for="@Model.UserPassword" type="text" id="style-no" class="form-control" placeholder="***" />
 					<label asp-for="@Model.UserPassword"></label>
