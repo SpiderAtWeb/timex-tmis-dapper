@@ -8,7 +8,7 @@ namespace TMIS.DataAccess.PLMS.IRpository
 
         public Task<CPathDataVM> LoadCPathDropDowns();
 
-        Task<List<PLMSActivity>> LoadSavedActivityList(InquiryParams inqParas);
+        Task<List<PLMSActivity>> LoadSavedActivityList(int id);
 
     }
 }

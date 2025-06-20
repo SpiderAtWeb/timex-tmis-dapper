@@ -15,7 +15,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
         public async Task<IEnumerable<GoodsPassList>> GetList()
         {
             string sql = @"SELECT [Id], [GatePassNo], [GenDateTime], [GenGPassTo], [GpSubject], [PassStatus]  
-            FROM [TGPS_VwGGPassSmry]  WHERE IsApproved = 0 AND (GeneratedUserId = @GenUser)
+            FROM [TGPS_VwGGPassSmry]  WHERE IsApproved = 0 AND (ApprovedById = @GenUser)
             ORDER BY GatePassNo DESC";
 
             return await _dbConnection.GetConnection().QueryAsync<GoodsPassList>(sql, new { GenUser = _iSessionHelper.GetUserId() });

@@ -18,11 +18,34 @@
 
     <script>
         $(document).ready(function () {
+
+           $('select[name="Id"]').select2({
+                placeholder: "- Choose or Enter a Path -",
+                allowClear: true,
+                tags: true, // This allows custom entries
+                createTag: function (params) {
+                    var term = $.trim(params.term);
+                    if (term === '') {
+                        return null;
+                    }
+                    return {
+                        id: term,
+                        text: term,
+                        newOption: true
+                    };
+                },
+                insertTag: function (data, tag) {
+                    // Place the new tag at the end of the results
+                    data.push(tag);
+                }
+              });
+
+
             var treeView = $("#treeview-left").kendoTreeView({
                 dragAndDrop: true,
                 checkboxes: { checkChildren: false }, // Enable checkboxes
                 dataSource: new kendo.data.HierarchicalDataSource({ data: [] }),
-                template: "#= item.text # - (<span style='color: green;'>#= item.days #</span>&nbsp;- By&nbsp; <span style='color: blue;'>#= item.userLevel #</span>)",
+                template: "#= item.text # | &nbsp;<span style='color: green;'>#= item.days #</span>&nbsp; | By&nbsp; <span style='color: blue;'>#= item.userLevel #</span> &nbsp; <span class='badge rounded-pill bg-label-danger' style='color: red;'>#= item.isAwaitTask #</span>",
                 select: function (e) {
                     selectedNode = treeView.dataItem(e.node); // Store selected node
                 },
@@ -59,6 +82,7 @@
                 var userCatId = $("#UserCategoryId").val();
                 var userCatText = $("#UserCategoryId option:selected").text();
                 var days = $("#ActivityDays").val();
+                 var isAwaitTask = $("#dependentTaskCheckbox").is(':checked') ? "AWAITING-TASK" : "";
 
                 if (!activityId || activityId === "- Activity -") {
                     return alert("Please select a valid activity before proceeding.");
@@ -75,6 +99,7 @@
                         days: days + " days",
                         userLevel: userCatText,
                         userLevelId: userCatId,
+                        isAwaitTask : isAwaitTask,
                         expanded: true,
                         items: []
                     });
@@ -92,6 +117,7 @@
                 var userCatId = $("#UserCategoryId").val();
                 var userCatText = $("#UserCategoryId option:selected").text();
                 var days = $("#ActivityDays").val();
+                var isAwaitTask = $("#dependentTaskCheckbox").is(':checked') ? "DEPENDENT" : "";
 
                 if (!activityId || activityId === "- Activity -") {
                     return alert("Please select a valid activity before proceeding.");
@@ -107,7 +133,8 @@
                         text: activityText,
                         days: days + " days",
                         userLevel: userCatText,
-                        userLevelId: userCatId
+                        userLevelId: userCatId,
+                        isAwaitTask : isAwaitTask,
                     });
 
                     treeView.expand(treeView.findByText(selectedNode.text));
@@ -143,23 +170,17 @@
             // Save Tree Data
             $("#saveBtn").click(function () {
                 var treeData = getTreeData(treeView.dataSource.view());
-                var saveUrl = '@Url.Action("SaveTreeData", "CriticalPathActivities", new { area = "PLMS" })';
+                var saveUrl = '@Url.Action("SaveTreeData", "CPTemplate", new { area = "PLMS" })';
 
                 // Collect additional data
-                var selectedInqTypeId = parseInt(document.getElementById("inquiryTypeId").value, 10);
-                var selectedRepTypeId = parseInt(document.getElementById("responseTypeId").value, 10);
-                var selectedCustomerId = parseInt(document.getElementById("customerId").value, 10);
-                var selectedSampTypeId = parseInt(document.getElementById("sampleTypeId").value, 10);
-                var selectedSampStageId = parseInt(document.getElementById("sampleStageId").value, 10);
+                  var cpId = parseInt($('#Id').val(), 10) || 0;
+                  var cpName = $('#Id option:selected').text();
 
                 // Combine tree data and additional data
                 var saveData = {
                     treeData: treeData,
-                    selectedInqTypeId: selectedInqTypeId,
-                    selectedRepTypeId: selectedRepTypeId,
-                    selectedCustomerId: selectedCustomerId,
-                    selectedSampTypeId: selectedSampTypeId,
-                    selectedSampStageId: selectedSampStageId
+                    id: cpId,
+                    cPName: cpName
                 };
 
                 $.ajax({
@@ -168,6 +189,7 @@
                     contentType: 'application/json',
                     data: JSON.stringify(saveData),
                     success: function () {
+                      location.reload();
                         alert("Tree data saved successfully!");
                     },
                     error: function (xhr, status, error) {
@@ -183,6 +205,7 @@
                         activityId: node.id,
                         userCategoryId: node.userLevelId,
                         days: node.days,
+                        isAwaitTask : node.isAwaitTask === "AWAITING-TASK",
                         activityList: node.hasChildren ? getTreeData(node.children.view()) : []
                     };
                 });
@@ -194,40 +217,23 @@
 
             // Load Data via Ajax
             function handleChange() {
-                var selectedInqTypeId = document.getElementById("inquiryTypeId").value;
-                var selectedRepTypeId = document.getElementById("responseTypeId").value;
-                var selectedCustomerId = document.getElementById("customerId").value;
-                var selectedSampTypeId = document.getElementById("sampleTypeId").value;
-                var selectedSampStageId = document.getElementById("sampleStageId").value;
 
-                selectedInqTypeId = parseInt(selectedInqTypeId, 10);
-                selectedRepTypeId = parseInt(selectedRepTypeId, 10);
-                selectedCustomerId = parseInt(selectedCustomerId, 10);
-                selectedSampTypeId = parseInt(selectedSampTypeId, 10);
-                selectedSampStageId = parseInt(selectedSampStageId, 10);
+              treeView.dataSource.data([]);
 
-                if (isInteger(selectedInqTypeId) &&
-                    isInteger(selectedRepTypeId) &&
-                    isInteger(selectedCustomerId) &&
-                    isInteger(selectedSampTypeId) &&
-                    isInteger(selectedSampStageId)) {
+                var selectedId = parseInt($('#Id').val(), 10);
+
+                if (isInteger(selectedId)) {
 
                     // Show the loading text
                     document.getElementById("loadingText").style.display = "block";
 
-                    var loadUrl = '@Url.Action("LoadActivites", "CriticalPathActivities", new { area = "PLMS" })';
+                    var loadUrl = '@Url.Action("LoadActivites", "CPTemplate", new { area = "PLMS" })';
 
                     $.ajax({
                         url: loadUrl,
                         type: 'POST',
                         contentType: 'application/json',
-                        data: JSON.stringify({
-                            inquiryTypeId: selectedInqTypeId,
-                            responseTypeId: selectedRepTypeId,
-                            customerId: selectedCustomerId,
-                            sampleTypeId: selectedSampTypeId,
-                            sampleStageId: selectedSampStageId,
-                        }),
+                        data:   JSON.stringify(selectedId) ,
                         success: function (data) {
                             var treeData = data.map(item => ({
                                 id: item.activityId,
@@ -235,6 +241,7 @@
                                 days: item.days + " days",
                                 userLevel: item.userCategoryText,
                                 userLevelId: item.userCategoryId,
+                                isAwaitTask: item.isAwaitTask == true ? "AWAITING-TASK" : "",
                                 expanded: true,
                                 items: item.activityList ? item.activityList.map(subItem => ({
                                     id: subItem.activityId,
@@ -242,6 +249,7 @@
                                     days: subItem.days + " days",
                                     userLevel: subItem.userCategoryText,
                                     userLevelId: subItem.userCategoryId,
+                                    isAwaitTask : subItem.isAwaitTask == true ? "AWAITING-TASK" : "",
                                 })) : []
                             }));
 
@@ -260,13 +268,14 @@
                 }
             }
 
-            $(".drop").change(function () {
+            $("#Id").change(function () {
                 handleChange();
             });
 
 
         });
     </script>
+
 }
 
 @section PageStyles {
@@ -287,82 +296,26 @@
         </h5>
 
         <div class="card-body">
+            <div class="row">
+                <div class="col-4 g-1">
 
-            <div class="row g-4">
-                <div class="col-md-4">
                     <div class="form-floating form-floating-outline">
-                        <select asp-for="@Model.CPathData!.CustomerId" asp-items="@Model.CustomersList" id="customerId" class="select2 form-select drop form-select-sm" data-allow-clear="true">
-                            <option Disabled Selected>- Select Customer -</option>
+                        <select asp-for="@Model.Id" asp-items="@Model.CPathList" id="Id" class="select2 form-select" data-allow-clear="true">
+                            <option value="" Disabled Selected>- Choose or Enter a Path -</option>
                         </select>
 
-                        <label for="CustomerId">
-                            Customer
-                        </label>
-                        <span asp-validation-for="CPathData!.CustomerId" class="text-warning"></span>
+                        <label asp-for="Id">Critical Path</label>
+                        <span asp-validation-for="Id" class="text-warning"></span>
                     </div>
                 </div>
+            </div>
 
-                <div class="col-md-4">
+            <hr>
+
+            <div class="row mb-2">
+                <div class="col-6 g-1">
                     <div class="form-floating form-floating-outline">
-                        <select asp-for="@Model.CPathData!.InquiryTypeId" asp-items="@Model.InquiryTypesList" id="inquiryTypeId" class="select2 form-select drop" data-allow-clear="true">
-                            <option Disabled Selected>- Select Inquiry Type -</option>
-                        </select>
-
-                        <label for="machineBrandId">
-                            Inquiry Type
-                        </label>
-                        <span asp-validation-for="CPathData!.InquiryTypeId" class="text-warning"></span>
-                    </div>
-                </div>
-
-                <div class="col-md-4">
-                    <div class="form-floating form-floating-outline">
-                        <select asp-for="@Model.CPathData!.ResponseTypeId" asp-items="@Model.ResponseTypesList" id="responseTypeId" class="select2 form-select drop" data-allow-clear="true">
-                            <option Disabled Selected>- Select Response Type -</option>
-                        </select>
-
-                        <label for="ResponseTypeId">
-                            Response Type
-                        </label>
-                        <span asp-validation-for="CPathData!.ResponseTypeId" class="text-warning"></span>
-                    </div>
-                </div>
-
-                <div class="col-md-4">
-                    <div class="form-floating form-floating-outline">
-                        <select asp-for="@Model.CPathData!.SampleStageId" asp-items="@Model.SampleStagesList" id="sampleStageId" class="select2 form-select drop" data-allow-clear="true">
-                            <option Disabled Selected>
-                                - Extend -
-                            </option>
-                        </select>
-
-                        <label for="SampleStageId">
-                            Extend
-                        </label>
-                        <span asp-validation-for="CPathData!.SampleStageId" class="text-warning"></span>
-                    </div>
-                </div>
-
-                <div class="col-md-4">
-                    <div class="form-floating form-floating-outline">
-                        <select asp-for="@Model.CPathData!.SampleTypeId" asp-items="@Model.SampleTypesList" id="sampleTypeId" class="select2 form-select drop" data-allow-clear="true">
-                            <option Disabled Selected>
-                                - Sub Extend -
-                            </option>
-                        </select>
-
-                        <label for="SampleTypeId">
-                            Sub Extend
-                        </label>
-                        <span asp-validation-for="CPathData!.SampleTypeId" class="text-warning"></span>
-                    </div>
-                </div>
-
-                <hr>
-
-                <div class="col-md-6">
-                    <div class="form-floating form-floating-outline">
-                        <select asp-for="@Model.CPathData!.ActivityId" asp-items="@Model.DropActivityList" id="ActivityId" class="select2 form-select" data-allow-clear="true">
+                        <select asp-for="@Model.ActivityId" asp-items="@Model.DropActivityList" id="ActivityId" class="select2 form-select" data-allow-clear="true">
                             <option Disabled Selected>
                                 - Activity -
                             </option>
@@ -371,13 +324,13 @@
                         <label for="ActivityId">
                             Activity
                         </label>
-                        <span asp-validation-for="CPathData!.ActivityId" class="text-warning"></span>
-
+                        <span asp-validation-for="ActivityId" class="text-warning"></span>
                     </div>
                 </div>
-                <div class="col-md-4">
+
+                <div class="col-3 g-1">
                     <div class="form-floating form-floating-outline">
-                        <select asp-for="@Model.CPathData!.UserCategoryId" asp-items="@Model.DropUserCategoryList" id="UserCategoryId" class="select2 form-select" data-allow-clear="true">
+                        <select asp-for="@Model.UserCategoryId" asp-items="@Model.DropUserCategoryList" id="UserCategoryId" class="select2 form-select" data-allow-clear="true">
                             <option Disabled Selected>
                                 - User Category -
                             </option>
@@ -386,52 +339,63 @@
                         <label for="UserCategoryId">
                             User Category
                         </label>
-                        <span asp-validation-for="CPathData!.UserCategoryId" class="text-warning"></span>
-
+                        <span asp-validation-for="UserCategoryId" class="text-warning"></span>
                     </div>
                 </div>
 
-                <div class="col-md-2">
+                <div class="col-1 g-1">
                     <div class="form-floating form-floating-outline">
-                        <input asp-for="@Model.CPathData!.ActivityDays" type="text" id="ActivityDays" class="form-control" placeholder="5" />
+                        <input asp-for="@Model.ActivityDays" type="text" id="ActivityDays" class="form-control" placeholder="5" />
                         <label for="farCode">Days</label>
-                        <span asp-validation-for="CPathData!.ActivityDays" class="text-warning"></span>
+                        <span asp-validation-for="ActivityDays" class="text-warning"></span>
                     </div>
                 </div>
 
-
-                <div id="example">
-                    <div class="row g-1 justify-content-end">
-                        <div class="col-2">
-                            <button id="addParentBtn" class="btn btn-success w-100">Add Activity</button>
-                        </div>
-                        <div class="col-2">
-                            <button id="addChildBtn" class="btn btn-success w-100">Add Sub Activity</button>
-                        </div>
-                        <div class="col-2">
-                            <button id="deleteBtn" class="btn btn-danger w-100">Delete Selected</button>
-                        </div>
+                <div class="col-2 g-1">
+                    <div class="form-floating form-floating-outline d-flex justify-content-center align-items-center h-100">
+                        <span class="form-check">
+                            <input class="form-check-input" type="checkbox" id="dependentTaskCheckbox">
+                            <label class="form-check-label" for="dependentTaskCheckbox">
+                                AWAITING-TASK
+                            </label>
+                        </span>
                     </div>
+                </div>
 
+               
+            </div>
 
-                    <div class="demo-section k-content mt-5">
-                        <div>
-                            <h4>Critical Path</h4>
-                            <div id="loadingText" style="display: none;">Loading, please wait...</div>
-
-                            <div id="treeview-left"></div>
-                        </div>
+            <div id="example">
+                <div class="row g-1 justify-content-end">
+                    <div class="col-2">
+                        <button id="addParentBtn" class="btn btn-success w-100">Add Activity</button>
                     </div>
+                    <div class="col-2">
+                        <button id="addChildBtn" class="btn btn-success w-100">Add Sub Activity</button>
+                    </div>
+                    <div class="col-2">
+                        <button id="deleteBtn" class="btn btn-danger w-100">Delete Selected</button>
+                    </div>
+                </div>
 
-                    @* <button id="saveBtn">Save Tree</button> *@
-                    <div class="row justify-content-end">
-                        <div class="col-2 pt-6">
-                            <button id="saveBtn" class="btn btn-primary w-100">Save</button>
-                        </div>
+                <div class="demo-section k-content mt-5">
+                    <div>
+                        <h4>Critical Path Steps</h4>
+                        <div id="loadingText" style="display: none;">Loading, please wait...</div>
+
+                        <div id="treeview-left"></div>
+                    </div>
+                </div>
+
+                @* <button id="saveBtn">Save Tree</button> *@
+                <div class="row justify-content-end">
+                    <div class="col-2 pt-6">
+                        <button id="saveBtn" class="btn btn-primary w-100">Save</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
 

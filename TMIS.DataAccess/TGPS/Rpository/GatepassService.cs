@@ -18,14 +18,16 @@ namespace TMIS.DataAccess.TGPS.Rpository
 
                 // Correct SQL for updating gatepass status
                 string sql = @"UPDATE [dbo].[TGPS_TrGpGoodsHeader]
-               SET  [IsApproved] = @AppStatus  
-                   ,[ApprovedDateTime] = GETDATE()
+               SET   [IsApproved] = @AppStatus  
+                    ,[ApprovedDateTime] = GETDATE()
+                    ,[IsCompleted] = @IsCompleted
                    WHERE ID = @ID";
 
                 var parameters = new
                 {
                     AppStatus = stat,
-                    ID = gatePassID
+                    ID = gatePassID,
+                    IsCompleted = stat == 2 
                 };
 
                 return await connection.ExecuteAsync(sql, parameters);

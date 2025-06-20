@@ -5,7 +5,7 @@ namespace TMIS.Helper
 {
   public class InquiryValidator
   {
-    public static void ValidateInquiry(Inquiry inquiry, ModelStateDictionary modelState)
+    public static void ValidateInquiry(NewInquiryVM inquiry, ModelStateDictionary modelState)
     {
       if (inquiry == null)
       {
@@ -19,14 +19,8 @@ namespace TMIS.Helper
       if (inquiry.InquiryTypeId == 0)
         modelState.AddModelError("Inquiry.InquiryTypeId", "Inquiry Type Field is Required!");
 
-      if (inquiry.ResponseTypeId == 0)
-        modelState.AddModelError("Inquiry.ResponseTypeId", "Response Type Field is Required!");
-
-      if (inquiry.InquirySeasonId == 0)
-        modelState.AddModelError("Inquiry.InquirySeasonId", "Season Field is Required!");
-
-      if (inquiry.SampleStageId == 0)
-        modelState.AddModelError("Inquiry.SampleStageId", "Sample Stage Field is Required!");
+      if (inquiry.SeasonsId == 0)
+        modelState.AddModelError("Inquiry.SeasonsId", "Season Field is Required!");
 
       if (inquiry.SampleTypeId == 0)
         modelState.AddModelError("Inquiry.SampleTypeId", "Sample Type Field is Required!");
@@ -40,14 +34,12 @@ namespace TMIS.Helper
       if (string.IsNullOrEmpty(inquiry.ColorCode))
         modelState.AddModelError("Inquiry.ColorCode", "Color Code Field is Required!");
 
-      if (string.IsNullOrEmpty(inquiry.InquiryComment))
-        modelState.AddModelError("Inquiry.InquiryComment", "Inquiry Comment Field is Required!");
+      if (string.IsNullOrEmpty(inquiry.Remarks))
+        modelState.AddModelError("Inquiry.Remarks", "Inquiry Comment Field is Required!");
 
-      if (string.IsNullOrEmpty(inquiry.InquiryRecDate))
-        modelState.AddModelError("Inquiry.InquiryRecDate", "Inquiry Received Date is Required!");
+      if (string.IsNullOrEmpty(inquiry.ReceivedDate))
+        modelState.AddModelError("Inquiry.ReceivedDate", "Inquiry Received Date is Required!");
 
-      if (string.IsNullOrEmpty(inquiry.InquiryReqDate))
-        modelState.AddModelError("Inquiry.InquiryReqDate", "Inquiry Required Date is Required!");
     }
   }
 }

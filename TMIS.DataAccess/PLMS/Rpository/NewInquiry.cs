@@ -15,46 +15,21 @@ namespace TMIS.DataAccess.PLMS.Rpository
 
         List<DateTime> companyDateList = [];
 
-        public async Task<InquiryVM> LoadActsAndSubActsAsync(InquiryParams inqParas)
+        public async Task<NewInquiryVM> LoadActsAndSubActsAsync(RoutePresetParas paras)
         {
-            string checkIdQuery = @"SELECT Id
-            FROM            PLMS_HpActivityScheduleHeader
-            WHERE        (InquiryTypeId =@InquiryTypeId) AND 
-            (ResponseTypeId = @ResponseTypeId) AND 
-            (CustomerId = @CustomerId) AND 
-            (SampleTypeId = @SampleTypeId) AND 
-            (SampleStageId = @SampleStageId)";
-
-            var parameters = new
-            {
-                inqParas.InquiryTypeId,
-                inqParas.ResponseTypeId,
-                inqParas.CustomerId,
-                inqParas.SampleTypeId,
-                inqParas.SampleStageId
-            };
-
-            int reacordId = 0;
-
             // Create the dynamic model
-            var dynamicModel = new InquiryVM();
+            var dynamicModel = new NewInquiryVM();
 
             using (var connection = _dbConnection.GetConnection())
             {
-                reacordId = await connection.ExecuteScalarAsync<int>(checkIdQuery, parameters);
-                if (reacordId == 0)
-                {
-                    return dynamicModel;
-                }
-
                 // Fetch activities asynchronously
                 var activities = (await connection.QueryAsync<PLMSActivity>(@"
                     SELECT ActivityId, UserCategoryId, UserCategoryText, Days, ActivityText
                     FROM PLMS_VwActivityList
-                    WHERE  (ActivityHeaderId = @ReacordId) ORDER BY Id",
+                    WHERE  (CpHeaderId = @ReacordId) ORDER BY Id",
                       new
                       {
-                          ReacordId = reacordId
+                          ReacordId = paras.PresetId
                       })).ToList();
 
                 // Fetch sub-activities asynchronously
@@ -62,17 +37,17 @@ namespace TMIS.DataAccess.PLMS.Rpository
                 var subActivities = (await connection.QueryAsync<PLMSActivity>(@"
                     SELECT      ActivityId, SubActivityId, Days, UserCategoryId, UserCategoryText, SubActivityText
                     FROM            PLMS_VwActivitySubList
-                    WHERE (ActivityHeaderId = @ReacordId) ORDER BY Id",
+                    WHERE (CpHeaderId = @ReacordId) ORDER BY Id",
                  new
                  {
-                     ReacordId = reacordId
+                     ReacordId = paras.PresetId
                  })).ToList();
 
                 // Group sub-activities by ActivityId
                 var subActivityGroups = subActivities.GroupBy(sa => sa.ActivityId).ToDictionary(g => g.Key, g => g.ToList());
                 int actDays = 0;
 
-                int dateIndex = GetSelectedDateIndex(Convert.ToDateTime(inqParas.SelectedDate))- 1;
+                int dateIndex = GetSelectedDateIndex(Convert.ToDateTime(paras.SelectedDate)) - 1;
 
                 foreach (var activity in activities)
                 {
@@ -135,7 +110,7 @@ namespace TMIS.DataAccess.PLMS.Rpository
             return postionDate.ToString("yyyy-MM-dd");
         }
 
-        public async Task<string> SaveMasterInquiryAsync(InquiryVM inquiryVM, IFormFile? artwork)
+        public async Task<string> SaveMasterInquiryAsync(Models.PLMS.NewInquiryVM inquiryVM, IFormFile? artwork)
         {
             var connection = _dbConnection.GetConnection();
             using (var transaction = connection.BeginTransaction())
@@ -161,7 +136,7 @@ namespace TMIS.DataAccess.PLMS.Rpository
                     await _pLMSLogdb.InsertLogTrans(connection, transaction, logdb);
 
                     // Commit the transaction if all operations are successful
-                    transaction.Commit();                  
+                    transaction.Commit();
 
                     return "Success: Inquiry saved successfully.";
                 }
@@ -174,7 +149,7 @@ namespace TMIS.DataAccess.PLMS.Rpository
             }
         }
 
-        private async Task<int> InsertInquiryHeaderAsync(IDbConnection connection, IDbTransaction transaction, InquiryVM inquiryVM)
+        private async Task<int> InsertInquiryHeaderAsync(IDbConnection connection, IDbTransaction transaction, Models.PLMS.NewInquiryVM inquiryVM)
         {
 
             //var inquiryRef = await connection.QuerySingleAsync<string>(
@@ -195,12 +170,12 @@ namespace TMIS.DataAccess.PLMS.Rpository
             return await connection.QuerySingleAsync<int>(sqlHeader, new
             {
                 InquiryRef = inquiryRef,
-                inquiryVM.Inquiry!.CustomerId,
-                inquiryVM.Inquiry.InquiryTypeId,
-                inquiryVM.Inquiry.StyleNo,
-                inquiryVM.Inquiry.StyleDesc,
-                inquiryVM.Inquiry.ColorCode,
-                inquiryVM.Inquiry.InquiryRecDate,
+                inquiryVM.CustomerId,
+                inquiryVM.InquiryTypeId,
+                inquiryVM.StyleNo,
+                inquiryVM.StyleDesc,
+                inquiryVM.ColorCode,
+                inquiryVM.ReceivedDate,
 
             }, transaction);
         }
@@ -258,7 +233,7 @@ namespace TMIS.DataAccess.PLMS.Rpository
             return reference;
         }
 
-        private static async Task<int> InsertInquiryDetailsAsync(IDbConnection connection, IDbTransaction transaction, int inquiryHeaderId, InquiryVM inquiryVM, IFormFile? artwork)
+        private static async Task<int> InsertInquiryDetailsAsync(IDbConnection connection, IDbTransaction transaction, int inquiryHeaderId, Models.PLMS.NewInquiryVM inquiryVM, IFormFile? artwork)
         {
             byte[]? artworkBytes = null;
 
@@ -282,16 +257,13 @@ namespace TMIS.DataAccess.PLMS.Rpository
             {
                 TrInqId = inquiryHeaderId,
 
-                inquiryVM.Inquiry!.ResponseTypeId,
-                inquiryVM.Inquiry.InquirySeasonId,
-                inquiryVM.Inquiry.SampleTypeId,
-                inquiryVM.Inquiry.SampleStageId,
-                inquiryVM.Inquiry.ColorCode,
+                inquiryVM.SeasonsId,
+                inquiryVM.SampleTypeId,
+                inquiryVM.ColorCode,
                 ImageSketch = artworkBytes,
-                DateResponseReq = inquiryVM.Inquiry?.InquiryReqDate,
-                inquiryVM.Inquiry?.InquiryComment,
-                inquiryVM.Inquiry?.IsPriceStageAv,
-                inquiryVM.Inquiry?.IsSMVStageAv
+                inquiryVM.Remarks,
+                inquiryVM.IsPriceStageAv,
+                inquiryVM.IsSMVStageAv
             }, transaction);
         }
 

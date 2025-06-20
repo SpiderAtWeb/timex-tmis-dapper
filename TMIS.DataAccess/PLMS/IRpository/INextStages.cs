@@ -6,6 +6,6 @@ namespace TMIS.DataAccess.PLMS.IRpository
     public interface INextStages
     {
         Task<NextStageInquiryVM> LoadNextInquiryDropDowns(string id);
-        Task<string> SaveNextInquiryAsync(InquiryVM inquiryVM, IFormFile? artwork);
+        Task<string> SaveNextInquiryAsync(NewInquiryVM inquiryVM, IFormFile? artwork);
     }
 }

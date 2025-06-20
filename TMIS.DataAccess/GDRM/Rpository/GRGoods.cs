@@ -138,7 +138,7 @@ namespace TMIS.DataAccess.GDRM.Rpository
                               ,[SendGRDateTime] = GETDATE() 
                               ,[SendVehicleId] = @VehicleNoId
                               ,[SendDriverId] = @DriverNameId
-                        WHERE [Id] = @GpId";
+                        WHERE  [Id] = @GpId";
 
                     connection.Execute(
                         sqlUpdateM,
@@ -176,7 +176,6 @@ namespace TMIS.DataAccess.GDRM.Rpository
                                 GGpPassDetailsId = detail.ID,
                                 GuardRoomRemarkId = detail.ReasonId,
                                 detail.ActualQty
-
                             },
                             transaction: transaction,
                             commandType: CommandType.Text);
@@ -184,8 +183,6 @@ namespace TMIS.DataAccess.GDRM.Rpository
                 }
                 else
                 {
-
-
                     string isDest = @"SELECT TGPS_TrGpGoodsHeader.IsExternal, TGPS_TrGpGoodsRoutes.IsDest
                     FROM            TGPS_TrGpGoodsHeader INNER JOIN
                                              TGPS_TrGpGoodsRoutes ON TGPS_TrGpGoodsHeader.ID = TGPS_TrGpGoodsRoutes.GGpPassId

@@ -357,14 +357,14 @@
                 </li>
 
                     <!-- Transactions -> Administration  -->
-                    <li class='menu-item@(currentPage.Contains("/PLMS/CriticalPathActivities") ? " active open" : "")'>
+                    <li class='menu-item@(currentPage.Contains("/PLMS/CPTemplate") ? " active open" : "")'>
                         <a href="javascript:void(0);" class="menu-link menu-toggle">
                             <i class="menu-icon fa-solid fa-user-tie"></i>
                             <div>Administration</div>
                         </a>
                         <ul class="menu-sub">
-                            <li class='menu-item@(currentPage.Contains("/PLMS/CriticalPathActivities/CriticalPathEditor") ? " active" : "")'>
-                                <a asp-area="PLMS" asp-controller="CriticalPathActivities" asp-action="CriticalPathEditor" class="menu-link">
+                            <li class='menu-item@(currentPage.Contains("/PLMS/CPTemplate/CPCreate") ? " active" : "")'>
+                                <a asp-area="PLMS" asp-controller="CPTemplate" asp-action="CPCreate" class="menu-link">
                                     <div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Critical Paths</div>
                                 </a>
                             </li>
@@ -596,7 +596,7 @@
          }
 
 
-        @if (User.IsInRole("SUPER-ADMIN") || User.IsInRole("TGPS-ADMIN") || User.IsInRole("GDRM-USER"))
+        @if (User.IsInRole("SUPER-ADMIN") || User.IsInRole("GDRM-USER"))
         {
             <li class='menu-item@(currentPage.StartsWith("/GDRM") ? " active open" : "")'>
                 <a href="javascript:void(0);" class="menu-link menu-toggle">

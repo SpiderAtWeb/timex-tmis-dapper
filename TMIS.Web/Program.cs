@@ -112,6 +112,8 @@ builder.Services.AddScoped<IAddressBank, AddressBank>();
 builder.Services.AddScoped<IEmployeePass, EmployeePass>();
 builder.Services.AddScoped<IResponse, Response>();
 builder.Services.AddScoped<IExportPDF, ExportPDF>();
+builder.Services.AddScoped<IGpOverview, GpOverview>();
+
 
 //GDRM
 builder.Services.AddScoped<IGRGoods, GRGoods>();

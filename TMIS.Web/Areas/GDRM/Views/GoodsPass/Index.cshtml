@@ -115,6 +115,7 @@
                                   <div class="step-item ${isActive ? 'active' : ''}">
                                       <div class="step-circle"><i class="${iconClass}"></i></div>
                                       <div class="step-label">${step.stepLabel}</div>
+                                      <div class="step-label">${step.stepText}</div>
                                       <div class="step-date">${step.stepDateTime ? new Date(step.stepDateTime).toLocaleString() : 'Pending'}</div>
                                   </div>
                                   ${lineHtml}

@@ -44,7 +44,7 @@ namespace TMIS.DataAccess.PLMS.Rpository
             }
         }
 
-        public async Task<string> SaveNextInquiryAsync(InquiryVM inquiryVM, IFormFile? artwork)
+        public async Task<string> SaveNextInquiryAsync(Models.PLMS.NewInquiryVM inquiryVM, IFormFile? artwork)
         {
             var connection = _dbConnection.GetConnection();
             using (var transaction = connection.BeginTransaction())
@@ -83,7 +83,7 @@ namespace TMIS.DataAccess.PLMS.Rpository
             }
         }
 
-        private static async Task<int> InsertInquiryDetailsAsync(IDbConnection connection, IDbTransaction transaction, InquiryVM inquiryVM, IFormFile? artwork)
+        private static async Task<int> InsertInquiryDetailsAsync(IDbConnection connection, IDbTransaction transaction, Models.PLMS.NewInquiryVM inquiryVM, IFormFile? artwork)
         {
             byte[]? artworkBytes = null;
 
@@ -97,7 +97,7 @@ namespace TMIS.DataAccess.PLMS.Rpository
             }
 
             var query = @"SELECT ISNULL(MAX(CycleNo), 0) + 1 FROM PLMS_TrInqDetails WHERE TrInqId = @InquiryId";
-            var cycleNo = await connection.QuerySingleAsync<int>(query, new { InquiryId = inquiryVM.Inquiry!.Id, }, transaction);
+            var cycleNo = await connection.QuerySingleAsync<int>(query, new { InquiryId = inquiryVM.Id, }, transaction);
 
             var sqlDetail = @"INSERT INTO [dbo].[PLMS_TrInqDetails]
              ([TrInqId], [CycleNo], [ResponseTypeId], [InquirySeasonId], [SampleTypeId], [SampleStageId], [ColorCode], [ImageSketch],
@@ -110,16 +110,13 @@ namespace TMIS.DataAccess.PLMS.Rpository
 
             return await connection.QuerySingleAsync<int>(sqlDetail, new
             {
-                TrInqId = inquiryVM.Inquiry!.Id,
+                TrInqId = inquiryVM.Id,
                 CycleNo = cycleNo,
-                inquiryVM.Inquiry!.ResponseTypeId,
-                inquiryVM.Inquiry.InquirySeasonId,
-                inquiryVM.Inquiry.SampleTypeId,
-                inquiryVM.Inquiry.SampleStageId,
-                inquiryVM.Inquiry.ColorCode,
+                inquiryVM.SeasonsId,
+                inquiryVM.SampleTypeId,
+                inquiryVM.ColorCode,
                 ImageSketch = artworkBytes,
-                DateResponseReq = inquiryVM.Inquiry?.InquiryReqDate,
-                inquiryVM.Inquiry?.InquiryComment
+                inquiryVM.Remarks
             }, transaction);
         }
 

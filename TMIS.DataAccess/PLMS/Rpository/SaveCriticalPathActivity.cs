@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Data;
 using TMIS.DataAccess.COMON.IRpository;
 using TMIS.DataAccess.PLMS.IRpository;
@@ -15,24 +16,15 @@ namespace TMIS.DataAccess.PLMS.Rpository
         {
             using (var connection = _dbConnection.GetConnection())
             {
-                await DeleteOldActivitySchedules(connection, oActivitySave.SelectedInqTypeId,
-                                                   oActivitySave.SelectedRepTypeId,
-                                                   oActivitySave.SelectedCustomerId,
-                                                   oActivitySave.SelectedSampTypeId,
-                                                   oActivitySave.SelectedSampStageId);
+                await DeleteOldActivitySchedules(connection, oActivitySave.Id);
 
                 int headerId = await SaveActivityScheduleHeader(
-                                                  connection,   
-                                                  oActivitySave.SelectedInqTypeId,
-                                                  oActivitySave.SelectedRepTypeId,
-                                                  oActivitySave.SelectedCustomerId,
-                                                  oActivitySave.SelectedSampTypeId,
-                                                  oActivitySave.SelectedSampStageId
-                                              );
+                                                  connection,
+                                                  oActivitySave.CPName);
 
                 foreach (var node in oActivitySave.TreeData!)
                 {
-                    int activityScheduleId = await SaveActivitySchedule(
+                    int scheduleId = await SaveActivitySchedule(
                                                    connection,
                                                    node,
                                                    headerId
@@ -40,132 +32,113 @@ namespace TMIS.DataAccess.PLMS.Rpository
 
                     if (node.ActivityList != null && node.ActivityList.Count > 0)
                     {
-                        await SaveActivityScheduleSub(connection, activityScheduleId, node.ActivityList);
+                        await SaveActivityScheduleSub(connection, scheduleId, node.ActivityList);
                     }
                 }
             }
         }
 
-        public async Task DeleteOldActivitySchedules(
-            IDbConnection connection,
-            int inquiryTypeId,
-            int responseTypeId,
-            int customerId,
-            int sampleTypeId,
-            int sampleStageId)
+        public async Task DeleteOldActivitySchedules(IDbConnection connection, int Id)
         {
             string deleteSubs = @"
-            DELETE sub
-            FROM dbo.PLMS_HpActivityScheduleSub sub
-            INNER JOIN dbo.PLMS_HpActivitySchedule sched ON sub.ActivitySchedId = sched.Id
-            INNER JOIN dbo.PLMS_HpActivityScheduleHeader head ON sched.ActivityHeaderId = head.Id
-            WHERE head.InquiryTypeId = @InquiryTypeId
-              AND head.ResponseTypeId = @ResponseTypeId
-              AND head.CustomerId = @CustomerId
-              AND head.SampleTypeId = @SampleTypeId
-              AND head.SampleStageId = @SampleStageId";
+          DELETE FROM dbo.PLMS_CPTemplateScheduleSub
+            WHERE EXISTS (
+                SELECT 1
+                FROM dbo.PLMS_CPTemplateSchedule
+                INNER JOIN dbo.PLMS_CPTemplateHeader
+                    ON dbo.PLMS_CPTemplateSchedule.CpHeaderId = dbo.PLMS_CPTemplateHeader.Id
+                WHERE dbo.PLMS_CPTemplateSchedule.Id = PLMS_CPTemplateScheduleSub.CpHeaderSubId
+                  AND dbo.PLMS_CPTemplateHeader.Id = @Id
+            );";
 
             string deleteSched = @"
-            DELETE sched
-            FROM dbo.PLMS_HpActivitySchedule sched
-            INNER JOIN dbo.PLMS_HpActivityScheduleHeader head ON sched.ActivityHeaderId = head.Id
-            WHERE head.InquiryTypeId = @InquiryTypeId
-              AND head.ResponseTypeId = @ResponseTypeId
-              AND head.CustomerId = @CustomerId
-              AND head.SampleTypeId = @SampleTypeId
-              AND head.SampleStageId = @SampleStageId";
+            DELETE FROM dbo.PLMS_CPTemplateSchedule
+            WHERE EXISTS (
+            SELECT 1
+            FROM dbo.PLMS_CPTemplateSchedule INNER JOIN
+            dbo.PLMS_CPTemplateHeader ON dbo.PLMS_CPTemplateSchedule.CpHeaderId = dbo.PLMS_CPTemplateHeader.Id
+            WHERE (dbo.PLMS_CPTemplateHeader.Id = @Id))";
 
             string deleteHeader = @"
-            DELETE FROM dbo.PLMS_HpActivityScheduleHeader
-            WHERE InquiryTypeId = @InquiryTypeId
-              AND ResponseTypeId = @ResponseTypeId
-              AND CustomerId = @CustomerId
-              AND SampleTypeId = @SampleTypeId
-              AND SampleStageId = @SampleStageId";
+            DELETE FROM dbo.PLMS_CPTemplateHeader
+            WHERE Id = @Id";
 
             var parameters = new
             {
-                InquiryTypeId = inquiryTypeId,
-                ResponseTypeId = responseTypeId,
-                CustomerId = customerId,
-                SampleTypeId = sampleTypeId,
-                SampleStageId = sampleStageId
+                Id
             };
 
             await connection.ExecuteAsync(deleteSubs, parameters);
             await connection.ExecuteAsync(deleteSched, parameters);
-            await connection.ExecuteAsync(deleteHeader, parameters); 
+            await connection.ExecuteAsync(deleteHeader, parameters);
         }
 
-        private async Task<int> SaveActivityScheduleHeader(IDbConnection connection, int inquiryTypeId, int responseTypeId, int customerId, int sampleTypeId, int sampleStageId)
+        private async Task<int> SaveActivityScheduleHeader(IDbConnection connection, string cpName)
         {
             string insertQuery = @"
-                INSERT INTO [dbo].[PLMS_HpActivityScheduleHeader]
-               ([InquiryTypeId]
-               ,[ResponseTypeId]
-               ,[CustomerId]
-               ,[SampleTypeId]
-               ,[SampleStageId])
+                INSERT INTO [dbo].[PLMS_CPTemplateHeader]
+               ([CpName])
                 VALUES
-               (@InquiryTypeId
-               ,@ResponseTypeId
-               ,@CustomerId
-               ,@SampleTypeId
-               ,@SampleStageId);
+               (@CpName);
                 SELECT CAST(SCOPE_IDENTITY() AS int);";
-          
+
             var parameters = new
             {
-                InquiryTypeId = inquiryTypeId,
-                ResponseTypeId = responseTypeId,
-                CustomerId = customerId,
-                SampleTypeId = sampleTypeId,
-                SampleStageId = sampleStageId
+                CpName = cpName
             };
             return await connection.ExecuteScalarAsync<int>(insertQuery, parameters);
         }
 
         private async Task<int> SaveActivitySchedule(IDbConnection connection, TreeNode node, int activityHeaderId)
         {
-            string insertQuery = @"INSERT INTO [dbo].[PLMS_HpActivitySchedule]
-                   ([ActivityHeaderId]
+            string insertQuery = @"INSERT INTO [dbo].[PLMS_CPTemplateSchedule]
+                   ([CpHeaderId]
                    ,[UserCategoryId]
                    ,[ActivityId]
-                   ,[DaysCount])
+                   ,[DaysCount]
+                   ,[IsAwaitTask])
            VALUES
-                   (@ActivityHeaderId
+                   (@CpHeaderId
                    ,@UserCategoryId
                    ,@ActivityId
-                   ,@DaysCount);
+                   ,@DaysCount
+                   ,@IsAwaitTask);
                     SELECT CAST(SCOPE_IDENTITY() AS int);";
 
             var parameters = new
             {
-                ActivityHeaderId = activityHeaderId,
+                CpHeaderId = activityHeaderId,
                 node.UserCategoryId,
                 node.ActivityId,
-                DaysCount = ParseDays(node.Days)
+                DaysCount = ParseDays(node.Days),
+                node.IsAwaitTask
             };
-            return await connection.ExecuteScalarAsync<int>(insertQuery, parameters);         
+            return await connection.ExecuteScalarAsync<int>(insertQuery, parameters);
         }
 
         private async Task SaveActivityScheduleSub(IDbConnection connection, int parentScheduleId, List<TreeNode> childNodes)
         {
             const string insertQuery = @"
-            INSERT INTO PLMS_HpActivityScheduleSub (ActivitySchedId, UserCategoryId, SubActivityId, DaysCount)
-            VALUES (@ActivitySchedId, @UserCategoryId, @SubActivityId, @DaysCount);";
+            INSERT INTO PLMS_CPTemplateScheduleSub 
+                        ([CpHeaderSubId], 
+                        [UserCategoryId], 
+                        [SubActivityId], 
+                        [DaysCount],
+                        [IsAwaitTask])
+            VALUES (@CpHeaderSubId, @UserCategoryId, @SubActivityId, @DaysCount, @IsAwaitTask);";
 
             foreach (var child in childNodes)
             {
                 var parameters = new
                 {
-                    ActivitySchedId = parentScheduleId,
+                    CpHeaderSubId = parentScheduleId,
                     child.UserCategoryId,
                     SubActivityId = child.ActivityId,
-                    DaysCount = ParseDays(child.Days)
+                    DaysCount = ParseDays(child.Days),
+                    child.IsAwaitTask
                 };
 
-                await connection.ExecuteAsync(insertQuery, parameters);             
+                await connection.ExecuteAsync(insertQuery, parameters);
             }
         }
 
@@ -178,57 +151,33 @@ namespace TMIS.DataAccess.PLMS.Rpository
             return 0;
         }
 
-        public async Task<List<PLMSActivity>> LoadSavedActivityList(InquiryParams inqParas)
+        public async Task<List<PLMSActivity>> LoadSavedActivityList(int id)
         {
-            string checkIdQuery = @"SELECT Id
-            FROM            PLMS_HpActivityScheduleHeader
-            WHERE        (InquiryTypeId =@InquiryTypeId) AND 
-            (ResponseTypeId = @ResponseTypeId) AND 
-            (CustomerId = @CustomerId) AND 
-            (SampleTypeId = @SampleTypeId) AND 
-            (SampleStageId = @SampleStageId)";
-
-            var parameters = new
-            {
-                inqParas.InquiryTypeId,
-                inqParas.ResponseTypeId,
-                inqParas.CustomerId,
-                inqParas.SampleTypeId,
-                inqParas.SampleStageId
-            };
-
-            int reacordId = 0;
-
             // Create the dynamic model
             var dynamicModel = new List<PLMSActivity>();
             try
             {
                 using (var connection = _dbConnection.GetConnection())
                 {
-                    reacordId = await connection.ExecuteScalarAsync<int>(checkIdQuery, parameters);
-                    if (reacordId == 0) {
-                        return dynamicModel;
-                    }
-
                     // Fetch activities asynchronously
                     var activities = (await connection.QueryAsync<PLMSActivity>(@"
-                    SELECT ActivityId, UserCategoryId, UserCategoryText, Days, ActivityText
+                    SELECT ActivityId, UserCategoryId, UserCategoryText, Days, ActivityText, IsAwaitTask
                     FROM PLMS_VwActivityList
-                    WHERE  (ActivityHeaderId = @ReacordId) ORDER BY Id",
+                    WHERE  (CpHeaderId = @ReacordId) ORDER BY Id",
                      new
                      {
-                         ReacordId = reacordId
+                         ReacordId = id
                      })).ToList();
 
 
                     // Fetch sub-activities asynchronously
                     var subActivities = (await connection.QueryAsync<PLMSActivity>(@"
-                    SELECT      ActivityId, SubActivityId, Days, UserCategoryId, UserCategoryText, SubActivityText
+                    SELECT      ActivityId, SubActivityId, Days, UserCategoryId, UserCategoryText, SubActivityText, IsAwaitTask
                     FROM            PLMS_VwActivitySubList
-                    WHERE (ActivityHeaderId = @ReacordId) ORDER BY Id",
+                    WHERE (CpHeaderId = @ReacordId) ORDER BY Id",
                  new
                  {
-                     ReacordId = reacordId
+                     ReacordId = id
                  })).ToList();
 
                     // Group sub-activities by ActivityId
@@ -245,6 +194,7 @@ namespace TMIS.DataAccess.PLMS.Rpository
                             Days = activity.Days,
                             UserCategoryId = activity.UserCategoryId,
                             UserCategoryText = activity.UserCategoryText,
+                            IsAwaitTask = activity.IsAwaitTask,
                             ActivityList = [] // Initialize the SubActivityList properly
                         };
 
@@ -259,7 +209,8 @@ namespace TMIS.DataAccess.PLMS.Rpository
                                     ActivityText = subActivity.SubActivityText,
                                     Days = subActivity.Days,
                                     UserCategoryId = subActivity.UserCategoryId,
-                                    UserCategoryText = subActivity.UserCategoryText
+                                    UserCategoryText = subActivity.UserCategoryText,
+                                    IsAwaitTask = subActivity.IsAwaitTask,
                                 });
                             }
                         }
@@ -278,19 +229,18 @@ namespace TMIS.DataAccess.PLMS.Rpository
 
         public async Task<CPathDataVM> LoadCPathDropDowns()
         {
+
+            string query = $@"SELECT CAST(Id AS NVARCHAR) AS Value, 
+            CpName AS Text FROM PLMS_CPTemplateHeader ORDER BY Text";
+            var results = await _dbConnection.GetConnection().QueryAsync<SelectListItem>(query);
+
             var oInquiriesVM = new CPathDataVM
             {
-                InquiryTypesList = await _userControls.LoadDropDownsAsync("PLMS_MdInquiryTypes"),
-                ResponseTypesList = await _userControls.LoadDropDownsAsync("PLMS_MdReponseTypes"),
-                CustomersList = await _userControls.LoadDropDownsAsync("PLMS_MdCustomers"),
-                SeasonsList = await _userControls.LoadDropDownsAsync("PLMS_MdInquirySeason"),
-                SampleTypesList = await _userControls.LoadDropDownsAsync("PLMS_MdExtendSub"),
-                SampleStagesList = await _userControls.LoadDropDownsAsync("PLMS_MdExtend"),
-                DropActivityList = await _userControls.LoadDropDownsAsync("PLMS_MdActivityTypes"),
-                DropUserCategoryList = await _userControls.LoadDropDownsAsync("PLMS_MdUserCategories"),
-                CPathData = new CPathData()
-            };
+                DropActivityList = await _userControls.LoadDropDownsAsync("PLMS_MasterTwoActivityTypes"),
+                DropUserCategoryList = await _userControls.LoadDropDownsAsync("PLMS_MasterTwoUserCategories"),
+                CPathList = results
 
+            };
             return oInquiriesVM;
         }
 

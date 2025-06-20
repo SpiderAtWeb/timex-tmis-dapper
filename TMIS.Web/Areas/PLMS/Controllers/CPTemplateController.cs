@@ -7,17 +7,12 @@ using TMIS.Models.PLMS;
 namespace TMIS.Areas.PLMS.Controllers
 {
   [Area("PLMS")]
-  public class CriticalPathActivitiesController(ISaveCriticalPathActivity db) : BaseController
+  public class CPTemplateController(ISaveCriticalPathActivity db) : BaseController
   {
-    private readonly ILog _logger = LogManager.GetLogger(typeof(CriticalPathActivitiesController));
+    private readonly ILog _logger = LogManager.GetLogger(typeof(CPTemplateController));
     private readonly ISaveCriticalPathActivity _db = db;
 
-    public IActionResult Index()
-    {
-      return View();
-    }
-
-    public async Task<IActionResult> CriticalPathEditor()
+    public async Task<IActionResult> CPCreate()
     {
       var oInquiriesVM = await _db.LoadCPathDropDowns();
       return View(oInquiriesVM);
@@ -35,9 +30,9 @@ namespace TMIS.Areas.PLMS.Controllers
     }
 
     [HttpPost]
-    public async Task<IActionResult> LoadActivites([FromBody] InquiryParams selectedParas)
+    public async Task<IActionResult> LoadActivites([FromBody] int id)
     {
-      var dynamicModel = await _db.LoadSavedActivityList(selectedParas);
+      var dynamicModel = await _db.LoadSavedActivityList(id);
       return Json(dynamicModel);
     }
 
