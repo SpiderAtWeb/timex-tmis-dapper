@@ -75,7 +75,7 @@ namespace TMIS.DataAccess.ITIS.Repository
 
         public async Task<IEnumerable<SelectListItem>> LoadApproverList()
         {
-            string query = @"select Id as Value, UserEmail as Text from _MasterUsers where ITISApprover=1";
+            string query = @"SELECT * FROM ITIS_VwApprovers";
             //replace with real datasource
             var results = await _dbConnectionAdm.GetConnection().QueryAsync<SelectListItem>(query);
             return results;
