@@ -20,7 +20,6 @@
 	$(document).ready(function () {
 		$('#EmpNameDropdown').on('change', function () {
 		  var empEmail = $(this).val();
-		  console.log("Now in emp");
 		  if (empEmail) {
 		  $.ajax({
 			  url: '/ITIS/DeviceUser/GetEmployeeDetails',
@@ -49,33 +48,33 @@
 		if (!deviceId) return;
 		
 		$.get(`/ITIS/DeviceUser/GetDeviceDetails?deviceId=${deviceId}`, function (data) {
-			let allHtml =  '<div class="row g-4">'; // Wrap with Bootstrap row;			
+			let allHtml =  '<div class="row g-2">'; // Wrap with Bootstrap row;			
 
-			allHtml += `<div class="col-md-4">
+			allHtml += `<div class="col-md-3">
 						  <div class="form-floating form-floating-outline">
 								<input type="text" class="form-control" value="${data.deviceName}" disabled/>
 								<label>Device Name</label>
 						  </div>
 						</div>
-						<div class="col-md-4">
+						<div class="col-md-3">
 						  <div class="form-floating form-floating-outline">
 										<input type="text" class="form-control" value="${data.serialNumber}" disabled/>
 										<label>Serial Number</label>
 						  </div>
 						</div>
-						<div class="col-md-4">
+						<div class="col-md-3">
 						  <div class="form-floating form-floating-outline">
 										<input type="text" class="form-control" value="${data.fixedAssetCode}" disabled/>
 										<label>FA Code</label>
 						  </div>
 						</div>
-						<div class="col-md-4">
+						<div class="col-md-3">
 						  <div class="form-floating form-floating-outline">
 										<input type="text" class="form-control" value="${data.purchasedDate}" disabled/>
 										<label>Purchased Date</label>
 						  </div>
 						</div>
-						<div class="col-md-4">
+						<div class="col-md-3">
 						  <div class="form-floating form-floating-outline">
 										<input type="text" class="form-control" value="${data.depreciation}" disabled/>
 										<label>Depreciation</label>
@@ -83,7 +82,7 @@
 						</div>`;
 
 			  data.attributeValues.forEach(attr => {
-				let html = `<div class="col-md-4">
+				let html = `<div class="col-md-3">
 							  <div class="form-floating form-floating-outline">`;
 						html += `<input type="text" class="form-control" value="${attr.valueText}" disabled />`;
 					html += `<label>${attr.name}</label>
@@ -107,15 +106,15 @@
 	</h5>
 	<form asp-action="Create" method="post" class="card-body" id="myForm" enctype="multipart/form-data">
 
-		<div class="row g-4">
-			<div class="col-md-4">
+		<div class="row g-2">
+			<div class="col-md-3">
 				<div class="form-floating form-floating-outline">
 					<input asp-for="AssignDevice.EmpNo" type="number" id="style-no" class="form-control" placeholder="130****" min="0" />
 					<label asp-for="AssignDevice.EmpNo"></label>
 					<span asp-validation-for="AssignDevice.EmpNo" class="customerError text-warning"></span>
 				</div>
 			</div>
-			<div class="col-md-4">
+			<div class="col-md-3">
 				<div class="form-floating form-floating-outline">
 					<select asp-for="@Model.AssignDevice!.EmpName" asp-items="@Model.EmployeeList" id="EmpNameDropdown" class="select2 form-select" data-allow-clear="true">
 						<option value="" Disabled Selected>- Select Employee -</option>
@@ -125,7 +124,7 @@
 					<span asp-validation-for="@Model.AssignDevice!.EmpName" class="text-warning"></span>
 				</div>
 			</div>
-			<div class="col-md-4">
+			<div class="col-md-3">
 				<div class="form-floating form-floating-outline">
 					<select id="LocationDropdown" asp-for="@Model.AssignDevice!.AssignLocation" asp-items="@Model.LocationList" class="select2 form-select" data-allow-clear="true">
 						<option value="" Disabled Selected>- Select Location -</option>
@@ -135,7 +134,7 @@
 					<span asp-validation-for="@Model.AssignDevice!.AssignLocation" class="text-warning"></span>
 				</div>
 			</div>
-			<div class="col-md-4">
+			<div class="col-md-3">
 				<div class="form-floating form-floating-outline">
 					<select id="DepartmentDropdown" asp-for="@Model.AssignDevice!.AssignDepartment" asp-items="@Model.DepartmentList" class="select2 form-select" data-allow-clear="true">
 						<option value="" Disabled Selected>- Select Department -</option>
@@ -145,7 +144,7 @@
 					<span asp-validation-for="@Model.AssignDevice!.AssignDepartment" class="text-warning"></span>
 				</div>
 			</div>		
-			<div class="col-md-4">
+			<div class="col-md-3">
 				<div class="form-floating form-floating-outline">
 					<select id="DesignationDropdown" asp-for="@Model.AssignDevice!.Designation" asp-items="@Model.DesignationList" class="select2 form-select" data-allow-clear="true">
 						<option value="" Disabled Selected>- Select Designation -</option>
@@ -155,7 +154,7 @@
 					<span asp-validation-for="@Model.AssignDevice!.Designation" class="text-warning"></span>					
 				</div>
 			</div>
-			<div class="col-md-4">
+			<div class="col-md-3">
 				<div class="form-floating form-floating-outline">
 					<select asp-for="@Model.AssignDevice!.Device" asp-items="@Model.DeviceSerialList" class="select2 form-select" data-allow-clear="true">
 						<option value="" Disabled Selected>- Select Device -</option>
@@ -165,7 +164,7 @@
 					<span asp-validation-for="@Model.AssignDevice!.Device" class="text-warning"></span>
 				</div>
 			</div>
-			<div class="col-4">
+			<div class="col-3">
 				<div class="form-floating form-floating-outline">
 					<select asp-for="@Model.AssignDevice!.Approver" asp-items="@Model.ApproverList" class="select2 form-select" data-allow-clear="true">
 						<option value="" Disabled Selected>- Select Approver -</option>
@@ -180,7 +179,7 @@
 					Device Details
 				</div>
 				<div class="card-body">
-					<div class="row g-4" id="deviceDetailContainer">
+					<div class="row g-2" id="deviceDetailContainer">
 						<!-- Dynamic content will go here -->
 					</div>
 				</div>

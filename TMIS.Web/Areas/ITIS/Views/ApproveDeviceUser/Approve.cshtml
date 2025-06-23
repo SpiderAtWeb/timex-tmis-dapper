@@ -19,52 +19,52 @@
 	</h5>
 	<form asp-action="Approve" method="post" class="card-body" id="myForm" enctype="multipart/form-data">
 
-		<div class="row g-4">
+		<div class="row g-2">
 			<input type="hidden" asp-for="@Model.AssignmentID" value="@Model.AssignmentID"/>
 			<input type="hidden" asp-for="@Model.DeviceID" value="@Model.DeviceID"/>
-			<div class="col-md-4">
+			<div class="col-md-3">
 				<div class="form-floating form-floating-outline">
 					<input asp-for="@Model.DeviceName" type="text" class="form-control" value="@Model.DeviceName" disabled />
 					<label asp-for="@Model.DeviceName"></label>
 				</div>
 			</div>
-			<div class="col-md-4">
+			<div class="col-md-3">
 				<div class="form-floating form-floating-outline">
 					<input type="text" class="form-control" value="@Model.FixedAssetCode" disabled />
 					<label asp-for="@Model.FixedAssetCode"></label>
 				</div>
 			</div>
-			<div class="col-md-4">
+			<div class="col-md-3">
 				<div class="form-floating form-floating-outline">
 					<input type="text" class="form-control" value="@Model.Depreciation" disabled />
 					<label asp-for="@Model.Depreciation"></label>
 				</div>
 			</div>
-			<div class="col-md-4">
+			<div class="col-md-3">
 				<div class="form-floating form-floating-outline">
 					<input type="text" class="form-control" value="@(Model.PurchasedDate.HasValue ? Model.PurchasedDate.Value.ToString("yyyy-MM-dd") : "")" disabled />
 					<label asp-for="@Model.PurchasedDate"></label>
 				</div>
 			</div>
-			<div class="col-md-4">
+			<div class="col-md-3">
 				<div class="form-floating form-floating-outline">
 					<input type="text" class="form-control" value="@Model.Remark" disabled />
 					<label asp-for="@Model.Remark"></label>
 				</div>
 			</div>
-			<div class="col-md-4">
+			<div class="col-md-3">
 				<div class="form-floating form-floating-outline">
 					<input type="text" class="form-control" value="@Model.AssignedDate" disabled />
 					<label asp-for="@Model.AssignedDate"></label>
 				</div>
 			</div>
-			<div class="col-md-4">
+			<div class="col-md-3">
 				<div class="form-floating form-floating-outline">
 					<input type="text" class="form-control" value="@Model.EmpName" disabled />
 					<label asp-for="@Model.EmpName"></label>
 				</div>
 			</div>
-			<div class="col-md-4">
+			<div class="col-md-3">
 				<div class="form-floating form-floating-outline">
 					<input asp-for="@Model.AssignRemarks" type="text" class="form-control" value="@Model.AssignRemarks" disabled />
 					<label asp-for="@Model.AssignRemarks"></label>
@@ -74,7 +74,7 @@
 			{
 				@foreach(var attr in Model.AttributeValues)
 				{
-				<div class="col-md-4">
+				<div class="col-md-3">
 					<div class="form-floating form-floating-outline">
 						<input type="text" class="form-control" value="@attr.ValueText" disabled />
 						<label>@attr.Name</label>

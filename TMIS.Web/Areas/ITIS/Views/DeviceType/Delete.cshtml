@@ -23,9 +23,9 @@
 	</h5>
 	<form asp-action="Delete" method="post" class="card-body" id="myForm" enctype="multipart/form-data">
 		<input asp-for="@Model.DeviceTypeID" type="hidden"/>	
-		<div class="row g-4">
+		<div class="row g-2">
 			<input asp-for="@Model.DeviceTypeID" type="hidden"/>		
-			<div class="col-md-4">
+			<div class="col-md-3">
 				<div class="form-floating form-floating-outline">
 					<input asp-for="DeviceTypeName" type="text" id="style-no" class="form-control requiredField" placeholder="Enter device type (e.g., Laptop, Printer)" disabled/>
 					<label asp-for="DeviceTypeName"></label>
@@ -33,7 +33,7 @@
 				</div>
 			</div>
 
-			<div class="col-md-4">
+			<div class="col-md-5">
 				<div class="form-floating form-floating-outline">
 					<input asp-for="Remarks" type="text" id="style-no" class="form-control" placeholder="Add any additional information (optional)" disabled/>
 					<label asp-for="Remarks"></label>

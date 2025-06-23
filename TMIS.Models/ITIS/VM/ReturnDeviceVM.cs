@@ -21,6 +21,7 @@ namespace TMIS.Models.ITIS.VM
         public string? Device { get; set; }
         public int RecordID {  get; set; }
         public DeviceUserDetailVM? DeviceUserDetail { get; set; } = new DeviceUserDetailVM();
+        [DisplayName("Return Time Image")]
         public byte[]? ReturnTimeImage { get; set; }
     }
 }

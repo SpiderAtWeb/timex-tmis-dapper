@@ -24,9 +24,9 @@
 	</h5>
 	<form asp-action="Edit" method="post" class="card-body" id="myForm" enctype="multipart/form-data">
 		<input asp-for="@Model.Device!.DeviceID" type="hidden" />
-		<div class="row g-4">
+		<div class="row g-2">
 
-			<div class="col-md-4">
+			<div class="col-md-3">
 				<div class="form-floating form-floating-outline">
 					<select asp-for="@Model.Device!.Location" asp-items="@Model.LocationList" class="select2 form-select" data-allow-clear="true">
 						<option value="" Disabled Selected>- Select Location -</option>
@@ -36,60 +36,60 @@
 					<span asp-validation-for="@Model.Device!.Location" class="text-warning"></span>
 				</div>
 			</div>
-			<div class="col-md-4">
+			<div class="col-md-3">
 				<div class="form-floating form-floating-outline">
 					<input asp-for="@Model.Device!.DeviceName" type="text" id="style-no" class="form-control" placeholder="CHO0001" />
 					<label asp-for="@Model.Device!.DeviceName"></label>
 					<span asp-validation-for="@Model.Device!.DeviceName" class="customerError text-warning"></span>
 				</div>
 			</div>
-			<div class="col-md-4">
+			<div class="col-md-3">
 				<div class="form-floating form-floating-outline">
 					<input asp-for="@Model.Device!.SerialNumber" type="text" id="style-no" class="form-control" placeholder="5CG2490NLG" />
 					<label asp-for="@Model.Device!.SerialNumber"></label>
 					<span asp-validation-for="@Model.Device!.SerialNumber" class="customerError text-warning"></span>
 				</div>
 			</div>
-			<div class="col-md-4">
+			<div class="col-md-3">
 				<div class="form-floating form-floating-outline">
 					<input asp-for="@Model.Device!.FixedAssetCode" type="text" id="style-no" class="form-control" placeholder="FAC001245" />
 					<label asp-for="@Model.Device!.FixedAssetCode"></label>
 					<span asp-validation-for="@Model.Device!.FixedAssetCode" class="customerError text-warning"></span>
 				</div>
 			</div>
-			<div class="col-md-4">
+			<div class="col-md-3">
 				<div class="form-floating form-floating-outline">
 					<input asp-for="@Model.Device!.PurchasedDate" type="date" id="datePurchased" class="form-control dob-picker" placeholder="YYYY-MM-DD" />
 					<label asp-for="@Model.Device!.PurchasedDate"></label>
 					<span asp-validation-for="@Model.Device!.PurchasedDate" class="text-warning"></span>
 				</div>
 			</div>
-			<div class="col-4">
+			<div class="col-3">
 				<div class="form-floating form-floating-outline">
 					<input class="form-control" type="file" name="image1">
 					<label asp-for="Device.Image1Data" class="form-label"></label>
 					<span asp-validation-for="Device.Image1Data" class="text-warning"></span>
 				</div>
 			</div>
-			<div class="col-4">
+			<div class="col-3">
 				<div class="form-floating form-floating-outline">
 					<input class="form-control" type="file" name="image2">
 					<label asp-for="Device.Image2Data" class="form-label"></label>
 				</div>
 			</div>
-			<div class="col-4">
+			<div class="col-3">
 				<div class="form-floating form-floating-outline">
 					<input class="form-control" type="file" name="image3">
 					<label asp-for="Device.Image3Data" class="form-label"></label>
 				</div>
 			</div>
-			<div class="col-4">
+			<div class="col-3">
 				<div class="form-floating form-floating-outline">
 					<input class="form-control" type="file" name="image4">
 					<label asp-for="Device.Image4Data" class="form-label"></label>
 				</div>
 			</div>
-			<div class="col-md-4">
+			<div class="col-md-3">
 				<div class="form-floating form-floating-outline">
 					<select asp-for="@Model.Device!.VendorID" asp-items="@Model.VendorsList" class="select2 form-select" data-allow-clear="true">
 						<option value="" Disabled Selected>- Select Vendor -</option>
@@ -99,7 +99,7 @@
 					<span asp-validation-for="@Model.Device!.VendorID" class="text-warning"></span>
 				</div>
 			</div>
-			<div class="col-md-4">
+			<div class="col-md-3">
 				<div class="form-floating form-floating-outline">
 					<select asp-for="@Model.Device!.DeviceStatusID" asp-items="@Model.DeviceStatusList" class="select2 form-select" data-allow-clear="true">
 						<option value="" Disabled Selected>- Select Status -</option>
@@ -109,7 +109,7 @@
 					<span asp-validation-for="@Model.Device!.DeviceStatusID" class="text-warning"></span>
 				</div>
 			</div>
-			<div class="col-md-4">
+			<div class="col-md-3">
 				<div class="form-floating form-floating-outline">
 					<input asp-for="@Model.Device!.Depreciation" type="number" id="style-no" class="form-control" placeholder="Depreciation in months" min="0" />
 					<label asp-for="@Model.Device!.Depreciation"></label>
@@ -136,14 +136,14 @@
 					</label>
 				</div>
 			</div>
-			<div class="col-md-4">
+			<div class="col-md-3">
 				<div class="form-floating form-floating-outline">
 					<input asp-for="@Model.Device!.Remark" type="text" id="style-no" class="form-control" />
 					<label asp-for="@Model.Device!.Remark"></label>
 					<span asp-validation-for="@Model.Device!.Remark" class="customerError text-warning"></span>
 				</div>
 			</div>
-			<div class="col-md-4">
+			<div class="col-md-3">
 				<div class="form-floating form-floating-outline">
 					<select asp-for="@Model.Device!.DeviceTypeID" asp-items="@Model.DeviceTypeList" class="select2 form-select" data-allow-clear="true" disabled>
 						<option value="" Disabled Selected>- Select Device Type -</option>
@@ -160,13 +160,13 @@
 						Additional Fields
 					</div>
 					<div class="card-body">
-						<div class="row g-4" id="attributeContainer">
+						<div class="row g-2" id="attributeContainer">
 							@{
 								var attributeIndex = 0;
 							}
 							@foreach (var item in Model.Device!.AttributeValues)
 							{							
-							<div class="col-md-4">
+							<div class="col-md-3">
 								<div class="form-floating form-floating-outline">
 									<input type="text" name="Attributes[@attributeIndex].Value" class="form-control" value="@item.ValueText" />
 									<input type="hidden" name="Attributes[@attributeIndex].AttributeID" value="@item.AttributeID" />
@@ -179,7 +179,7 @@
 					</div>
 				</div>			
 			}
-			<div class="col-md-4">
+			<div class="col-md-3">
 				<div class="image-preview">
 					@if (Model!.Device!.Image1Data != null && Model!.Device!.Image1Data.Length > 0)
 					{
@@ -192,7 +192,7 @@
 					}
 				</div>
 			</div>
-			<div class="col-md-4">
+			<div class="col-md-3">
 				<div class="image-preview">
 					@if (Model!.Device!.Image2Data != null && Model!.Device!.Image2Data.Length > 0)
 					{
@@ -205,7 +205,7 @@
 					}
 				</div>
 			</div>
-			<div class="col-md-4">
+			<div class="col-md-3">
 				<div class="image-preview">
 					@if (Model!.Device!.Image3Data != null && Model!.Device!.Image3Data.Length > 0)
 					{
@@ -218,7 +218,7 @@
 					}
 				</div>
 			</div>
-			<div class="col-md-4">
+			<div class="col-md-3">
 				<div class="image-preview">
 					@if (Model!.Device!.Image4Data != null && Model!.Device!.Image4Data.Length > 0)
 					{
