@@ -1,7 +1,6 @@
 ﻿using Dapper;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using TMIS.DataAccess.COMON.IRpository;
-using TMIS.DataAccess.COMON.Rpository;
 using TMIS.DataAccess.PLMS.IRpository;
 using TMIS.Models.PLMS;
 
@@ -14,9 +13,9 @@ namespace TMIS.DataAccess.PLMS.Rpository
 
         public async Task<IEnumerable<ShowInquiryDataVM>> GetInquiriesAsync()
         {
-            string sql = @"SELECT Id, CONCAT(InquiryRef, '-', CycleNo) AS InquiryRef, CycleNo, StyleNo, StyleDesc, ColorCode, 
-                          InquiryType, ResponseType, Customer, Seasons, SampleType, SampleStage, InquiryComment
-                   FROM PLMS_VwInqListPending";
+            string sql = @"SELECT Id, CONCAT(InquiryRef, '-', [CycleNo]) AS InquiryRef, [StyleNo], [StyleDesc], [ColorCode], 
+                          [InquiryType], [Customer], [SeasonName], [SampleType], [ArtWork], [Remarks]
+                   FROM PLMS_VwInquiryListPending";
 
             return await _dbConnection.GetConnection().QueryAsync<ShowInquiryDataVM>(sql);
         }

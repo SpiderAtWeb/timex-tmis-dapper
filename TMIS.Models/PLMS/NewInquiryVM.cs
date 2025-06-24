@@ -21,12 +21,14 @@ namespace TMIS.Models.PLMS
         public int RoutingPresetsId { get; set; }
 
         public IEnumerable<SelectListItem>? CustomersList { get; set; }
-        public IEnumerable<SelectListItem>? InquiryTypesList { get; set; }        
+        public IEnumerable<SelectListItem>? InquiryTypesList { get; set; }
         public IEnumerable<SelectListItem>? SeasonsList { get; set; }
         public IEnumerable<SelectListItem>? SampleTypesList { get; set; }
         public IEnumerable<SelectListItem>? RoutingPresetsList { get; set; }
 
         public List<SizeQtys>? SizeQtysList { get; set; } = [];
-        public List<ActivityVM>? ActivityList { get; set; } = [];   
+
+        [ValidateNever]
+        public List<ActivityVM>? ActivityList { get; set; } = [];
     }
 }

@@ -7,7 +7,7 @@ using TMIS.Models.PLMS;
 
 namespace TMIS.DataAccess.PLMS.Rpository
 {
-    public class SaveCriticalPathActivity(IDatabaseConnectionSys dbConnection, IUserControls userControls) : ISaveCriticalPathActivity
+    public class SaveCPActivity(IDatabaseConnectionSys dbConnection, IUserControls userControls) : ISaveCriticalPathActivity
     {
         private readonly IDatabaseConnectionSys _dbConnection = dbConnection;
         private readonly IUserControls _userControls = userControls;
@@ -42,22 +42,16 @@ namespace TMIS.DataAccess.PLMS.Rpository
         {
             string deleteSubs = @"
           DELETE FROM dbo.PLMS_CPTemplateScheduleSub
-            WHERE EXISTS (
-                SELECT 1
-                FROM dbo.PLMS_CPTemplateSchedule
-                INNER JOIN dbo.PLMS_CPTemplateHeader
-                    ON dbo.PLMS_CPTemplateSchedule.CpHeaderId = dbo.PLMS_CPTemplateHeader.Id
-                WHERE dbo.PLMS_CPTemplateSchedule.Id = PLMS_CPTemplateScheduleSub.CpHeaderSubId
-                  AND dbo.PLMS_CPTemplateHeader.Id = @Id
-            );";
+            WHERE ID IN (SELECT dbo.PLMS_CPTemplateScheduleSub.Id
+            FROM            dbo.PLMS_CPTemplateSchedule INNER JOIN
+                                     dbo.PLMS_CPTemplateHeader ON dbo.PLMS_CPTemplateSchedule.CpHeaderId = dbo.PLMS_CPTemplateHeader.Id INNER JOIN
+                                     dbo.PLMS_CPTemplateScheduleSub ON dbo.PLMS_CPTemplateSchedule.Id = dbo.PLMS_CPTemplateScheduleSub.CpHeaderSubId
+            WHERE        (dbo.PLMS_CPTemplateHeader.Id = @Id));";
 
-            string deleteSched = @"
-            DELETE FROM dbo.PLMS_CPTemplateSchedule
-            WHERE EXISTS (
-            SELECT 1
-            FROM dbo.PLMS_CPTemplateSchedule INNER JOIN
-            dbo.PLMS_CPTemplateHeader ON dbo.PLMS_CPTemplateSchedule.CpHeaderId = dbo.PLMS_CPTemplateHeader.Id
-            WHERE (dbo.PLMS_CPTemplateHeader.Id = @Id))";
+            string deleteSched = @"DELETE FROM [dbo].[PLMS_CPTemplateSchedule] WHERE ID IN (SELECT        dbo.PLMS_CPTemplateSchedule.Id
+            FROM            dbo.PLMS_CPTemplateSchedule INNER JOIN
+                                     dbo.PLMS_CPTemplateHeader ON dbo.PLMS_CPTemplateSchedule.CpHeaderId = dbo.PLMS_CPTemplateHeader.Id
+            WHERE        (dbo.PLMS_CPTemplateHeader.Id = @Id))";
 
             string deleteHeader = @"
             DELETE FROM dbo.PLMS_CPTemplateHeader

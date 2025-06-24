@@ -88,9 +88,9 @@
                     return alert("Please select a valid activity before proceeding.");
                 }
 
-                if (treeView.dataSource.data().some(node => node.id == activityId)) {
-                    return alert("This activity is already added.");
-                }
+                // if (treeView.dataSource.data().some(node => node.id == activityId)) {
+                //     return alert("This activity is already added.");
+                // }
 
                 if (activityId && userCatId && days >= 0) {
                     treeView.dataSource.add({
@@ -117,7 +117,7 @@
                 var userCatId = $("#UserCategoryId").val();
                 var userCatText = $("#UserCategoryId option:selected").text();
                 var days = $("#ActivityDays").val();
-                var isAwaitTask = $("#dependentTaskCheckbox").is(':checked') ? "DEPENDENT" : "";
+                var isAwaitTask = $("#dependentTaskCheckbox").is(':checked') ? "AWAITING-TASK" : "";
 
                 if (!activityId || activityId === "- Activity -") {
                     return alert("Please select a valid activity before proceeding.");

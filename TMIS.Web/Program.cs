@@ -88,7 +88,7 @@ builder.Services.AddScoped<IPrintQR, PrintQR>();
 //PLMS
 builder.Services.AddScoped<IOverview, Overview>();
 builder.Services.AddScoped<INewInquiry, NewInquiry>();
-builder.Services.AddScoped<ISaveCriticalPathActivity, SaveCriticalPathActivity>();
+builder.Services.AddScoped<ISaveCriticalPathActivity, SaveCPActivity>();
 builder.Services.AddScoped<ITaskCompletion, TaskCompletion>();
 builder.Services.AddScoped<IFeedback, Feedback>();
 builder.Services.AddScoped<INextStages, NextStages>();

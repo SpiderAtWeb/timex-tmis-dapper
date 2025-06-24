@@ -45,6 +45,12 @@ namespace TMIS.Areas.PLMS.Controllers
         return View(oInquiriesVM);
       }
 
+      if (inquiryVM.SizeQtysList!.Count <= 0)
+      {
+        ModelState.AddModelError(string.Empty, "Sizes and Quatities is missing.");
+        return View(oInquiriesVM);
+      }
+
       InquiryValidator.ValidateInquiry(inquiryVM, ModelState);
 
 
@@ -56,7 +62,7 @@ namespace TMIS.Areas.PLMS.Controllers
         return View(oInquiriesVM);
       }
 
-      var result = await _db.SaveMasterInquiryAsync(inquiryVM, artwork);
+      var result = await _db.SaveInquiryAsync(inquiryVM, artwork);
       TempData["success"] = result;
       return RedirectToAction("Index");
     }
