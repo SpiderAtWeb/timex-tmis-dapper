@@ -11,5 +11,6 @@ namespace TMIS.DataAccess.ITIS.IRepository
     public interface IReportRepository
     {
         Task<IEnumerable<SummaryReportData>> GetAllDeviceData();
+        Task<IEnumerable<DeviceCountReport>> GetAllDevicesCount();
     }
 }

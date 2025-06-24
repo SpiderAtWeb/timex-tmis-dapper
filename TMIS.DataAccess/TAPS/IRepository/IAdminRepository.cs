@@ -21,5 +21,9 @@ namespace TMIS.DataAccess.TAPS.IRepository
         Task<bool> InsertNewUser(NewUserVM newUserVM);
         Task<bool> CheckUserEmailExist(string userEmail);
         Task<IEnumerable<SelectListItem>> LoadLocationList();
+        Task<bool> CheckApproverExistToUser(AssignApproverVM obj);
+        Task<bool> InsertApprover(AssignApproverVM obj);
+        void DeleteApprover(AssignApproverVM obj);
+        Task<IEnumerable<UserApprover>> LoadUserApprovers(int userID);
     }
 }

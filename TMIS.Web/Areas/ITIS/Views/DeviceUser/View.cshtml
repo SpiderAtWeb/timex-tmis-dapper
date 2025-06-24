@@ -25,14 +25,14 @@
 	<form class="card-body" id="myForm" enctype="multipart/form-data">
 		<input asp-for="@Model.DeviceDetail!.DeviceID" type="hidden" />
 		<input asp-for="@Model.DeviceUserDetail!.AssignmentID" type="hidden" />
-		<div class="row g-4">
+		<div class="row g-2">
 
 			<div class="card" id="deviceDetailsField">
 				<div class="card-header fw-bold">
 					Device Details
 				</div>
 				<div class="card-body">
-					<div class="row g-4" id="deviceDetailContainer">
+					<div class="row g-2" id="deviceDetailContainer">
 
 						<div class="col-md-4">
 							<div class="form-floating form-floating-outline">
@@ -40,25 +40,25 @@
 								<label>Device Name</label>
 							</div>
 						</div>
-						<div class="col-md-4">
+						<div class="col-md-3">
 							<div class="form-floating form-floating-outline">
 								<input type="text" class="form-control" value="@Model.DeviceDetail!.SerialNumber" disabled />
 								<label>Serial Number</label>
 							</div>
 						</div>
-						<div class="col-md-4">
+						<div class="col-md-3">
 							<div class="form-floating form-floating-outline">
 								<input type="text" class="form-control" value="@Model.DeviceDetail!.FixedAssetCode" disabled />
 								<label>FA Code</label>
 							</div>
 						</div>
-						<div class="col-md-4">
+						<div class="col-md-3">
 							<div class="form-floating form-floating-outline">
 								<input type="text" class="form-control" value="@Model.DeviceDetail!.PurchasedDate?.ToString("MM-dd-yyyy")" disabled />
 								<label>Purchased Date</label>
 							</div>
 						</div>
-						<div class="col-md-4">
+						<div class="col-md-3">
 							<div class="form-floating form-floating-outline">
 								<input type="text" class="form-control" value="@Model.DeviceDetail!.Depreciation" disabled />
 								<label>Depreciation</label>
@@ -71,7 +71,7 @@
 						{
 							foreach (var item in Model.DeviceDetail!.AttributeValues)
 							{
-								<div class="col-md-4">
+								<div class="col-md-3">
 									<div class="form-floating form-floating-outline">
 										<input type="text" class="form-control" value="@item.ValueText" disabled />
 										<label>@item.Name</label>
@@ -87,56 +87,56 @@
 					User Details
 				</div>
 				<div class="card-body">
-					<div class="row g-4" id="userDetailContainer">
-						<div class="col-md-4">
+					<div class="row g-2" id="userDetailContainer">
+						<div class="col-md-3">
 							<div class="form-floating form-floating-outline">
 								<input type="text" class="form-control" value="@Model.DeviceUserDetail!.EmpName" disabled />
 								<label>Employee</label>
 							</div>
 						</div>
-						<div class="col-md-4">
+						<div class="col-md-3">
 							<div class="form-floating form-floating-outline">
 								<input type="text" class="form-control" value="@Model.DeviceUserDetail!.Designation" disabled />
 								<label>Designation</label>
 							</div>
 						</div>
-						<div class="col-md-4">
+						<div class="col-md-3">
 							<div class="form-floating form-floating-outline">
 								<input type="text" class="form-control" value="@Model.DeviceUserDetail!.AssignedDate?.ToString("MM-dd-yyyy")" disabled />
 								<label>Assigned Date</label>
 							</div>
 						</div>
-						<div class="col-md-4">
+						<div class="col-md-3">
 							<div class="form-floating form-floating-outline">
 								<input type="text" class="form-control" value="@Model.DeviceUserDetail!.AssignRemarks" disabled />
 								<label>Assigner Comment</label>
 							</div>
 						</div>
-						<div class="col-md-4">
+						<div class="col-md-3">
 							<div class="form-floating form-floating-outline">
 								<input type="text" class="form-control" value="@Model.DeviceUserDetail!.ApproverResponseDate?.ToString("MM-dd-yyyy")" disabled />
 								<label>Approved Date</label>
 							</div>
 						</div>
-						<div class="col-md-4">
+						<div class="col-md-3">
 							<div class="form-floating form-floating-outline">
 								<input type="text" class="form-control" value="@Model.DeviceUserDetail!.ApproverRemark" disabled />
 								<label>Approver Comment</label>
 							</div>
 						</div>
-						<div class="col-md-4">
+						<div class="col-md-3">
 							<div class="form-floating form-floating-outline">
 								<input type="text" class="form-control" value="@Model.DeviceUserDetail!.AssignLocation" disabled />
 								<label>Location</label>
 							</div>
 						</div>
-						<div class="col-md-4">
+						<div class="col-md-3">
 							<div class="form-floating form-floating-outline">
 								<input type="text" class="form-control" value="@Model.DeviceUserDetail!.AssignDepartment" disabled />
 								<label>Department</label>
 							</div>
 						</div>
-						<div class="col-md-4">
+						<div class="col-md-3">
 							<div class="form-floating form-floating-outline">
 								<input type="text" class="form-control" value="@Model.DeviceUserDetail!.AssignStatus" disabled />
 								<label>Assign State</label>

@@ -20,6 +20,14 @@ namespace TMIS.Models.ITIS
         public int? DeviceTypeID {  get; set; }
         public string? DeviceType {  get; set; }
         public string? Vendor { get; set; }
+        public string? EMPNo { get; set; }
+        public string? EmpEmail { get; set; }
+        public string? EmpName { get; set; }
+        public string? Designation { get; set; }
+        public string? AssignedDate { get; set; }
+        public string? ReturnedDate { get; set; }
+        public string? ReturnRemarks { get; set; }
+        public string? AssignRemarks { get; set; }
 
     }
 }

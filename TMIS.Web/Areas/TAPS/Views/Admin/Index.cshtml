@@ -78,8 +78,7 @@
 			const userId = $(this).val();
 			if (!userId) return;
 
-			$.get(`/TAPS/Admin/GetUserDetails?userId=${userId}`, function (data) {
-				console.log(data)
+			$.get(`/TAPS/Admin/GetUserDetails?userId=${userId}`, function (data) {			
 				let rowsHtml = '';
 				if (Array.isArray(data) && data.length > 0) {
 					data.forEach(function (item) {
@@ -144,9 +143,9 @@
 	<h5 class="card-header page-header">
 		User Role
 	</h5>
-	<form asp-action="Index" method="post" class="card-body" id="myForm" enctype="multipart/form-data">
-		<div class="row g-4">
-			<div class="col-md-4">
+	<form asp-action="Index" method="post" class="card-body" id="myForm">
+		<div class="row g-1">
+			<div class="col-md-3">
 				<div class="form-floating form-floating-outline">
 					<select asp-for="@Model.selectedUserID" asp-items="@Model.UserList" id="EmpNameDropdown" class="select2 form-select" data-allow-clear="true">
 						<option value="" Disabled Selected>- Select User -</option>
@@ -156,7 +155,7 @@
 					<span asp-validation-for="selectedUserID" class="text-warning"></span>
 				</div>
 			</div>
-			<div class="col-md-4">
+			<div class="col-md-3">
 				<div class="form-floating form-floating-outline">
 					<select asp-for="@Model.selectedUserRoleID" asp-items="@Model.UserRoleList" class="select2 form-select" data-allow-clear="true">
 						<option value="" Disabled Selected>- Select Role -</option>
@@ -168,10 +167,10 @@
 			</div>
 			<div class="pt-1">
 				<button type="submit" class="btn btn-primary me-1">Assign</button>
-			</div>
+			</div>	
 			<div class="card" id="userDetailsField">				
 				<div class="card-body">
-					<div class="row g-4">
+					<div class="row g-1">
 						<div class="col-12">
 							<table class="table table-bordered table-sm table-striped table-hover align-middle" id="userDetailTable">
 								<thead>

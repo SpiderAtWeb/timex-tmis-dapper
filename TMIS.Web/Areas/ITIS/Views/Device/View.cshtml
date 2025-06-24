@@ -2,19 +2,19 @@
 @model ViewDeviceVM
 
 @section VendorStyles {
-<link rel="stylesheet" href="~/vendor/libs/flatpickr/flatpickr.css" />
-<link rel="stylesheet" href="~/vendor/libs/select2/select2.css" />
-<link href="~/css/input-text-upper.css" rel="stylesheet" />
+	<link rel="stylesheet" href="~/vendor/libs/flatpickr/flatpickr.css" />
+	<link rel="stylesheet" href="~/vendor/libs/select2/select2.css" />
+	<link href="~/css/input-text-upper.css" rel="stylesheet" />
 }
 
 @section VendorScripts {
-<script src="~/vendor/libs/flatpickr/flatpickr.js"></script>
-<script src="~/vendor/libs/select2/select2.js"></script>
+	<script src="~/vendor/libs/flatpickr/flatpickr.js"></script>
+	<script src="~/vendor/libs/select2/select2.js"></script>
 }
 
 @section PageScripts {
-<script src="~/js/form-layouts.js"></script>
-<script src="~/custom/input-text-upper.js"></script>
+	<script src="~/js/form-layouts.js"></script>
+	<script src="~/custom/input-text-upper.js"></script>
 }
 
 <!-- Multi Column with Form Separator -->
@@ -25,46 +25,46 @@
 	<form class="card-body" id="myForm" enctype="multipart/form-data">
 		<input asp-for="@Model.DeviceDetail!.DeviceID" type="hidden" />
 		<input asp-for="@Model.DeviceUserDetail!.AssignmentID" type="hidden" />
-		<div class="row g-4">
+		<div class="row g-1">
 
 			<div class="card" id="deviceDetailsField">
 				<div class="card-header fw-bold">
 					Device Details
 				</div>
 				<div class="card-body">
-					<div class="row g-4" id="deviceDetailContainer">
+					<div class="row g-1" id="deviceDetailContainer">
 
-						<div class="col-md-4">
+						<div class="col-md-3">
 							<div class="form-floating form-floating-outline">
 								<input type="text" class="form-control" value="@Model.DeviceDetail!.DeviceName" disabled />
 								<label>Device Name</label>
 							</div>
 						</div>
-						<div class="col-md-4">
+						<div class="col-md-3">
 							<div class="form-floating form-floating-outline">
 								<input type="text" class="form-control" value="@Model.DeviceDetail!.SerialNumber" disabled />
 								<label>Serial Number</label>
 							</div>
 						</div>
-						<div class="col-md-4">
+						<div class="col-md-3">
 							<div class="form-floating form-floating-outline">
 								<input type="text" class="form-control" value="@Model.DeviceDetail!.FixedAssetCode" disabled />
 								<label>FA Code</label>
 							</div>
 						</div>
-						<div class="col-md-4">
+						<div class="col-md-3">
 							<div class="form-floating form-floating-outline">
 								<input type="text" class="form-control" value="@Model.DeviceDetail!.PurchasedDate?.ToString("MM-dd-yyyy")" disabled />
 								<label>Purchased Date</label>
 							</div>
 						</div>
-						<div class="col-md-4">
+						<div class="col-md-3">
 							<div class="form-floating form-floating-outline">
 								<input type="text" class="form-control" value="@Model.DeviceDetail!.Depreciation" disabled />
 								<label>Depreciation</label>
 							</div>
 						</div>
-						<div class="col-md-4">
+						<div class="col-md-3">
 							<div class="form-floating form-floating-outline">
 								<input type="text" class="form-control" value="@Model.DeviceDetail!.Vendor" disabled />
 								<label>Vendor</label>
@@ -96,13 +96,13 @@
 								</label>
 							</div>
 						</div>
-						<div class="col-md-4">
+						<div class="col-md-3">
 							<div class="form-floating form-floating-outline">
 								<input type="text" class="form-control" value="@Model.DeviceDetail!.Location" disabled />
 								<label>Location</label>
 							</div>
 						</div>
-						<div class="col-md-4">
+						<div class="col-md-3">
 							<div class="form-floating form-floating-outline">
 								<input type="text" class="form-control" value="@Model.DeviceDetail!.Remark" disabled />
 								<label>Description</label>
@@ -112,7 +112,7 @@
 						{
 							foreach (var item in Model.DeviceDetail!.AttributeValues)
 							{
-								<div class="col-md-4">
+								<div class="col-md-3">
 									<div class="form-floating form-floating-outline">
 										<input type="text" class="form-control" value="@item.ValueText" disabled />
 										<label>@item.Name</label>
@@ -120,119 +120,121 @@
 								</div>
 							}
 						}
-						<div class="col-md-4">
-							<div class="image-preview">
-								@if (Model!.DeviceDetail!.Image1Data != null && Model!.DeviceDetail!.Image1Data.Length > 0)
-								{
-									var base64Image = Convert.ToBase64String(Model!.DeviceDetail!.Image1Data);
-									<img id="Img1" src="data:image/jpeg;base64,@base64Image" alt="Image Preview" style="max-width: 100%; height: auto;" />
-								}
-								else
-								{
-									<img src="~/img/my-images/no-image.jpg" alt="No Image Available" style="max-width: 100px; height: auto;" />
-								}
+						<div class="row">
+							<div class="col-md-3">
+								<div class="image-preview">
+									@if (Model!.DeviceDetail!.Image1Data != null && Model!.DeviceDetail!.Image1Data.Length > 0)
+									{
+										var base64Image = Convert.ToBase64String(Model!.DeviceDetail!.Image1Data);
+										<img id="Img1" src="data:image/jpeg;base64,@base64Image" alt="Image Preview" style="max-width: 100%; height: auto;" />
+									}
+									else
+									{
+										<img src="~/img/my-images/no-image.jpg" alt="No Image Available" style="max-width: 100px; height: auto;" />
+									}
+								</div>
+							</div>
+							<div class="col-md-3">
+								<div class="image-preview">
+									@if (Model!.DeviceDetail!.Image2Data != null && Model!.DeviceDetail!.Image2Data.Length > 0)
+									{
+										var base64Image = Convert.ToBase64String(Model!.DeviceDetail!.Image2Data);
+										<img id="Img1" src="data:image/jpeg;base64,@base64Image" alt="Image Preview" style="max-width: 100%; height: auto;" />
+									}
+									else
+									{
+										<img src="~/img/my-images/no-image.jpg" alt="No Image Available" style="max-width: 100px; height: auto;" />
+									}
+								</div>
+							</div>
+							<div class="col-md-3">
+								<div class="image-preview">
+									@if (Model!.DeviceDetail!.Image3Data != null && Model!.DeviceDetail!.Image3Data.Length > 0)
+									{
+										var base64Image = Convert.ToBase64String(Model!.DeviceDetail!.Image3Data);
+										<img id="Img1" src="data:image/jpeg;base64,@base64Image" alt="Image Preview" style="max-width: 100%; height: auto;" />
+									}
+									else
+									{
+										<img src="~/img/my-images/no-image.jpg" alt="No Image Available" style="max-width: 100px; height: auto;" />
+									}
+								</div>
+							</div>
+							<div class="col-md-3">
+								<div class="image-preview">
+									@if (Model!.DeviceDetail!.Image4Data != null && Model!.DeviceDetail!.Image4Data.Length > 0)
+									{
+										var base64Image = Convert.ToBase64String(Model!.DeviceDetail!.Image4Data);
+										<img id="Img1" src="data:image/jpeg;base64,@base64Image" alt="Image Preview" style="max-width: 100%; height: auto;" />
+									}
+									else
+									{
+										<img src="~/img/my-images/no-image.jpg" alt="No Image Available" style="max-width: 100px; height: auto;" />
+									}
+								</div>
 							</div>
 						</div>
-						<div class="col-md-4">
-							<div class="image-preview">
-								@if (Model!.DeviceDetail!.Image2Data != null && Model!.DeviceDetail!.Image2Data.Length > 0)
-								{
-									var base64Image = Convert.ToBase64String(Model!.DeviceDetail!.Image2Data);
-									<img id="Img1" src="data:image/jpeg;base64,@base64Image" alt="Image Preview" style="max-width: 100%; height: auto;" />
-								}
-								else
-								{
-									<img src="~/img/my-images/no-image.jpg" alt="No Image Available" style="max-width: 100px; height: auto;" />
-								}
-							</div>
-						</div>
-						<div class="col-md-4">
-							<div class="image-preview">
-								@if (Model!.DeviceDetail!.Image3Data != null && Model!.DeviceDetail!.Image3Data.Length > 0)
-								{
-									var base64Image = Convert.ToBase64String(Model!.DeviceDetail!.Image3Data);
-									<img id="Img1" src="data:image/jpeg;base64,@base64Image" alt="Image Preview" style="max-width: 100%; height: auto;" />
-								}
-								else
-								{
-									<img src="~/img/my-images/no-image.jpg" alt="No Image Available" style="max-width: 100px; height: auto;" />
-								}
-							</div>
-						</div>
-						<div class="col-md-4">
-							<div class="image-preview">
-								@if (Model!.DeviceDetail!.Image4Data != null && Model!.DeviceDetail!.Image4Data.Length > 0)
-								{
-									var base64Image = Convert.ToBase64String(Model!.DeviceDetail!.Image4Data);
-									<img id="Img1" src="data:image/jpeg;base64,@base64Image" alt="Image Preview" style="max-width: 100%; height: auto;" />
-								}
-								else
-								{
-									<img src="~/img/my-images/no-image.jpg" alt="No Image Available" style="max-width: 100px; height: auto;" />
-								}
-							</div>
-						</div>						
 					</div>
 				</div>
 			</div>
 
-			@if(Model.DeviceUserDetail != null)
+			@if (Model.DeviceUserDetail != null)
 			{
 				<div class="card" id="userDetailsField">
 					<div class="card-header fw-bold">
 						User Details
 					</div>
 					<div class="card-body">
-						<div class="row g-4" id="userDetailContainer">
-							<div class="col-md-4">
+						<div class="row g-1" id="userDetailContainer">
+							<div class="col-md-3">
 								<div class="form-floating form-floating-outline">
 									<input type="text" class="form-control" value="@Model.DeviceUserDetail!.EmpName" disabled />
 									<label>Employee</label>
 								</div>
 							</div>
-							<div class="col-md-4">
+							<div class="col-md-3">
 								<div class="form-floating form-floating-outline">
 									<input type="text" class="form-control" value="@Model.DeviceUserDetail!.Designation" disabled />
 									<label>Designation</label>
 								</div>
 							</div>
-							<div class="col-md-4">
+							<div class="col-md-3">
 								<div class="form-floating form-floating-outline">
 									<input type="text" class="form-control" value="@Model.DeviceUserDetail!.AssignedDate?.ToString("MM-dd-yyyy")" disabled />
 									<label>Assigned Date</label>
 								</div>
 							</div>
-							<div class="col-md-4">
+							<div class="col-md-3">
 								<div class="form-floating form-floating-outline">
 									<input type="text" class="form-control" value="@Model.DeviceUserDetail!.AssignRemarks" disabled />
 									<label>Assigner Comment</label>
 								</div>
 							</div>
-							<div class="col-md-4">
+							<div class="col-md-3">
 								<div class="form-floating form-floating-outline">
 									<input type="text" class="form-control" value="@Model.DeviceUserDetail!.ApproverResponseDate?.ToString("MM-dd-yyyy")" disabled />
 									<label>Approved Date</label>
 								</div>
 							</div>
-							<div class="col-md-4">
+							<div class="col-md-3">
 								<div class="form-floating form-floating-outline">
 									<input type="text" class="form-control" value="@Model.DeviceUserDetail!.ApproverRemark" disabled />
 									<label>Approver Comment</label>
 								</div>
 							</div>
-							<div class="col-md-4">
+							<div class="col-md-3">
 								<div class="form-floating form-floating-outline">
 									<input type="text" class="form-control" value="@Model.DeviceUserDetail!.AssignLocation" disabled />
 									<label>Location</label>
 								</div>
 							</div>
-							<div class="col-md-4">
+							<div class="col-md-3">
 								<div class="form-floating form-floating-outline">
 									<input type="text" class="form-control" value="@Model.DeviceUserDetail!.AssignDepartment" disabled />
 									<label>Department</label>
 								</div>
 							</div>
-							<div class="col-md-4">
+							<div class="col-md-3">
 								<div class="form-floating form-floating-outline">
 									<input type="text" class="form-control" value="@Model.DeviceUserDetail!.AssignStatus" disabled />
 									<label>Assign State</label>
@@ -243,7 +245,7 @@
 				</div>
 
 			}
-			
+
 			<div class="col-md-3">
 			</div>
 

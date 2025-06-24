@@ -93,9 +93,9 @@
 	</h5>
 	<form asp-action="Edit" method="post" class="card-body" id="myForm" enctype="multipart/form-data">
 		<input asp-for="@Model.Attribute!.AttributeID" type="hidden" />
-		<div class="row g-4">
+		<div class="row g-2">
 
-			<div class="col-md-4">
+			<div class="col-md-3">
 				<div class="form-floating form-floating-outline">				
 					<select asp-for="@Model.Attribute!.DeviceTypeID" asp-items="@Model.DeviceTypeList" class="select2 form-select" data-allow-clear="true">
 						<option Disabled Selected>- Select Model -</option>
@@ -106,14 +106,14 @@
 				</div>
 			</div>
 
-			<div class="col-md-4">
+			<div class="col-md-3">
 				<div class="form-floating form-floating-outline">
 					<input asp-for="@Model.Attribute!.Name" type="text" id="style-no" class="form-control" placeholder="Brand" />
 					<label asp-for="@Model.Attribute!.Name"></label>
 					<span asp-validation-for="@Model.Attribute!.Name" class="customerError text-warning"></span>
 				</div>
 			</div>
-			<div class="col-md-4">
+			<div class="col-md-3">
 				<div class="form-floating form-floating-outline">
 					<select id="dataTypeSelect" asp-for="@Model.Attribute!.DataType" asp-items="@Model.AttributeTypeList" class="select2 form-select" data-allow-clear="true">
 						<option value="" Disabled Selected>- Select Attribute Type -</option>
@@ -122,47 +122,52 @@
 					<label asp-for="Attribute!.DataType"></label>
 					<span asp-validation-for="Attribute!.DataType" class="text-warning"></span>
 				</div>
-			</div>			
-			<div class="col-md-4">
-				<div id="pickListOptions" style="display: none;" class="form-floating form-floating-outline">
-					<input type="text" id="pickListInput" class="form-control" placeholder="Add items to your pick list" />
-					<label>Option</label>
-				</div>
 			</div>
-			<div class="col-md-4">
-				<div id="addbtndiv" style="display: none;">
-					<button type="button" class="btn btn-secondary" id="addPickListItem">ADD</button>
-				</div>
-			</div>
-			<div class="col-md-6">
-				<table class="table mt-3" id="pickListTable" style="display: none;">
-					<thead>
-						<tr>
-							<th>Pick List Item</th>
-							<th>Action</th>
-						</tr>
-					</thead>
-					<tbody>
-						@if (Model.AttributeListOption != null)
-						{
-							var index = 0;
-							foreach (var item in Model.AttributeListOption)
+			<div>
+				<div class="row g-2">
+					<div class="col-md-3">
+						<div id="pickListOptions" style="display: none;" class="form-floating form-floating-outline">
+							<input type="text" id="pickListInput" class="form-control" placeholder="Add items to your pick list" />
+							<label>Option</label>
+						</div>
+					</div>
+					<div class="col-md-3">
+						<div id="addbtndiv" style="display: none;">
+							<button type="button" class="btn btn-secondary" id="addPickListItem">ADD</button>
+						</div>
+					</div>
+				</div>				
+				<div class="col-md-6">
+					<table class="table mt-3" id="pickListTable" style="display: none;">
+						<thead>
+							<tr>
+								<th>Pick List Item</th>
+								<th>Action</th>
+							</tr>
+						</thead>
+						<tbody>
+							@if (Model.AttributeListOption != null)
 							{
-								<tr>
-									<td>
-										<input type="hidden" name="AttributeListOption[@index].OptionText" value="@item.OptionText" />
-										@item.OptionText
-									</td>
-									<td>
-										<button type="button" class="btn btn-danger removeRow">Remove</button>
-									</td>
-								</tr>
-								index++;
+								var index = 0;
+								foreach (var item in Model.AttributeListOption)
+								{
+									<tr>
+										<td>
+											<input type="hidden" name="AttributeListOption[@index].OptionText" value="@item.OptionText" />
+											@item.OptionText
+										</td>
+										<td>
+											<button type="button" class="btn btn-danger removeRow">Remove</button>
+										</td>
+									</tr>
+									index++;
+								}
 							}
-						}
-					</tbody>
-				</table>
+						</tbody>
+					</table>
+				</div>
 			</div>
+			
 			<div class="col-md-3">
 			</div>
 

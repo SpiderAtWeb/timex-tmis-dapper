@@ -113,7 +113,7 @@ namespace TMIS.DataAccess.TAPS.Repository
             string query = @"INSERT INTO _MasterUsers (UserEmail, UserPassword, UserShortName, IsActive, DefLocId)
                             VALUES (@UserEmail, @UserPassword, @UserShortName, 1, @DefLocId);
                             SELECT CAST(SCOPE_IDENTITY() AS INT) AS InsertedId;";
-
+            //_TrPermissionLocation insert to this table
             var insertedId = await _dbConnection.GetConnection().QuerySingleOrDefaultAsync<int?>(query, new
             {
                 UserEmail = newUserVM.UserEmail,
@@ -141,6 +141,80 @@ namespace TMIS.DataAccess.TAPS.Repository
             //replace with real datasource
             var results = await _dbConnectionSys.GetConnection().QueryAsync<SelectListItem>(query);
             return results;
+        }
+        public async Task<bool> CheckApproverExistToUser(AssignApproverVM obj)
+        {
+            string query = @"SELECT COUNT(*) FROM TGPS_TrApproveUsers WHERE UserId=@UserId AND AppUserId=@AppUserId AND SystemType=@SystemType;";
+            int count = await _dbConnection.GetConnection().ExecuteScalarAsync<int>(query, new
+            {
+                UserId = obj.selectedUserID,
+                AppUserId = obj.selectedApproverID,
+                SystemType = obj.selectedSystemTypeID
+            });
+            return count > 0;
+        }
+        public async Task<bool> InsertApprover(AssignApproverVM obj)
+        {
+            try
+            {
+                string query = @"INSERT INTO TGPS_TrApproveUsers (UserId,AppUserId,SystemType)
+                            VALUES (@UserId, @AppUserId, @SystemType);";
+                //_TrPermissionLocation insert to this table
+                var insertedId = await _dbConnection.GetConnection().QuerySingleOrDefaultAsync<int?>(query, new
+                {
+                    UserId = obj.selectedUserID,
+                    AppUserId = obj.selectedApproverID,
+                    SystemType = obj.selectedSystemTypeID
+                });
+
+                TAPSLogdb logdb = new()
+                {
+                    TrObjectId = obj.selectedUserID,
+                    TrLog = "NEW Approver CREATED"
+
+                };
+
+                _iTAPSLogdb.InsertLog(logdb);
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+           
+        }
+        public void DeleteApprover(AssignApproverVM obj)
+        {
+            string query = @"DELETE FROM TGPS_TrApproveUsers WHERE UserId = @UserId AND AppUserId = @AppUserId AND SystemType = @SystemType;";
+            int row = _dbConnection.GetConnection().Execute(query, new
+            {
+                UserId = obj.selectedUserID,
+                AppUserId = obj.selectedApproverID,
+                SystemType = obj.selectedSystemTypeID
+            });
+            if (row > 0)
+            {
+                TAPSLogdb logdb = new()
+                {
+                    TrObjectId = obj.selectedUserID,
+                    TrLog = $"Unassigned Approver from user. User ID: {obj.selectedUserID}, Approver ID: {obj.selectedApproverID}, System Type: {obj.selectedSystemTypeID}, Status: DELETED"
+                };
+                _iTAPSLogdb.InsertLog(logdb);
+            }
+        }
+        public async Task<IEnumerable<UserApprover>> LoadUserApprovers(int userID)
+        {
+            string query = @"select a.UserId, m.UserEmail, m.UserShortName as Username,a.AppUserId, p.UserEmail as ApproverEmail,
+                            p.UserShortName as Approvername, a.SystemType from TGPS_TrApproveUsers as a
+                            inner join _MasterUsers as m on m.Id=a.UserId
+                            inner join _MasterUsers as p on p.id=a.AppUserId
+                            WHERE a.UserId= @UserId 
+                            ";
+
+            var result = await _dbConnection.GetConnection().QueryAsync<UserApprover>(query, new { userID });
+
+            return result;
         }
     }
 }

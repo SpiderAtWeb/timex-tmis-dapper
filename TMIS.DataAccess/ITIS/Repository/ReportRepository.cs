@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -22,6 +23,13 @@ namespace TMIS.DataAccess.ITIS.Repository
             var result = await _dbConnection.GetConnection().QueryAsync<SummaryReportData>(query);
             return result;
 
+        }
+
+        public async Task<IEnumerable<DeviceCountReport>> GetAllDevicesCount() 
+        {
+            string query = "select * from ITIS_VwDeviceCount;";
+            var result = await _dbConnection.GetConnection().QueryAsync<DeviceCountReport>(query);
+            return result;
         }
     }
 }

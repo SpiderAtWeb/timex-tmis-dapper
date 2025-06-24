@@ -11,7 +11,7 @@
 }
 
 @section PageScripts {
-	<script src="~/custom/status-overview.js"></script>
+	<script src="~/custom/summary.js"></script>
 	<script>
 		$(document).ready(function () {
 			// $("#configurator").kendoTabStrip();
@@ -53,14 +53,11 @@
 				groupable: true,
 				columns: [
 					{ field: "DeviceID", title: "Device ID", width: "150px", hidden: true },
-					{ field: "DeviceType", title: "Device Type", width: "75px" },
+					{ field: "DeviceType", title: "Type", width: "80px" },
 					{ field: "SerialNumber", title: "Serial Number", width: "100px"  },
-					{ field: "FixedAssetCode", title: "Fixed Asset Code ", width: "100px" },
-					{ field: "DeviceName", title: "Device Name", width: "100px" },
-					{
-						field: "PurchasedDate",
-						title: "Purchased Date",
-						width: "100px",
+					{ field: "FixedAssetCode", title: "FA Code ", width: "100px" },
+					{ field: "DeviceName", title: "Device", width: "100px" },
+					{ field: "PurchasedDate", title: "Purchased Date", width: "100px",
 						template: function(dataItem) {
 							if (!dataItem.PurchasedDate) return "";
 							const date = new Date(dataItem.PurchasedDate);
@@ -71,9 +68,36 @@
 						}
 
 					},
-					{ field: "LocationName", title: "Location Name", width: "100px" },
-					{ field: "Status", title: "Status", width: "50px" },
-					{ field: "Vendor", title: "Vendor", width: "75px" }
+					{ field: "LocationName", title: "Location", width: "100px" },
+					{ field: "Status", title: "Status", width: "75px" },
+					{ field: "Vendor", title: "Vendor", width: "170px" },
+					{ field: "EMPNo", title: "EPF", width: "150px" },
+					{ field: "EmpName", title: "Employee", width: "150px" },
+					{ field: "EmpEmail", title: "Email", width: "180px" },
+					{ field: "Designation", title: "Designation", width: "150px" },
+					{ field: "AssignedDate", title: "AssignedDate", width: "100px",
+						template: function(dataItem) {
+							if (!dataItem.AssignedDate) return "";
+							const date = new Date(dataItem.AssignedDate);
+							const mm = String(date.getMonth() + 1).padStart(2, '0');
+							const dd = String(date.getDate()).padStart(2, '0');
+							const yyyy = date.getFullYear();
+							return `${mm}-${dd}-${yyyy}`;
+						}
+					},
+					{ field: "ReturnedDate", title: "ReturnedDate", width: "100px",
+						template: function(dataItem) {
+							if (!dataItem.ReturnedDate) return "";
+							const date = new Date(dataItem.ReturnedDate);
+							const mm = String(date.getMonth() + 1).padStart(2, '0');
+							const dd = String(date.getDate()).padStart(2, '0');
+							const yyyy = date.getFullYear();
+							return `${mm}-${dd}-${yyyy}`;
+						}
+					},
+					{ field: "ReturnRemarks", title: "Return Remarks", width: "170px" },
+					{ field: "AssignRemarks", title: "Assign Remarks", width: "170px" }
+
 				],
 			});
 
@@ -104,16 +128,11 @@
 	</style>
 }
 
-<div>
-	<input type="hidden" id="selectUrl" value=@Url.Action("CostGetAll", "Overview")>
-</div>
-
 @* ************** Content ************** *@
 <!-- Ajax Sourced Server-side -->
 @await Html.PartialAsync("_Loading")
 
 <div class="panelDiv">
-
 	<div id="modal" style="display:none;">
 		<h3><span id="modal-id"></span></h3>
 		<div><span id="modal-logs"></span></div>
@@ -127,15 +146,13 @@
 						<hr class="my-2">
 						<div class="row">
 							<div class="col-6">
-								<h5 class="card-header page-header">Device Summary</h5>
+								<h5 class="card-header page-header">Overal</h5>
 							</div>
 						</div>
-
 						<div id="example">
 							<div id="grid"></div>
 						</div>
 					</div>
-
 				</div>
 			</div>
 		</div>
