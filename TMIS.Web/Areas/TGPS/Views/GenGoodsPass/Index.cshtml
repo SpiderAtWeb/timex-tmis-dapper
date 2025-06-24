@@ -193,7 +193,11 @@
                                     <td>@item.GpSubject</td>
                                     <td>@item.GenDateTime</td>
                                     <td>@item.GenGPassTo</td>
-                                    <td class="badge rounded-pill @(item.PassStatus == "Completed" ? "bg-label-success" : "bg-label-primary")">
+                                    <td class="badge rounded-pill @(item.PassStatus == "Completed"
+                                            ? "bg-label-success"
+                                            : item.PassStatus == "Aborted"
+                                                ? "bg-label-danger"
+                                                : "bg-label-primary")">
                                         @item.PassStatus
                                     </td>
                                     <td>

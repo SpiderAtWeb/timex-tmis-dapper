@@ -89,240 +89,174 @@ namespace TMIS.DataAccess.GDRM.Rpository
         public async Task<GPGrUpdateResult> GatePassUpdating(GPGrUpdate gPGrUpdate)
         {
             if (gPGrUpdate.SelectedGpId <= 0)
-                return await Task.FromResult(new GPGrUpdateResult { IsSuccess = false, Message = "Gatepass not found!", ErrorFieldId = "" });
+                return new GPGrUpdateResult { IsSuccess = false, Message = "Gatepass not found!", ErrorFieldId = "" };
 
-            if (gPGrUpdate.VehicleNoId <= 0)
-                return await Task.FromResult(new GPGrUpdateResult { IsSuccess = false, Message = "Vehicle number is required.", ErrorFieldId = "vehicleNoId" });
+            if (gPGrUpdate.ActionType != 2)
+            {
+                if (gPGrUpdate.VehicleNoId <= 0)
+                    return new GPGrUpdateResult { IsSuccess = false, Message = "Vehicle number is required.", ErrorFieldId = "vehicleNoId" };
 
-            if (gPGrUpdate.DriverNameId <= 0)
-                return await Task.FromResult(new GPGrUpdateResult { IsSuccess = false, Message = "Driver name is required.", ErrorFieldId = "driverNameId" });
+                if (gPGrUpdate.DriverNameId <= 0)
+                    return new GPGrUpdateResult { IsSuccess = false, Message = "Driver name is required.", ErrorFieldId = "driverNameId" };
+            }
 
-            var connection = _dbConnection.GetConnection();
-            var transaction = connection.BeginTransaction();
+            using var connection = _dbConnection.GetConnection();
+            using var transaction = connection.BeginTransaction();
 
             try
             {
+                var userId = int.Parse(_iSessionHelper.GetUserId());
+                var gpId = gPGrUpdate.SelectedGpId;
+
                 if (gPGrUpdate.IsOut > 0)
                 {
-
                     if (gPGrUpdate.ActionType == 2)
                     {
-                        // Update from sql query
-                        string sqlUpdateMRej = @"UPDATE [dbo].[TGPS_TrGpGoodsRoutes]
-                        SET    [IsSend] = @IsSend
-                              ,[SendGRId] = @GRId
-                              ,[SendGRUserId] = @SendGRUserId
-                              ,[SendGRDateTime] = GETDATE() 
-                        WHERE  [Id] = @GpId";
-
-                        connection.Execute(
-                            sqlUpdateMRej,
-                            new
-                            {
-                                GpId = gPGrUpdate.SelectedGpId,
-                                IsSend = 2,
-                                gPGrUpdate.GRId,
-                                SendGRUserId = _iSessionHelper.GetUserId(),
-                            },
-                            transaction: transaction,
-                            commandType: CommandType.Text);
-
+                        await UpdateRouteAsync(connection, transaction, gpId, 2, gPGrUpdate.GRId, userId, true);
+                        await MarkHeaderCompletedAsync(connection, transaction, gpId, 2);
                     }
                     else
                     {
+                        if (await IsExternalAsync(connection, transaction, gpId))
+                            await MarkHeaderCompletedAsync(connection, transaction, gpId, 1);
 
-                        string isExt = @"SELECT TGPS_TrGpGoodsHeader.IsExternal
-                    FROM TGPS_TrGpGoodsHeader INNER JOIN
-                    TGPS_TrGpGoodsRoutes ON TGPS_TrGpGoodsHeader.ID = TGPS_TrGpGoodsRoutes.GGpPassId
-                    WHERE        (TGPS_TrGpGoodsRoutes.ID = @GpId)";
-
-                        var isExternal = await connection.QueryFirstOrDefaultAsync<bool>(isExt, new { GpId = gPGrUpdate.SelectedGpId }
-                        , transaction: transaction,
-                         commandType: CommandType.Text);
-
-                        if (isExternal)
-                        {
-                            string sqlUpdateExt = @"UPDATE [dbo].[TGPS_TrGpGoodsHeader]
-                        SET [IsCompleted] = 1
-                        FROM            TGPS_TrGpGoodsHeader INNER JOIN
-                                                 TGPS_TrGpGoodsRoutes ON TGPS_TrGpGoodsHeader.ID = TGPS_TrGpGoodsRoutes.GGpPassId
-                        WHERE        (TGPS_TrGpGoodsRoutes.ID = @GpId)";
-
-                            //execute  sqlUpdateM
-                            connection.Execute(
-                                sqlUpdateExt,
-                                new { GpId = gPGrUpdate.SelectedGpId },
-                                transaction: transaction,
-                                commandType: CommandType.Text);
-                        }
-
-                        // Update from sql query
-                        string sqlUpdateM = @"UPDATE [dbo].[TGPS_TrGpGoodsRoutes]
-                        SET    [IsSend] = @IsSend
-                              ,[SendGRId] = @GRId
-                              ,[SendGRUserId] = @SendGRUserId
-                              ,[SendGRDateTime] = GETDATE() 
-                              ,[SendVehicleId] = @VehicleNoId
-                              ,[SendDriverId] = @DriverNameId
-                        WHERE  [Id] = @GpId";
-
-                        connection.Execute(
-                            sqlUpdateM,
-                            new
-                            {
-                                GpId = gPGrUpdate.SelectedGpId,
-                                IsSend = 1,
-                                gPGrUpdate.GRId,
-                                SendGRUserId = _iSessionHelper.GetUserId(),
-                                gPGrUpdate.VehicleNoId,
-                                gPGrUpdate.DriverNameId
-                            },
-                            transaction: transaction,
-                            commandType: CommandType.Text);
-
-                        //insert the dispatching details
-                        string sqlInsertM = @"INSERT INTO [dbo].[TGPS_TrGpGoodsDetailsErrorsSend]
-                           ([GpRouteId]
-                           ,[GGpPassDetailsId]
-                           ,[GRRemarkId]
-                           ,[ActualQty])
-                     VALUES
-                           (@GpRouteId
-                           ,@GGpPassDetailsId
-                           ,@GuardRoomRemarkId
-                           ,@ActualQty)";
-
-                        foreach (var detail in gPGrUpdate.GPGrUpdateDetailList)
-                        {
-                            connection.Execute(
-                                sqlInsertM,
-                                new
-                                {
-                                    GpRouteId = gPGrUpdate.SelectedGpId,
-                                    GGpPassDetailsId = detail.ID,
-                                    GuardRoomRemarkId = detail.ReasonId,
-                                    detail.ActualQty
-                                },
-                                transaction: transaction,
-                                commandType: CommandType.Text);
-                        }
-
+                        await UpdateRouteWithDetailsAsync(connection, transaction, gPGrUpdate, userId, true);
+                        await InsertDetailsAsync(connection, transaction, gPGrUpdate, true);
                     }
                 }
                 else
                 {
                     if (gPGrUpdate.ActionType == 2)
                     {
-                        string sqlUpdateMRej = @"UPDATE [dbo].[TGPS_TrGpGoodsRoutes]
-                       SET [IsReceived] = @IsReceived                         
-                          ,[RecGRId] = @GRId
-                          ,[RecGRUserId] = @RecGRUserId
-                          ,[RecGRDateTime] = GETDATE()  
-                     WHERE [Id] = @GpId";
-
-                        connection.Execute(
-                            sqlUpdateMRej,
-                            new
-                            {
-                                GpId = gPGrUpdate.SelectedGpId,
-                                IsReceived = 2,
-                                gPGrUpdate.GRId,
-                                RecGRUserId = _iSessionHelper.GetUserId(),
-                            },
-                            transaction: transaction,
-                            commandType: CommandType.Text);
-
+                        await UpdateRouteAsync(connection, transaction, gpId, 2, gPGrUpdate.GRId, userId, false);
+                        await MarkHeaderCompletedAsync(connection, transaction, gpId, 2);
                     }
                     else
                     {
-                        string isDest = @"SELECT TGPS_TrGpGoodsHeader.IsExternal, TGPS_TrGpGoodsRoutes.IsDest
-                    FROM            TGPS_TrGpGoodsHeader INNER JOIN
-                                             TGPS_TrGpGoodsRoutes ON TGPS_TrGpGoodsHeader.ID = TGPS_TrGpGoodsRoutes.GGpPassId
-                    WHERE        (TGPS_TrGpGoodsRoutes.ID = @GpId)";
+                        var destinationInfo = await GetDestinationInfoAsync(connection, transaction, gpId);
 
-                        var isDestination = await connection.QueryFirstOrDefaultAsync<CompleteTrip>(isDest, new { GpId = gPGrUpdate.SelectedGpId },
-                            transaction: transaction,
-                            commandType: CommandType.Text);
+                        if (destinationInfo!.IsDest && !destinationInfo.IsExternal)
+                            await MarkHeaderCompletedAsync(connection, transaction, gpId, 1);
 
-                        if (isDestination!.IsDest && !isDestination.IsExternal)
-                        {
-                            string sqlUpdateExt = @"UPDATE [dbo].[TGPS_TrGpGoodsHeader]
-                        SET [IsCompleted] = 1
-                        FROM            TGPS_TrGpGoodsHeader INNER JOIN
-                                                 TGPS_TrGpGoodsRoutes ON TGPS_TrGpGoodsHeader.ID = TGPS_TrGpGoodsRoutes.GGpPassId
-                        WHERE        (TGPS_TrGpGoodsRoutes.ID = @GpId)";
-
-                            //execute  sqlUpdateM
-                            connection.Execute(
-                                sqlUpdateExt,
-                                new { GpId = gPGrUpdate.SelectedGpId },
-                                transaction: transaction,
-                                commandType: CommandType.Text);
-                        }
-
-                        // Update from sql query
-                        string sqlUpdateM = @"UPDATE [dbo].[TGPS_TrGpGoodsRoutes]
-                       SET [IsReceived] = @IsReceived                         
-                          ,[RecGRId] = @GRId
-                          ,[RecGRUserId] = @RecGRUserId
-                          ,[RecGRDateTime] = GETDATE()  
-                          ,[RecVehicleId] = @VehicleNoId
-                          ,[RecDriverId] = @DriverNameId
-                     WHERE [Id] = @GpId";
-
-                        connection.Execute(
-                            sqlUpdateM,
-                            new
-                            {
-                                GpId = gPGrUpdate.SelectedGpId,
-                                IsReceived = 1,
-                                gPGrUpdate.GRId,
-                                RecGRUserId = _iSessionHelper.GetUserId(),
-                                gPGrUpdate.VehicleNoId,
-                                gPGrUpdate.DriverNameId
-                            },
-                            transaction: transaction,
-                            commandType: CommandType.Text);
-
-                        //insert the dispatching details
-                        string sqlInsertM = @"INSERT INTO [dbo].[TGPS_TrGpGoodsDetailsErrorsRec]
-                           ([GpRouteId]
-                           ,[GGpPassDetailsId]
-                           ,[GRRemarkId]
-                           ,[ActualQty])
-                     VALUES
-                           (@GpRouteId
-                           ,@GGpPassDetailsId
-                           ,@GuardRoomRemarkId
-                           ,@ActualQty)";
-
-                        foreach (var detail in gPGrUpdate.GPGrUpdateDetailList)
-                        {
-                            connection.Execute(
-                                sqlInsertM,
-                                new
-                                {
-                                    GpRouteId = gPGrUpdate.SelectedGpId,
-                                    GGpPassDetailsId = detail.ID,
-                                    GuardRoomRemarkId = detail.ReasonId,
-                                    detail.ActualQty
-
-                                },
-                                transaction: transaction,
-                                commandType: CommandType.Text);
-                        }
+                        await UpdateRouteWithDetailsAsync(connection, transaction, gPGrUpdate, userId, false);
+                        await InsertDetailsAsync(connection, transaction, gPGrUpdate, false);
                     }
                 }
 
                 transaction.Commit();
-                return await Task.FromResult(new GPGrUpdateResult { IsSuccess = true, Message = "Transaction Completed Successfully." });
+                return new GPGrUpdateResult { IsSuccess = true, Message = "Transaction Completed Successfully." };
             }
             catch (Exception ex)
             {
                 transaction.Rollback();
-                return await Task.FromResult(new GPGrUpdateResult { IsSuccess = false, Message = "An error occurred: " + ex.Message });
+                return new GPGrUpdateResult { IsSuccess = false, Message = "An error occurred: " + ex.Message };
             }
         }
+
+        private async Task<bool> IsExternalAsync(IDbConnection connection, IDbTransaction transaction, int gpId)
+        {
+            const string query = @"SELECT TGPS_TrGpGoodsHeader.IsExternal
+                           FROM TGPS_TrGpGoodsHeader
+                           INNER JOIN TGPS_TrGpGoodsRoutes ON TGPS_TrGpGoodsHeader.ID = TGPS_TrGpGoodsRoutes.GGpPassId
+                           WHERE TGPS_TrGpGoodsRoutes.ID = @GpId";
+
+            return await connection.QueryFirstOrDefaultAsync<bool>(query, new { GpId = gpId }, transaction);
+        }
+
+        private async Task<CompleteTrip?> GetDestinationInfoAsync(IDbConnection connection, IDbTransaction transaction, int gpId)
+        {
+            const string query = @"SELECT TGPS_TrGpGoodsHeader.IsExternal, TGPS_TrGpGoodsRoutes.IsDest
+                           FROM TGPS_TrGpGoodsHeader
+                           INNER JOIN TGPS_TrGpGoodsRoutes ON TGPS_TrGpGoodsHeader.ID = TGPS_TrGpGoodsRoutes.GGpPassId
+                           WHERE TGPS_TrGpGoodsRoutes.ID = @GpId";
+
+            return await connection.QueryFirstOrDefaultAsync<CompleteTrip>(query, new { GpId = gpId }, transaction);
+        }
+
+        private async Task UpdateRouteAsync(IDbConnection connection, IDbTransaction transaction, int gpId, int status, int grId, int userId, bool isSend)
+        {
+            string sql = isSend
+                ? @"UPDATE [dbo].[TGPS_TrGpGoodsRoutes]
+              SET [IsSend] = @Status,
+                  [SendGRId] = @GRId,
+                  [SendGRUserId] = @UserId,
+                  [SendGRDateTime] = GETDATE()
+            WHERE [Id] = @GpId"
+                : @"UPDATE [dbo].[TGPS_TrGpGoodsRoutes]
+              SET [IsReceived] = @Status,
+                  [RecGRId] = @GRId,
+                  [RecGRUserId] = @UserId,
+                  [RecGRDateTime] = GETDATE()
+            WHERE [Id] = @GpId";
+
+            await connection.ExecuteAsync(sql, new { GpId = gpId, Status = status, GRId = grId, UserId = userId }, transaction);
+        }
+
+        private async Task UpdateRouteWithDetailsAsync(IDbConnection connection, IDbTransaction transaction, GPGrUpdate gPGrUpdate, int userId, bool isSend)
+        {
+            string sql = isSend
+                ? @"UPDATE [dbo].[TGPS_TrGpGoodsRoutes]
+              SET [IsSend] = 1,
+                  [SendGRId] = @GRId,
+                  [SendGRUserId] = @UserId,
+                  [SendGRDateTime] = GETDATE(),
+                  [SendVehicleId] = @VehicleId,
+                  [SendDriverId] = @DriverId
+            WHERE [Id] = @GpId"
+                : @"UPDATE [dbo].[TGPS_TrGpGoodsRoutes]
+              SET [IsReceived] = 1,
+                  [RecGRId] = @GRId,
+                  [RecGRUserId] = @UserId,
+                  [RecGRDateTime] = GETDATE(),
+                  [RecVehicleId] = @VehicleId,
+                  [RecDriverId] = @DriverId
+            WHERE [Id] = @GpId";
+
+            await connection.ExecuteAsync(sql, new
+            {
+                GpId = gPGrUpdate.SelectedGpId,
+                GRId = gPGrUpdate.GRId,
+                UserId = userId,
+                VehicleId = gPGrUpdate.VehicleNoId,
+                DriverId = gPGrUpdate.DriverNameId
+            }, transaction);
+        }
+
+        private async Task InsertDetailsAsync(IDbConnection connection, IDbTransaction transaction, GPGrUpdate gPGrUpdate, bool isSend)
+        {
+            string sql = isSend
+                ? @"INSERT INTO [dbo].[TGPS_TrGpGoodsDetailsErrorsSend]
+              ([GpRouteId], [GGpPassDetailsId], [GRRemarkId], [ActualQty])
+            VALUES
+              (@GpRouteId, @DetailsId, @RemarkId, @ActualQty)"
+                : @"INSERT INTO [dbo].[TGPS_TrGpGoodsDetailsErrorsRec]
+              ([GpRouteId], [GGpPassDetailsId], [GRRemarkId], [ActualQty])
+            VALUES
+              (@GpRouteId, @DetailsId, @RemarkId, @ActualQty)";
+
+            foreach (var detail in gPGrUpdate.GPGrUpdateDetailList)
+            {
+                await connection.ExecuteAsync(sql, new
+                {
+                    GpRouteId = gPGrUpdate.SelectedGpId,
+                    DetailsId = detail.ID,
+                    RemarkId = detail.ReasonId,
+                    detail.ActualQty
+                }, transaction);
+            }
+        }
+
+        private async Task MarkHeaderCompletedAsync(IDbConnection connection, IDbTransaction transaction, int gpId, int status)
+        {
+            const string sql = @"UPDATE [dbo].[TGPS_TrGpGoodsHeader]
+                         SET [IsCompleted] = @Status
+                         FROM TGPS_TrGpGoodsHeader
+                         INNER JOIN TGPS_TrGpGoodsRoutes ON TGPS_TrGpGoodsHeader.ID = TGPS_TrGpGoodsRoutes.GGpPassId
+                         WHERE TGPS_TrGpGoodsRoutes.ID = @GpId";
+
+            await connection.ExecuteAsync(sql, new { GpId = gpId, Status = status }, transaction);
+        }
+
 
         public async Task<List<GpHistoryVM>> GetGDHistoryData(int gpId)
         {

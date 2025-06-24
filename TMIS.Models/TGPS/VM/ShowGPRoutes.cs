@@ -16,5 +16,8 @@
         public string SendGRDateTime { get; set; } = string.Empty;
         public string SendVehicle { get; set; } = string.Empty;
         public string SendDriver { get; set; } = string.Empty;
+
+        public string IsReceived { get; set; } = string.Empty;
+        public string IsSend { get; set; } = string.Empty;
     }
 }

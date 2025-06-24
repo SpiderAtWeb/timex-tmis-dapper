@@ -325,7 +325,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
 
                 SELECT [GGpPassId], [Id], [LocationName], [ROrder], [RecGRName], [RecUser], [RecGRDateTime],
                        [RecVehicle], [RecDriver], [SendGRName], [SendUser], [SendGRDateTime], 
-                       [SendVehicle], [SendDriver]
+                       [SendVehicle], [SendDriver], [IsReceived], [IsSend]
                 FROM [TMIS].[dbo].[TGPS_VwGatePassRoutes] 
                 WHERE [GGpPassId] = @GPID;
 

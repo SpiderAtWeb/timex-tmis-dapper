@@ -27,7 +27,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
                 {
                     AppStatus = stat,
                     ID = gatePassID,
-                    IsCompleted = stat == 2 
+                    IsCompleted = stat
                 };
 
                 return await connection.ExecuteAsync(sql, parameters);
