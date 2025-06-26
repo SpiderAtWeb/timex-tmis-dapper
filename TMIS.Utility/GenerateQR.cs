@@ -18,9 +18,11 @@ namespace TMIS.Utility
                 // Define a 2-column table (ID card width)
                 PdfPTable table = new(2)
                 {
-                    WidthPercentage = 100
+                    TotalWidth = 500f,
+                    LockedWidth = true,
+                    HorizontalAlignment = Element.ALIGN_CENTER
                 };
-                float[] columnWidths = new float[] { 1f, 1f };
+                float[] columnWidths = [1f, 1f];
                 table.SetWidths(columnWidths);
 
                 int totalCells = 0;
@@ -32,7 +34,7 @@ namespace TMIS.Utility
                         using (QRCodeGenerator qrGenerator = new QRCodeGenerator())
                         {
                             QRCodeData qrCodeData = qrGenerator.CreateQrCode(qrCodeValue, QRCodeGenerator.ECCLevel.Q);
-                            using (BitmapByteQRCode qrCode = new BitmapByteQRCode(qrCodeData))
+                            using (BitmapByteQRCode qrCode = new(qrCodeData))
                             {
                                 byte[] qrCodeImage = qrCode.GetGraphic(20);
 

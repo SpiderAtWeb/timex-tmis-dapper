@@ -119,7 +119,7 @@ namespace TMIS.DataAccess.GDRM.Rpository
                     {
                         var destinationInfo = await GetDestinationInfoAsync(connection, transaction, gpId);
 
-                        if (destinationInfo!.IsDest && !destinationInfo.IsExternal)
+                        if (!destinationInfo!.IsDest && destinationInfo.IsExternal)
                             await MarkHeaderCompletedAsync(connection, transaction, gpId, 1);
 
                         await UpdateRouteWithDetailsAsync(connection, transaction, gPGrUpdate, userId, true);
