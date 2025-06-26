@@ -10,17 +10,19 @@ using TMIS.DataAccess.ITIS.IRepository;
 using TMIS.DataAccess.TAPS.IRepository;
 using TMIS.Models.ITIS;
 using TMIS.Models.ITIS.VM;
+using TMIS.Utility;
 
 namespace TMIS.DataAccess.ITIS.Repository
 {
     public class DeviceUserRepository(IDatabaseConnectionSys dbConnection,
                             ICommonList iCommonList, ISessionHelper sessionHelper,
-                            IITISLogdb iITISLogdb) : IDeviceUserRepository
+                            IITISLogdb iITISLogdb, IGmailSender gmailSender) : IDeviceUserRepository
     {
         private readonly IDatabaseConnectionSys _dbConnection = dbConnection;
         private readonly ICommonList _icommonList = iCommonList;
         private readonly IITISLogdb _iITISLogdb = iITISLogdb;
         private readonly ISessionHelper _iSessionHelper = sessionHelper;
+        private readonly IGmailSender _gmailSender = gmailSender;
 
         public async Task<IEnumerable<DeviceUserVM>> GetAllAsync()
         {
@@ -199,6 +201,52 @@ namespace TMIS.DataAccess.ITIS.Repository
                 EmpName = empName
             });
             return objDeviceUserDetailVM;
+        }
+
+        private void PrepairEmail(int genId)
+        {
+            using var connection = _dbConnection.GetConnection();
+
+            string headerQuery = @"SELECT  EmpGpNo, GateName, ExpLoc, ExpReason, ExpOutTime, IsReturn, GenUser, ApprovedById
+            FROM TGPS_VwEGPHeaders WHERE (Id = @GenId)";
+
+            var header = connection.Query(headerQuery, new { GenId = genId }).FirstOrDefault();
+
+            string detailsQuery = @"SELECT EmpName, EmpEPF
+            FROM            TGPS_VwEGPDetails WHERE        (EGpPassId = @GenId)";
+
+            var details = connection.Query(detailsQuery, new { GenId = genId }).ToList();
+
+            // Prepare header part of array
+            var myList = new List<string>
+            {
+                $"{header!.EmpGpNo}",
+                $"{header.GateName}",
+                $"{header.ExpLoc}",
+                $"{header.ExpReason}",
+                $"{header.ExpOutTime}",
+                $"{header.IsReturn}",
+                $"{header.GenUser}"
+            };
+
+            // Append each detail row as a string item in the array
+            foreach (var d in details)
+            {
+                string detailString = $"{d.EmpName}|{d.EmpEPF}";
+                myList.Add(detailString);
+            }
+
+            // Convert to array
+            string[] myArray = [.. myList];
+
+            // Prepare email recipient
+            string mailTo = connection.QuerySingleOrDefault<string>(
+                "SELECT UserEmail FROM ADMIN.dbo._MasterUsers WHERE Id = @Id",
+                new { Id = header.ApprovedById }
+            ) ?? throw new InvalidOperationException("No email found for the approved user.");
+
+            // Send email
+            Task.Run(() => _gmailSender.EPRequestToApprove(mailTo, myArray));
         }
 
     }

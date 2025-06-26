@@ -28,6 +28,8 @@ namespace TMIS.Models.ITIS
         public string? ReturnedDate { get; set; }
         public string? ReturnRemarks { get; set; }
         public string? AssignRemarks { get; set; }
+        public string? currentStatus { get; set; }
+        public string? UserStatus { get; set; }
 
     }
 }

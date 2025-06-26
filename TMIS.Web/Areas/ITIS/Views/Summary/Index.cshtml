@@ -14,96 +14,92 @@
 	<script src="~/custom/summary.js"></script>
 	<script>
 		$(document).ready(function () {
-			// $("#configurator").kendoTabStrip();
-
-			$("#grid").kendoGrid({
-				toolbar: ["excel"],
-				excel: {
-					allPages: true
+					$("#grid").kendoGrid({
+			toolbar: ["excel"],
+			excel: {
+				allPages: true
+			},
+			columns: [
+				{ draggable: true },
+				{ field: "name" }
+			],
+			dataSource: {
+				transport: {
+					read: {
+						url: "/ITIS/Summary/GetAllDataList",
+						dataType: "jsonp"
+					}
 				},
-				columns: [
-					{ draggable: true },
-					{ field: "name" }
-				],
-				dataSource: {
-					transport: {
-						read: {
-							url: "/ITIS/Summary/GetAllDataList",
-							dataType: "jsonp"
-						}
-					},
-					pageSize: 15,
+				pageSize: 15,
+				  group: {
+					field: "SerialNumber",
+					dir: "asc"
+				}
+			},
+			selectable: "multiple row",
+			sortable: true,
+			reorderable: true,
+			pageable: true,
+			filterable: {
+				mode: "row"
+			},
+			pageable: {
+				buttonCount: 5
+			},
+			scrollable: true,
+			groupable: true,
+			columns: [
+				{ field: "DeviceID", title: "Device ID", width: "150px", hidden: true },
+				{ field: "LocationName", title: "Location", width: "100px" },
+				{ field: "DeviceType", title: "Type", width: "80px" },
+				{ field: "currentStatus", title: "Current Status", width: "120px" },
+				{ field: "SerialNumber", title: "Serial Number", width: "150px"  },
+				{ field: "DeviceName", title: "Device", width: "150px" },
+				{ field: "UserStatus", title: "User Status", width: "120px" },
+				{ field: "EMPNo", title: "EPF", width: "150px" },
+				{ field: "EmpName", title: "Employee", width: "150px" },
+				{ field: "PurchasedDate", title: "Purchased Date", width: "130px",
+					template: function(dataItem) {
+						if (!dataItem.PurchasedDate) return "";
+						const date = new Date(dataItem.PurchasedDate);
+						const mm = String(date.getMonth() + 1).padStart(2, '0');
+						const dd = String(date.getDate()).padStart(2, '0');
+						const yyyy = date.getFullYear();
+						return `${mm}-${dd}-${yyyy}`;
+					}
+
 				},
-				selectable: "multiple row",
-				sortable: true,
-				reorderable: true,
-				pageable: true,
-				filterable: {
-					mode: "row"
+				{ field: "AssignedDate", title: "Assigned Date", width: "130px",
+					template: function(dataItem) {
+						if (!dataItem.AssignedDate) return "";
+						const date = new Date(dataItem.AssignedDate);
+						const mm = String(date.getMonth() + 1).padStart(2, '0');
+						const dd = String(date.getDate()).padStart(2, '0');
+						const yyyy = date.getFullYear();
+						return `${mm}-${dd}-${yyyy}`;
+					}
 				},
-				pageable: {
-					buttonCount: 5
+				{ field: "ReturnedDate", title: "Returned Date", width: "130px",
+					template: function(dataItem) {
+						if (!dataItem.ReturnedDate) return "";
+						const date = new Date(dataItem.ReturnedDate);
+						const mm = String(date.getMonth() + 1).padStart(2, '0');
+						const dd = String(date.getDate()).padStart(2, '0');
+						const yyyy = date.getFullYear();
+						return `${mm}-${dd}-${yyyy}`;
+					}
 				},
-				// dataBound: function () {
-				//     for (var i = 0; i < this.columns.length; i++) {
-				//         this.autoFitColumn(i);
-				//     }
-				// },
-				scrollable: true,
-				groupable: true,
-				columns: [
-					{ field: "DeviceID", title: "Device ID", width: "150px", hidden: true },
-					{ field: "DeviceType", title: "Type", width: "80px" },
-					{ field: "SerialNumber", title: "Serial Number", width: "100px"  },
-					{ field: "FixedAssetCode", title: "FA Code ", width: "100px" },
-					{ field: "DeviceName", title: "Device", width: "100px" },
-					{ field: "PurchasedDate", title: "Purchased Date", width: "100px",
-						template: function(dataItem) {
-							if (!dataItem.PurchasedDate) return "";
-							const date = new Date(dataItem.PurchasedDate);
-							const mm = String(date.getMonth() + 1).padStart(2, '0');
-							const dd = String(date.getDate()).padStart(2, '0');
-							const yyyy = date.getFullYear();
-							return `${mm}-${dd}-${yyyy}`;
-						}
-
-					},
-					{ field: "LocationName", title: "Location", width: "100px" },
-					{ field: "Status", title: "Status", width: "75px" },
-					{ field: "Vendor", title: "Vendor", width: "170px" },
-					{ field: "EMPNo", title: "EPF", width: "150px" },
-					{ field: "EmpName", title: "Employee", width: "150px" },
-					{ field: "EmpEmail", title: "Email", width: "180px" },
-					{ field: "Designation", title: "Designation", width: "150px" },
-					{ field: "AssignedDate", title: "AssignedDate", width: "100px",
-						template: function(dataItem) {
-							if (!dataItem.AssignedDate) return "";
-							const date = new Date(dataItem.AssignedDate);
-							const mm = String(date.getMonth() + 1).padStart(2, '0');
-							const dd = String(date.getDate()).padStart(2, '0');
-							const yyyy = date.getFullYear();
-							return `${mm}-${dd}-${yyyy}`;
-						}
-					},
-					{ field: "ReturnedDate", title: "ReturnedDate", width: "100px",
-						template: function(dataItem) {
-							if (!dataItem.ReturnedDate) return "";
-							const date = new Date(dataItem.ReturnedDate);
-							const mm = String(date.getMonth() + 1).padStart(2, '0');
-							const dd = String(date.getDate()).padStart(2, '0');
-							const yyyy = date.getFullYear();
-							return `${mm}-${dd}-${yyyy}`;
-						}
-					},
-					{ field: "ReturnRemarks", title: "Return Remarks", width: "170px" },
-					{ field: "AssignRemarks", title: "Assign Remarks", width: "170px" }
-
-				],
-			});
+				{ field: "EmpEmail", title: "Email", width: "180px" },
+				{ field: "Designation", title: "Designation", width: "150px" },
+				{ field: "FixedAssetCode", title: "FA Code ", width: "100px" },
+				{ field: "Vendor", title: "Vendor", width: "170px" },
+				{ field: "AssignRemarks", title: "Assign Remarks", width: "170px" },
+				{ field: "ReturnRemarks", title: "Return Remarks", width: "170px" }
 
 
+			],
 		});
-
+		});
 	</script>
 	<script src="~/custom/loading-hide.js"></script>
 }
