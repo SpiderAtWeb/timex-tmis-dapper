@@ -6,6 +6,7 @@ namespace TMIS.Utility
 {
     public class GenerateQR
     {
+
         public static byte[] GenerateQRCode(List<string> qrCodes)
         {
             using (MemoryStream memoryStream = new())
@@ -14,15 +15,14 @@ namespace TMIS.Utility
                 PdfWriter writer = PdfWriter.GetInstance(document, memoryStream);
                 document.Open();
 
-                // Define a 4-column table for QR codes
-                PdfPTable table = new(4)
+                // Define a 2-column table (ID card width)
+                PdfPTable table = new(2)
                 {
                     WidthPercentage = 100
                 };
-                float[] columnWidths = new float[] { 1f, 1f, 1f, 1f }; // Column widths to make the table spread across the page
+                float[] columnWidths = new float[] { 1f, 1f };
                 table.SetWidths(columnWidths);
 
-                // Track the number of cells added to ensure we can fill the table properly
                 int totalCells = 0;
 
                 foreach (var qrCodeValue in qrCodes)
@@ -36,50 +36,62 @@ namespace TMIS.Utility
                             {
                                 byte[] qrCodeImage = qrCode.GetGraphic(20);
 
-                                // Create QR code image and scale it
+                                // Convert QR code to image
                                 Image qrImage = Image.GetInstance(qrCodeImage);
-                                qrImage.ScaleAbsolute(100, 100); // Adjust size as needed
+                                qrImage.ScaleAbsolute(100f, 100f); // Scaled to fit inside ID card
+                                qrImage.Alignment = Element.ALIGN_CENTER;
 
-                                // Create a Phrase to combine QR code image and text
-                                PdfPTable innerTable = new(1); // Inner table with a single column
-                                PdfPCell qrImageCell = new(qrImage)
+                                // Create inner table (1 column: image + text)
+                                PdfPTable innerTable = new(1);
+
+                                PdfPCell textCellLogo = new(new Phrase("TIMEX GARMENTS (PVT) LTD.", new Font(Font.HELVETICA, 8, Font.NORMAL)))
                                 {
-                                    Border = iTextSharp.text.Rectangle.NO_BORDER,
+                                    Border = Rectangle.NO_BORDER,
                                     HorizontalAlignment = Element.ALIGN_CENTER,
-                                    PaddingBottom = 1 // Space between QR code and text
+                                    PaddingBottom = 4f
                                 };
-                                innerTable.AddCell(qrImageCell);
+                                innerTable.AddCell(textCellLogo);
+
+                                PdfPCell qrCell = new(qrImage)
+                                {
+                                    Border = Rectangle.NO_BORDER,
+                                    HorizontalAlignment = Element.ALIGN_CENTER,
+                                    PaddingBottom = 4f
+                                };
+                                innerTable.AddCell(qrCell);
 
                                 PdfPCell textCell = new(new Phrase(qrCodeValue, new Font(Font.HELVETICA, 8, Font.NORMAL)))
                                 {
-                                    Border = iTextSharp.text.Rectangle.NO_BORDER,
+                                    Border = Rectangle.NO_BORDER,
                                     HorizontalAlignment = Element.ALIGN_CENTER
                                 };
-                                innerTable.AddCell(textCell);
+                                innerTable.AddCell(textCell);     
 
-                                // Add the combined inner table (QR code + text) to the main table
-                                PdfPCell mainCell = new(innerTable)
+                                // Outer cell sized like ID card
+                                PdfPCell outerCell = new(innerTable)
                                 {
-                                    Border = iTextSharp.text.Rectangle.BOX,
-                                    Padding = 2,
+                                    Border = Rectangle.BOX,
+                                    Padding = 10,
+                                    FixedHeight = 153f,
                                     HorizontalAlignment = Element.ALIGN_CENTER,
                                     VerticalAlignment = Element.ALIGN_MIDDLE
                                 };
-                                table.AddCell(mainCell);
+
+                                table.AddCell(outerCell);
                                 totalCells++;
                             }
                         }
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine($"Error generating QR code for value '{qrCodeValue}': {ex.Message}");
+                        Console.WriteLine($"Error generating QR code for '{qrCodeValue}': {ex.Message}");
                     }
                 }
 
-                // Fill empty cells to complete the table (if necessary)
-                while (totalCells % 4 != 0)
+                // Fill empty cells to complete row if needed
+                while (totalCells % 2 != 0)
                 {
-                    table.AddCell(new PdfPCell() { Border = iTextSharp.text.Rectangle.NO_BORDER });
+                    table.AddCell(new PdfPCell() { Border = Rectangle.NO_BORDER });
                     totalCells++;
                 }
 
@@ -87,12 +99,8 @@ namespace TMIS.Utility
                 document.Add(table);
                 document.Close();
 
-                return memoryStream.ToArray(); // Return the PDF as a byte array
+                return memoryStream.ToArray();
             }
         }
-
-
-
-
     }
 }

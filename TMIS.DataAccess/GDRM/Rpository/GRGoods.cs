@@ -57,7 +57,7 @@ namespace TMIS.DataAccess.GDRM.Rpository
             using var connection = _dbConnection.GetConnection();
 
             // Get one guard room's info (adjust as needed — currently just takes first one)
-            string sqlGuardRoom = @"SELECT [GrLocRelId], [GrName] FROM [TGPS_VwGRUsers] WHERE (Id = @UserId)";
+            string sqlGuardRoom = @"SELECT [GrLocRelId], [DefGrLocRelId], [GrName] FROM [TGPS_VwGRUsers] WHERE (Id = @UserId)";
 
             var oGPPendingListShow = await connection.QueryFirstOrDefaultAsync<GPPendingListShow>(sqlGuardRoom, new { UserId = _iSessionHelper.GetUserId() })
                                   ?? new GPPendingListShow();
@@ -117,7 +117,9 @@ namespace TMIS.DataAccess.GDRM.Rpository
                     }
                     else
                     {
-                        if (await IsExternalAsync(connection, transaction, gpId))
+                        var destinationInfo = await GetDestinationInfoAsync(connection, transaction, gpId);
+
+                        if (destinationInfo!.IsDest && !destinationInfo.IsExternal)
                             await MarkHeaderCompletedAsync(connection, transaction, gpId, 1);
 
                         await UpdateRouteWithDetailsAsync(connection, transaction, gPGrUpdate, userId, true);

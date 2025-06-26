@@ -9,39 +9,44 @@
 }
 
 @section PageStyles {
-
     <style>
-        .round {
-            border-radius: 10%;
-            width: 100px;
-            height: 50px;
-            background-color: #f0f0f0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 10px;
+        #content .qr-code-item {
+            max-width: 400px;
+        }
+
+        #content .qr-code-text {
+            width: 100%;
+            font-weight: 500;
         }
     </style>
+
 }
 
 @section PageScripts {
     <script src="~/js/form-layouts.js"></script>
+
     <script>
         document.getElementById('add-btn').addEventListener('click', function () {
-            // Get the selected QR code
             const selectElement = document.getElementById('qr-code-select');
             const selectedCode = selectElement.value;
             const contentDiv = document.getElementById('content');
 
-            // Check if the code is selected
             if (selectedCode && !isCodeAlreadyAdded(selectedCode)) {
-                // Create a new div to display the QR code
                 const newCodeDiv = document.createElement('div');
-                newCodeDiv.textContent = selectedCode;
-                newCodeDiv.classList.add('qr-code-item');
-                newCodeDiv.classList.add('round');
+                newCodeDiv.classList.add('qr-code-item', 'd-flex', 'align-items-center', 'mb-2', 'w-100');
 
-                // Append the new QR code to the content div
+                const codeButton = document.createElement('button');
+                codeButton.textContent = selectedCode;
+                codeButton.classList.add('btn', 'btn-outline-primary', 'qr-code-text', 'text-start', 'flex-grow-1');
+                codeButton.disabled = true;
+
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = '×';
+                deleteBtn.classList.add('btn', 'btn-danger', 'ms-2');
+                deleteBtn.onclick = () => newCodeDiv.remove();
+
+                newCodeDiv.appendChild(codeButton);
+                newCodeDiv.appendChild(deleteBtn);
                 contentDiv.appendChild(newCodeDiv);
             } else if (!selectedCode) {
                 alert("Please select a QR code before adding.");
@@ -50,16 +55,13 @@
             }
         });
 
-        // Function to check if the QR code is already added
         function isCodeAlreadyAdded(code) {
-            const existingCodes = document.querySelectorAll('#content .qr-code-item');
+            const existingCodes = document.querySelectorAll('#content .qr-code-text');
             return Array.from(existingCodes).some(item => item.textContent === code);
         }
-    </script>
 
-    <script>
         document.getElementById("generate-btn").addEventListener("click", function () {
-            const qrCodes = getSelectedQrCodes(); // Retrieve selected QR codes
+            const qrCodes = getSelectedQrCodes();
             if (qrCodes.length === 0) {
                 alert("Please add some QR codes to generate the PDF.");
                 return;
@@ -67,15 +69,11 @@
 
             fetch("/SMIS/PrintCodes/GenerateQrPdf", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(qrCodes),
             })
             .then(response => {
-                if (!response.ok) {
-                    throw new Error("Error generating QR PDF");
-                }
+                if (!response.ok) throw new Error("Error generating QR PDF");
                 return response.blob();
             })
             .then(blob => {
@@ -95,9 +93,8 @@
         });
 
         function getSelectedQrCodes() {
-            // Get QR codes dynamically added to the #content div
             const qrCodes = [];
-            document.querySelectorAll("#content .qr-code-item").forEach(item => {
+            document.querySelectorAll("#content .qr-code-text").forEach(item => {
                 qrCodes.push(item.textContent);
             });
             return qrCodes;
@@ -126,7 +123,6 @@
                 <button class="btn btn-primary h-100" id="add-btn">+</button>
                 <button class="btn btn-primary h-100" id="generate-btn">Download</button>
             </div>
-   
         </div>
         <div class="row p-5">
             <div id="content" class="m-3">

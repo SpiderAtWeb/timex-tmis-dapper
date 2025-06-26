@@ -17,13 +17,13 @@ namespace TMIS.DataAccess.COMON.Rpository
             return results;
         }
 
-        public async Task<string> GenerateGpRefAsync(IDbConnection connection, IDbTransaction transaction, string tableName, string gpType )
+        public async Task<string> GenerateGpRefAsync(IDbConnection connection, IDbTransaction transaction, string tableName, string codeType)
         {
             int currentYear = DateTime.Now.Year;
 
             // 1. Try to get the generator for the current year
             var selectSql = @"SELECT TOP 1 [Id], [GenYear], [GenNo], [LastGeneratedDate]
-            FROM [dbo]."+ tableName + " WHERE GenYear = @Year AND GpType='"+ gpType + "'";
+            FROM [dbo]." + tableName + " WHERE GenYear = @Year AND CodeType='" + codeType + "'";
 
             var generator = await connection.QuerySingleOrDefaultAsync<dynamic>(
                 selectSql, new { Year = currentYear }, transaction);
@@ -36,7 +36,7 @@ namespace TMIS.DataAccess.COMON.Rpository
                 // 2. No record for this year — insert new
                 genNo = 1;
 
-                var insertSql = @"INSERT INTO [dbo]." + tableName + " (GenYear, GenNo, LastGeneratedDate, GpType) VALUES (@GenYear, @GenNo, GETDATE(),'" + gpType + "' ); SELECT CAST(SCOPE_IDENTITY() AS INT);";
+                var insertSql = @"INSERT INTO [dbo]." + tableName + " (GenYear, GenNo, LastGeneratedDate, CodeType) VALUES (@GenYear, @GenNo, GETDATE(),'" + codeType + "' ); SELECT CAST(SCOPE_IDENTITY() AS INT);";
 
                 await connection.ExecuteScalarAsync<int>(
                     insertSql,
@@ -51,7 +51,7 @@ namespace TMIS.DataAccess.COMON.Rpository
                 id = generator.Id;
 
                 var updateSql = @"
-                UPDATE [dbo]." + tableName + " SET GenNo = @NewGenNo, LastGeneratedDate = GETDATE() WHERE Id = @Id AND GpType='" + gpType + "';";
+                UPDATE [dbo]." + tableName + " SET GenNo = @NewGenNo, LastGeneratedDate = GETDATE() WHERE Id = @Id AND CodeType='" + codeType + "';";
 
                 await connection.ExecuteAsync(
                     updateSql,
@@ -61,7 +61,7 @@ namespace TMIS.DataAccess.COMON.Rpository
             }
 
             // 4. Format final reference number
-            string reference = $"{gpType}/{currentYear}/{genNo.ToString("D5")}";
+            string reference = $"{codeType}/{currentYear}/{genNo:D5}";
             return reference;
         }
 

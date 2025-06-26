@@ -3,16 +3,18 @@ using Microsoft.AspNetCore.Http;
 using System.Data;
 using System.Diagnostics;
 using TMIS.DataAccess.COMON.IRpository;
+using TMIS.DataAccess.COMON.Rpository;
 using TMIS.DataAccess.PLMS.IRpository;
 using TMIS.Models.PLMS;
 using TMIS.Models.SMIS;
 
 namespace TMIS.DataAccess.PLMS.Rpository
 {
-    public class NewInquiry(IDatabaseConnectionSys dbConnection, IPLMSLogdb pLMSLogdb) : INewInquiry
+    public class NewInquiry(IDatabaseConnectionSys dbConnection, IPLMSLogdb pLMSLogdb, IUserControls userControls) : INewInquiry
     {
         private readonly IDatabaseConnectionSys _dbConnection = dbConnection;
         private readonly IPLMSLogdb _pLMSLogdb = pLMSLogdb;
+        private readonly IUserControls _userControls = userControls;
 
         List<DateTime> companyDateList = [];
 
@@ -186,7 +188,7 @@ namespace TMIS.DataAccess.PLMS.Rpository
 
         private async Task<int> InsertHeaderAsync(IDbConnection connection, IDbTransaction transaction, NewInquiryVM inquiryVM)
         {
-            var inquiryRef = await GenerateRefAsync(connection, transaction);
+            string referenceNumber = await _userControls.GenerateGpRefAsync(connection, transaction, "[PLMS_XysGenerateNumber]", "PLM");
 
             var sqlHeader = @"INSERT INTO [dbo].[PLMS_TrInquiryHeader]
                ([InquiryRef]
@@ -206,7 +208,7 @@ namespace TMIS.DataAccess.PLMS.Rpository
 
             return await connection.QuerySingleAsync<int>(sqlHeader, new
             {
-                InquiryRef = inquiryRef,
+                InquiryRef = referenceNumber,
                 inquiryVM.CustomerId,
                 inquiryVM.InquiryTypeId,
                 inquiryVM.StyleNo,

@@ -452,7 +452,7 @@
          }
 
 
-        @if (User.IsInRole("SUPER-ADMIN") || User.IsInRole("TGPS-ADMIN") || User.IsInRole("TGPS-USER"))
+        @if (User.IsInRole("SUPER-ADMIN") || User.IsInRole("TGPS-ADMIN") || User.IsInRole("TGPS-USER") || User.IsInRole("GDRM-USER"))
         {
             <li class='menu-item@(currentPage.StartsWith("/TGPS") ? " active open" : "")'>
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
@@ -475,6 +475,8 @@
                         </ul>
                     </li>
 
+                    @if (User.IsInRole("SUPER-ADMIN") || User.IsInRole("TGPS-ADMIN") || User.IsInRole("TGPS-USER") )
+                    {
                     <!-- Transactions -->
                     <li class="menu-header">
                         <span class="menu-header-text">Transactions</span>
@@ -510,6 +512,8 @@
                         </li>
                     </ul> *@
                     </li>
+
+                    }
                 
                     <!-- Transactions -> Administration  -->
                 @if (User.IsInRole("SUPER-ADMIN") || User.IsInRole("TGPS-ADMIN"))
@@ -544,6 +548,7 @@
 
                     }
                     <!-- Master Data -->
+
                     <li class="menu-header">
                         <span class="menu-header-text">Master Data</span>
                     </li>
