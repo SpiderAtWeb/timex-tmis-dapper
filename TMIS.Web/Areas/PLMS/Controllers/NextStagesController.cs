@@ -29,7 +29,7 @@ namespace TMIS.Areas.PLMS.Controllers
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateNext(InquiryVM inquiryVM, IFormFile? artwork)
+    public async Task<IActionResult> CreateNext(Models.PLMS.NewInquiryVM inquiryVM, IFormFile? artwork)
     {
       var result = await _nextStages.SaveNextInquiryAsync(inquiryVM, artwork);
       TempData["success"] = result;

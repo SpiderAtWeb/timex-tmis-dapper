@@ -7,11 +7,10 @@
     <script src="~/kendo/jszip.min.js"></script>
     <script src="~/kendo/kendo.all.min.js"></script>
     <script src="~/custom/loading-hide.js"></script>
-    <script src="~/custom/plms/modal-popup-overall.js"></script>
+    <script src="~/custom/tgps/modal-popup-overall.js"></script>
 }
 
 @section PageStyles {
-    <link href="~/custom/plms/modal-popup.css" rel="stylesheet" />
     <style>
         #grid {
             font-size: 12px;
@@ -19,43 +18,33 @@
     </style>
 }
 
+<!-- Modal -->
+<div class="modal fade" id="viewGatePassModal" tabindex="-1" role="dialog" aria-labelledby="viewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-body" id="gatePassModalContent">
+                <p>Loading...</p>
+            </div>
+        </div>
+    </div>
+</div>
 
 @await Html.PartialAsync("_Loading")
 
-
 @* ************** Content ************** *@
+
 <!-- Ajax Sourced Server-side -->
 <div class="panelDiv">
     <div class="card mb-6">
-
         <div class="card-header px-0 pt-0">
-            <div class="nav-align-top">
-                <ul class="nav nav-pills nav-justified" role="tablist">
-                    <li class="nav-item">
-                        <button type="button" class="nav-link active" role="tab" data-bs-toggle="tab" data-bs-target="#ownedMachines" aria-controls="ownedMachines" aria-selected="true">GatePass List</button>
-                    </li>
-                    <li class="nav-item">
-                        <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#rentedMachines" aria-controls="rentedMachines" aria-selected="false">Employee Permits</button>
-                    </li>
-                </ul>
-            </div>
+            <h5 class="card-header page-header">All Gate Passes</h5>         
         </div>
         <div class="card-body">
-            <div class="tab-content p-0">
-                <div class="tab-pane fade show active" id="ownedMachines" role="tabpanel">
-                    <div>
-                        <!-- Transactions -->
-                        <div class="col align-self-end">
-                            <div id="example">
-                                <div id="grid"></div>
-                            </div>
-                        </div>
-                    </div>
+            <!-- Transactions -->
+            <div class="col align-self-end">
+                <div id="example">
+                    <div id="grid"></div>
                 </div>
-
-            </div>
-
-            <div class="tab-pane fade" id="rentedMachines" role="tabpanel">
             </div>
         </div>
     </div>

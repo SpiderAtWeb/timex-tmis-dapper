@@ -8,6 +8,6 @@ namespace TMIS.DataAccess.PLMS.IRpository
 
         Task<ModalShowVM> LoadModalDataAsync(string Id);
 
-        Task<InquiryVM> LoadInquiryDropDowns();
+        Task<NewInquiryVM> LoadInquiryDropDowns();
     }
 }

@@ -11,7 +11,7 @@ namespace TMIS.Models.GDRM
 
         public int DriverNameId { get; set; }
 
-        public bool ActionType { get; set; }
+        public int ActionType { get; set; }
 
         public int GRId { get; set; }
 

@@ -5,9 +5,9 @@ namespace TMIS.DataAccess.PLMS.IRpository
 {
     public interface INewInquiry
     {
-        Task<InquiryVM> LoadActsAndSubActsAsync(InquiryParams selectedInqParas);
+        Task<NewInquiryVM> LoadActsAndSubActsAsync(RoutePresetParas selectedInqParas);
 
-        Task<string> SaveMasterInquiryAsync(InquiryVM inquiryVM, IFormFile? artwork);
+        Task<string> SaveInquiryAsync(NewInquiryVM inquiryVM, IFormFile? artwork);
 
     }
 }

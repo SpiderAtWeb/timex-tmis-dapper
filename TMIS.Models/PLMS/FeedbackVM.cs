@@ -4,13 +4,13 @@
     {
         public ShowInquiryDataVM ShowInqDataVM { get; set; }
         public ModalShowVM ModalShowVM { get; set; }
-        public InquiryVM InquiryVM { get; set; }
+        public NewInquiryVM InquiryVM { get; set; }
 
         public FeedbackVM()
         {
             ShowInqDataVM = new ShowInquiryDataVM();
             ModalShowVM = new ModalShowVM();
-            InquiryVM = new InquiryVM();
+            InquiryVM = new NewInquiryVM();
         }
 
     }

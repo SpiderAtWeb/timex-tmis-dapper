@@ -78,14 +78,14 @@ namespace TMIS.DataAccess.TGPS.Rpository
                     new
                     {
                         GGpReference = referenceNumber,
-                        model.GpSubject,
+                        GpSubject = model.GpSubject.Trim(),
                         GeneratedUserId = _iSessionHelper.GetUserId(),
-                        model.Attention,
+                        Attention = model.Attention.Trim(),
                         ApprovedById = model.SendApprovalTo,
                         model.IsReturnable,
                         model.ReturnDays,
-                        GGPRemarks = model.Remarks,
-                        model.BoiGatepass,
+                        GGPRemarks = model.Remarks.Trim(),
+                        BoiGatepass = model.BoiGatepass.Trim(),
                         model.IsExternal
                     },
                     transaction
@@ -117,8 +117,8 @@ namespace TMIS.DataAccess.TGPS.Rpository
                         new
                         {
                             GGpPassId = ggpPassId,
-                            item.ItemName,
-                            ItemDescription = item.ItemDesc,
+                            ItemName = item.ItemName.Trim(),
+                            ItemDescription = item.ItemDesc.Trim(),
                             item.Quantity,
                             UOMId = item.ItemUnit
                         },
@@ -325,7 +325,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
 
                 SELECT [GGpPassId], [Id], [LocationName], [ROrder], [RecGRName], [RecUser], [RecGRDateTime],
                        [RecVehicle], [RecDriver], [SendGRName], [SendUser], [SendGRDateTime], 
-                       [SendVehicle], [SendDriver]
+                       [SendVehicle], [SendDriver], [IsReceived], [IsSend]
                 FROM [TMIS].[dbo].[TGPS_VwGatePassRoutes] 
                 WHERE [GGpPassId] = @GPID;
 

@@ -2,13 +2,8 @@
 {
     public class ActivitySave
     {
-        public int HeaderId { get; set; }
-        public int SelectedInqTypeId { get; set; }
-        public int SelectedRepTypeId { get; set; }
-        public int SelectedCustomerId { get; set; }
-        public int SelectedSampTypeId { get; set; }
-        public int SelectedSampStageId { get; set; }
-
+        public int Id { get; set; }
+        public string CPName { get; set; } = string.Empty;
         public List<TreeNode>? TreeData { get; set; }
     }
 
@@ -17,6 +12,7 @@
         public int ActivityId { get; set; }
         public int UserCategoryId { get; set; }
         public string Days { get; set; } = string.Empty;
+        public bool IsAwaitTask { get; set; }
         public List<TreeNode>? ActivityList { get; set; }
     }
 }

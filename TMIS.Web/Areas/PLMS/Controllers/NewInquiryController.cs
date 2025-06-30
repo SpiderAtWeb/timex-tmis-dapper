@@ -5,7 +5,6 @@ using TMIS.DataAccess.COMON.IRpository;
 using TMIS.DataAccess.PLMS.IRpository;
 using TMIS.Helper;
 using TMIS.Models.PLMS;
-using TMIS.Models.SMIS.VM;
 
 namespace TMIS.Areas.PLMS.Controllers
 {
@@ -30,7 +29,7 @@ namespace TMIS.Areas.PLMS.Controllers
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(InquiryVM inquiryVM, IFormFile? artwork)
+    public async Task<IActionResult> Create(NewInquiryVM inquiryVM, IFormFile? artwork)
     {
       var oInquiriesVM = await _common.LoadInquiryDropDowns();
 
@@ -40,32 +39,38 @@ namespace TMIS.Areas.PLMS.Controllers
       }
 
       // Check if Inquiry data exists and validate
-      if (inquiryVM.Inquiry == null)
+      if (inquiryVM == null)
       {
         ModelState.AddModelError(string.Empty, "Inquiry data is missing.");
         return View(oInquiriesVM);
       }
 
-      InquiryValidator.ValidateInquiry(inquiryVM.Inquiry, ModelState);
+      if (inquiryVM.SizeQtysList!.Count <= 0)
+      {
+        ModelState.AddModelError(string.Empty, "Sizes and Quatities is missing.");
+        return View(oInquiriesVM);
+      }
+
+      InquiryValidator.ValidateInquiry(inquiryVM, ModelState);
 
 
       // Check if model state is valid
       if (!ModelState.IsValid)
       {
         // Preserve the user's input in the view model
-        oInquiriesVM.Inquiry = inquiryVM.Inquiry;
+        oInquiriesVM = inquiryVM;
         return View(oInquiriesVM);
       }
 
-      var result = await _db.SaveMasterInquiryAsync(inquiryVM, artwork);
+      var result = await _db.SaveInquiryAsync(inquiryVM, artwork);
       TempData["success"] = result;
       return RedirectToAction("Index");
     }
 
     [HttpPost]
-    public async Task<IActionResult> LoadActsAndSubActs([FromBody] InquiryParams paraSelected)
+    public async Task<IActionResult> LoadActsAndSubActs([FromBody] RoutePresetParas routePresetParas)
     {
-      var dynamicModel = await _db.LoadActsAndSubActsAsync(paraSelected);
+      var dynamicModel = await _db.LoadActsAndSubActsAsync(routePresetParas);
       return Json(dynamicModel.ActivityList);
     }
   }

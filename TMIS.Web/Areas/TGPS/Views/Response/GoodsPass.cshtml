@@ -25,7 +25,11 @@
                 currentGatePassId = $(this).data("id");
 
                 // Load data via AJAX
-                $.get("/TGPS/Response/GetGGatePassDetails", { id: currentGatePassId }, function (data) {
+                $.get("/TGPS/Response/GetGGatePassDetails",
+                {
+                  id: currentGatePassId
+                },
+                  function (data) {
                     $("#gatePassModalContent").html(data);
                     $("#viewGatePassModal").modal("show");
                 }).fail(function () {

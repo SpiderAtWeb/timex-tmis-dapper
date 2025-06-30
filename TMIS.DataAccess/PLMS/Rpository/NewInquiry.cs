@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using Microsoft.AspNetCore.Http;
 using System.Data;
+using System.Diagnostics;
 using TMIS.DataAccess.COMON.IRpository;
 using TMIS.DataAccess.PLMS.IRpository;
 using TMIS.Models.PLMS;
@@ -15,98 +16,105 @@ namespace TMIS.DataAccess.PLMS.Rpository
 
         List<DateTime> companyDateList = [];
 
-        public async Task<InquiryVM> LoadActsAndSubActsAsync(InquiryParams inqParas)
+        public async Task<NewInquiryVM> LoadActsAndSubActsAsync(RoutePresetParas paras)
         {
-            string checkIdQuery = @"SELECT Id
-            FROM            PLMS_HpActivityScheduleHeader
-            WHERE        (InquiryTypeId =@InquiryTypeId) AND 
-            (ResponseTypeId = @ResponseTypeId) AND 
-            (CustomerId = @CustomerId) AND 
-            (SampleTypeId = @SampleTypeId) AND 
-            (SampleStageId = @SampleStageId)";
+            var model = new NewInquiryVM();
 
-            var parameters = new
+            using var connection = _dbConnection.GetConnection();
+
+            var activities = (await connection.QueryAsync<PLMSActivity>(@"
+        SELECT ActivityId, UserCategoryId, UserCategoryText, Days, ActivityText, IsAwaitTask
+        FROM PLMS_VwActivityList
+        WHERE CpHeaderId = @ReacordId
+        ORDER BY Id",
+                new { ReacordId = paras.PresetId })).ToList();
+
+            var subActivities = (await connection.QueryAsync<PLMSActivity>(@"
+        SELECT ActivityId, SubActivityId, Days, UserCategoryId, UserCategoryText, SubActivityText, IsAwaitTask
+        FROM PLMS_VwActivitySubList
+        WHERE CpHeaderId = @ReacordId
+        ORDER BY Id",
+                new { ReacordId = paras.PresetId })).ToList();
+
+            var subActivityGroups = subActivities
+                .GroupBy(sa => sa.ActivityId)
+                .ToDictionary(g => g.Key, g => g.ToList());
+
+            int dateIndex = GetSelectedDateIndex(Convert.ToDateTime(paras.SelectedDate)) - 1;
+            int activityRunningDays = 0;
+            bool isAfterActivityAwait = false;
+
+            foreach (var activity in activities)
             {
-                inqParas.InquiryTypeId,
-                inqParas.ResponseTypeId,
-                inqParas.CustomerId,
-                inqParas.SampleTypeId,
-                inqParas.SampleStageId
-            };
+                int currentDays = int.Parse(activity.Days);
 
-            int reacordId = 0;
-
-            // Create the dynamic model
-            var dynamicModel = new InquiryVM();
-
-            using (var connection = _dbConnection.GetConnection())
-            {
-                reacordId = await connection.ExecuteScalarAsync<int>(checkIdQuery, parameters);
-                if (reacordId == 0)
+                if (activity.IsAwaitTask)
                 {
-                    return dynamicModel;
+                    activityRunningDays = currentDays;
+                    isAfterActivityAwait = true;
+                }
+                else
+                {
+                    activityRunningDays += currentDays;
                 }
 
-                // Fetch activities asynchronously
-                var activities = (await connection.QueryAsync<PLMSActivity>(@"
-                    SELECT ActivityId, UserCategoryId, UserCategoryText, Days, ActivityText
-                    FROM PLMS_VwActivityList
-                    WHERE  (ActivityHeaderId = @ReacordId) ORDER BY Id",
-                      new
-                      {
-                          ReacordId = reacordId
-                      })).ToList();
+                string activityDate = activity.IsAwaitTask || isAfterActivityAwait
+                    ? $"(X+{activityRunningDays})"
+                    : GetDateFromCalander(dateIndex + activityRunningDays);
 
-                // Fetch sub-activities asynchronously
-                // Fetch sub-activities asynchronously
-                var subActivities = (await connection.QueryAsync<PLMSActivity>(@"
-                    SELECT      ActivityId, SubActivityId, Days, UserCategoryId, UserCategoryText, SubActivityText
-                    FROM            PLMS_VwActivitySubList
-                    WHERE (ActivityHeaderId = @ReacordId) ORDER BY Id",
-                 new
-                 {
-                     ReacordId = reacordId
-                 })).ToList();
-
-                // Group sub-activities by ActivityId
-                var subActivityGroups = subActivities.GroupBy(sa => sa.ActivityId).ToDictionary(g => g.Key, g => g.ToList());
-                int actDays = 0;
-
-                int dateIndex = GetSelectedDateIndex(Convert.ToDateTime(inqParas.SelectedDate))- 1;
-
-                foreach (var activity in activities)
+                var activityVM = new ActivityVM
                 {
-                    actDays += int.Parse(activity.Days);
-                    var activityModel = new ActivityVM
-                    {
-                        ActivityId = activity.ActivityId,
-                        ActiviytName = activity.ActivityText,
-                        UserCategoryId = activity.UserCategoryId,
-                        UserCategoryText = activity.UserCategoryText,
-                        ActiviytValue = GetDateFromCalander(dateIndex + actDays),
-                        SubActivityList = [] // Initialize the SubActivityList
-                    };
+                    ActivityId = activity.ActivityId,
+                    ActiviytName = activity.ActivityText + (activity.IsAwaitTask ? " <span class='badge rounded-pill bg-label-danger' style='color: red;'>Awaiting-Task</span>" : ""),
+                    IsAwaitingTask = activity.IsAwaitTask,
+                    UserCategoryId = activity.UserCategoryId,
+                    UserCategoryText = activity.UserCategoryText,
+                    ActiviytValue = activityDate,
+                    SubActivityList = []
+                };
 
-                    if (subActivityGroups.TryGetValue(activity.ActivityId, out List<PLMSActivity>? value))
+                if (subActivityGroups.TryGetValue(activity.ActivityId, out var subList))
+                {
+                    int subRunningDays = activityRunningDays;
+                    bool isAfterSubAwait = false;
+
+                    foreach (var sub in subList)
                     {
-                        foreach (var subActivity in value)
+                        int subDays = int.Parse(sub.Days);
+
+                        if (sub.IsAwaitTask)
                         {
-                            actDays += int.Parse(subActivity.Days);
-                            activityModel.SubActivityList.Add(new ActivityVM
-                            {
-                                ActivityId = subActivity.SubActivityId,
-                                ActiviytName = subActivity.SubActivityText,
-                                UserCategoryId = activity.UserCategoryId,
-                                UserCategoryText = activity.UserCategoryText,
-                                ActiviytValue = GetDateFromCalander(dateIndex + actDays)// Convert.ToDateTime(inqParas.SelectedDate).AddDays(actDays).ToString("yyyy-MM-dd")
-                            });
+                            subRunningDays = subDays;
+                            isAfterSubAwait = true;
                         }
+                        else
+                        {
+                            subRunningDays += subDays;
+                        }
+
+                        string subDate = sub.IsAwaitTask || isAfterSubAwait
+                            ? $"(X+{subRunningDays})"
+                            : GetDateFromCalander(dateIndex + subRunningDays);
+
+                        activityVM.SubActivityList.Add(new ActivityVM
+                        {
+                            ActivityId = sub.SubActivityId,
+                            ActiviytName = sub.SubActivityText,
+                            IsAwaitingTask = sub.IsAwaitTask,
+                            UserCategoryId = sub.UserCategoryId,
+                            UserCategoryText = sub.UserCategoryText,
+                            ActiviytValue = subDate
+                        });
                     }
-                    dynamicModel.ActivityList?.Add(activityModel);
                 }
+
+                model.ActivityList?.Add(activityVM);
             }
-            return dynamicModel;
+
+            return model;
         }
+
+
 
         private int GetSelectedDateIndex(DateTime selectedDate)
         {
@@ -135,7 +143,7 @@ namespace TMIS.DataAccess.PLMS.Rpository
             return postionDate.ToString("yyyy-MM-dd");
         }
 
-        public async Task<string> SaveMasterInquiryAsync(InquiryVM inquiryVM, IFormFile? artwork)
+        public async Task<string> SaveInquiryAsync(NewInquiryVM inquiryVM, IFormFile? artwork)
         {
             var connection = _dbConnection.GetConnection();
             using (var transaction = connection.BeginTransaction())
@@ -147,8 +155,10 @@ namespace TMIS.DataAccess.PLMS.Rpository
                         throw new ArgumentNullException(nameof(inquiryVM), "InquiryVM cannot be null.");
                     }
 
-                    var inquiryHeaderId = await InsertInquiryHeaderAsync(connection, transaction, inquiryVM);
-                    var inquiryDtId = await InsertInquiryDetailsAsync(connection, transaction, inquiryHeaderId, inquiryVM, artwork);
+                    var inquiryHeaderId = await InsertHeaderAsync(connection, transaction, inquiryVM);
+                    var inquiryDtId = await InsertDetailsAsync(connection, transaction, inquiryHeaderId, inquiryVM, artwork);
+
+                    await InsertSizeQtysAsync(connection, transaction, inquiryDtId, inquiryVM.SizeQtysList);
                     await InsertActivitiesAsync(connection, transaction, inquiryDtId, inquiryVM.ActivityList);
 
                     //Log
@@ -161,7 +171,7 @@ namespace TMIS.DataAccess.PLMS.Rpository
                     await _pLMSLogdb.InsertLogTrans(connection, transaction, logdb);
 
                     // Commit the transaction if all operations are successful
-                    transaction.Commit();                  
+                    transaction.Commit();
 
                     return "Success: Inquiry saved successfully.";
                 }
@@ -174,34 +184,33 @@ namespace TMIS.DataAccess.PLMS.Rpository
             }
         }
 
-        private async Task<int> InsertInquiryHeaderAsync(IDbConnection connection, IDbTransaction transaction, InquiryVM inquiryVM)
+        private async Task<int> InsertHeaderAsync(IDbConnection connection, IDbTransaction transaction, NewInquiryVM inquiryVM)
         {
-
-            //var inquiryRef = await connection.QuerySingleAsync<string>(
-            //    "GenerateAndUpdateAutoNumber",
-            //    commandType: CommandType.StoredProcedure,
-            //    transaction: transaction);
-
             var inquiryRef = await GenerateRefAsync(connection, transaction);
 
-            var sqlHeader = @"INSERT INTO [dbo].[PLMS_TrInqHeader]
-               ([InquiryRef], [CustomerId], [InquiryTypeId], [StyleNo], 
-                [StyleDesc], [InquiryRecDate], [IsCompleted])
-               VALUES
-               (@InquiryRef, @CustomerId, @InquiryTypeId, @StyleNo, 
-                @StyleDesc, @InquiryRecDate, 0);
+            var sqlHeader = @"INSERT INTO [dbo].[PLMS_TrInquiryHeader]
+               ([InquiryRef]
+               ,[CustomerId]
+               ,[InquiryTypeId]
+               ,[StyleNo]
+               ,[StyleDesc]
+               ,[IsCompleted])
+                VALUES
+               (@InquiryRef
+               ,@CustomerId
+               ,@InquiryTypeId
+               ,@StyleNo
+               ,@StyleDesc
+               ,0);
                SELECT CAST(SCOPE_IDENTITY() AS INT);";
 
             return await connection.QuerySingleAsync<int>(sqlHeader, new
             {
                 InquiryRef = inquiryRef,
-                inquiryVM.Inquiry!.CustomerId,
-                inquiryVM.Inquiry.InquiryTypeId,
-                inquiryVM.Inquiry.StyleNo,
-                inquiryVM.Inquiry.StyleDesc,
-                inquiryVM.Inquiry.ColorCode,
-                inquiryVM.Inquiry.InquiryRecDate,
-
+                inquiryVM.CustomerId,
+                inquiryVM.InquiryTypeId,
+                inquiryVM.StyleNo,
+                inquiryVM.StyleDesc
             }, transaction);
         }
 
@@ -254,11 +263,11 @@ namespace TMIS.DataAccess.PLMS.Rpository
             }
 
             // 4. Format final reference number
-            string reference = $"PLM/{currentYear}/{genNo.ToString("D5")}";
+            string reference = $"PLM/{currentYear}/{genNo:D5}";
             return reference;
         }
 
-        private static async Task<int> InsertInquiryDetailsAsync(IDbConnection connection, IDbTransaction transaction, int inquiryHeaderId, InquiryVM inquiryVM, IFormFile? artwork)
+        private static async Task<int> InsertDetailsAsync(IDbConnection connection, IDbTransaction transaction, int inquiryHeaderId, Models.PLMS.NewInquiryVM inquiryVM, IFormFile? artwork)
         {
             byte[]? artworkBytes = null;
 
@@ -271,27 +280,41 @@ namespace TMIS.DataAccess.PLMS.Rpository
                 }
             }
 
-            var sqlDetail = @"INSERT INTO [dbo].[PLMS_TrInqDetails]
-             ([TrInqId], [CycleNo], [ResponseTypeId], [InquirySeasonId], [SampleTypeId], [SampleStageId], [ColorCode], [ImageSketch], [IsPriceUpdate],[IsSMVUpdate],
-              [DateResponseReq], [InquiryComment], [IsApproved],[IsPriceStageAv], [IsSMVStageAv])
-             VALUES
-             (@TrInqId, 1, @ResponseTypeId, @InquirySeasonId,  @SampleTypeId, @SampleStageId, @ColorCode, @ImageSketch, 0, 0, @DateResponseReq, @InquiryComment, -1, @IsPriceStageAv, @IsSMVStageAv)
+            var sqlDetail = @"INSERT INTO [dbo].[PLMS_TrInquiryDetails]
+                           ([TrINQId]
+                           ,[CycleNo]
+                           ,[ColorCode]
+                           ,[SeasonId]
+                           ,[SampleTypeId]
+                           ,[IsPriceStageAv]
+                           ,[IsSMVStageAv]
+                           ,[ArtWork]
+                           ,[DateReceived]
+                           ,[Remarks])
+                     VALUES
+                           (@TrINQId
+                           ,1
+                           ,@ColorCode
+                           ,@SeasonsId
+                           ,@SampleTypeId
+                           ,@IsPriceStageAv
+                           ,@IsSMVStageAv
+                           ,@ArtWork
+                           ,@DateReceived
+                           ,@Remarks);
               SELECT CAST(SCOPE_IDENTITY() AS INT);";
 
             return await connection.QuerySingleAsync<int>(sqlDetail, new
             {
-                TrInqId = inquiryHeaderId,
-
-                inquiryVM.Inquiry!.ResponseTypeId,
-                inquiryVM.Inquiry.InquirySeasonId,
-                inquiryVM.Inquiry.SampleTypeId,
-                inquiryVM.Inquiry.SampleStageId,
-                inquiryVM.Inquiry.ColorCode,
-                ImageSketch = artworkBytes,
-                DateResponseReq = inquiryVM.Inquiry?.InquiryReqDate,
-                inquiryVM.Inquiry?.InquiryComment,
-                inquiryVM.Inquiry?.IsPriceStageAv,
-                inquiryVM.Inquiry?.IsSMVStageAv
+                TrINQId = inquiryHeaderId,
+                inquiryVM.ColorCode,
+                inquiryVM.SeasonsId,
+                inquiryVM.SampleTypeId,
+                inquiryVM.IsPriceStageAv,
+                inquiryVM.IsSMVStageAv,
+                ArtWork = artworkBytes,
+                DateReceived = inquiryVM.ReceivedDate,
+                inquiryVM.Remarks,
             }, transaction);
         }
 
@@ -304,12 +327,48 @@ namespace TMIS.DataAccess.PLMS.Rpository
             }
         }
 
+        private static async Task InsertSizeQtysAsync(IDbConnection connection, IDbTransaction transaction, int inquiryDtId, List<SizeQtys>? sizeQtys)
+        {
+            foreach (var oSizeQtys in sizeQtys ?? [])
+            {
+                var sqlActivity = @"INSERT INTO [dbo].[PLMS_TrInquirySizeQtys]
+                                       ([TrINQDTId]
+                                       ,[SizeName]
+                                       ,[SizeQty])
+                                 VALUES
+                                       (@TrInqDtId
+                                       ,@SizeName
+                                       ,@SizeQty)";
+
+                await connection.ExecuteAsync(sqlActivity, new
+                {
+                    TrInqDtId = inquiryDtId,
+                    oSizeQtys.SizeName,
+                    oSizeQtys.SizeQty
+                }, transaction);
+            }
+        }
+
         private static async Task<int> InsertActivityAsync(IDbConnection connection, IDbTransaction transaction, int inquiryDtId, ActivityVM activity)
         {
-            var sqlActivity = @"INSERT INTO [dbo].[PLMS_TrInqDetailsActivity]
-                       ([TrInqDtId], [UserCategoryId], [ActivityId], [ActivityRequiredDate], [ActivityComment], [ActivityIsCompleted])
-                       VALUES
-                       (@TrInqDtId, @UserCategoryId, @ActivityId, @ActivityRequiredDate, @ActivityComment, 0);
+            var sqlActivity = @"INSERT INTO [dbo].[PLMS_TrInquiryActivityDetails]
+                               ([TrINQDTId]
+                               ,[UserCategoryId]
+                               ,[ActivityId]
+                               ,[IsAwaitingTask]
+                               ,[ReqDateString]
+                               ,[RequiredDate]
+                               ,[PlanRemakrs]
+                               ,[IsCompleted])
+                         VALUES
+                               (@TrInqDtId
+                               ,@UserCategoryId
+                               ,@ActivityId
+                               ,@IsAwaitingTask
+                               ,@ReqDateString
+                               ,@RequiredDate
+                               ,@PlanRemakrs
+                               ,0);
                         SELECT CAST(SCOPE_IDENTITY() AS INT);";
 
             return await connection.QuerySingleAsync<int>(sqlActivity, new
@@ -317,27 +376,50 @@ namespace TMIS.DataAccess.PLMS.Rpository
                 TrInqDtId = inquiryDtId,
                 activity.UserCategoryId,
                 activity.ActivityId,
-                ActivityRequiredDate = activity.ActiviytValue,
-                activity.ActivityComment
+                activity.IsAwaitingTask,
+                ReqDateString = activity.ActiviytValue,
+                RequiredDate = TryParseDate(activity.ActiviytValue),
+                PlanRemakrs = activity.ActivityComment
             }, transaction);
+        }
+
+        private static DateTime? TryParseDate(string value)
+        {
+            return DateTime.TryParse(value, out var parsedDate) ? parsedDate : null;
         }
 
         private static async Task InsertSubActivitiesAsync(IDbConnection connection, IDbTransaction transaction, int activityId, List<ActivityVM>? subActivityList)
         {
             foreach (var subActivity in subActivityList ?? [])
             {
-                var sqlSubActivity = @"INSERT INTO [dbo].[PLMS_TrInqDetailsActivitySub]
-                               ([TrInqDtActId], [UserCategoryId], [SubActivityId], [SubActivityRequiredDate], [ActivityComment], [ActivityIsCompleted])
-                               VALUES
-                               (@TrInqDtActId,@UserCategoryId, @SubActivityId, @SubActivityRequiredDate, @ActivityComment, 0);";
+                var sqlActivity = @"INSERT INTO [dbo].[PLMS_TrInquiryActivityDetails]
+                               ([TrINQDTActId]
+                               ,[UserCategoryId]
+                               ,[ActivityId]
+                               ,[IsAwaitingTask]
+                               ,[ReqDateString]
+                               ,[RequiredDate]
+                               ,[PlanRemakrs]
+                               ,[IsCompleted])
+                         VALUES
+                               (@TrINQDTActId
+                               ,@UserCategoryId
+                               ,@ActivityId
+                               ,@IsAwaitingTask
+                               ,@ReqDateString
+                               ,@RequiredDate
+                               ,@PlanRemakrs
+                               ,0)";
 
-                await connection.ExecuteAsync(sqlSubActivity, new
+                await connection.QuerySingleAsync(sqlActivity, new
                 {
-                    TrInqDtActId = activityId,
+                    TrINQDTActId = activityId,
                     subActivity.UserCategoryId,
-                    SubActivityId = subActivity.ActivityId,
-                    SubActivityRequiredDate = subActivity.ActiviytValue,
-                    subActivity.ActivityComment
+                    subActivity.ActivityId,
+                    subActivity.IsAwaitingTask,
+                    ReqDateString = subActivity.ActiviytValue,
+                    RequiredDate = TryParseDate(subActivity.ActiviytValue),
+                    PlanRemakrs = subActivity.ActivityComment
                 }, transaction);
             }
         }

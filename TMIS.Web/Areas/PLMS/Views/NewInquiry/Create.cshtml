@@ -1,4 +1,4 @@
-@model InquiryVM
+@model NewInquiryVM
 
 @section VendorStyles {
     <link rel="stylesheet" href="~/vendor/libs/flatpickr/flatpickr.css" />
@@ -19,39 +19,27 @@
         $(document).ready(function () {
             function isInteger(value) {
                 return typeof value === 'number' && Number.isInteger(value);
-            }          
+            }
 
             function handleChange() {
-                var dateRespReq = new Date(document.getElementById("dateInqReceived").value);
+                var receivedDate = new Date(document.getElementById("receivedDate").value);
 
                 // Check if a valid date is selected
-                if (!isNaN(dateRespReq)) {
+                if (!isNaN(receivedDate)) {
                     // Add 2 days to the date
-                    dateRespReq.setDate(dateRespReq.getDate());
+                    receivedDate.setDate(receivedDate.getDate());
 
                     // Format the date back to 'YYYY-MM-DD'
-                    var designRequiredDate = dateRespReq.toISOString().split('T')[0];
+                    var receivedDate = receivedDate.toISOString().split('T')[0];
 
-                    var selectedInqTypeId = document.getElementById("inquiryTypeId").value;
-                    var selectedRepTypeId = document.getElementById("responseTypeId").value;
-                    var selectedCustomerId = document.getElementById("customerId").value;
-                    var selectedSampTypeId = document.getElementById("sampleTypeId").value;
-                    var selectedSampStageId = document.getElementById("sampleStageId").value;
+                    var selectedPresetsId = document.getElementById("presetsId").value;
 
                     // Convert values to integers and check if they are valid integers
-                    selectedInqTypeId = parseInt(selectedInqTypeId, 10);
-                    selectedRepTypeId = parseInt(selectedRepTypeId, 10);
-                    selectedCustomerId = parseInt(selectedCustomerId, 10);
-                    selectedSampTypeId = parseInt(selectedSampTypeId, 10);
-                    selectedSampStageId = parseInt(selectedSampStageId, 10);
+                    selectedPresetsId = parseInt(selectedPresetsId, 10);
 
-                    if (isInteger(selectedInqTypeId) &&
-                        isInteger(selectedRepTypeId) &&
-                        isInteger(selectedCustomerId) &&
-                        isInteger(selectedSampTypeId) &&
-                        isInteger(selectedSampStageId) &&
-                        designRequiredDate != '') {
 
+                    if (isInteger(selectedPresetsId) &&
+                        receivedDate != '') {
                         let loadUrl = '@Url.Action("LoadActsAndSubActs", "NewInquiry", new { area = "PLMS" })';
 
                         $.ajax({
@@ -59,12 +47,8 @@
                             type: 'POST',
                             contentType: 'application/json',
                             data: JSON.stringify({
-                                inquiryTypeId: selectedInqTypeId,
-                                responseTypeId: selectedRepTypeId,
-                                customerId: selectedCustomerId,
-                                sampleTypeId: selectedSampTypeId,
-                                sampleStageId: selectedSampStageId,
-                                selectedDate: designRequiredDate
+                                PresetId: selectedPresetsId,
+                                SelectedDate: receivedDate
                             }),
                             success: function (data) {
                                 var container = $('#activityContainer');
@@ -86,17 +70,37 @@
                                 $.each(data, function (index, activity) {
                                     tableHtml += `<tr>
                                     <td>${index + 1}</td>
-                                    <td><strong>${activity.activiytName}</strong></td>
-                                    <td>${activity.userCategoryText}</td>
                                     <td>
-                                        <input type="hidden" name="ActivityList[${index}].UserCategoryId" value="${activity.userCategoryId}" />
-                                        <input type="hidden" name="ActivityList[${index}].ActivityId" value="${activity.activityId}" />
-                                        <input type="date" id="${activity.activityId}" class="form-control dob-picker flatpickr-input"
-                                               name="ActivityList[${index}].ActiviytValue" value="${activity.activiytValue}" />
+                                        <input type="hidden"
+                                        id="isawaitAct-${activity.activityId}"
+                                        name="ActivityList[${index}].activityId"
+                                        value="${activity.activityId}"/>
+
+                                        <input type="hidden"
+                                        id="isAwait-${activity.activityId}"
+                                        name="ActivityList[${index}].isAwaitingTask"
+                                        value="${activity.isAwaitingTask}"/>
+
+                                    <strong>${activity.activiytName}</strong>
                                     </td>
                                     <td>
-                                        <textarea class="form-control rounded-2" id="commentTextarea-${activity.activityId}"
-                                                  name="ActivityList[${index}].ActivityComment" rows="2"></textarea>
+                                      <input type="hidden"
+                                        id="userCat-${activity.activityId}"
+                                        name="ActivityList[${index}].userCategoryId"
+                                        value="${activity.userCategoryId}"/>
+                                    ${activity.userCategoryText}
+                                    </td>
+                                    <td>
+                                        <input type="hidden"
+                                        id="planDate-${activity.activityId}"
+                                        name="ActivityList[${index}].activiytValue"
+                                        value="${activity.activiytValue}"/>
+                                        ${activity.activiytValue}
+                                    </td>
+                                    <td>
+                                        <textarea class="form-control rounded-2"
+                                        id="commentTextarea-${activity.activityId}"
+                                        name="ActivityList[${index}].ActivityComment" rows="1"></textarea>
                                     </td>
                                   </tr>`;
 
@@ -104,17 +108,37 @@
                                     $.each(activity.subActivityList, function (subIndex, subActivity) {
                                         tableHtml += `<tr>
                                         <td>${index + 1}.${subIndex + 1}</td>
-                                        <td class="ps-4">${subActivity.activiytName}</td>
-                                        <td>${subActivity.userCategoryText}</td>
-                                        <td>
-                                            <input type="hidden" name="ActivityList[${index}].SubActivityList[${subIndex}].UserCategoryId" value="${subActivity.userCategoryId}" />
-                                            <input type="hidden" name="ActivityList[${index}].SubActivityList[${subIndex}].ActivityId" value="${subActivity.activityId}" />
-                                            <input type="date" id="subactivity-${subActivity.activityId}" class="form-control dob-picker flatpickr-input"
-                                                   name="ActivityList[${index}].SubActivityList[${subIndex}].ActiviytValue" value="${subActivity.activiytValue}" />
+                                        <td class="ps-4">
+                                          <input type="hidden"
+                                          id="isawaitActSub-${subActivity.activityId}"
+                                          name="ActivityList[${index}].SubActivityList[${subIndex}].activityId"
+                                          value="${subActivity.activityId}"/>
+
+                                          <input type="hidden"
+                                          id="isAwaitSub-${subActivity.activityId}"
+                                          name="ActivityList[${index}].SubActivityList[${subIndex}].isAwaitingTask"
+                                          value="${subActivity.isAwaitingTask}"/>
+
+                                          ${subActivity.activiytName}
                                         </td>
                                         <td>
-                                            <textarea class="form-control rounded-2" id="SubcommentTextarea-${subActivity.activityId}"
-                                                      name="ActivityList[${index}].SubActivityList[${subIndex}].ActivityComment" rows="2"></textarea>
+                                         <input type="hidden"
+                                          id="userCatSub-${subActivity.activityId}"
+                                          name="ActivityList[${index}].SubActivityList[${subIndex}].userCategoryId"
+                                          value="${subActivity.userCategoryId}"/>
+                                        ${subActivity.userCategoryText}
+                                        </td>
+                                        <td>
+                                            <input type="hidden"
+                                            id="subPlanDate-${subActivity.activityId}"
+                                            name="ActivityList[${index}].SubActivityList[${subIndex}].activiytValue"
+                                            value="${subActivity.activiytValue}" />
+                                            ${subActivity.activiytValue}
+                                        </td>
+                                        <td>
+                                            <textarea class="form-control rounded-2"
+                                            id="SubcommentTextarea-${subActivity.activityId}"
+                                            name="ActivityList[${index}].SubActivityList[${subIndex}].ActivityComment" rows="1"></textarea>
                                         </td>
                                       </tr>`;
                                     });
@@ -129,16 +153,17 @@
                                 console.error("Error:", error);
                             }
                         });
-
                     }
                 }
             }
 
-            $(".select2").change(function () {
+            $("#presetsId").change(function () {
                 handleChange();
             });
 
-            document.getElementById("dateInqReceived").addEventListener("change", handleChange);
+                    $(function () {
+            $("#receivedDate").change(handleChange);
+        });
 
            $('#myForm').on('submit', function (e) {
                 let isValid = true;
@@ -166,24 +191,116 @@
                     return false;
                 }
 
+                  // Second: check if sizeContainer has any elements
+                if ($('#sizeContainer').children().length === 0) {
+                    alert("Please add at least one Size & Quantity.");
+                    e.preventDefault();
+                    return false;
+                }
+
                   // 3. Check if artwork is uploaded
                 if (!$('#artwork').val()) {
                     alert("Please upload an image.");
                     e.preventDefault();
                     return false;
                 }
-
                 // Form passes all checks; allow submission
             });
 
         });
     </script>
 
+    <script>
+        $(document).on('click', '#add-size', function () {
+          const sizeName = $('#sizeName').val().trim();
+          const sizeQty = $('#sizeQty').val().trim();
+
+          if (sizeName === "" || sizeQty === "") {
+            toastr.error("Please fill in both Size Name and Quantity before adding a new row.");
+            return;
+          }
+
+          // Check for duplicates
+          let isDuplicate = false;
+          $('.size-row').each(function () {
+              const labelSize = $(this).find('.label-size-name').text().trim();
+              if (labelSize === sizeName) {
+                  isDuplicate = true;
+                  return false; // exit .each loop
+              }
+          });
+
+
+           // Check if maximum limit reached
+          if ($('.size-row').length >= 10) {
+            toastr.error("Maximum of 10 Sizes can be added.");
+            return;
+          }
+
+          if (isDuplicate) {
+            toastr.error("This Size is already added.");
+            return;
+          }
+
+          const index = $('.size-row').length;
+
+          // Add new row
+                  const newRow = `<div class="row size-row g-1 align-items-stretch mb-1">
+          <div class="col-3 g-1">
+            <div class="size-label grey-box label-size-name">${sizeName}</div>
+            <input type="hidden" name="SizeQtysList[${index}].SizeName" value="${sizeName}" />
+          </div>
+          <div class="col-3 g-1">
+            <div class="size-label grey-box label-size-qty">${sizeQty}</div>
+            <input type="hidden" name="SizeQtysList[${index}].SizeQty" value="${sizeQty}" />
+          </div>
+          <div class="col-3 g-1">
+            <div class="row align-items-stretch gx-1 h-100">
+              <div class="col-2 d-flex">
+                <button type="button" class="btn btn-danger w-100 h-100 delete-size">
+                  <i class="fa-solid fa-trash-can"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>`;
+          $('#sizeContainer').append(newRow);
+          $('#sizeName').val('');
+          $('#sizeQty').val('');
+        });
+
+                function reindexPersonRows() {
+          $('.size-row').each(function (index) {
+            // Update EmpName input
+            $(this).find('input[name*="sizeName"]').attr('name', `SizeQtysList[${index}].SizeName`);
+
+            // Update EmpEPF input
+            $(this).find('input[name*="sizeQty"]').attr('name', `SizeQtysList[${index}].sizeQty`);
+          });
+        }
+
+        $(document).on('click', '.delete-size', function () {
+          $(this).closest('.size-row').remove();
+           reindexPersonRows();
+        });
+    </script>
 }
 
 @section PageStyles {
     <style>
+        .grey-box {
+            background-color: #dfe5ed;
+            border-radius: 5px;
+            padding: 5px 15px;
+            display: inline-block;
+            width: 100%;
+            height: 100%;
+            line-height: 30px; /* vertically center text if needed */
+        }
+    </style>
 
+
+    <style>
         /* Outer container for rounded corners */
         .table-wrapper {
             border: 1px solid #dee2e6;
@@ -217,7 +334,7 @@
                 background-color: #f1f1f1;
             }
 
-      
+
 
         .list-group {
             flex-direction: row !important
@@ -232,189 +349,193 @@
     </h5>
     <form asp-action="Create" method="post" class="card-body" id="myForm" enctype="multipart/form-data">
 
-        <div class="row g-4">
-
-            <div class="col-md-4">
+        <div class="row g-1 mb-3">
+            <div class="col-3">
                 <div class="form-floating form-floating-outline">
-                    <select asp-for="@Model.Inquiry!.CustomerId" asp-items="@Model.CustomersList" id="customerId" class="select2 form-select requiredField" data-allow-clear="true">
+                    <select asp-for="@Model.CustomerId" asp-items="@Model.CustomersList" class="select2 form-select requiredField" data-allow-clear="true">
                         <option Disabled Selected>- Select Customer -</option>
                     </select>
 
                     <label for="CustomerId">
                         Customer
                     </label>
-                    <span asp-validation-for="Inquiry!.CustomerId" class="customerError text-warning"></span>
+                    <span asp-validation-for="CustomerId" class="customerError text-warning"></span>
                 </div>
             </div>
 
-            <div class="col-md-4">               
+            <div class="col-3">
                 <div class="form-floating form-floating-outline">
-                    <select asp-for="@Model.Inquiry!.InquiryTypeId" asp-items="@Model.InquiryTypesList" id="inquiryTypeId" class="select2 form-select requiredField" data-allow-clear="true">
+                    <select asp-for="@Model.InquiryTypeId" asp-items="@Model.InquiryTypesList" class="select2 form-select requiredField" data-allow-clear="true">
                         <option Disabled Selected>- Select Inquiry Type -</option>
                     </select>
 
                     <label for="inquiryTypeId">
                         Inquiry Type
                     </label>
-                    <span asp-validation-for="Inquiry!.InquiryTypeId" class="customerError text-warning"></span>
-                </div>
-            </div>           
-
-            <div class="col-md-4">
-                <div class="form-floating form-floating-outline">
-                    <select asp-for="@Model.Inquiry!.ResponseTypeId" asp-items="@Model.ResponseTypesList" id="responseTypeId" class="select2 form-select requiredField" data-allow-clear="true">
-                        <option Disabled Selected>- Select Response Type -</option>
-                    </select>
-
-                    <label for="ResponseTypeId">
-                        Response Type
-                    </label>
-                    <span asp-validation-for="Inquiry!.ResponseTypeId" class="customerError text-warning"></span>
+                    <span asp-validation-for="InquiryTypeId" class="customerError text-warning"></span>
                 </div>
             </div>
 
-            <div class="col-md-4">
+            <div class="col-3">
                 <div class="form-floating form-floating-outline">
-                    <select asp-for="@Model.Inquiry!.InquirySeasonId" asp-items="@Model.SeasonsList" id="InquirySeasonId" class="select2 form-select requiredField" data-allow-clear="true">
+                    <input asp-for="@Model.StyleNo" type="text" class="form-control requiredField" placeholder="TXMTLAN20209" />
+                    <label for="style-no">
+                        Style #
+                    </label>
+                    <span asp-validation-for="StyleNo" class="customerError text-warning"></span>
+                </div>
+            </div>
+
+            <div class="col-3">
+                <div class="form-floating form-floating-outline">
+                    <input asp-for="@Model.StyleDesc" type="text" class="form-control requiredField" placeholder="SHAPEWEAR" />
+                    <label for="style-desc">
+                        Style Description
+                    </label>
+                    <span asp-validation-for="StyleDesc" class="customerError text-warning"></span>
+                </div>
+            </div>           
+        </div>
+
+        <div class="row g-1 mb-3">
+           
+
+            <div class="col-3">
+                <div class="form-floating form-floating-outline">
+                    <input asp-for="@Model.ColorCode" type="text" class="form-control requiredField" placeholder="BLUE" />
+                    <label for="color-no">
+                        Color
+                    </label>
+                    <span asp-validation-for="ColorCode" class="customerError text-warning"></span>
+                </div>
+            </div>
+            <div class="col-3">
+                <div class="form-floating form-floating-outline">
+                    <select asp-for="@Model.SeasonsId" asp-items="@Model.SeasonsList" class="select2 form-select requiredField" data-allow-clear="true">
                         <option Disabled Selected>- Select Season -</option>
                     </select>
 
                     <label for="InquirySeasonId">
                         Season
                     </label>
-                    <span asp-validation-for="Inquiry!.InquirySeasonId" class="customerError text-warning"></span>
-                </div>
-            </div>           
-
-            <div class="col-md-4">
-                <div class="form-floating form-floating-outline">
-                    <select asp-for="@Model.Inquiry!.SampleStageId" asp-items="@Model.SampleStagesList" id="sampleStageId" class="select2 form-select requiredField" data-allow-clear="true">
-                        <option Disabled Selected>
-                            - Extend -
-                        </option>
-                    </select>
-
-                    <label for="SampleStageId">
-                        Extend
-                    </label>
-                    <span asp-validation-for="Inquiry!.SampleStageId" class="customerError text-warning"></span>
+                    <span asp-validation-for="SeasonsId" class="customerError text-warning"></span>
                 </div>
             </div>
 
-            <div class="col-md-4">
+            <div class="col-3">
                 <div class="form-floating form-floating-outline">
-                    <select asp-for="@Model.Inquiry!.SampleTypeId" asp-items="@Model.SampleTypesList" id="sampleTypeId" class="select2 form-select requiredField" data-allow-clear="true">
+                    <select asp-for="@Model.SampleTypeId" asp-items="@Model.SampleTypesList" class="select2 form-select requiredField" data-allow-clear="true">
                         <option Disabled Selected>
-                            - Sub Extend -
+                            - Sample Type -
                         </option>
                     </select>
 
                     <label for="SampleTypeId">
-                        Sub Extend
+                        Sample Type
                     </label>
-                    <span asp-validation-for="Inquiry!.SampleTypeId" class="customerError text-warning"></span>
+                    <span asp-validation-for="SampleTypeId" class="customerError text-warning"></span>
                 </div>
             </div>
-
-            <div class="col-md-4">
-                <div class="form-floating form-floating-outline">
-                    <input asp-for="@Model.Inquiry!.StyleNo" type="text" id="style-no" class="form-control requiredField" placeholder="TXMTLAN20209" />
-                    <label for="style-no">
-                        Style #
-                    </label>
-                    <span asp-validation-for="Inquiry!.StyleNo" class="customerError text-warning"></span>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="form-floating form-floating-outline">
-                    <input asp-for="@Model.Inquiry!.StyleDesc" type="text" id="style-desc" class="form-control requiredField" placeholder="SHAPEWEAR" />
-                    <label for="style-desc">
-                        Style Description
-                    </label>
-                    <span asp-validation-for="Inquiry!.StyleDesc" class="customerError text-warning"></span>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="form-floating form-floating-outline">
-                    <input asp-for="@Model.Inquiry!.ColorCode" type="text" id="color-code" class="form-control requiredField" placeholder="BLUE" />
-                    <label for="color-no">
-                        Color
-                    </label>
-                    <span asp-validation-for="Inquiry!.ColorCode" class="customerError text-warning"></span>
-                </div>
-            </div>
-
-             <div class="col-md-8">
-                <div class="form-floating form-floating-outline">
-                    <input asp-for="@Model.Inquiry!.InquiryComment" type="text" id="inquiry-comment" class="form-control requiredField" placeholder="Comments" />
-                    <label for="color-no">
-                        Comment
-                    </label>
-                    <span asp-validation-for="Inquiry!.InquiryComment" class="customerError text-warning"></span>
-                </div>
-            </div>
-
-            <div class="col-4">
+            <div class="col-3">
                 <div class="list-group">
                     <label class="list-group-item w-50">
-                        <span class="form-check mb-0">
-                            <input asp-for="@Model.Inquiry!.IsPriceStageAv" class="form-check-input me-4" type="checkbox">
+                        <span class="form-check mb-2">
+                            <input asp-for="@Model.IsPriceStageAv" class="form-check-input me-4" type="checkbox">
                             Price Stage
                         </span>
                     </label>
                     <label class="list-group-item w-50">
-                        <span class="form-check mb-0">
-                            <input asp-for="@Model.Inquiry!.IsSMVStageAv" class="form-check-input me-4" type="checkbox">
+                        <span class="form-check mb-2">
+                            <input asp-for="@Model.IsSMVStageAv" class="form-check-input me-4" type="checkbox">
                             SMV Stage
                         </span>
                     </label>
                 </div>
             </div>
+        </div>
+
+        <div class="row g-1 mb-3">
+            <div class="col-6">
+                <div class="form-floating form-floating-outline">
+                    <input asp-for="@Model.Remarks" type="text" class="form-control requiredField" placeholder="Comments" />
+                    <label for="color-no">
+                        Remarks
+                    </label>
+                    <span asp-validation-for="Remarks" class="customerError text-warning"></span>
+                </div>
+            </div>
 
             <div class="col-md-3">
                 <div class="form-floating form-floating-outline">
-                    <input asp-for="@Model.Inquiry!.InquiryRecDate" type="date" id="dateInqReceived" class="form-control dob-picker requiredField" placeholder="YYYY-MM-DD" />
+                    <input asp-for="@Model.ReceivedDate" type="date" id="receivedDate" class="form-control dob-picker requiredField" placeholder="YYYY-MM-DD" />
                     <label for="dateInqReceived">
                         Inquiry Received Date
                     </label>
-                    <span asp-validation-for="Inquiry!.InquiryRecDate" class="customerError text-warning"></span>
+                    <span asp-validation-for="ReceivedDate" class="customerError text-warning"></span>
                 </div>
             </div>
-
-            <div class="col-md-3">
-                <div class="form-floating form-floating-outline">
-                    <input asp-for="@Model.Inquiry!.InquiryReqDate" type="date" id="dateResponseReq" class="form-control dob-picker requiredField" placeholder="YYYY-MM-DD" />
-                    <label for="dateResponseReq">
-                        Response Requested Date
-                    </label>
-                    <span asp-validation-for="Inquiry!.InquiryReqDate" class="customerError text-warning"></span>
-                </div>
-            </div>
-
-            <div class="col-4">
+            <div class="col-3">
                 <input class="form-control" type="file" id="artwork" name="artwork" accept=".jpg, .jpeg, .png">
-                <label for="formFile" class="form-label">Artwork</label>
-
                 @if (ViewData.ModelState["artwork"]?.Errors.Count > 0)
                 {
                     <span class="text-danger">@ViewData.ModelState["artwork"]!.Errors[0].ErrorMessage</span>
                 }
             </div>
-
-            <div class="col-md-3">
-            </div>
-
-            <div id="activityContainer">
-            </div>
-
-            <div class="pt-1">
-                <button type="submit" class="btn btn-primary me-1">Submit</button>
-                <a asp-controller="NewInquiry" asp-action="Index" class="btn btn-outline-secondary">Back to List</a>
-            </div>
-
         </div>
+
+         <div class="row g-1 mb-3">
+            <div class="col-6">
+                <div class="form-floating form-floating-outline">
+                    <select asp-for="@Model.RoutingPresetsId" asp-items="@Model.RoutingPresetsList" id="presetsId" class="select2 form-select requiredField" data-allow-clear="true">
+                        <option Disabled Selected>- Select Routing Preset -</option>
+                    </select>
+
+                    <label for="RoutingPresetsId">
+                        Routing Presets
+                    </label>
+                    <span asp-validation-for="RoutingPresetsId" class="customerError text-warning"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-1 mb-3">
+            <div class="mb-1">
+                <small class="text-light fw-medium">Add Sizes And Quantities..</small>
+            </div>
+            <div class="col-3 g-1">
+                <div class="form-floating form-floating-outline">
+                    <input type="text" id="sizeName" class="form-control" placeholder="XL">
+                    <label for="sizeName">Size Name</label>
+                </div>
+            </div>
+            <div class="col-3 g-1">
+                <div class="form-floating form-floating-outline">
+                    <input type="number" id="sizeQty" class="form-control" placeholder="50">
+                    <label for="sizeQty">Quantity</label>
+                </div>
+            </div>
+
+            <div class="col-3 g-1">
+                <div class="row align-items-stretch gx-1 h-100">
+                    <div class="col-2 d-flex">
+                        <button type="button" id="add-size" class="btn btn-primary w-100"><i class="fa-solid fa-plus"></i></button>
+                    </div>                    
+                </div>
+            </div>        
+        </div>
+
+        <div class="mt-3" id="sizeContainer">
+        </div>
+       
+
+        <div id="activityContainer">
+        </div>
+
+        <div class="pt-3">
+            <button type="submit" class="btn btn-primary me-1">Submit</button>
+            <a asp-controller="NewInquiry" asp-action="Index" class="btn btn-outline-secondary">Back to List</a>
+        </div>
+
     </form>
 
 </div>

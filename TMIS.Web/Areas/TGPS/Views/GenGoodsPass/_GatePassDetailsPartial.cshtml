@@ -79,19 +79,19 @@
                         <label>Item Name</label>
                     </div>
                 </div>
-                <div class="col-3 g-1">
+                <div class="col-5 g-1">
                     <div class="form-floating form-floating-outline">
                         <input type="text" class="form-control" value="@item.ItemDescription" readonly />
                         <label>Item Description</label>
                     </div>
                 </div>
-                <div class="col-3 g-1">
+                <div class="col-2 g-1">
                     <div class="form-floating form-floating-outline">
                         <input type="text" class="form-control" value="@item.Quantity" readonly />
                         <label>Quantity</label>
                     </div>
                 </div>
-                <div class="col-3 g-1">
+                <div class="col-2 g-1">
                     <div class="form-floating form-floating-outline">
                         <input type="text" class="form-control" value="@item.UOM" readonly />
                         <label>UOM</label>
@@ -144,6 +144,20 @@
                      id="tab-@tabIndex"
                      role="tabpanel"
                      aria-labelledby="tab-@tabIndex-tab">
+
+                    @if (!string.IsNullOrEmpty(item.IsReceived))
+                    {
+                        <span class="badge mb-2 rounded-pill bg-label@(item.IsReceived == "Approved" ? "-success" : item.IsReceived == "Rejected" ? "-danger" : "-primary")">
+                            @item.IsReceived
+                        </span>
+                    }
+
+                    @if (!string.IsNullOrEmpty(item.IsSend))
+                    {
+                        <span class="badge mb-2 rounded-pill bg-label@(item.IsSend == "Approved" ? "-success" : item.IsSend == "Rejected" ? "-danger" : "-primary")">
+                            @item.IsSend
+                        </span>
+                    }
 
                     <div class="row mb-1">
                         @if (!string.IsNullOrEmpty(item.RecGRName))
@@ -270,10 +284,6 @@
 
             }
         </div>
-
-
-
-
     </div>
 </div>
 

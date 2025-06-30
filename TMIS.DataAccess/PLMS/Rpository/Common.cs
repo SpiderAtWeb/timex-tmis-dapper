@@ -1,6 +1,6 @@
 ﻿using Dapper;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using TMIS.DataAccess.COMON.IRpository;
-using TMIS.DataAccess.COMON.Rpository;
 using TMIS.DataAccess.PLMS.IRpository;
 using TMIS.Models.PLMS;
 
@@ -13,9 +13,9 @@ namespace TMIS.DataAccess.PLMS.Rpository
 
         public async Task<IEnumerable<ShowInquiryDataVM>> GetInquiriesAsync()
         {
-            string sql = @"SELECT Id, CONCAT(InquiryRef, '-', CycleNo) AS InquiryRef, CycleNo, StyleNo, StyleDesc, ColorCode, 
-                          InquiryType, ResponseType, Customer, Seasons, SampleType, SampleStage, InquiryComment
-                   FROM PLMS_VwInqListPending";
+            string sql = @"SELECT Id, CONCAT(InquiryRef, '-', [CycleNo]) AS InquiryRef, [StyleNo], [StyleDesc], [ColorCode], 
+                          [InquiryType], [Customer], [SeasonName], [SampleType], [ArtWork], [Remarks]
+                   FROM PLMS_VwInquiryListPending";
 
             return await _dbConnection.GetConnection().QueryAsync<ShowInquiryDataVM>(sql);
         }
@@ -151,19 +151,25 @@ namespace TMIS.DataAccess.PLMS.Rpository
             return dynamicModel;
         }
 
-        public async Task<InquiryVM> LoadInquiryDropDowns()
+        public async Task<Models.PLMS.NewInquiryVM> LoadInquiryDropDowns()
         {
-            var oInquiriesVM = new InquiryVM
+            var oInquiriesVM = new Models.PLMS.NewInquiryVM
             {
-                InquiryTypesList = await _userControls.LoadDropDownsAsync("PLMS_MdInquiryTypes"),
-                ResponseTypesList = await _userControls.LoadDropDownsAsync("PLMS_MdReponseTypes"),
-                CustomersList = await _userControls.LoadDropDownsAsync("PLMS_MdCustomers"),
-                SeasonsList = await _userControls.LoadDropDownsAsync("PLMS_MdInquirySeason"),
-                SampleTypesList = await _userControls.LoadDropDownsAsync("PLMS_MdExtendSub"),
-                SampleStagesList = await _userControls.LoadDropDownsAsync("PLMS_MdExtend"),
-                Inquiry = new Inquiry()
+                InquiryTypesList = await _userControls.LoadDropDownsAsync("PLMS_MasterTwoInquiryTypes"),
+                CustomersList = await _userControls.LoadDropDownsAsync("PLMS_MasterTwoCustomers"),
+                SeasonsList = await _userControls.LoadDropDownsAsync("PLMS_MasterTwoSeasons"),
+                SampleTypesList = await _userControls.LoadDropDownsAsync("PLMS_MasterTwoSampleTypes"),
+                RoutingPresetsList = await LoadRouteDropAsync("PLMS_CPTemplateHeader"),
             };
             return oInquiriesVM;
+        }
+
+        private async Task<IEnumerable<SelectListItem>> LoadRouteDropAsync(string tableName)
+        {
+            string query = $@"SELECT CAST(Id AS NVARCHAR) AS Value, 
+            CpName AS Text FROM {tableName} ORDER BY Text";
+            var results = await _dbConnection.GetConnection().QueryAsync<SelectListItem>(query);
+            return results;
         }
 
     }

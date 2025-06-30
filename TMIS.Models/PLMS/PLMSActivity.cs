@@ -11,7 +11,9 @@
         public string UserCategoryId { get; set; } = string.Empty;
         public string UserCategoryText { get; set; } = string.Empty;
 
-        public string Days { get; set; } = string.Empty;
+        public string Days { get; set; } = string.Empty;        
+
+        public bool IsAwaitTask { get; set; }
 
         public List<PLMSActivity>? ActivityList { get; set; }
     }
