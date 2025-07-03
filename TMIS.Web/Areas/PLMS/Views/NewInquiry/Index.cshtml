@@ -22,6 +22,27 @@
 
 @section PageStyles {
     <link href="~/custom/plms/modal-popup.css" rel="stylesheet" />
+
+    <style>
+        /* Right-align all cell text */
+        .dt-align-left {
+            text-align: left !important;
+        }
+
+        /* Adjust sort icon spacing in header */
+        table.dataTable thead > tr > th.dt-orderable-asc,
+        table.dataTable thead > tr > th.dt-orderable-desc,
+        table.dataTable thead > tr > th.dt-ordering-asc,
+        table.dataTable thead > tr > th.dt-ordering-desc,
+        table.dataTable thead > tr > td.dt-orderable-asc,
+        table.dataTable thead > tr > td.dt-orderable-desc,
+        table.dataTable thead > tr > td.dt-ordering-asc,
+        table.dataTable thead > tr > td.dt-ordering-desc {
+            padding-right: 80px !important;
+            text-align: left !important;
+        }
+    </style>
+
 }
 
 
@@ -29,22 +50,26 @@
 
 <!-- Modal -->
 <div class="modal fade" id="rowModal" tabindex="-1" role="dialog" aria-labelledby="rowModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog" style="max-width: 1250px;"  role="document">
         <div class="modal-content">
 
-            <div class="modal-header">
+            <div class="modal-header row">
+                <div class="col-6">
                 <ul class="nav nav-tabs" id="myTab" role="tablist">
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true">Profile</button>
+                        <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true">PROFILE</button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button" role="tab" aria-controls="profile" aria-selected="false">Artwork</button>
+                        <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button" role="tab" aria-controls="profile" aria-selected="false">ARTWORK</button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact" type="button" role="tab" aria-controls="contact" aria-selected="false">History</button>
+                        <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact" type="button" role="tab" aria-controls="contact" aria-selected="false">HISTORY</button>
                     </li>
                 </ul>
-                <h5 id="rowModalLabel" class="modal-title"></h5>
+                </div>
+                <div class="col-3 offset-3  text-center">
+                    <h5 id="rowModalLabel" class="modal-title rounded-pill bg-label-primary fs-4"></h5>
+                </div>
             </div>
 
             <div class="modal-body" id="modalContenvt">
@@ -81,37 +106,44 @@
                         <a asp-action="Create" class="btn btn-primary"> <i class="ri-add-line"></i> <span class="d-none d-sm-inline-block">Add New Inquiry</span></a>
                     </div>       
 
-                <table class="datatables-ajax table table-bordered dt-tbl">
-                    <thead>
-                        <tr class="table-info">
-                            <th class="d-none">Id</th>
-                            <th>Inquiry-Ref</th>
-                            <th>Customer</th>
-                            <th>Inquiry Type</th>
-                            <th>Style No</th>
-                            <th>Style Desc</th>
-                            <th>Color Code</th>
-                            <th>Inquiry Type</th>                           
-                            <th>Sample Type</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var item in Model)
-                        {
-                            <tr>
-                                <td class="d-none">@item.Id</td>
-                                <td>@item.InquiryRef</td>
-                                <td>@item.Customer</td>
-                                <td>@item.InquiryType</td>
-                                <td>@item.StyleNo</td>
-                                <td>@item.StyleDesc</td>
-                                <td>@item.ColorCode</td>
-                                <td>@item.InquiryType</td>
-                                <td>@item.SampleType</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
+                <div class="card-body">
+                    <div class="row" style="overflow-x:auto;">
+                        <table class="datatables-ajax table table-bordered dt-tbl" id="mainTable">
+                            <thead>
+                                <tr class="table-info">
+                                    <th class="d-none">Id</th>
+                                    <th>Inquiry-Ref</th>
+                                    <th>Customer</th>
+                                    <th>Inquiry Type</th>
+                                    <th>Style No</th>
+                                    <th>Style Desc</th>
+                                    <th>Color Code</th>
+                                    <th>Sample Type</th>
+                                    <th class="d-none">Season</th>
+                                    <th class="d-none">Remarks</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td class="d-none">@item.Id</td>
+                                        <td>@item.InquiryRef</td>
+                                        <td>@item.Customer</td>
+                                        <td>@item.InquiryType</td>
+                                        <td>@item.StyleNo</td>
+                                        <td>@item.StyleDesc</td>
+                                        <td>@item.ColorCode</td>
+                                        <td>@item.SampleType</td>
+                                        <td class="d-none">@item.SeasonName</td>
+                                        <td class="d-none">@item.Remarks</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
 
             </div>
         </div>

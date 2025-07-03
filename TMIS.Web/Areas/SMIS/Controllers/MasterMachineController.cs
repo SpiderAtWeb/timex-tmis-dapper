@@ -7,7 +7,7 @@ using TMIS.Models.SMIS;
 
 namespace TMIS.Areas.SMIS.Controllers
 {
-  [Authorize(Roles = "SUPER-ADMIN")]
+  [Authorize]
   [Area("SMIS")]
   public class MasterMachineController(ITwoFieldsMDataAccess db, ISessionHelper sessionHelper) : BaseController
   {

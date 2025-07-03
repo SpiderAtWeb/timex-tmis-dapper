@@ -99,5 +99,11 @@ namespace TMIS.Areas.Auth.Controllers
     {
       return View();
     }
+
+    public IActionResult PageNotFound()
+    {
+      return View();
+    }
+
   }
 }

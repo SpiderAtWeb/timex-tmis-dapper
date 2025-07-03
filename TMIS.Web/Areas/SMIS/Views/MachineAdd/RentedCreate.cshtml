@@ -24,14 +24,7 @@
     <form asp-action="RentedCreate" method="post" class="card-body" enctype="multipart/form-data">
 
         <div class="row g-1 mb-3">
-            <div class="col-3">
-                <div class="form-floating form-floating-outline">
-                    <input asp-for="McInventory!.QrCode" type="text" id="qrCode" class="form-control" placeholder="TSM00007" />
-                    <label for="qrCode">QR Code</label>
-                    <span asp-validation-for="McInventory!.QrCode" class="text-warning"></span>
-                </div>
-            </div>
-            <div class="col-3">
+          <div class="col-3">
                 <div class="form-floating form-floating-outline">
                     <input asp-for="McInventory!.SerialNo" type="text" id="serialNo" class="form-control" placeholder="4DOFE05030" />
                     <label for="serialNo">Serial No</label>

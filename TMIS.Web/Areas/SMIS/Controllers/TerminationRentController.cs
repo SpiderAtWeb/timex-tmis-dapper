@@ -26,7 +26,7 @@ namespace TMIS.Areas.SMIS.Controllers
     public async Task<IActionResult> Details(int id)
     {
       var oMachine = await _db.GetRentedMcById(id);
-
+      _logger.Info("[ " + _iSessionHelper.GetShortName() + " ] - PAGE VISIT Details");
       if (oMachine == null)
       {
         return NotFound();

@@ -7,6 +7,9 @@ namespace TMIS.DataAccess.COMON.IRpository
     {
         Task<IEnumerable<SelectListItem>> LoadDropDownsAsync(string tableName);
 
-        public Task<string> GenerateGpRefAsync(IDbConnection connection, IDbTransaction transaction, string tableName, string gpType);
+        public Task<string> GenerateRefAsync(IDbConnection connection, IDbTransaction transaction, string tableName, string gpType);
+
+
+        public Task<string> GenerateSeqRefAsync(IDbConnection connection, IDbTransaction transaction, string tableName, string codeType);
     }
 }

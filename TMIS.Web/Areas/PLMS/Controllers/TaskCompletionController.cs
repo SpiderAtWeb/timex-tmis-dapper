@@ -16,12 +16,19 @@ namespace TMIS.Areas.PLMS.Controllers
 
     public async Task<IActionResult> Index()
     {
-      var oInquiriesVM = await _db.GetTasksListAsync();
-      return View(oInquiriesVM);
-    }  
+      var inquiries = await _db.GetInquiriesUserIdAsync();
+      return View(inquiries);
+    }
+
+    public async Task<IActionResult> LoadModal(string Id)
+    {
+      var dynamicModel = await _db.LoadModalDataUserIdAsync(Id);
+      return Json(dynamicModel);
+
+    }
 
     [HttpPost]
-    public async Task<IActionResult> SaveCompletedTasks([FromBody] SaveTasks saveTasks)
+    public async Task<IActionResult> SaveCompletedTasks([FromForm] SaveTasks saveTasks)
     {
       if (saveTasks.MainTasks.Count <=0  && saveTasks.SubTasks.Count <= 0)
       {

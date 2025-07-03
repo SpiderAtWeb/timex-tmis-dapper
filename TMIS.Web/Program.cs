@@ -2,7 +2,6 @@ using log4net;
 using log4net.Config;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
-using System.Security.Cryptography;
 using TMIS.DataAccess.COMON.IRpository;
 using TMIS.DataAccess.COMON.Rpository;
 using TMIS.DataAccess.GDRM.IRpository;
@@ -172,6 +171,21 @@ app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.UseStatusCodePages(context =>
+{
+  var response = context.HttpContext.Response;
+
+  if (response.StatusCode == 404)
+  {
+    response.Redirect("/Auth/Account/PageNotFound"); // Redirect to your custom 404 page
+  }
+  else if (response.StatusCode == 403)
+  {
+    response.Redirect("/Auth/Account/AccessDenied"); // Already handled by cookie auth, but for safety
+  }
+
+  return Task.CompletedTask;
+});
 
 app.Use(async (context, next) =>
 {
@@ -192,7 +206,7 @@ app.Use(async (context, next) =>
 
     await next();
   }
-  catch (CryptographicException)
+  catch
   {
     context.Response.Cookies.Delete(".AspNetCore.Session");
     context.Session.Clear();

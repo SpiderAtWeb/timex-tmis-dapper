@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +10,10 @@ namespace TMIS.Models.PLMS
 {
     public class SaveTasks
     {
+        [FromForm]
         public List<CompletedTask> MainTasks { get; set; }
+
+        [FromForm]
         public List<CompletedTask> SubTasks { get; set; }
 
         public SaveTasks()
@@ -22,5 +27,9 @@ namespace TMIS.Models.PLMS
     {
         public int TaskId { get; set; }
         public string Comment { get; set; } = string.Empty;
+
+        [FromForm]
+        public IFormFile? ZipFile { get; set; }
+
     }
 }

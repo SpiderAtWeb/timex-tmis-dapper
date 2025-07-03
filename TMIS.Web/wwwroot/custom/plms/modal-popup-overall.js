@@ -292,7 +292,7 @@ $(document).ready(function () {
                        <td>${index + 1}</td>
                        <td class="freeze">${activity.activityText}</td>
                        <td>${activity.activityRequiredDate}</td>
-                       <td>${activity.activityActualCmpltdDate}</td>
+                       <td>${activity.ActualCompletedDate}</td>
                        <td>${activity.dueDates > 0 ? activity.dueDates + ' Days' : ''}</td>
                        <td>${activity.activityDoneBy}</td>
                        <td>${activity.activityComment}</td>
@@ -311,7 +311,7 @@ $(document).ready(function () {
                             <td> ${index + 1} . ${subIndex + 1}</td>
                             <td class="sub-task freeze">${subActivity.subActivityText}</td>
                             <td>${subActivity.activityRequiredDate}</td>
-                            <td>${subActivity.activityActualCmpltdDate}</td>
+                            <td>${subActivity.ActualCompletedDate}</td>
                             <td>${subActivity.dueDates > 0 ? subActivity.dueDates + ' Days' : ''}</td>
                             <td>${subActivity.activityDoneBy}</td>
                             <td>${subActivity.activityComment}</td>

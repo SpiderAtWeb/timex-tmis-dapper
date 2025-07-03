@@ -42,28 +42,12 @@ namespace TMIS.Areas.SMIS.Controllers
       // Perform validations
       MachineValidator.ValidateOwnedMachine(mcCreateVM, ModelState);
 
-      if (await _db.CheckQrAlreadyAvailable(mcCreateVM.McInventory!.QrCode))
-      {
-        ModelState.AddModelError("McInventory.QrCode", "QR Code Already Available !");
-      }
-
-      if (mcCreateVM.McInventory != null && mcCreateVM.McInventory.QrCode != null)
-      {
-        if (mcCreateVM.McInventory.QrCode.Length <= 7)
-        {
-          ModelState.AddModelError("McInventory.QrCode", "Invalid Character Count!");
-        }
-
-        if (!mcCreateVM.McInventory.QrCode.Contains("TSM"))
-        {
-          ModelState.AddModelError("McInventory.QrCode", "QR Prefix TSM Not Found!");
-        }
-      }
-
       if (await _db.CheckSnAlreadyAvailable(mcCreateVM.McInventory!.SerialNo))
       {
         ModelState.AddModelError("McInventory.SerialNo", "Serial Number Already Available !");
       }
+
+      ModelState["McInventory.QrCode"]?.Errors.Clear();
 
       // Check if the ModelState is valid
       if (!ModelState.IsValid)
@@ -110,30 +94,15 @@ namespace TMIS.Areas.SMIS.Controllers
       mcCreatedRnVM.SupplierList = await _userControls.LoadDropDownsAsync("SMIM_MasterTwoRentSuppliers");
       mcCreatedRnVM.CostMethodsList = await _userControls.LoadDropDownsAsync("SMIM_MasterTwoCostDuration");
 
-      MachineValidator.ValidateRentedMachine(mcCreatedRnVM, ModelState);
-
-      if (await _db.CheckQrAlreadyAvailable(mcCreatedRnVM.McInventory!.QrCode))
-      {
-        ModelState.AddModelError("McInventory.QrCode", "QR Code Already Available !");
-      }
-
-      if (mcCreatedRnVM.McInventory != null && mcCreatedRnVM.McInventory.QrCode != null)
-      {
-        if (mcCreatedRnVM.McInventory.QrCode.Length <= 7)
-        {
-          ModelState.AddModelError("McInventory.QrCode", "Invalid Character Count!");
-        }
-
-        if (!mcCreatedRnVM.McInventory.QrCode.Contains("TSM"))
-        {
-          ModelState.AddModelError("McInventory.QrCode", "QR Prefix TSM Not Found!");
-        }
-      }
+      MachineValidator.ValidateRentedMachine(mcCreatedRnVM, ModelState);     
 
       if (await _db.CheckSnAlreadyAvailable(mcCreatedRnVM.McInventory!.SerialNo))
       {
         ModelState.AddModelError("McInventory.SerialNo", "Serial Number Already Available !");
       }
+
+      ModelState["McInventory.QrCode"]?.Errors.Clear();
+
 
       if (!ModelState.IsValid)
       {

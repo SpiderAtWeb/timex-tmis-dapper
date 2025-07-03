@@ -45,7 +45,7 @@ namespace TMIS.Areas.SMIS.Controllers
       await _db.LoadOwnedMachineListsAsync(mcCreateVM);
 
       // Perform validations
-      MachineValidator.ValidateOwnedMachine(mcCreateVM, ModelState);
+      MachineValidator.ValidateOwnedMachineEdit(mcCreateVM, ModelState);
 
       if (mcCreateVM.McInventory != null && mcCreateVM.McInventory.QrCode != null)
       {
@@ -59,6 +59,9 @@ namespace TMIS.Areas.SMIS.Controllers
           ModelState.AddModelError("McInventory.QrCode", "QR Prefix TSM Not Found!");
         }
       }
+
+      ModelState["McInventory.OwnedUnitId"]?.Errors.Clear();
+      ModelState["McInventory.LocationId"]?.Errors.Clear();
 
       if (!ModelState.IsValid)
       {
@@ -134,6 +137,9 @@ namespace TMIS.Areas.SMIS.Controllers
           ModelState.AddModelError("McInventory.QrCode", "QR Prefix TSM Not Found!");
         }
       }
+
+      ModelState["McInventory.OwnedUnitId"]?.Errors.Clear();
+      ModelState["McInventory.LocationId"]?.Errors.Clear();
 
       if (!ModelState.IsValid)
       {

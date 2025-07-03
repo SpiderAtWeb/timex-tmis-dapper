@@ -43,7 +43,7 @@
         <div class="col-4 g-1">
             <div class="form-floating form-floating-outline">
                 <input type="text" asp-for="ApprovedBy" class="form-control" />
-                <label for="Attention">Approved By</label>
+                <label for="Attention">Approver</label>
             </div>
         </div>
         <div class="col-4 g-1">
@@ -145,20 +145,26 @@
                      role="tabpanel"
                      aria-labelledby="tab-@tabIndex-tab">
 
-                    @if (!string.IsNullOrEmpty(item.IsReceived))
-                    {
-                        <span class="badge mb-2 rounded-pill bg-label@(item.IsReceived == "Approved" ? "-success" : item.IsReceived == "Rejected" ? "-danger" : "-primary")">
-                            @item.IsReceived
-                        </span>
-                    }
-
-                    @if (!string.IsNullOrEmpty(item.IsSend))
-                    {
-                        <span class="badge mb-2 rounded-pill bg-label@(item.IsSend == "Approved" ? "-success" : item.IsSend == "Rejected" ? "-danger" : "-primary")">
-                            @item.IsSend
-                        </span>
-                    }
-
+                    <div class="row mb-2">
+                        <div class="col-6 text-start">
+                            @if (!string.IsNullOrEmpty(item.IsReceived))
+                            {
+                                <strong> RECEIVING :</strong>
+                                <span class="badge mb-2 rounded-pill bg-label@(item.IsReceived == "Approved" ? "-success" : item.IsReceived == "Rejected" ? "-danger" : "-primary")">
+                                    @item.IsReceived
+                                </span>
+                            }
+                        </div>
+                        <div class="col-6 text-end">
+                            @if (!string.IsNullOrEmpty(item.IsSend))
+                            {
+                               <strong> SENDING :</strong>
+                                <span class="badge mb-2 rounded-pill bg-label@(item.IsSend == "Approved" ? "-success" : item.IsSend == "Rejected" ? "-danger" : "-primary")">
+                                    @item.IsSend
+                                </span>
+                            }
+                        </div>
+                    </div>
                     <div class="row mb-1">
                         @if (!string.IsNullOrEmpty(item.RecGRName))
                         {
@@ -281,7 +287,6 @@
                     }
                 </div>
                 tabIndex++;
-
             }
         </div>
     </div>

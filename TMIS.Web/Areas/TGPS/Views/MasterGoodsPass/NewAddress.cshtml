@@ -70,12 +70,11 @@
                     $("#btnUpdate").click(function () {
                         const model = {
                             Id: $("#editId").val(),
-                            businessName: $("#business-name").val(),
-                            address: $("#address").val(),
-                            city: $("#city").val(),
-                            state: $("#state").val(),
-                            postalCode: $("#postal-code").val(),
-                            phone: $("#phone").val()
+                            businessName: $("#editbusinessName").val(),
+                            address: $("#editaddress").val(),
+                            city: $("#editcity").val(),
+                            state: $("#editstate").val(),
+                            phone: $("#editphone").val()
                         };
 
                         $.ajax({

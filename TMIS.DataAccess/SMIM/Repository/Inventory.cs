@@ -1,7 +1,8 @@
 ﻿using Dapper;
 using Microsoft.AspNetCore.Http;
-using System.Collections.Generic;
+using System.Data.Common;
 using System.Text;
+using System.Transactions;
 using TMIS.DataAccess.COMON.IRpository;
 using TMIS.DataAccess.SMIM.IRpository;
 using TMIS.Models.SMIS;
@@ -45,7 +46,7 @@ namespace TMIS.DataAccess.SMIM.Repository
                     OwnedLocList = await _userControls.LoadDropDownsAsync("COMN_VwTwoCompLocs"),
                     McInventory = await GetMcInventoryByIdAsync(id)
                 };
-            }         
+            }
 
             return oMcCreateVM;
         }
@@ -68,7 +69,7 @@ namespace TMIS.DataAccess.SMIM.Repository
                     McInventory = new McInventory()
                 };
             }
-            else 
+            else
             {
                 oMcCreatedRnVM = new McCreatedRnVM
                 {
@@ -89,8 +90,8 @@ namespace TMIS.DataAccess.SMIM.Repository
         public async Task<MachinesVM> GetList()
         {
             var sql = @"
-            SELECT Id, QrCode, SerialNo, MachineBrand, MachineType FROM SMIM_VwMcInventory WHERE IsOwned = 1 AND CurrentUnitId IN @AccessPlants ORDER BY QrCode;
-            SELECT Id, QrCode, SerialNo, DateBorrow, MachineType FROM SMIM_VwMcInventory WHERE IsOwned = 0 AND CurrentUnitId  IN @AccessPlants ORDER BY QrCode;";
+            SELECT Id, QrCode, SerialNo, MachineBrand, MachineType FROM SMIM_VwMcInventory WHERE IsOwned = 1 AND [CurrentStatus] NOT IN (9) AND CurrentUnitId IN @AccessPlants ORDER BY QrCode;
+            SELECT Id, QrCode, SerialNo, DateBorrow, MachineType FROM SMIM_VwMcInventory WHERE IsOwned = 0 AND [CurrentStatus] NOT IN (10) AND CurrentUnitId  IN @AccessPlants ORDER BY QrCode;";
 
             using var multi = await _dbConnection.GetConnection().QueryMultipleAsync(sql, new { AccessPlants = _iSessionHelper.GetLocationList() });
             var mcOwned = await multi.ReadAsync<McOwned>();
@@ -107,7 +108,7 @@ namespace TMIS.DataAccess.SMIM.Repository
         {
             mcCreateVM.BrandsList = await _userControls.LoadDropDownsAsync("SMIM_MasterTwoBrands");
             mcCreateVM.TypesList = await _userControls.LoadDropDownsAsync("SMIM_MasterTwoTypes");
-            mcCreateVM.ModelsList = await _userControls.LoadDropDownsAsync("SMIM_MasterTwoModels");          
+            mcCreateVM.ModelsList = await _userControls.LoadDropDownsAsync("SMIM_MasterTwoModels");
             mcCreateVM.LinesList = await _userControls.LoadDropDownsAsync("SMIM_MasterTwoSewingLines");
             mcCreateVM.OwnedLocList = await _userControls.LoadDropDownsAsync("COMN_VwTwoCompLocs");
         }
@@ -145,11 +146,14 @@ namespace TMIS.DataAccess.SMIM.Repository
 
         public async Task<bool> InsertMachineAsync(McInventory mcInventory, IFormFile? imageFront, IFormFile? imageBack)
         {
+            using var connection = _dbConnection.GetConnection();
+            using var transaction = connection.BeginTransaction();
+
             const string query = @"
             INSERT INTO SMIM_TrInventory 
             (QrCode, SerialNo, FarCode, IsOwned, DatePurchased, ServiceSeq,
              MachineBrandId, MachineTypeId,LocationId, OwnedUnitId,
-             CurrentUnitId, CurrentStatusId, MachineModelId, Cost, ImageFR, ImageBK, DateCreate , IsDelete)
+             CurrentUnitId, CurrentStatusId, MachineModelId, Cost, ImageFR, ImageBK, DateCreate , IsDelete) OUTPUT INSERTED.Id
             VALUES 
             (@QrCode, @SerialNo, @FarCode, 1 , @DatePurchased,  @ServiceSeq,
              @MachineBrandId, @MachineTypeId, @LocationId, @OwnedUnitId,
@@ -178,9 +182,11 @@ namespace TMIS.DataAccess.SMIM.Repository
                     }
                 }
 
-                var insertedId = await _dbConnection.GetConnection().QuerySingleOrDefaultAsync<int?>(query, new
+                string referenceNumber = await _userControls.GenerateSeqRefAsync(connection, transaction, "[SMIM_XysGenerateNumber]", "TSM");
+
+                var insertedId = await connection.QuerySingleOrDefaultAsync<int?>(query, new
                 {
-                    QrCode = mcInventory.QrCode?.ToUpper(),
+                    QrCode = referenceNumber,
                     SerialNo = mcInventory.SerialNo?.ToUpper(),
                     FarCode = mcInventory.FarCode?.ToUpper(),
                     mcInventory.DatePurchased,
@@ -194,25 +200,22 @@ namespace TMIS.DataAccess.SMIM.Repository
                     ImageFR = imageFrontBytes,
                     ImageBK = imageBackBytes,
                     NowDT = DateTime.Now
-                });
+                }, transaction);
 
-                if (insertedId.HasValue)
+                Logdb logdb = new()
                 {
-                    Logdb logdb = new()
-                    {
-                        TrObjectId = insertedId.Value,
-                        TrLog = "MACHINE RECORD CREATED"
+                    TrObjectId = insertedId.Value,
+                    TrLog = "MACHINE RECORD CREATED"
+                };
 
-                    };
+                _iSMIMLogdb.InsertLog(connection, logdb, transaction);
 
-                    _iSMIMLogdb.InsertLog(_dbConnection, logdb);
-                }
-
+                transaction.Commit();
                 return insertedId > 0;
             }
             catch (Exception)
             {
-
+                transaction.Rollback();
                 return false;
             }
         }
@@ -229,153 +232,130 @@ namespace TMIS.DataAccess.SMIM.Repository
 
         public async Task<int> UpdateOwnedMachineAsync(McInventory mcInventory, IFormFile? imageFront, IFormFile? imageBack)
         {
-            // Check if the QR code is already assigned to another machine (excluding the current machine)
-            var existingQr = await _dbConnection.GetConnection().QueryFirstOrDefaultAsync<McInventory>(
-                "SELECT Id FROM SMIM_TrInventory WHERE QrCode = @QrCode AND Id != @Id",
-                new { QrCode = mcInventory.QrCode?.ToUpper(), mcInventory.Id });
-
-            if (existingQr != null)
-            {
-                return 2;
-            }
-
-            // Check if the QR code is already assigned to another machine (excluding the current machine)
-            var existingSR = await _dbConnection.GetConnection().QueryFirstOrDefaultAsync<McInventory>(
-                "SELECT Id FROM SMIM_TrInventory WHERE SerialNo = @SerialNo AND Id != @Id",
-                new { SerialNo = mcInventory.SerialNo?.ToUpper(), mcInventory.Id });
-
-            if (existingSR != null)
-            {
-                return 3;
-            }
-
-            // Fetch current machine details from database
-            var beforeUpdate = await _dbConnection.GetConnection().QueryFirstOrDefaultAsync(
-                @"SELECT Id, QrCode, SerialNo, FarCode, DatePurchased, DateBorrow, DateDue, ServiceSeq, MachineBrandId, MachineBrand, MachineTypeId, MachineType, 
-                LocationId, Location, OwnedUnitId, OwnedUnit, CurrentUnitId, CurrentUnit, MachineModelId, MachineModel, SupplierId, Supplier, 
-                CostMethodId, CostMethod, Cost FROM SMIM_SMIM_VwHelpEditLog WHERE  (Id = @Id)",
-                new { mcInventory.Id });
-
-            if (beforeUpdate == null)
-            {
-                return 0; // Machine not found
-            }
-
-            var updateFields = new List<string>
-            {
-                "QrCode = @QrCode",
-                "SerialNo = @SerialNo",
-                "FarCode = @FarCode",
-                "DatePurchased = @DatePurchased",
-                "ServiceSeq = @ServiceSeq",
-                "MachineBrandId = @MachineBrandId",
-                "MachineTypeId = @MachineTypeId",
-                "LocationId = @LocationId",
-                "OwnedUnitId = @OwnedUnitId",
-                "CurrentUnitId = @OwnedUnitId",
-                "MachineModelId = @MachineModelId",
-                "Cost = @Cost",
-                "DateUpdate = @NowDT"
-            };
-
-            byte[]? imageFrontBytes = null;
-            byte[]? imageBackBytes = null;
-
-            if (mcInventory.RemoveImageFront)
-            {
-                updateFields.Add("ImageFR = NULL");
-            }
-            else if (imageFront != null && imageFront.Length > 0)
-            {
-                using (var memoryStream = new MemoryStream())
-                {
-                    await imageFront.CopyToAsync(memoryStream);
-                    imageFrontBytes = memoryStream.ToArray();
-                }
-                updateFields.Add("ImageFR = @ImageFR");
-            }
-
-            if (mcInventory.RemoveImageBack)
-            {
-                updateFields.Add("ImageBK = NULL");
-            }
-            else if (imageBack != null && imageBack.Length > 0)
-            {
-                using (var memoryStream = new MemoryStream())
-                {
-                    await imageBack.CopyToAsync(memoryStream);
-                    imageBackBytes = memoryStream.ToArray();
-                }
-                updateFields.Add("ImageBK = @ImageBK");
-            }
-
-            var query = $@"UPDATE SMIM_TrInventory SET {string.Join(", ", updateFields)} WHERE Id = @Id";
+            using var connection = _dbConnection.GetConnection();
+            using var transaction = connection.BeginTransaction();
 
             try
             {
-                var rowsAffected = await _dbConnection.GetConnection().ExecuteAsync(query, new
+                // Check duplicate QrCode
+                var existingQr = await connection.QueryFirstOrDefaultAsync<int?>(
+                    @"SELECT Id FROM SMIM_TrInventory WHERE QrCode = @QrCode AND Id != @Id",
+                    new { QrCode = mcInventory.QrCode?.ToUpper(), mcInventory.Id }, transaction);
+
+                if (existingQr != null)
+                    return 2;
+
+                // Check duplicate SerialNo
+                var existingSR = await connection.QueryFirstOrDefaultAsync<int?>(
+                    @"SELECT Id FROM SMIM_TrInventory WHERE SerialNo = @SerialNo AND Id != @Id",
+                    new { SerialNo = mcInventory.SerialNo?.ToUpper(), mcInventory.Id }, transaction);
+
+                if (existingSR != null)
+                    return 3;
+
+                // Get current machine state
+                var beforeUpdate = await connection.QueryFirstOrDefaultAsync(
+                    @"SELECT Id, SerialNo, FarCode, DatePurchased, DateBorrow, DateDue, ServiceSeq, MachineBrandId, MachineBrand, 
+                     MachineTypeId, MachineType, MachineModelId, MachineModel, SupplierId, Supplier, CostMethodId, CostMethod, Cost 
+              FROM SMIM_VwHelpEditLog WHERE Id = @Id",
+                    new { mcInventory.Id }, transaction);
+
+                if (beforeUpdate == null)
+                    return 0;
+
+                // Prepare update fields
+                var updateFields = new List<string>
                 {
-                    mcInventory.Id,
-                    QrCode = mcInventory.QrCode?.ToUpper(),
+                    "SerialNo = @SerialNo",
+                    "FarCode = @FarCode",
+                    "DatePurchased = @DatePurchased",
+                    "ServiceSeq = @ServiceSeq",
+                    "MachineBrandId = @MachineBrandId",
+                    "MachineTypeId = @MachineTypeId",
+                    "MachineModelId = @MachineModelId",
+                    "Cost = @Cost",
+                    "DateUpdate = @NowDT"
+                };
+
+                byte[]? imageFrontBytes = null;
+                byte[]? imageBackBytes = null;
+
+                if (mcInventory.RemoveImageFront)
+                    updateFields.Add("ImageFR = NULL");
+                else if (imageFront != null && imageFront.Length > 0)
+                {
+                    using var ms = new MemoryStream();
+                    await imageFront.CopyToAsync(ms);
+                    imageFrontBytes = ms.ToArray();
+                    updateFields.Add("ImageFR = @ImageFR");
+                }
+
+                if (mcInventory.RemoveImageBack)
+                    updateFields.Add("ImageBK = NULL");
+                else if (imageBack != null && imageBack.Length > 0)
+                {
+                    using var ms = new MemoryStream();
+                    await imageBack.CopyToAsync(ms);
+                    imageBackBytes = ms.ToArray();
+                    updateFields.Add("ImageBK = @ImageBK");
+                }
+
+                var updateQuery = $@"UPDATE SMIM_TrInventory SET {string.Join(", ", updateFields)} WHERE Id = @Id";
+
+                var rowsAffected = await connection.ExecuteAsync(updateQuery, new
+                {
+                    mcInventory.Id,                    
                     SerialNo = mcInventory.SerialNo?.ToUpper(),
                     FarCode = mcInventory.FarCode?.ToUpper(),
                     mcInventory.DatePurchased,
                     mcInventory.ServiceSeq,
                     mcInventory.MachineBrandId,
                     mcInventory.MachineTypeId,
-                    mcInventory.LocationId,
-                    mcInventory.OwnedUnitId,
                     mcInventory.MachineModelId,
                     mcInventory.Cost,
                     ImageFR = imageFrontBytes,
                     ImageBK = imageBackBytes,
                     NowDT = DateTime.Now
-                });
+                }, transaction);
 
-                if (rowsAffected > 0)
+                if (rowsAffected == 0)
+                {
+                    transaction.Rollback();
+                    return 0;
+                }
+
+                var afterUpdate = await connection.QueryFirstOrDefaultAsync(
+                    @"SELECT Id, SerialNo, FarCode, DatePurchased, DateBorrow, DateDue, ServiceSeq, MachineBrandId, MachineBrand, 
+                     MachineTypeId, MachineType, MachineModelId, MachineModel, SupplierId, Supplier, CostMethodId, CostMethod, Cost 
+              FROM SMIM_VwHelpEditLog WHERE Id = @Id",
+                    new { mcInventory.Id }, transaction);
+
+                var logChanges = new StringBuilder();
+                LogFieldChanges(logChanges, "SerialNo", beforeUpdate.SerialNo.ToUpper(), afterUpdate?.SerialNo.ToUpper(), beforeUpdate.SerialNo, afterUpdate?.SerialNo);
+                LogFieldChanges(logChanges, "FarCode", beforeUpdate.FarCode.ToUpper(), afterUpdate?.FarCode.ToUpper(), beforeUpdate.FarCode, afterUpdate?.FarCode);
+                LogFieldChanges(logChanges, "DatePurchased", beforeUpdate.DatePurchased?.ToString(), afterUpdate?.DatePurchased?.ToString(), beforeUpdate.DatePurchased?.ToString(), afterUpdate?.DatePurchased?.ToString());
+                LogFieldChanges(logChanges, "ServiceSeq", beforeUpdate.ServiceSeq?.ToString(), afterUpdate?.ServiceSeq?.ToString(), beforeUpdate.ServiceSeq?.ToString(), afterUpdate?.ServiceSeq?.ToString());
+                LogFieldChanges(logChanges, "MachineBrand", beforeUpdate.MachineBrandId?.ToString(), afterUpdate?.MachineBrandId?.ToString(), beforeUpdate.MachineBrand, afterUpdate?.MachineBrand);
+                LogFieldChanges(logChanges, "MachineType", beforeUpdate.MachineTypeId?.ToString(), afterUpdate?.MachineTypeId?.ToString(), beforeUpdate.MachineType, afterUpdate?.MachineType);
+                LogFieldChanges(logChanges, "MachineModel", beforeUpdate.MachineModelId?.ToString(), afterUpdate?.MachineModelId?.ToString(), beforeUpdate.MachineModel, afterUpdate?.MachineModel);
+                LogFieldChanges(logChanges, "Cost", beforeUpdate.Cost?.ToString(), afterUpdate?.Cost?.ToString(), beforeUpdate.Cost?.ToString(), afterUpdate?.Cost?.ToString());
+
+                if (logChanges.Length > 0)
                 {
                     Logdb logdb = new()
                     {
                         TrObjectId = mcInventory.Id,
-                        TrLog = "MACHINE UPDATED"
-
+                        TrLog = "MACHINE UPDATED. CHANGES: " + logChanges.ToString()
                     };
-
-                    var aftertUpdate = await _dbConnection.GetConnection().QueryFirstOrDefaultAsync(
-                    @"SELECT Id, QrCode, SerialNo, FarCode, DatePurchased, DateBorrow, DateDue, ServiceSeq, MachineBrandId, MachineBrand, MachineTypeId, MachineType, 
-								LocationId, Location, OwnedUnitId, OwnedUnit, CurrentUnitId, CurrentUnit, MachineModelId, MachineModel, SupplierId, Supplier, 
-								CostMethodId, CostMethod, Cost FROM  SMIM_VwHelpEditLog WHERE  (Id = @Id)",
-                    new { mcInventory.Id });
-
-                    var logChanges = new StringBuilder();
-
-                    LogFieldChanges(logChanges, "QrCode", beforeUpdate.QrCode.ToUpper(), aftertUpdate?.QrCode.ToUpper(), beforeUpdate.QrCode, aftertUpdate?.QrCode);
-                    LogFieldChanges(logChanges, "SerialNo", beforeUpdate.SerialNo.ToUpper(), aftertUpdate?.SerialNo.ToUpper(), beforeUpdate.SerialNo, aftertUpdate?.SerialNo);
-                    LogFieldChanges(logChanges, "FarCode", beforeUpdate.FarCode.ToUpper(), aftertUpdate?.FarCode.ToUpper(), beforeUpdate.FarCode, aftertUpdate?.FarCode);
-                    LogFieldChanges(logChanges, "DatePurchased", beforeUpdate.DatePurchased?.ToString(), aftertUpdate?.DatePurchased?.ToString(), beforeUpdate.DatePurchased?.ToString(), aftertUpdate?.DatePurchased?.ToString());
-                    LogFieldChanges(logChanges, "ServiceSeq", beforeUpdate.ServiceSeq.ToString(), aftertUpdate?.ServiceSeq.ToString(), beforeUpdate.ServiceSeq.ToString(), aftertUpdate?.ServiceSeq.ToString());
-                    LogFieldChanges(logChanges, "MachineBrand", beforeUpdate.MachineBrandId.ToString(), aftertUpdate?.MachineBrandId.ToString(), beforeUpdate.MachineBrand, aftertUpdate?.MachineBrand);
-                    LogFieldChanges(logChanges, "MachineType", beforeUpdate.MachineTypeId.ToString(), aftertUpdate?.MachineTypeId.ToString(), beforeUpdate.MachineType, aftertUpdate?.MachineType);
-                    LogFieldChanges(logChanges, "Location", beforeUpdate.LocationId.ToString(), aftertUpdate?.LocationId.ToString(), beforeUpdate.Location, aftertUpdate?.Location);
-                    LogFieldChanges(logChanges, "OwnedUnit", beforeUpdate.OwnedUnitId.ToString(), aftertUpdate?.OwnedUnitId.ToString(), beforeUpdate.OwnedUnit, aftertUpdate?.OwnedUnit);
-                    LogFieldChanges(logChanges, "CurrentUnit", beforeUpdate.CurrentUnitId.ToString(), aftertUpdate?.CurrentUnitId.ToString(), beforeUpdate.CurrentUnit, aftertUpdate?.CurrentUnit);
-                    LogFieldChanges(logChanges, "MachineModel", beforeUpdate.MachineModelId.ToString(), aftertUpdate?.MachineModelId.ToString(), beforeUpdate.MachineModel, aftertUpdate?.MachineModel);
-                    LogFieldChanges(logChanges, "Cost", beforeUpdate.Cost.ToString(), aftertUpdate?.Cost.ToString(), beforeUpdate.Cost.ToString(), aftertUpdate?.Cost.ToString());
-
-
-                    if (logChanges.Length > 0)
-                    {
-                        logdb.TrLog += "CHANGES: " + logChanges.ToString();
-                        _iSMIMLogdb.InsertLog(_dbConnection, logdb);
-                    }
-
-                    return 1;
+                    _iSMIMLogdb.InsertLog(connection, logdb, transaction);
                 }
 
-                return 0;
+                transaction.Commit();
+                return 1;
             }
-            catch (Exception)
+            catch
             {
+                transaction.Rollback();
                 return 0;
             }
         }
@@ -390,10 +370,14 @@ namespace TMIS.DataAccess.SMIM.Repository
 
         public async Task<bool> InsertRentMachineAsync(McInventory mcInventory, IFormFile? imageFront, IFormFile? imageBack)
         {
+            using var connection = _dbConnection.GetConnection();
+            using var transaction = connection.BeginTransaction();
+
+
             const string query = @"
         INSERT INTO SMIM_TrInventory 
         (QrCode, SerialNo, IsOwned, DateBorrow, DateDue,  ServiceSeq,
-         MachineBrandId, MachineTypeId, LocationId, OwnedUnitId, CurrentUnitId, CurrentStatusId, MachineModelId, Cost, ImageFR, ImageBK, DateCreate , IsDelete, SupplierId, CostMethodId, Comments )
+         MachineBrandId, MachineTypeId, LocationId, OwnedUnitId, CurrentUnitId, CurrentStatusId, MachineModelId, Cost, ImageFR, ImageBK, DateCreate , IsDelete, SupplierId, CostMethodId, Comments ) OUTPUT INSERTED.Id
         VALUES 
         (@QrCode, @SerialNo, 0 , @DateBorrow, @DateDue, @ServiceSeq,
          @MachineBrandId, @MachineTypeId, @LocationId, @OwnedUnitId, @OwnedUnitId, 1 , @MachineModelId, @Cost, @ImageFR, @ImageBK, @NowDT, 0, @SupplierId, @CostMethodId, @Comments )";
@@ -421,9 +405,11 @@ namespace TMIS.DataAccess.SMIM.Repository
                     }
                 }
 
-                var insertedId = await _dbConnection.GetConnection().QuerySingleOrDefaultAsync<int?>(query, new
+                string referenceNumber = await _userControls.GenerateSeqRefAsync(connection, transaction, "[SMIM_XysGenerateNumber]", "TSM");
+
+                var insertedId = await connection.QuerySingleOrDefaultAsync<int?>(query, new
                 {
-                    QrCode = mcInventory.QrCode?.ToUpper(),
+                    QrCode = referenceNumber,
                     SerialNo = mcInventory.SerialNo?.ToUpper(),
                     mcInventory.DateBorrow,
                     mcInventory.DateDue,
@@ -440,23 +426,23 @@ namespace TMIS.DataAccess.SMIM.Repository
                     ImageFR = imageFrontBytes,
                     ImageBK = imageBackBytes,
                     NowDT = DateTime.Now
-                });
+                }, transaction);
 
-                if (insertedId.HasValue)
+                Logdb logdb = new()
                 {
-                    Logdb logdb = new()
-                    {
-                        TrObjectId = insertedId.Value,
-                        TrLog = "MACHINE RECORD CREATED"
-                    };
+                    TrObjectId = insertedId.Value,
+                    TrLog = "MACHINE RECORD CREATED"
+                };
 
-                    _iSMIMLogdb.InsertLog(_dbConnection, logdb);
-                }
+                _iSMIMLogdb.InsertLog(connection, logdb, transaction);
 
+
+                transaction.Commit();
                 return insertedId > 0;
             }
             catch (Exception)
             {
+                transaction.Rollback();
                 return false;
             }
         }
@@ -474,49 +460,43 @@ namespace TMIS.DataAccess.SMIM.Repository
 
         public async Task<int> UpdateRentMachineAsync(McInventory mcInventory, IFormFile? imageFront, IFormFile? imageBack)
         {
-            // Check if the QR code is already assigned to another machine (excluding the current machine)
-            var existingQr = await _dbConnection.GetConnection().QueryFirstOrDefaultAsync<McInventory>(
-                "SELECT Id FROM SMIM_TrInventory WHERE QrCode = @QrCode AND Id != @Id",
-                new { QrCode = mcInventory.QrCode?.ToUpper(), mcInventory.Id });
+            using var connection = _dbConnection.GetConnection();
+            using var transaction = connection.BeginTransaction();
+
+            // Check duplicate QrCode
+            var existingQr = await connection.QueryFirstOrDefaultAsync<int?>(
+                @"SELECT Id FROM SMIM_TrInventory WHERE QrCode = @QrCode AND Id != @Id",
+                new { QrCode = mcInventory.QrCode?.ToUpper(), mcInventory.Id }, transaction);
 
             if (existingQr != null)
-            {
                 return 2;
-            }
 
-            // Check if the QR code is already assigned to another machine (excluding the current machine)
-            var existingSR = await _dbConnection.GetConnection().QueryFirstOrDefaultAsync<McInventory>(
-                "SELECT Id FROM SMIM_TrInventory WHERE SerialNo = @SerialNo AND Id != @Id",
-                new { SerialNo = mcInventory.SerialNo?.ToUpper(), mcInventory.Id });
+            // Check duplicate SerialNo
+            var existingSR = await connection.QueryFirstOrDefaultAsync<int?>(
+                @"SELECT Id FROM SMIM_TrInventory WHERE SerialNo = @SerialNo AND Id != @Id",
+                new { SerialNo = mcInventory.SerialNo?.ToUpper(), mcInventory.Id }, transaction);
 
             if (existingSR != null)
-            {
                 return 3;
-            }
 
-            var beforeUpdate = await _dbConnection.GetConnection().QueryFirstOrDefaultAsync(
-            @"SELECT Id, QrCode, SerialNo, FarCode, DatePurchased, DateBorrow, DateDue, ServiceSeq, MachineBrandId, MachineBrand, MachineTypeId, MachineType, 
-						LocationId, Location, OwnedUnitId, OwnedUnit, CurrentUnitId, CurrentUnit, MachineModelId, MachineModel, SupplierId, Supplier, 
-						CostMethodId, CostMethod, Cost FROM  SMIM_VwHelpEditLog WHERE  (Id = @Id)",
-            new { mcInventory.Id });
+            // Get current machine state
+            var beforeUpdate = await connection.QueryFirstOrDefaultAsync(
+                @"SELECT Id, SerialNo, FarCode, DatePurchased, DateBorrow, DateDue, ServiceSeq, MachineBrandId, MachineBrand, 
+                     MachineTypeId, MachineType, MachineModelId, MachineModel, SupplierId, Supplier, CostMethodId, CostMethod, Cost 
+              FROM SMIM_VwHelpEditLog WHERE Id = @Id",
+                new { mcInventory.Id }, transaction);
 
             if (beforeUpdate == null)
-            {
-                return 0; // Machine not found
-            }
+                return 0;
 
 
             var updateFields = new List<string>
             {
-                "QrCode = @QrCode",
                 "SerialNo = @SerialNo",
                 "ServiceSeq = @ServiceSeq",
                 "MachineModelId = @MachineModelId",
                 "MachineBrandId = @MachineBrandId",
                 "MachineTypeId = @MachineTypeId",
-                "OwnedUnitId = @OwnedUnitId",
-                "CurrentUnitId = @OwnedUnitId",
-                "LocationId = @LocationId",
                 "DateBorrow = @DateBorrow",
                 "DateDue = @DateDue",
                 "Comments = @Comments",
@@ -530,48 +510,37 @@ namespace TMIS.DataAccess.SMIM.Repository
             byte[]? imageBackBytes = null;
 
             if (mcInventory.RemoveImageFront)
-            {
                 updateFields.Add("ImageFR = NULL");
-            }
             else if (imageFront != null && imageFront.Length > 0)
             {
-                using (var memoryStream = new MemoryStream())
-                {
-                    await imageFront.CopyToAsync(memoryStream);
-                    imageFrontBytes = memoryStream.ToArray();
-                }
+                using var ms = new MemoryStream();
+                await imageFront.CopyToAsync(ms);
+                imageFrontBytes = ms.ToArray();
                 updateFields.Add("ImageFR = @ImageFR");
             }
 
             if (mcInventory.RemoveImageBack)
-            {
                 updateFields.Add("ImageBK = NULL");
-            }
             else if (imageBack != null && imageBack.Length > 0)
             {
-                using (var memoryStream = new MemoryStream())
-                {
-                    await imageBack.CopyToAsync(memoryStream);
-                    imageBackBytes = memoryStream.ToArray();
-                }
+                using var ms = new MemoryStream();
+                await imageBack.CopyToAsync(ms);
+                imageBackBytes = ms.ToArray();
                 updateFields.Add("ImageBK = @ImageBK");
             }
 
-            var query = $@"UPDATE TrMachineInventory SET {string.Join(", ", updateFields)} WHERE Id = @Id";
+            var query = $@"UPDATE SMIM_TrInventory SET {string.Join(", ", updateFields)} WHERE Id = @Id";
 
             try
             {
-                var rowsAffected = await _dbConnection.GetConnection().ExecuteAsync(query, new
+                var rowsAffected = await connection.ExecuteAsync(query, new
                 {
                     mcInventory.Id,
-                    QrCode = mcInventory.QrCode?.ToUpper(),
                     SerialNo = mcInventory.SerialNo?.ToUpper(),
                     mcInventory.ServiceSeq,
                     mcInventory.MachineModelId,
                     mcInventory.MachineBrandId,
                     mcInventory.MachineTypeId,
-                    mcInventory.LocationId,
-                    mcInventory.OwnedUnitId,
                     mcInventory.DateBorrow,
                     mcInventory.DateDue,
                     Comments = mcInventory.Comments?.ToUpper(),
@@ -581,54 +550,50 @@ namespace TMIS.DataAccess.SMIM.Repository
                     ImageFR = imageFrontBytes,
                     ImageBK = imageBackBytes,
                     NowDT = DateTime.Now
-                });
+                }, transaction);
 
-                if (rowsAffected > 0)
+                if (rowsAffected == 0)
+                {
+                    transaction.Rollback();
+                    return 0;
+                }
+
+                var afterUpdate = await connection.QueryFirstOrDefaultAsync(
+                  @"SELECT Id, SerialNo, FarCode, DatePurchased, DateBorrow, DateDue, ServiceSeq, MachineBrandId, MachineBrand, MachineTypeId, MachineType, 
+					MachineModelId, MachineModel, SupplierId, Supplier, 
+					CostMethodId, CostMethod, Cost FROM  SMIM_VwHelpEditLog WHERE  (Id = @Id)",
+                  new { mcInventory.Id }, transaction);
+
+                var logChanges = new StringBuilder();
+                LogFieldChanges(logChanges, "QrCode", beforeUpdate.QrCode.ToUpper(), afterUpdate?.QrCode.ToUpper(), beforeUpdate.QrCode, afterUpdate?.QrCode);
+                LogFieldChanges(logChanges, "SerialNo", beforeUpdate.SerialNo.ToUpper(), afterUpdate?.SerialNo.ToUpper(), beforeUpdate.SerialNo, afterUpdate?.SerialNo);
+                LogFieldChanges(logChanges, "FarCode", beforeUpdate.FarCode.ToUpper(), afterUpdate?.FarCode.ToUpper(), beforeUpdate.FarCode, afterUpdate?.FarCode);
+                LogFieldChanges(logChanges, "DateBorrow", beforeUpdate.DateBorrow?.ToString(), afterUpdate?.DateBorrow?.ToString(), beforeUpdate.DateBorrow?.ToString(), afterUpdate?.DateBorrow?.ToString());
+                LogFieldChanges(logChanges, "DateDue", beforeUpdate.DateDue?.ToString(), afterUpdate?.DateDue?.ToString(), beforeUpdate.DateDue?.ToString(), afterUpdate?.DateDue?.ToString());
+                LogFieldChanges(logChanges, "ServiceSeq", beforeUpdate.ServiceSeq.ToString(), afterUpdate?.ServiceSeq.ToString(), beforeUpdate.ServiceSeq.ToString(), afterUpdate?.ServiceSeq.ToString());
+                LogFieldChanges(logChanges, "MachineBrand", beforeUpdate.MachineBrandId.ToString(), afterUpdate?.MachineBrandId.ToString(), beforeUpdate.MachineBrand, afterUpdate?.MachineBrand);
+                LogFieldChanges(logChanges, "MachineType", beforeUpdate.MachineTypeId.ToString(), afterUpdate?.MachineTypeId.ToString(), beforeUpdate.MachineType, afterUpdate?.MachineType);
+                LogFieldChanges(logChanges, "MachineModel", beforeUpdate.MachineModelId.ToString(), afterUpdate?.MachineModelId.ToString(), beforeUpdate.MachineModel, afterUpdate?.MachineModel);
+                LogFieldChanges(logChanges, "Supplier", beforeUpdate.SupplierId.ToString(), afterUpdate?.SupplierId.ToString(), beforeUpdate.Supplier, afterUpdate?.Supplier);
+                LogFieldChanges(logChanges, "CostMethod", beforeUpdate.CostMethodId.ToString(), afterUpdate?.CostMethodId.ToString(), beforeUpdate.CostMethod, afterUpdate?.CostMethod);
+                LogFieldChanges(logChanges, "Cost", beforeUpdate.Cost.ToString(), afterUpdate?.Cost.ToString(), beforeUpdate.Cost.ToString(), afterUpdate?.Cost.ToString());
+
+                if (logChanges.Length > 0)
                 {
                     Logdb logdb = new()
                     {
                         TrObjectId = mcInventory.Id,
-                        TrLog = "MACHINE UPDATED"
+                        TrLog = "MACHINE UPDATED. CHANGES: " + logChanges.ToString()
                     };
-
-                    var aftertUpdate = await _dbConnection.GetConnection().QueryFirstOrDefaultAsync(
-                    @"SELECT Id, QrCode, SerialNo, FarCode, DatePurchased, DateBorrow, DateDue, ServiceSeq, MachineBrandId, MachineBrand, MachineTypeId, MachineType, 
-													LocationId, Location, OwnedUnitId, OwnedUnit, CurrentUnitId, CurrentUnit, MachineModelId, MachineModel, SupplierId, Supplier, 
-													CostMethodId, CostMethod, Cost FROM  SMIM_VwHelpEditLog WHERE  (Id = @Id)",
-                    new { mcInventory.Id });
-
-
-                    var logChanges = new StringBuilder();
-
-                    LogFieldChanges(logChanges, "QrCode", beforeUpdate.QrCode.ToUpper(), aftertUpdate?.QrCode.ToUpper(), beforeUpdate.QrCode, aftertUpdate?.QrCode);
-                    LogFieldChanges(logChanges, "SerialNo", beforeUpdate.SerialNo.ToUpper(), aftertUpdate?.SerialNo.ToUpper(), beforeUpdate.SerialNo, aftertUpdate?.SerialNo);
-                    LogFieldChanges(logChanges, "FarCode", beforeUpdate.FarCode.ToUpper(), aftertUpdate?.FarCode.ToUpper(), beforeUpdate.FarCode, aftertUpdate?.FarCode);
-                    //LogFieldChanges(logChanges, "DatePurchased", beforeUpdate.DatePurchased?.ToString(), aftertUpdate?.DatePurchased?.ToString(), beforeUpdate.DatePurchased?.ToString(), aftertUpdate?.DatePurchased?.ToString());
-                    LogFieldChanges(logChanges, "DateBorrow", beforeUpdate.DateBorrow?.ToString(), aftertUpdate?.DateBorrow?.ToString(), beforeUpdate.DateBorrow?.ToString(), aftertUpdate?.DateBorrow?.ToString());
-                    LogFieldChanges(logChanges, "DateDue", beforeUpdate.DateDue?.ToString(), aftertUpdate?.DateDue?.ToString(), beforeUpdate.DateDue?.ToString(), aftertUpdate?.DateDue?.ToString());
-                    LogFieldChanges(logChanges, "ServiceSeq", beforeUpdate.ServiceSeq.ToString(), aftertUpdate?.ServiceSeq.ToString(), beforeUpdate.ServiceSeq.ToString(), aftertUpdate?.ServiceSeq.ToString());
-                    LogFieldChanges(logChanges, "MachineBrand", beforeUpdate.MachineBrandId.ToString(), aftertUpdate?.MachineBrandId.ToString(), beforeUpdate.MachineBrand, aftertUpdate?.MachineBrand);
-                    LogFieldChanges(logChanges, "MachineType", beforeUpdate.MachineTypeId.ToString(), aftertUpdate?.MachineTypeId.ToString(), beforeUpdate.MachineType, aftertUpdate?.MachineType);
-                    LogFieldChanges(logChanges, "Location", beforeUpdate.LocationId.ToString(), aftertUpdate?.LocationId.ToString(), beforeUpdate.Location, aftertUpdate?.Location);
-                    LogFieldChanges(logChanges, "OwnedUnit", beforeUpdate.OwnedUnitId.ToString(), aftertUpdate?.OwnedUnitId.ToString(), beforeUpdate.OwnedUnit, aftertUpdate?.OwnedUnit);
-                    LogFieldChanges(logChanges, "CurrentUnit", beforeUpdate.CurrentUnitId.ToString(), aftertUpdate?.CurrentUnitId.ToString(), beforeUpdate.CurrentUnit, aftertUpdate?.CurrentUnit);
-                    LogFieldChanges(logChanges, "MachineModel", beforeUpdate.MachineModelId.ToString(), aftertUpdate?.MachineModelId.ToString(), beforeUpdate.MachineModel, aftertUpdate?.MachineModel);
-                    LogFieldChanges(logChanges, "Supplier", beforeUpdate.SupplierId.ToString(), aftertUpdate?.SupplierId.ToString(), beforeUpdate.Supplier, aftertUpdate?.Supplier);
-                    LogFieldChanges(logChanges, "CostMethod", beforeUpdate.CostMethodId.ToString(), aftertUpdate?.CostMethodId.ToString(), beforeUpdate.CostMethod, aftertUpdate?.CostMethod);
-                    LogFieldChanges(logChanges, "Cost", beforeUpdate.Cost.ToString(), aftertUpdate?.Cost.ToString(), beforeUpdate.Cost.ToString(), aftertUpdate?.Cost.ToString());
-
-
-                    if (logChanges.Length > 0)
-                    {
-                        logdb.TrLog += "CHANGES: " + logChanges.ToString();
-                        _iSMIMLogdb.InsertLog(_dbConnection, logdb);
-                    }
-                    return 1;
+                    _iSMIMLogdb.InsertLog(connection, logdb, transaction);
                 }
-                return 0;
+
+                transaction.Commit();
+                return 1;
             }
-            catch (Exception)
+            catch
             {
+                transaction.Rollback();
                 return 0;
             }
         }
@@ -651,6 +616,6 @@ namespace TMIS.DataAccess.SMIM.Repository
             return await _dbConnection.GetConnection().QuerySingleOrDefaultAsync<MachineRentedVM>(query, new { Id = id });
         }
 
-       
+
     }
 }

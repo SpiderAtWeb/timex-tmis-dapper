@@ -6,93 +6,103 @@ namespace TMIS.Utility
 {
     public class GenerateQR
     {
-        public static byte[] GenerateQRCode(List<string> qrCodes)
+
+        public static async Task<byte[]> GenerateQRCodeAsync(List<KeyValuePair<string, string>> qrCodes)
         {
-            using (MemoryStream memoryStream = new())
+            return await Task.Run(() =>
             {
-                var document = new iTextSharp.text.Document(PageSize.A4);
-                PdfWriter writer = PdfWriter.GetInstance(document, memoryStream);
-                document.Open();
-
-                // Define a 4-column table for QR codes
-                PdfPTable table = new(4)
+                using (MemoryStream memoryStream = new())
                 {
-                    WidthPercentage = 100
-                };
-                float[] columnWidths = new float[] { 1f, 1f, 1f, 1f }; // Column widths to make the table spread across the page
-                table.SetWidths(columnWidths);
+                    var document = new iTextSharp.text.Document(PageSize.A4);
+                    PdfWriter writer = PdfWriter.GetInstance(document, memoryStream);
+                    document.Open();
 
-                // Track the number of cells added to ensure we can fill the table properly
-                int totalCells = 0;
-
-                foreach (var qrCodeValue in qrCodes)
-                {
-                    try
+                    PdfPTable table = new(2)
                     {
-                        using (QRCodeGenerator qrGenerator = new QRCodeGenerator())
+                        TotalWidth = 500f,
+                        LockedWidth = true,
+                        HorizontalAlignment = Element.ALIGN_CENTER
+                    };
+                    float[] columnWidths = [1f, 1f];
+                    table.SetWidths(columnWidths);
+
+                    int totalCells = 0;
+
+                    foreach (var qrCodeValue in qrCodes)
+                    {
+                        try
                         {
-                            QRCodeData qrCodeData = qrGenerator.CreateQrCode(qrCodeValue, QRCodeGenerator.ECCLevel.Q);
-                            using (BitmapByteQRCode qrCode = new BitmapByteQRCode(qrCodeData))
+                            using (QRCodeGenerator qrGenerator = new())
                             {
-                                byte[] qrCodeImage = qrCode.GetGraphic(20);
-
-                                // Create QR code image and scale it
-                                Image qrImage = Image.GetInstance(qrCodeImage);
-                                qrImage.ScaleAbsolute(100, 100); // Adjust size as needed
-
-                                // Create a Phrase to combine QR code image and text
-                                PdfPTable innerTable = new(1); // Inner table with a single column
-                                PdfPCell qrImageCell = new(qrImage)
+                                QRCodeData qrCodeData = qrGenerator.CreateQrCode(qrCodeValue.Key, QRCodeGenerator.ECCLevel.Q);
+                                using (BitmapByteQRCode qrCode = new(qrCodeData))
                                 {
-                                    Border = iTextSharp.text.Rectangle.NO_BORDER,
-                                    HorizontalAlignment = Element.ALIGN_CENTER,
-                                    PaddingBottom = 1 // Space between QR code and text
-                                };
-                                innerTable.AddCell(qrImageCell);
+                                    byte[] qrCodeImage = qrCode.GetGraphic(20);
 
-                                PdfPCell textCell = new(new Phrase(qrCodeValue, new Font(Font.HELVETICA, 8, Font.NORMAL)))
-                                {
-                                    Border = iTextSharp.text.Rectangle.NO_BORDER,
-                                    HorizontalAlignment = Element.ALIGN_CENTER
-                                };
-                                innerTable.AddCell(textCell);
+                                    Image qrImage = Image.GetInstance(qrCodeImage);
+                                    qrImage.ScaleAbsolute(100f, 100f);
+                                    qrImage.Alignment = Element.ALIGN_CENTER;
 
-                                // Add the combined inner table (QR code + text) to the main table
-                                PdfPCell mainCell = new(innerTable)
-                                {
-                                    Border = iTextSharp.text.Rectangle.BOX,
-                                    Padding = 2,
-                                    HorizontalAlignment = Element.ALIGN_CENTER,
-                                    VerticalAlignment = Element.ALIGN_MIDDLE
-                                };
-                                table.AddCell(mainCell);
-                                totalCells++;
+                                    PdfPTable innerTable = new(1);
+
+                                    PdfPCell textCellLogo = new(new Phrase("TIMEX GARMENTS (PVT) LTD.", new Font(Font.HELVETICA, 8)))
+                                    {
+                                        Border = Rectangle.NO_BORDER,
+                                        HorizontalAlignment = Element.ALIGN_CENTER,
+                                        PaddingBottom = 4f
+                                    };
+                                    innerTable.AddCell(textCellLogo);
+
+                                    PdfPCell qrCell = new(qrImage)
+                                    {
+                                        Border = Rectangle.NO_BORDER,
+                                        HorizontalAlignment = Element.ALIGN_CENTER,
+                                        PaddingBottom = 4f
+                                    };
+                                    innerTable.AddCell(qrCell);
+
+                                    string showTxt = qrCodeValue.Key + " - [ " + qrCodeValue.Value + " ]";
+
+                                    PdfPCell textCell = new(new Phrase(showTxt, new Font(Font.HELVETICA, 8)))
+                                    {
+                                        Border = Rectangle.NO_BORDER,
+                                        HorizontalAlignment = Element.ALIGN_CENTER
+                                    };
+                                    innerTable.AddCell(textCell);
+
+                                    PdfPCell outerCell = new(innerTable)
+                                    {
+                                        Border = Rectangle.BOX,
+                                        Padding = 10,
+                                        FixedHeight = 153f,
+                                        HorizontalAlignment = Element.ALIGN_CENTER,
+                                        VerticalAlignment = Element.ALIGN_MIDDLE
+                                    };
+
+                                    table.AddCell(outerCell);
+                                    totalCells++;
+                                }
                             }
                         }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"Error generating QR code for '{qrCodeValue}': {ex.Message}");
+                        }
                     }
-                    catch (Exception ex)
+
+                    while (totalCells % 2 != 0)
                     {
-                        Console.WriteLine($"Error generating QR code for value '{qrCodeValue}': {ex.Message}");
+                        table.AddCell(new PdfPCell() { Border = Rectangle.NO_BORDER });
+                        totalCells++;
                     }
+
+                    document.Add(table);
+                    document.Close();
+
+                    return memoryStream.ToArray();
                 }
-
-                // Fill empty cells to complete the table (if necessary)
-                while (totalCells % 4 != 0)
-                {
-                    table.AddCell(new PdfPCell() { Border = iTextSharp.text.Rectangle.NO_BORDER });
-                    totalCells++;
-                }
-
-                // Add the table to the document
-                document.Add(table);
-                document.Close();
-
-                return memoryStream.ToArray(); // Return the PDF as a byte array
-            }
+            });
         }
-
-
-
 
     }
 }

@@ -4,8 +4,10 @@ namespace TMIS.DataAccess.PLMS.IRpository
 {
     public interface ITaskCompletion
     {
-        Task<IEnumerable<ShowInquiryDataVM>> GetTasksListAsync();
-
         Task<string> SaveTasksAndSubTasksAsync(SaveTasks saveTasks);
+
+        Task<IEnumerable<ShowInquiryDataVM>> GetInquiriesUserIdAsync();
+
+        Task<ModalShowVM> LoadModalDataUserIdAsync(string Id);
     }
 }

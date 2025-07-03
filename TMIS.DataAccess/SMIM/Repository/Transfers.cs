@@ -19,7 +19,7 @@ namespace TMIS.DataAccess.SMIM.Repository
         public async Task<IEnumerable<TransMC>> GetList()
         {
 
-            string query = "SELECT [Id], [QrCode], [SerialNo], [MachineType], [CurrentUnit], [CurrentStatus], [Location] FROM [SMIM_VwMcInventory] WHERE [CurrentStatus] IN (1,2) AND (IsOwned = 1) AND CurrentUnitId IN @AccessPlants ORDER BY QrCode;";
+            string query = "SELECT [Id], [QrCode], [SerialNo], [MachineType], [CurrentUnit], [CurrentStatus], [Location] FROM [SMIM_VwMcInventory] WHERE [CurrentStatus] IN (1,2) AND (IsOwned = 1) AND CurrentUnitId NOT IN @AccessPlants ORDER BY QrCode;";
             return await _dbConnection.GetConnection().QueryAsync<TransMC>(query, new { AccessPlants = _iSessionHelper.GetLocationList() });
         }
 
@@ -62,91 +62,92 @@ namespace TMIS.DataAccess.SMIM.Repository
 
         public async Task SaveMachineTransferAsync(McRequestDetailsVM oModel)
         {
-            string queryInsert = @"
+            string insertQuery = @"
             INSERT INTO [dbo].[SMIM_TrTransfers]
             ([McId], [UnitId], [LocationId], [TrStatusId], [TrUserId], [DateTr], [DateCreate], [ReqRemark], [isCompleted])
             OUTPUT INSERTED.Id
             VALUES
             (@McId, @UnitId, @LocationId, 3, @UserId, @NowDT, @NowDT, @ReqRemark, 0)";
 
-            var queryUpdate = @"UPDATE SMIM_TrInventory SET CurrentStatusId = @NewStatus WHERE Id = @MachineId";
+            string updateQuery = @"
+            UPDATE SMIM_TrInventory 
+            SET CurrentStatusId = @NewStatus 
+            WHERE Id = @MachineId";
 
-            _dbConnection.GetConnection();
-            using (var transaction = _dbConnection.GetConnection().BeginTransaction())
+            using var connection = _dbConnection.GetConnection();
+            using var transaction = connection.BeginTransaction();
+
+            try
             {
-                try
+                var now = DateTime.Now;
+
+                var generatedId = await connection.QuerySingleAsync<int>(insertQuery, new
                 {
-                    // Insert into TrMachineTransfers and get the generated Id
-                    var generatedId = await _dbConnection.GetConnection().QuerySingleAsync<int>(queryInsert, new
-                    {
-                        McId = oModel.oMcData!.Id,
-                        UnitId = oModel.ReqUnitId,
-                        LocationId = oModel.ReqLocId,
-                        UserId = _iSessionHelper.GetUserId(),
-                        NowDT = DateTime.Now,
-                        oModel.ReqRemark
-                    }, transaction: transaction);
+                    McId = oModel.oMcData!.Id,
+                    UnitId = oModel.ReqUnitId,
+                    LocationId = oModel.ReqLocId,
+                    UserId = _iSessionHelper.GetUserId(),
+                    NowDT = now,
+                    oModel.ReqRemark
+                }, transaction);
 
-                    // Update TrMachineInventory status
-                    await _dbConnection.GetConnection().ExecuteAsync(queryUpdate, new
-                    {
-                        MachineId = oModel.oMcData.Id,
-                        NewStatus = 3
-                    }, transaction: transaction);
-
-                    // Commit the transaction
-                    transaction.Commit();
-
-                    PrepairEmail(generatedId, oModel.oMcData!.Id);
-                }
-                catch
+                await connection.ExecuteAsync(updateQuery, new
                 {
-                    // Rollback the transaction if any command fails
-                    transaction.Rollback();
-                    throw;
-                }
+                    MachineId = oModel.oMcData.Id,
+                    NewStatus = 3
+                }, transaction);
+
+                await PrepairEmailAsync(connection, transaction, generatedId, oModel.oMcData.Id);
+
+                transaction.Commit();
+            }
+            catch
+            {
+                transaction.Rollback();
+                throw;
             }
         }
 
-        private void PrepairEmail(int genId, int mcId)
+        private async Task PrepairEmailAsync(IDbConnection connection, IDbTransaction transaction, int transferId, int machineId)
         {
-            string query = @"
-            SELECT QrCode, SerialNo, MachineModel, MachineBrand, MachineType, 
-                           CurrentUnit, ReqUnit, ReqLocation, ReqRemark, Location
-            FROM SMIM_VwMcRequest
-            WHERE (Id = @GenId)";
+            string selectQuery = @"
+        SELECT QrCode, SerialNo, MachineModel, MachineBrand, MachineType, 
+               CurrentUnit, ReqUnit, ReqLocation, ReqRemark, Location
+        FROM SMIM_VwMcRequest
+        WHERE Id = @TransferId";
 
-            // Execute the query and fetch the results
-            var results = _dbConnection.GetConnection().Query(query, new { GenId = genId })
-                .FirstOrDefault();
+            var result = (await connection.QueryAsync(selectQuery, new { TransferId = transferId }, transaction)).FirstOrDefault();
 
-            string[] myArray = new string[]
+            if (result == null)
+                throw new Exception($"No data found for TransferId: {transferId}");
+
+            string[] details =
+            [
+                transferId.ToString(),
+                result.QrCode,
+                result.SerialNo,
+                result.MachineModel,
+                result.MachineBrand,
+                result.MachineType,
+                result.CurrentUnit,
+                result.Location,
+                result.ReqUnit,
+                result.ReqLocation,
+                result.ReqRemark
+            ];
+
+            var logEntry = new Logdb
             {
-                genId.ToString(),               // Assuming genId is the entry number
-                results!.QrCode,     // QR Code
-                results!.SerialNo,   // Serial Number
-                results!.MachineModel, // Machine Model
-                results!.MachineBrand, // Machine Brand
-                results!.MachineType,  // Machine Type
-                results!.CurrentUnit,  // Current Unit
-                results!.Location,     // Location
-                results!.ReqUnit,      // Requested Unit
-                results!.ReqLocation,  // Requested Location
-                results!.ReqRemark     // Requested Remark
+                TrObjectId = machineId,
+                TrLog = $"MACHINE REQUESTED FROM [{result.ReqUnit}] - TO [{result.ReqLocation}]"
             };
 
-            Logdb logdb = new()
-            {
-                TrObjectId = mcId,
-                TrLog = $"MACHINE REQUESTED FROM [{results!.ReqUnit}] - TO [{results!.ReqLocation}]"
-            };
+            _iSMIMLogdb.InsertLog(connection, logEntry, transaction);
 
-            _iSMIMLogdb.InsertLog(_dbConnection, logdb);
-
-            // Send results to Gmail sender
-            _gmailSender.McRequestToApprove(myArray);
-
+            // Send email outside of transaction to avoid external dependency in transaction scope
+            _gmailSender.McRequestToApprove(details);
         }
+
 
         public IEnumerable<TransMC> GetRequestList()
         {

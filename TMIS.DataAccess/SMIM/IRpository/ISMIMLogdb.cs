@@ -6,6 +6,6 @@ namespace TMIS.DataAccess.SMIM.IRpository
 {
     public interface ISMIMLogdb
     {
-        public void InsertLog(IDatabaseConnectionSys dbConnection, Logdb log);      
+        public void InsertLog(IDbConnection dbConnection, Logdb log, IDbTransaction transaction);      
     }
 }

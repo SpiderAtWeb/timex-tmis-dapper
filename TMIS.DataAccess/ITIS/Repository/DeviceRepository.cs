@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
-using Dapper;
+﻿using Dapper;
 using Microsoft.AspNetCore.Http;
-using Org.BouncyCastle.Asn1.Cms;
 using TMIS.DataAccess.COMON.IRpository;
 using TMIS.DataAccess.ITIS.IRepository;
 using TMIS.Models.ITIS;
@@ -16,7 +9,7 @@ namespace TMIS.DataAccess.ITIS.Repository
 {
     public class DeviceRepository(IDatabaseConnectionSys dbConnection,
                             ICommonList iCommonList, ISessionHelper sessionHelper,
-                            IITISLogdb iITISLogdb): IDeviceRepository
+                            IITISLogdb iITISLogdb) : IDeviceRepository
     {
         private readonly IDatabaseConnectionSys _dbConnection = dbConnection;
         private readonly ICommonList _icommonList = iCommonList;
@@ -50,7 +43,7 @@ namespace TMIS.DataAccess.ITIS.Repository
                 DepartmentList = await _icommonList.LoadDepartments()
             };
 
-            if(deviceID != null && deviceID.HasValue)
+            if (deviceID != null && deviceID.HasValue)
             {
                 objCreateDeviceVM.Device = await GetDeviceDetail(deviceID);
             }
@@ -94,7 +87,8 @@ namespace TMIS.DataAccess.ITIS.Repository
                             INNER JOIN ITIS_AttributeType AS ty ON ty.ID = att.DataType
                             WHERE att.DeviceTypeID=@DeviceTypeID and att.IsDelete=0";
 
-            var attributes = (await _dbConnection.GetConnection().QueryAsync<AttributeWithOptionsVM>(sql, new {
+            var attributes = (await _dbConnection.GetConnection().QueryAsync<AttributeWithOptionsVM>(sql, new
+            {
                 DeviceTypeID = deviceID
             })).ToList();
 
@@ -102,15 +96,16 @@ namespace TMIS.DataAccess.ITIS.Repository
             foreach (var attr in attributes.Where(a => a.DataType == 1))
             {
                 var optionSql = "SELECT OptionText FROM ITIS_AttributeListOptions WHERE AttributeID = @AttributeID";
-                var options = await _dbConnection.GetConnection().QueryAsync<string>(optionSql, new {
-                    AttributeID = attr.AttributeID 
+                var options = await _dbConnection.GetConnection().QueryAsync<string>(optionSql, new
+                {
+                    AttributeID = attr.AttributeID
                 });
                 attr.Options = options.ToList();
             }
 
-            objCreateDeviceVM.Attributes = attributes;  
+            objCreateDeviceVM.Attributes = attributes;
 
-            return objCreateDeviceVM;   
+            return objCreateDeviceVM;
         }
 
         public async Task<bool> CheckSerialEdit(string serialNumber, int deviceID)
@@ -119,8 +114,9 @@ namespace TMIS.DataAccess.ITIS.Repository
             FROM ITIS_Devices
             WHERE SerialNumber = @SerialNumber and DeviceID!=@DeviceID;";
 
-            var result = await _dbConnection.GetConnection().QueryFirstOrDefaultAsync<int?>(query, new {
-                SerialNumber = serialNumber, 
+            var result = await _dbConnection.GetConnection().QueryFirstOrDefaultAsync<int?>(query, new
+            {
+                SerialNumber = serialNumber,
                 DeviceID = deviceID
             });
             return result.HasValue;
@@ -192,7 +188,7 @@ namespace TMIS.DataAccess.ITIS.Repository
                         image4Bytes = memoryStream.ToArray();
                     }
                 }
-           
+
                 using (var trns = _dbConnection.GetConnection().BeginTransaction())
                 {
                     try
@@ -259,7 +255,7 @@ namespace TMIS.DataAccess.ITIS.Repository
                         trns.Rollback();
                         throw;
                     }
-                                  
+
                 }
             }
             catch (Exception)
@@ -295,8 +291,8 @@ namespace TMIS.DataAccess.ITIS.Repository
                 "DeviceName = @DeviceName",
                 "SerialNumber = @SerialNumber",
                 "FixedAssetCode = @FixedAssetCode",
-                "Location = @Location",           
-                "PurchasedDate = @PurchasedDate",      
+                "Location = @Location",
+                "PurchasedDate = @PurchasedDate",
                 "DeviceStatusID = @DeviceStatusID",
                 "Remark = @Remark",
                 "Depreciation = @Depreciation",
@@ -305,7 +301,7 @@ namespace TMIS.DataAccess.ITIS.Repository
                 "UpdatedOn = @UpdatedOn",
                 "IsBrandNew = @IsBrandNew"
             };
-            
+
             try
             {
                 byte[]? image1Bytes = null;
@@ -347,11 +343,11 @@ namespace TMIS.DataAccess.ITIS.Repository
                     }
                 }
                 if (image1Bytes != null && image1Bytes.Length > 0)
-                {                   
+                {
                     updateFields.Add("Image1Data = @Image1Bytes");
                 }
                 if (image2Bytes != null && image2Bytes.Length > 0)
-                {                   
+                {
                     updateFields.Add("Image2Data = @Image2Bytes");
                 }
                 if (image3Bytes != null && image3Bytes.Length > 0)
@@ -418,7 +414,7 @@ namespace TMIS.DataAccess.ITIS.Repository
                                 // Commit the transaction
                                 trns.Commit();
                             }
-                            catch(Exception)
+                            catch (Exception)
                             {
                                 // Rollback the transaction if any command fails
                                 trns.Rollback();
@@ -426,7 +422,7 @@ namespace TMIS.DataAccess.ITIS.Repository
                             }
                         }
 
-                       
+
                     }
 
                     Logdb logdb = new()
@@ -436,7 +432,7 @@ namespace TMIS.DataAccess.ITIS.Repository
 
                     };
 
-                    _iITISLogdb.InsertLog(_dbConnection, logdb);                   
+                    _iITISLogdb.InsertLog(_dbConnection, logdb);
                 }
                 return true;
             }

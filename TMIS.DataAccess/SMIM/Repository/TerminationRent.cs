@@ -29,40 +29,38 @@ namespace TMIS.DataAccess.SMIM.Repository
 
         public async Task SaveMachineObsoleteAsync(MachineRentedVM oModel)
         {
+            using var connection = _dbConnection.GetConnection();
+            using var transaction = connection.BeginTransaction();
+
             var queryUpdate = @"UPDATE SMIM_TrInventory SET [CurrentStatusId] = @NewStatus, [RentTermRemark]= @RentTermRemark, [DateUpdate] = @Now WHERE Id = @MachineId";
 
-            _dbConnection.GetConnection().Open();
-            using (var trns = _dbConnection.GetConnection().BeginTransaction())
+            try
             {
-                try
+                //Update TrMachineInventory status
+                await connection.ExecuteAsync(queryUpdate, new
                 {
-                    //Update TrMachineInventory status
-                    await _dbConnection.GetConnection().ExecuteAsync(queryUpdate, new
-                    {
-                        MachineId = oModel.Id,
-                        NewStatus = 10,
-                        oModel.RentTermRemark,
-                        DateTime.Now,
-                    }, transaction: trns);
+                    MachineId = oModel.Id,
+                    NewStatus = 10,
+                    oModel.RentTermRemark,
+                    DateTime.Now,
+                }, transaction);
 
-
-                    // Commit the transaction
-                    trns.Commit();
-
-                    Logdb logdb = new()
-                    {
-                        TrObjectId = oModel.Id,
-                        TrLog = "MACHINE RENT AGREEMENT TERMINATED"
-                    };
-
-                    _iSMIMLogdb.InsertLog(_dbConnection, logdb);
-                }
-                catch
+                Logdb logdb = new()
                 {
-                    // Rollback the transaction if any command fails
-                    trns.Rollback();
-                    throw;
-                }
+                    TrObjectId = oModel.Id,
+                    TrLog = "MACHINE RENT AGREEMENT TERMINATED"
+                };
+
+                _iSMIMLogdb.InsertLog(connection, logdb, transaction);
+
+                // Commit the transaction
+                transaction.Commit();
+            }
+            catch
+            {
+                // Rollback the transaction if any command fails
+                transaction.Rollback();
+                throw;
             }
         }
     }

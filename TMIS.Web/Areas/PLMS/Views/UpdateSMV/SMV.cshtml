@@ -158,7 +158,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @{
+                              @*   @{
                                     int activityIndex = 1; // Initialize the activity index
                                 }
                                 @foreach (var activity in Model.ModalShowVM.ActivityList!)
@@ -174,7 +174,7 @@
                                         <td>@activityIndex</td>
                                         <td class="freeze">@activity.ActivityText</td>
                                         <td>@activity.ActivityRequiredDate</td>
-                                        <td>@activity.ActivityActualCmpltdDate</td>
+                                        <td>@activity.ActualCompletedDate</td>
                                         <td>@(activity.DueDates > 0 ? activity.DueDates + " Days" : "")</td>
                                         <td>@activity.ActivityDoneBy</td>
                                         <td>@activity.ActivityComment</td>
@@ -195,7 +195,7 @@
                                             <td>@activityIndex.@subActivityIndex</td>
                                             <td class="sub-task freeze">@subActivity.SubActivityText</td>
                                             <td>@subActivity.ActivityRequiredDate</td>
-                                            <td>@subActivity.ActivityActualCmpltdDate</td>
+                                            <td>@subActivity.ActualCompletedDate</td>
                                             <td>@(subActivity.DueDates > 0 ? subActivity.DueDates + " Days" : "")</td>
                                             <td>@subActivity.ActivityDoneBy</td>
                                             <td>@subActivity.ActivityComment</td>
@@ -204,7 +204,7 @@
                                         subActivityIndex++;
                                     }
                                     activityIndex++;
-                                }
+                                } *@
                             </tbody>
                         </table>
                     </div>
