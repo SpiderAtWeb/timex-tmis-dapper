@@ -19,8 +19,8 @@ namespace TMIS.Helper
       if (inquiry.InquiryTypeId == 0)
         modelState.AddModelError("InquiryTypeId", "Inquiry Type Field is Required!");
 
-      if (inquiry.SeasonsId == 0)
-        modelState.AddModelError("SeasonsId", "Season Field is Required!");
+      if (string.IsNullOrEmpty(inquiry.Season))
+        modelState.AddModelError("Season", "Season Field is Required!");
 
       if (inquiry.SampleTypeId == 0)
         modelState.AddModelError("SampleTypeId", "Sample Type Field is Required!");

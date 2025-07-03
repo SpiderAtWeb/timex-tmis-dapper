@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace TMIS.Models.SMIS
 {
@@ -11,9 +6,6 @@ namespace TMIS.Models.SMIS
     {
         public int Id { get; set; }
 
-        [Required]
-        [RegularExpression(@"^[a-zA-Z0-9]*$", ErrorMessage = "The QR code must contain only numbers and letters.")]
-        [MaxLength(8, ErrorMessage = "The QR code cannot exceed 8 characters.")]
         public string QrCode { get; set; } = string.Empty;
 
         [Required]

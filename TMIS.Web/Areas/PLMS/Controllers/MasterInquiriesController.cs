@@ -20,29 +20,12 @@ namespace TMIS.Areas.PLMS.Controllers
       return View();
     }
 
-    public IActionResult ResponseTypes()
-    {
-      return View();
-    }
-
-
     public IActionResult Customers()
     {
       return View();
     }
 
-
-    public IActionResult SeasonTypes()
-    {
-      return View();
-    }
-
     public IActionResult SampleTypes()
-    {
-      return View();
-    }
-
-    public IActionResult SampleStages()
     {
       return View();
     }
@@ -61,14 +44,14 @@ namespace TMIS.Areas.PLMS.Controllers
     [HttpGet]
     public IActionResult InquiryTypesGetAll()
     {
-      IEnumerable<TwoFieldsMData> fieldList = _db.GetList("PLMS_MdInquiryTypes");
+      IEnumerable<TwoFieldsMData> fieldList = _db.GetList("PLMS_MasterTwoInquiryTypes");
       return Json(new { data = fieldList });
     }
 
     [HttpPost]
     public IActionResult InquiryTypesGetInsert(TwoFieldsMData twoFieldsMData)
     {
-      string[] insertResult = _db.InsertRecord(twoFieldsMData, "PLMS_MdInquiryTypes");
+      string[] insertResult = _db.InsertRecord(twoFieldsMData, "PLMS_MasterTwoInquiryTypes");
 
       if (insertResult[0] == "1")
       {
@@ -87,7 +70,7 @@ namespace TMIS.Areas.PLMS.Controllers
     [HttpPost]
     public IActionResult InquiryTypesGetUpdate(TwoFieldsMData twoFieldsMData)
     {
-      string[] updateResult = _db.UpdateRecord(twoFieldsMData, "PLMS_MdInquiryTypes");
+      string[] updateResult = _db.UpdateRecord(twoFieldsMData, "PLMS_MasterTwoInquiryTypes");
 
       // Check the first element of the result array to determine success
       if (updateResult[0] == "1")
@@ -108,63 +91,7 @@ namespace TMIS.Areas.PLMS.Controllers
     [HttpGet]
     public IActionResult InquiryTypesGetDelete(int? id)
     {
-      _db.DeleteRecord(id, "PLMS_MdInquiryTypes");
-      return Json(new { success = true, message = "Deleted Successful" });
-    }
-    #endregion
-
-    #region API CALLS - ResponseTypes
-    [HttpGet]
-    public IActionResult ResponseTypesGetAll()
-    {
-      IEnumerable<TwoFieldsMData> fieldList = _db.GetList("PLMS_MdReponseTypes");
-      return Json(new { data = fieldList });
-    }
-
-    [HttpPost]
-    public IActionResult ResponseTypesGetInsert(TwoFieldsMData twoFieldsMData)
-    {
-      string[] insertResult = _db.InsertRecord(twoFieldsMData, "PLMS_MdReponseTypes");
-
-      if (insertResult[0] == "1")
-      {
-        _logger.Info("[ " + _iSessionHelper.GetShortName() + "] - ResponseTypes CREATED - [" + twoFieldsMData.PropName + "]");
-
-        return Json(new { success = true, message = insertResult[1] });
-      }
-      else
-      {
-        _logger.Info("[" + _iSessionHelper.GetShortName() + "] - ResponseTypes CREATE FAIL -[" + twoFieldsMData.PropName + "]");
-
-        return Json(new { success = false, message = insertResult[1] });
-      }
-    }
-
-    [HttpPost]
-    public IActionResult ResponseTypesGetUpdate(TwoFieldsMData twoFieldsMData)
-    {
-      string[] updateResult = _db.UpdateRecord(twoFieldsMData, "PLMS_MdReponseTypes");
-
-      // Check the first element of the result array to determine success
-      if (updateResult[0] == "1")
-      {
-        _logger.Info("ResponseTypes UPDATED -[" + twoFieldsMData.PropName + "] [" + _iSessionHelper.GetShortName() + "]");
-
-        return Json(new { success = true, message = updateResult[1] });
-      }
-      else
-      {
-        _logger.Info("ResponseTypes UPDATE FAIL -[" + twoFieldsMData.PropName + "] [" + _iSessionHelper.GetShortName() + "]");
-
-        // Update failed, return the error message
-        return Json(new { success = false, message = updateResult[1] });
-      }
-    }
-
-    [HttpGet]
-    public IActionResult ResponseTypesGetDelete(int? id)
-    {
-      _db.DeleteRecord(id, "PLMS_MdReponseTypes");
+      _db.DeleteRecord(id, "PLMS_MasterTwoInquiryTypes");
       return Json(new { success = true, message = "Deleted Successful" });
     }
     #endregion
@@ -173,14 +100,14 @@ namespace TMIS.Areas.PLMS.Controllers
     [HttpGet]
     public IActionResult CustomersGetAll()
     {
-      IEnumerable<TwoFieldsMData> fieldList = _db.GetList("PLMS_MdCustomers");
+      IEnumerable<TwoFieldsMData> fieldList = _db.GetList("PLMS_MasterTwoCustomers");
       return Json(new { data = fieldList });
     }
 
     [HttpPost]
     public IActionResult CustomersGetInsert(TwoFieldsMData twoFieldsMData)
     {
-      string[] insertResult = _db.InsertRecord(twoFieldsMData, "PLMS_MdCustomers");
+      string[] insertResult = _db.InsertRecord(twoFieldsMData, "PLMS_MasterTwoCustomers");
 
       if (insertResult[0] == "1")
       {
@@ -199,7 +126,7 @@ namespace TMIS.Areas.PLMS.Controllers
     [HttpPost]
     public IActionResult CustomersGetUpdate(TwoFieldsMData twoFieldsMData)
     {
-      string[] updateResult = _db.UpdateRecord(twoFieldsMData, "PLMS_MdCustomers");
+      string[] updateResult = _db.UpdateRecord(twoFieldsMData, "PLMS_MasterTwoCustomers");
 
       // Check the first element of the result array to determine success
       if (updateResult[0] == "1")
@@ -220,119 +147,7 @@ namespace TMIS.Areas.PLMS.Controllers
     [HttpGet]
     public IActionResult CustomersGetDelete(int? id)
     {
-      _db.DeleteRecord(id, "PLMS_MdCustomers");
-      return Json(new { success = true, message = "Deleted Successful" });
-    }
-    #endregion
-
-    #region API CALLS - SeasonTypes
-    [HttpGet]
-    public IActionResult SeasonTypesGetAll()
-    {
-      IEnumerable<TwoFieldsMData> fieldList = _db.GetList("PLMS_MdInquirySeason");
-      return Json(new { data = fieldList });
-    }
-
-    [HttpPost]
-    public IActionResult SeasonTypesGetInsert(TwoFieldsMData twoFieldsMData)
-    {
-      string[] insertResult = _db.InsertRecord(twoFieldsMData, "PLMS_MdInquirySeason");
-
-      if (insertResult[0] == "1")
-      {
-        _logger.Info("[ " + _iSessionHelper.GetShortName() + "] - SeasonTypes CREATED - [" + twoFieldsMData.PropName + "]");
-
-        return Json(new { success = true, message = insertResult[1] });
-      }
-      else
-      {
-        _logger.Info("[" + _iSessionHelper.GetShortName() + "] - SeasonTypes CREATE FAIL -[" + twoFieldsMData.PropName + "]");
-
-        return Json(new { success = false, message = insertResult[1] });
-      }
-    }
-
-    [HttpPost]
-    public IActionResult SeasonTypesGetUpdate(TwoFieldsMData twoFieldsMData)
-    {
-      string[] updateResult = _db.UpdateRecord(twoFieldsMData, "PLMS_MdInquirySeason");
-
-      // Check the first element of the result array to determine success
-      if (updateResult[0] == "1")
-      {
-        _logger.Info("SeasonTypes UPDATED -[" + twoFieldsMData.PropName + "] [" + _iSessionHelper.GetShortName() + "]");
-
-        return Json(new { success = true, message = updateResult[1] });
-      }
-      else
-      {
-        _logger.Info("SeasonTypes UPDATE FAIL -[" + twoFieldsMData.PropName + "] [" + _iSessionHelper.GetShortName() + "]");
-
-        // Update failed, return the error message
-        return Json(new { success = false, message = updateResult[1] });
-      }
-    }
-
-    [HttpGet]
-    public IActionResult SeasonTypestDelete(int? id)
-    {
-      _db.DeleteRecord(id, "PLMS_MdInquirySeason");
-      return Json(new { success = true, message = "Deleted Successful" });
-    }
-    #endregion
-
-    #region API CALLS - SampleStages
-    [HttpGet]
-    public IActionResult SampleStagesGetAll()
-    {
-      IEnumerable<TwoFieldsMData> fieldList = _db.GetList("PLMS_MdExtend");
-      return Json(new { data = fieldList });
-    }
-
-    [HttpPost]
-    public IActionResult SampleStagesGetInsert(TwoFieldsMData twoFieldsMData)
-    {
-      string[] insertResult = _db.InsertRecord(twoFieldsMData, "PLMS_MdExtend");
-
-      if (insertResult[0] == "1")
-      {
-        _logger.Info("[ " + _iSessionHelper.GetShortName() + "] - SampleStages CREATED - [" + twoFieldsMData.PropName + "]");
-
-        return Json(new { success = true, message = insertResult[1] });
-      }
-      else
-      {
-        _logger.Info("[" + _iSessionHelper.GetShortName() + "] - SampleStages CREATE FAIL -[" + twoFieldsMData.PropName + "]");
-
-        return Json(new { success = false, message = insertResult[1] });
-      }
-    }
-
-    [HttpPost]
-    public IActionResult SampleStagesGetUpdate(TwoFieldsMData twoFieldsMData)
-    {
-      string[] updateResult = _db.UpdateRecord(twoFieldsMData, "PLMS_MdExtend");
-
-      // Check the first element of the result array to determine success
-      if (updateResult[0] == "1")
-      {
-        _logger.Info("SampleStages UPDATED -[" + twoFieldsMData.PropName + "] [" + _iSessionHelper.GetShortName() + "]");
-
-        return Json(new { success = true, message = updateResult[1] });
-      }
-      else
-      {
-        _logger.Info("SampleStages UPDATE FAIL -[" + twoFieldsMData.PropName + "] [" + _iSessionHelper.GetShortName() + "]");
-
-        // Update failed, return the error message
-        return Json(new { success = false, message = updateResult[1] });
-      }
-    }
-
-    [HttpGet]
-    public IActionResult SampleStagesGetDelete(int? id)
-    {
-      _db.DeleteRecord(id, "PLMS_MdExtend");
+      _db.DeleteRecord(id, "PLMS_MasterTwoCustomers");
       return Json(new { success = true, message = "Deleted Successful" });
     }
     #endregion
@@ -341,14 +156,14 @@ namespace TMIS.Areas.PLMS.Controllers
     [HttpGet]
     public IActionResult SampleTypesGetAll()
     {
-      IEnumerable<TwoFieldsMData> fieldList = _db.GetList("PLMS_MdExtendSub");
+      IEnumerable<TwoFieldsMData> fieldList = _db.GetList("PLMS_MasterTwoSampleTypes");
       return Json(new { data = fieldList });
     }
 
     [HttpPost]
     public IActionResult SampleTypesGetInsert(TwoFieldsMData twoFieldsMData)
     {
-      string[] insertResult = _db.InsertRecord(twoFieldsMData, "PLMS_MdExtendSub");
+      string[] insertResult = _db.InsertRecord(twoFieldsMData, "PLMS_MasterTwoSampleTypes");
 
       if (insertResult[0] == "1")
       {
@@ -367,7 +182,7 @@ namespace TMIS.Areas.PLMS.Controllers
     [HttpPost]
     public IActionResult SampleTypesGetUpdate(TwoFieldsMData twoFieldsMData)
     {
-      string[] updateResult = _db.UpdateRecord(twoFieldsMData, "PLMS_MdExtendSub");
+      string[] updateResult = _db.UpdateRecord(twoFieldsMData, "PLMS_MasterTwoSampleTypes");
 
       // Check the first element of the result array to determine success
       if (updateResult[0] == "1")
@@ -388,7 +203,7 @@ namespace TMIS.Areas.PLMS.Controllers
     [HttpGet]
     public IActionResult SampleTypesGetDelete(int? id)
     {
-      _db.DeleteRecord(id, "PLMS_MdExtendSub");
+      _db.DeleteRecord(id, "PLMS_MasterTwoSampleTypes");
       return Json(new { success = true, message = "Deleted Successful" });
     }
     #endregion
@@ -397,14 +212,14 @@ namespace TMIS.Areas.PLMS.Controllers
     [HttpGet]
     public IActionResult ActivitiesGetAll()
     {
-      IEnumerable<TwoFieldsMData> fieldList = _db.GetList("PLMS_MdActivityTypes");
+      IEnumerable<TwoFieldsMData> fieldList = _db.GetList("PLMS_MasterTwoActivityTypes");
       return Json(new { data = fieldList });
     }
 
     [HttpPost]
     public IActionResult ActivitiesGetInsert(TwoFieldsMData twoFieldsMData)
     {
-      string[] insertResult = _db.InsertRecord(twoFieldsMData, "PLMS_MdActivityTypes");
+      string[] insertResult = _db.InsertRecord(twoFieldsMData, "PLMS_MasterTwoActivityTypes");
 
       if (insertResult[0] == "1")
       {
@@ -423,7 +238,7 @@ namespace TMIS.Areas.PLMS.Controllers
     [HttpPost]
     public IActionResult ActivitiesGetUpdate(TwoFieldsMData twoFieldsMData)
     {
-      string[] updateResult = _db.UpdateRecord(twoFieldsMData, "PLMS_MdActivityTypes");
+      string[] updateResult = _db.UpdateRecord(twoFieldsMData, "PLMS_MasterTwoActivityTypes");
 
       // Check the first element of the result array to determine success
       if (updateResult[0] == "1")
@@ -444,7 +259,7 @@ namespace TMIS.Areas.PLMS.Controllers
     [HttpGet]
     public IActionResult ActivitiesGetDelete(int? id)
     {
-      _db.DeleteRecord(id, "PLMS_MdActivityTypes");
+      _db.DeleteRecord(id, "PLMS_MasterTwoActivityTypes");
       return Json(new { success = true, message = "Deleted Successful" });
     }
     #endregion
@@ -453,14 +268,14 @@ namespace TMIS.Areas.PLMS.Controllers
     [HttpGet]
     public IActionResult UserCategoriesGetAll()
     {
-      IEnumerable<TwoFieldsMData> fieldList = _db.GetList("PLMS_MdUserCategories");
+      IEnumerable<TwoFieldsMData> fieldList = _db.GetList("PLMS_MasterTwoUserCategories");
       return Json(new { data = fieldList });
     }
 
     [HttpPost]
     public IActionResult UserCategoriesGetInsert(TwoFieldsMData twoFieldsMData)
     {
-      string[] insertResult = _db.InsertRecord(twoFieldsMData, "PLMS_MdUserCategories");
+      string[] insertResult = _db.InsertRecord(twoFieldsMData, "PLMS_MasterTwoUserCategories");
 
       if (insertResult[0] == "1")
       {
@@ -479,7 +294,7 @@ namespace TMIS.Areas.PLMS.Controllers
     [HttpPost]
     public IActionResult UserCategoriesGetUpdate(TwoFieldsMData twoFieldsMData)
     {
-      string[] updateResult = _db.UpdateRecord(twoFieldsMData, "PLMS_MdUserCategories");
+      string[] updateResult = _db.UpdateRecord(twoFieldsMData, "PLMS_MasterTwoUserCategories");
 
       // Check the first element of the result array to determine success
       if (updateResult[0] == "1")
@@ -500,7 +315,7 @@ namespace TMIS.Areas.PLMS.Controllers
     [HttpGet]
     public IActionResult UserCategoriesGetDelete(int? id)
     {
-      _db.DeleteRecord(id, "PLMS_MdUserCategories");
+      _db.DeleteRecord(id, "PLMS_MasterTwoUserCategories");
       return Json(new { success = true, message = "Deleted Successful" });
     }
     #endregion

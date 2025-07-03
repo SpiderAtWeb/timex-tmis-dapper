@@ -7,7 +7,6 @@
 
 @section PageScripts {
     <script src="~/vendor/libs/toastr/toastr.js"></script>
-
     <script src="~/custom/loading-hide.js"></script>
     <script src="~/custom/plms/modal-popup.js"></script>
 
@@ -30,22 +29,26 @@
 
 <!-- Modal -->
 <div class="modal fade" id="rowModal" tabindex="-1" role="dialog" aria-labelledby="rowModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog" style="max-width: 1250px;"  role="document">
         <div class="modal-content">
 
-            <div class="modal-header">
+            <div class="modal-header row">
+                <div class="col-6">
                 <ul class="nav nav-tabs" id="myTab" role="tablist">
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true">Profile</button>
+                        <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true">PROFILE</button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button" role="tab" aria-controls="profile" aria-selected="false">Artwork</button>
+                        <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button" role="tab" aria-controls="profile" aria-selected="false">ARTWORK</button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact" type="button" role="tab" aria-controls="contact" aria-selected="false">History</button>
+                        <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact" type="button" role="tab" aria-controls="contact" aria-selected="false">HISTORY</button>
                     </li>
                 </ul>
-                <h5 id="rowModalLabel" class="modal-title"></h5>
+                </div>
+                <div class="col-3 offset-3  text-center">
+                    <h5 id="rowModalLabel" class="modal-title rounded-pill bg-label-primary fs-4"></h5>
+                </div>
             </div>
 
             <div class="modal-body" id="modalContenvt">
@@ -72,27 +75,26 @@
 <!-- Ajax Sourced Server-side -->
 <div class="panelDiv">
     <div class="card mb-6">
-        <div>
-            <h5 class="card-header page-header">Running Inquiries List</h5>
-        </div>
+      <div>
+         <h5 class="card-header page-header">Running Inquiries</h5>
+      </div>
 
         <div class="card-body">
-            <div class="row">
-                <table class="datatables-ajax table table-bordered dt-tbl">
-                    <thead>       
+            <div class="row" style="overflow-x:auto;">
+              <table class="datatables-ajax table table-bordered dt-tbl" id="mainTable">
+                    <thead>
                         <tr class="table-info">
                             <th class="d-none">Id</th>
                             <th>Inquiry-Ref</th>
                             <th>Customer</th>
                             <th>Inquiry Type</th>
-                            <th class="d-none">Style No</th>
-                            <th class="d-none">Style Desc</th>
-                            <th class="d-none">Color Code</th>
-                            <th>Response Type</th>
-                            <th class="d-none">Seasons</th>
-                            <th>Extend</th>
-                            <th>Sub-Extend</th>
-                            <th class="d-none"></th>
+                            <th>Style No</th>
+                            <th>Style Desc</th>
+                            <th>Color Code</th>
+                            <th>Inquiry Type</th>                           
+                            <th>Sample Type</th>
+                            <th class="d-none">SeasonName</th>
+                            <th class="d-none">Remarks</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -104,12 +106,14 @@
                                 <td>@item.InquiryRef</td>
                                 <td>@item.Customer</td>
                                 <td>@item.InquiryType</td>
-                                <td class="d-none">@item.StyleNo</td>
-                                <td class="d-none">@item.StyleDesc</td>
-                                <td class="d-none">@item.ColorCode</td>
+                                <td>@item.StyleNo</td>
+                                <td>@item.StyleDesc</td>
+                                <td>@item.ColorCode</td>
+                                <td>@item.InquiryType</td>
                                 <td>@item.SampleType</td>
+                                <td class="d-none">@item.SeasonName</td>
+                                <td class="d-none">@item.Remarks</td>
                                 <td> <a class="btn btn-primary btn-sm" asp-controller="NextStages" asp-action="CreateNext" asp-route-id="@item.Id"><i class="ri-clockwise-2-fill"></i></a></td>
-
                             </tr>
                         }
                     </tbody>

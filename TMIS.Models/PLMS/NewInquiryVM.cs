@@ -11,18 +11,18 @@ namespace TMIS.Models.PLMS
         public string? ColorCode { get; set; }
         public string? Remarks { get; set; }
         public string? ReceivedDate { get; set; }
+        public string? Season { get; set; }
         public bool IsPriceStageAv { get; set; }
         public bool IsSMVStageAv { get; set; }
 
         public int CustomerId { get; set; }
         public int InquiryTypeId { get; set; }
-        public int SeasonsId { get; set; }
+       
         public int SampleTypeId { get; set; }
         public int RoutingPresetsId { get; set; }
 
         public IEnumerable<SelectListItem>? CustomersList { get; set; }
         public IEnumerable<SelectListItem>? InquiryTypesList { get; set; }
-        public IEnumerable<SelectListItem>? SeasonsList { get; set; }
         public IEnumerable<SelectListItem>? SampleTypesList { get; set; }
         public IEnumerable<SelectListItem>? RoutingPresetsList { get; set; }
 

@@ -319,7 +319,7 @@
                             </a>
                         </li>
                     </ul>
-                    <ul class="menu-sub">
+                  @*   <ul class="menu-sub">
                         <li class='menu-item@(currentPage.Contains("/PLMS/UpdatePrice") ? " active" : "")'>
                             <a asp-area="PLMS" asp-controller="UpdatePrice" asp-action="Index" class="menu-link">
                                 <div> <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>FOB/CM Price</div>
@@ -339,7 +339,7 @@
                                 <div> <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Customer Response</div>
                             </a>
                         </li>
-                    </ul>
+                    </ul> *@
                     <ul class="menu-sub">
                         <li class='menu-item@(currentPage.Contains("/PLMS/NextStages") ? " active" : "")'>
                             <a asp-area="PLMS" asp-controller="NextStages" asp-action="Index" class="menu-link">
@@ -347,13 +347,13 @@
                             </a>
                         </li>
                     </ul>
-                    <ul class="menu-sub">
+                   @*  <ul class="menu-sub">
                         <li class='menu-item@(currentPage.Contains("/PLMS/FactoryHandover") ? " active" : "")'>
                             <a asp-area="PLMS" asp-controller="FactoryHandover" asp-action="Index" class="menu-link">
                                 <div> <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Factory Handover</div>
                             </a>
                         </li>
-                    </ul>
+                    </ul> *@
                 </li>
 
                     <!-- Transactions -> Administration  -->
@@ -390,15 +390,7 @@
                             </li>
                         </ul>
 
-                        <ul class="menu-sub">
-                            <li class='menu-item@(currentPage == "/PLMS/MasterInquiries/ResponseTypes" ? " active" : "")'>
-                                <a asp-area="PLMS" asp-controller="MasterInquiries" asp-action="ResponseTypes" class="menu-link">
-                                    <div> <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Response Types</div>
-                                </a>
-                            </li>
-                        </ul>
-
-                        <ul class="menu-sub">
+                         <ul class="menu-sub">
                             <li class='menu-item@(currentPage == "/PLMS/MasterInquiries/Customers" ? " active" : "")'>
                                 <a asp-area="PLMS" asp-controller="MasterInquiries" asp-action="Customers" class="menu-link">
                                     <div> <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Customers</div>
@@ -407,24 +399,9 @@
                         </ul>
 
                         <ul class="menu-sub">
-                            <li class='menu-item@(currentPage == "/PLMS/MasterInquiries/SeasonTypes" ? " active" : "")'>
-                                <a asp-area="PLMS" asp-controller="MasterInquiries" asp-action="SeasonTypes" class="menu-link">
-                                    <div> <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Season Types</div>
-                                </a>
-                            </li>
-                        </ul>
-                        <ul class="menu-sub">
                             <li class='menu-item@(currentPage == "/PLMS/MasterInquiries/SampleTypes" ? " active" : "")'>
                                 <a asp-area="PLMS" asp-controller="MasterInquiries" asp-action="SampleTypes" class="menu-link">
                                     <div> <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Sample Types</div>
-                                </a>
-                            </li>
-                        </ul>
-
-                        <ul class="menu-sub">
-                            <li class='menu-item@(currentPage == "/PLMS/MasterInquiries/SampleStages" ? " active" : "")'>
-                                <a asp-area="PLMS" asp-controller="MasterInquiries" asp-action="SampleStages" class="menu-link">
-                                    <div> <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Sample Stages</div>
                                 </a>
                             </li>
                         </ul>
@@ -496,14 +473,7 @@
                                 <div> <span>   <i class="menu-icon fa-solid fa-angles-right"></i> </span>Goods Pass</div>
                             </a>
                         </li>
-                    </ul>
-                    <ul class="menu-sub">
-                        <li class='menu-item@(currentPage.Contains("/TGPS/GenEmpPass") ? " active" : "")'>
-                            <a asp-area="TGPS" asp-controller="GenEmpPass" asp-action="Index" class="menu-link">
-                                <div> <span>  <i class="menu-icon fa-solid fa-angles-right"></i> </span>Employee Pass</div>
-                            </a>
-                        </li>
-                    </ul>
+                    </ul>               
                     @* <ul class="menu-sub">
                         <li class='menu-item@(currentPage.Contains("/TGPS/GenVisitorPass") ? " active" : "")'>
                             <a asp-area="TGPS" asp-controller="GenVisitorPass" asp-action="Index" class="menu-link">
@@ -529,14 +499,7 @@
                                     <div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Goods Pass</div>
                                 </a>
                             </li>
-                        </ul>
-                        <ul class="menu-sub">
-                            <li class='menu-item@(currentPage.Contains("/TGPS/Response/EmpPass") ? " active" : "")'>
-                                <a asp-area="TGPS" asp-controller="Response" asp-action="EmpPass" class="menu-link">
-                                    <div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Employee Pass</div>
-                                </a>
-                            </li>
-                        </ul>
+                        </ul>                       
                         @*   <ul class="menu-sub">
                         <li class='menu-item@(currentPage.Contains("/GTPS/CriticalPathActivities/CriticalPathEditor") ? " active" : "")'>
                             <a asp-area="PLMS" asp-controller="CriticalPathActivities" asp-action="CriticalPathEditor" class="menu-link">
@@ -615,14 +578,7 @@
                             <div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Goods Pass</div>
                         </a>
                     </li>
-                </ul>
-                <ul class="menu-sub">
-                    <li class='menu-item@(currentPage == "/GDRM/EmployeePass" ? " active" : "")'>
-                        <a asp-area="GDRM" asp-controller="EmployeePass" asp-action="Index" class="menu-link">
-                            <div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Employee Pass</div>
-                        </a>
-                    </li>
-                </ul>
+                </ul>            
 
             </li>
         }

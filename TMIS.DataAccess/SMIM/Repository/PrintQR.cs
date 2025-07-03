@@ -1,6 +1,8 @@
 ﻿using Dapper;
+using System.Text.RegularExpressions;
 using TMIS.DataAccess.COMON.IRpository;
 using TMIS.DataAccess.SMIM.IRpository;
+using TMIS.Utility;
 
 namespace TMIS.DataAccess.SMIM.Repository
 {
@@ -10,10 +12,30 @@ namespace TMIS.DataAccess.SMIM.Repository
 
         public async Task<IEnumerable<string>> GetQrCode()
         {
-            string query = "SELECT QrCode FROM SMIM_TrInventory WHERE (IsDelete = 0) ORDER BY QrCode";
-            return await _dbConnection.GetConnection().QueryAsync<string>(query);
-
+            string query = "SELECT QrCode +' - [ '+ SerialNo +' ]'  FROM SMIM_TrInventory WHERE (IsDelete = 0) ORDER BY QrCode";
+            var result = await _dbConnection.GetConnection().QueryAsync<string>(query);
+            return result;
         }
 
+        public async Task<byte[]> GetQrCodesPrint(List<string> qrCodes)
+        {
+            List<KeyValuePair<string, string>> oQrCodes = [.. qrCodes
+            .Select(r =>
+            {
+                var match = Regex.Match(r, @"^(.*?)\s*-\s*\[\s*(.*?)\s*\]");
+                if (match.Success)
+                {
+                    string qrCode = match.Groups[1].Value.Trim();   // e.g. "TSM00001"
+                    string serial = match.Groups[2].Value.Trim();    // e.g. "FD25791"
+                    return new KeyValuePair<string, string>(qrCode, serial);
+                }
+                else
+                {
+                    return new KeyValuePair<string, string>(r, ""); // fallback if format unexpected
+                }
+            })];
+
+            return await GenerateQR.GenerateQRCodeAsync(oQrCodes);
+        }
     }
 }

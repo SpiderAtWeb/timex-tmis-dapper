@@ -32,10 +32,9 @@ namespace TMIS.DataAccess.PLMS.Rpository
                 // Create and populate the NextStageInquiryVM
                 var oNextStageInquiryVM = new NextStageInquiryVM
                 {
-                    InquiryTypesList = await _userControls.LoadDropDownsAsync("PLMS_MdInquiryTypes"),
+                    InquiryTypesList = await _userControls.LoadDropDownsAsync("PLMS_MasterTwoInquiryTypes"),
                     ResponseTypesList = await _userControls.LoadDropDownsAsync("PLMS_MdReponseTypes"),
-                    SeasonsList = await _userControls.LoadDropDownsAsync("PLMS_MdInquirySeason"),
-                    SampleTypesList = await _userControls.LoadDropDownsAsync("PLMS_MdExtendSub"),
+                    SampleTypesList = await _userControls.LoadDropDownsAsync("PLMS_MasterTwoSampleTypes"),
                     SampleStagesList = await _userControls.LoadDropDownsAsync("PLMS_MdExtend"),
                     Inquiry = inquiry
                 };
@@ -100,10 +99,10 @@ namespace TMIS.DataAccess.PLMS.Rpository
             var cycleNo = await connection.QuerySingleAsync<int>(query, new { InquiryId = inquiryVM.Id, }, transaction);
 
             var sqlDetail = @"INSERT INTO [dbo].[PLMS_TrInqDetails]
-             ([TrInqId], [CycleNo], [ResponseTypeId], [InquirySeasonId], [SampleTypeId], [SampleStageId], [ColorCode], [ImageSketch],
+             ([TrInqId], [CycleNo], [ResponseTypeId], [Season], [SampleTypeId], [SampleStageId], [ColorCode], [ImageSketch],
               [DateResponseReq], [IsPriceUpdate], [InquiryComment], [IsApproved])
              VALUES
-             (@TrInqId, @CycleNo, @ResponseTypeId, @InquirySeasonId,  @SampleTypeId, @SampleStageId, @ColorCode, @ImageSketch, @DateResponseReq, 0, @InquiryComment, -1)
+             (@TrInqId, @CycleNo, @ResponseTypeId, @Season, @SampleTypeId, @SampleStageId, @ColorCode, @ImageSketch, @DateResponseReq, 0, @InquiryComment, -1)
               SELECT CAST(SCOPE_IDENTITY() AS INT);";
 
 
@@ -112,7 +111,7 @@ namespace TMIS.DataAccess.PLMS.Rpository
             {
                 TrInqId = inquiryVM.Id,
                 CycleNo = cycleNo,
-                inquiryVM.SeasonsId,
+                inquiryVM.Season,
                 inquiryVM.SampleTypeId,
                 inquiryVM.ColorCode,
                 ImageSketch = artworkBytes,

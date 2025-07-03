@@ -398,8 +398,6 @@
         </div>
 
         <div class="row g-1 mb-3">
-           
-
             <div class="col-3">
                 <div class="form-floating form-floating-outline">
                     <input asp-for="@Model.ColorCode" type="text" class="form-control requiredField" placeholder="BLUE" />
@@ -411,14 +409,11 @@
             </div>
             <div class="col-3">
                 <div class="form-floating form-floating-outline">
-                    <select asp-for="@Model.SeasonsId" asp-items="@Model.SeasonsList" class="select2 form-select requiredField" data-allow-clear="true">
-                        <option Disabled Selected>- Select Season -</option>
-                    </select>
-
-                    <label for="InquirySeasonId">
+                    <input asp-for="@Model.Season" type="text" class="form-control requiredField" placeholder="26SU" />
+                    <label for="Season">
                         Season
                     </label>
-                    <span asp-validation-for="SeasonsId" class="customerError text-warning"></span>
+                    <span asp-validation-for="Season" class="customerError text-warning"></span>
                 </div>
             </div>
 

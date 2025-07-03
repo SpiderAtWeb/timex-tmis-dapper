@@ -18,5 +18,5 @@ namespace TMIS.Models.PLMS
         public string SeasonName { get; set; } = string.Empty;
         public string SampleType { get; set; } = string.Empty;
         public string Remarks { get; set; } = string.Empty;
-    }
+    } 
 }

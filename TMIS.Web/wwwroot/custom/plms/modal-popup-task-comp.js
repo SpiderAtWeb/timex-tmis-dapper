@@ -22,67 +22,55 @@ $(document).ready(function () {
   });
 
   // Add double-click event to table rows
-  $('.dt-tbl tbody').on('dblclick', 'tr', function () {
+  $('#mainTable').on('dblclick', 'tr', function () {
     var rowData = table.row(this).data(); // Get the data for the clicked row
     if (rowData) {
 
       $("#rowModalLabel").text(rowData[1]);
 
-
       // Update modal content dynamically
-      $('#home').html(`
-                           <div class="row justify-content-center">
-                              <div class="col-4">
-                                 <div class="header">Customer</div>
-                                 <div class="desc">${rowData[2]}</div>
-                              </div>
-                              <div class="col-4">
-                                 <div class="header">Inquiry Type</div>
-                                 <div class="desc">${rowData[3]}</div>
-                              </div>
-                               <div class="col-4">
-                                 <div class="header">Style No</div>
-                                 <div class="desc">${rowData[4]}</div>
-                              </div>
-                           </div>
-                           <div class="row justify-content-center">
-                              <div class="col-4">
-                                 <div class="header">Style Description</div>
-                                 <div class="desc">${rowData[5]}</div>
-                              </div>
-                              <div class="col-4">
-                                 <div class="header">Color</div>
-                                 <div class="desc">${rowData[6]}</div>
-                              </div>
-                               <div class="col-4">
-                                 <div class="header">Response Type</div>
-                                 <div class="desc">${rowData[7]}</div>
-                              </div>
-                           </div>
-                           <div class="row justify-content-center">
-                              <div class="col-4">
-                                 <div class="header">Season</div>
-                                 <div class="desc">${rowData[8]}</div>
-                              </div>                             
-                              <div class="col-4">
-                                 <div class="header">Extend</div>
-                                 <div class="desc">${rowData[10]}</div>
-                              </div>
-                               <div class="col-4">
-                                 <div class="header">Sub-Extend</div>
-                                 <div class="desc">${rowData[9]}</div>
-                              </div>
-                           </div>
-                           <div class="row justify-content-center">
-                                     <div class="col">
-                                        <div class="header">Inquiry Comment</div>
-                                        <div class="desc">${rowData[11]}</div>
+      $('#home').html(`<div class="row justify-content-center">
+                                     <div class="col-4">
+                                        <div class="header">Customer</div>
+                                        <div class="desc">${rowData[2]}</div>
+                                     </div>
+                                     <div class="col-4">
+                                        <div class="header">Inquiry Type</div>
+                                        <div class="desc">${rowData[3]}</div>
+                                     </div>
+                                      <div class="col-4">
+                                        <div class="header">Style No</div>
+                                        <div class="desc">${rowData[4]}</div>
+                                     </div>
+                                  </div>
+                                  <div class="row justify-content-center">
+                                     <div class="col-4">
+                                        <div class="header">Style Description</div>
+                                        <div class="desc">${rowData[5]}</div>
+                                     </div>
+                                     <div class="col-4">
+                                        <div class="header">Color</div>
+                                        <div class="desc">${rowData[6]}</div>
+                                     </div>
+                                      <div class="col-4">
+                                        <div class="header">Sample Type</div>
+                                        <div class="desc">${rowData[7]}</div>
+                                     </div>
+                                  </div>                                
+                                    <div class="row justify-content-center">
+                                      <div class="col-4">
+                                        <div class="header">Season</div>
+                                        <div class="desc">${rowData[8]}</div>
+                                     </div>                                    
+                                      <div class="col-8">
+                                        <div class="header">Remarks</div>
+                                        <div class="desc">${rowData[9]}</div>
+                                     </div>
                                      </div>                                                
                                   </div>
-                            <div id="activityContainer">
-                                 <div id="loadingMessage" style="display:none;">Loading...</div>
-                            </div>
-                         `);
+                                   <div id="activityContainer">
+                                        <div id="loadingMessage" style="display:none;">Loading...</div>
+                                   </div>`);
 
       handleChange(rowData[0]);
       // Show the modal
@@ -105,7 +93,7 @@ $(document).ready(function () {
     $('#loadingMessage').show();
 
     $.ajax({
-      url: '/PLMS/Common/LoadModal?Id=' + id,
+      url: '/PLMS/TaskCompletion/LoadModal?Id=' + id,
       type: 'POST',
       contentType: 'application/json',
       success: function (data) {
@@ -143,60 +131,96 @@ $(document).ready(function () {
                                                                      <th>Done By</th>
                                                                      <th>Plan Comments</th>
                                                                      <th>Completed Comments</th>
-                                                                      <th>Select</th>
+                                                                     <th>Select</th>
+                                                                     <th>Upload Zip</th>
                                                                  </tr>
                                                               </thead>
                                                            <tbody>`;
 
         $.each(data.activityList, function (index, activity) {
           // Create HTML for the main activity
-          rowHtml += ` <tr data-id="${activity.taskId}">
+          rowHtml += ` <tr data-id="${activity.id}">
                      <td>
-                      <i class="fa ${(activity.activityIsCompleted && activity.dueDates > 0) ? 'fa-check-circle text-warning' :
-              (activity.activityIsCompleted) ? 'fa-check-circle text-success' :
-              (!activity.activityIsCompleted && activity.dueDates < 0) ? 'fa-times-circle text-danger' : ''}"
+                      <i class="fa ${(activity.isCompleted && activity.dueDates > 0) ? 'fa-check-circle text-warning' :
+              (activity.isCompleted) ? 'fa-check-circle text-success' :
+              (!activity.isCompleted && activity.dueDates < 0) ? 'fa-times-circle text-danger' : ''}"
                                     style="font-size: 18px;">
                      </td>
                      <td>${index + 1}</td>
-                     <td class="freeze">${activity.activityText}</td>
-                     <td>${activity.activityRequiredDate}</td>
-                     <td>${activity.activityActualCmpltdDate}</td>
+                     <td class="freeze">${activity.activityName}</td>
+                     <td>${activity.requiredDate}</td>
+                     <td>${activity.actualCompletedDate}</td>
                      <td>${activity.dueDates > 0 ? activity.dueDates + ' Days' : ''}</td>
-                     <td>${activity.activityDoneBy}</td>
-                     <td>${activity.activityComment}</td>
+                     <td>${activity.doneBy}</td>
+                     <td>${activity.planRemakrs}</td>
                      <td>
-                       ${activity.activityIsCompleted ? activity.activityDoneComment :
+                       ${activity.isCompleted ? activity.remarks :
                       `<input type="text" class="form-control activity-done-comment" placeholder="Enter comment" />`}
                      </td>
                      <td>
-                      ${activity.activityIsCompleted ? '' :
-                      `<input type="checkbox" class="activity-checkbox" />`}</td>
+                      ${activity.isCompleted ? '' :`<input type="checkbox" class="activity-checkbox" />`}</td>
+                      <td>
+                       ${activity.isCompleted ? (
+                          activity.zipFilePath
+                            ? `<a href="/${activity.zipFilePath}" target="_blank" title="Download ZIP"><i class="fa fa-paperclip text-primary" style="font-size: 18px;"></i></a>`
+                            : ''
+                        ) : `
+                 <div class="d-flex flex-column align-items-start">
+                                  <div class="custom-zip-upload">
+                                    <label class="upload-icon" title="Upload ZIP">
+                                      <span class="upload-icon-wrapper">
+                                          <i class="fa fa-upload"></i>
+                                        </span>
+                                      <input type="file" class="zip-upload" accept=".zip" />
+                                    </label>
+                                  </div>
+                                </div>
+              `}
+                      </td>
                      </tr>`;
 
           // Iterate over sub-activities and create HTML for each
           $.each(activity.subActivityList, function (subIndex, subActivity) {
-            rowHtml += `<tr data-id="${subActivity.taskId}" class="sub-task-row">
+            rowHtml += `<tr data-id="${subActivity.id}" class="sub-task-row">
                       <td>
-                         <i class="fa ${(subActivity.activityIsCompleted && subActivity.dueDates > 0) ? 'fa-check-circle text-warning' :
-                                        (subActivity.activityIsCompleted) ? 'fa-check-circle text-success' :
-                                        (!subActivity.activityIsCompleted && subActivity.dueDates < 0) ? 'fa-times-circle text-danger' : ''}" 
+                         <i class="fa ${(subActivity.isCompleted && subActivity.dueDates > 0) ? 'fa-check-circle text-warning' :
+                                        (subActivity.isCompleted) ? 'fa-check-circle text-success' :
+                                        (!subActivity.isCompleted && subActivity.dueDates < 0) ? 'fa-times-circle text-danger' : ''}" 
                                         style="font-size: 18px;">
                          </i>
                       </td>
                       <td>${index + 1} . ${subIndex + 1}</td>
-                      <td class="sub-task freeze">${subActivity.subActivityText}</td>
-                      <td>${subActivity.activityRequiredDate}</td>
-                      <td>${subActivity.activityActualCmpltdDate}</td>
+                      <td class="sub-task freeze">${subActivity.subactivityName}</td>
+                      <td>${subActivity.requiredDate}</td>
+                      <td>${subActivity.actualCompletedDate}</td>
                       <td>${subActivity.dueDates > 0 ? subActivity.dueDates + ' Days' : ''}</td>
-                      <td>${subActivity.activityDoneBy}</td>
-                      <td>${subActivity.activityComment}</td>
+                      <td>${subActivity.doneBy}</td>
+                      <td>${subActivity.planRemakrs}</td>
                       <td>
-                         ${subActivity.activityIsCompleted ? subActivity.activityDoneComment :
+                         ${subActivity.isCompleted ? subActivity.remarks :
                         `<input type="text" class="form-control activity-done-comment" placeholder="Enter Comment" />`}
                       </td>
                       <td>
-                         ${subActivity.activityIsCompleted ? '' :
+                         ${subActivity.isCompleted ? '' :
                         `<input type="checkbox" class="activity-checkbox" />`}
+                      </td>
+                        <td>
+                          ${subActivity.isCompleted ? (
+                            subActivity.zipFilePath
+                              ? `<a href="/${subActivity.zipFilePath}" target="_blank" title="Download ZIP"><i class="fa fa-paperclip text-primary" style="font-size: 18px;"></i></a>`
+                                              : ''
+                                          ) : `
+                                <div class="d-flex flex-column align-items-start">  
+                                  <div class="custom-zip-upload">
+                                    <label class="upload-icon" title="Upload ZIP">
+                                      <span class="upload-icon-wrapper">
+                                          <i class="fa fa-upload"></i>
+                                        </span>
+                                      <input type="file" class="zip-upload" accept=".zip" />
+                                    </label>
+                                  </div>
+                                </div>
+                              `}
                       </td>
                       </tr>`;
           });
@@ -216,42 +240,76 @@ $(document).ready(function () {
   }
 });
 
+$(document).on('change', '.zip-upload', function () {
+  const file = this.files[0];
+  const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+
+  if (file && file.size > maxSize) {
+    alert("File size exceeds the 5MB limit.");
+    this.value = ''; // Clear the file input
+    return;
+  }
+
+  const iconSpan = $(this).closest('label').find('.upload-icon-wrapper');
+  iconSpan.html('<i class="fa fa-paperclip text-success"></i>');
+});
+
+
 function saveCheckedActivities() {
   // Arrays to store checked parent and child activities
-  let mainTaskList = [];
-  let subTaskList = [];
+  //let mainTaskList = [];
+  //let subTaskList = [];
+  let formData = new FormData();
+
+  let mainIndex = 0;
+  let subIndex = 0;
 
   // Iterate over all rows with checkboxes
   $(".activity-checkbox:checked").each(function () {
     // Get the parent row
     let $row = $(this).closest("tr");
 
-    // Extract taskId and comment
+    // Extract id and comment
     let taskId = $row.data("id");
     let comment = $row.find(".activity-done-comment").val();
+    let fileInput = $row.find(".zip-upload")[0];
+    let zipFile = fileInput?.files[0];
 
-    // Check if the row is a sub-task based on a class or structure
+
+    formData.append(`mainTasks[${mainIndex}].taskId`, taskId);
+    formData.append(`mainTasks[${mainIndex}].comment`, comment);
+    formData.append(`mainTasks[${mainIndex}].zipFile`, zipFile);
+
     if ($row.hasClass("sub-task-row")) {
-      // Add to child activities array
-      subTaskList.push({
-        taskId: taskId,
-        comment: comment
-      });
+      formData.append(`subTasks[${subIndex}].taskId`, taskId);
+      formData.append(`subTasks[${subIndex}].comment`, comment);
+      if (zipFile) {
+        formData.append(`subTasks[${subIndex}].zipFile`, zipFile);
+      }
+      subIndex++;
     } else {
-      // Add to parent activities array
-      mainTaskList.push({
-        taskId: taskId,
-        comment: comment
-      });
+      formData.append(`mainTasks[${mainIndex}].taskId`, taskId);
+      formData.append(`mainTasks[${mainIndex}].comment`, comment);
+      if (zipFile) {
+        formData.append(`mainTasks[${mainIndex}].zipFile`, zipFile);
+      }
+      mainIndex++;
     }
+
   });
+
+  if (mainIndex === 0 && subIndex === 0) {
+    toastr.warning("No activities selected.");
+    return;
+  }
 
   // Example AJAX call
   $.ajax({
     url: '/PLMS/TaskCompletion/SaveCompletedTasks', // Replace with your actual endpoint URL
     type: 'POST',
-    contentType: 'application/json',
-    data: JSON.stringify({ mainTasks: mainTaskList, subTasks: subTaskList }),
+    data: formData,
+    processData: false, // Required for FormData
+    contentType: false, // Required for FormData   
     success: function () {
       $('#rowModal').modal('hide');
       toastr.success('Data saved successfully.');

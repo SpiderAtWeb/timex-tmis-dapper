@@ -2,7 +2,6 @@ using log4net;
 using log4net.Config;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
-using System.Security.Cryptography;
 using TMIS.DataAccess.COMON.IRpository;
 using TMIS.DataAccess.COMON.Rpository;
 using TMIS.DataAccess.GDRM.IRpository;
@@ -207,7 +206,7 @@ app.Use(async (context, next) =>
 
     await next();
   }
-  catch 
+  catch
   {
     context.Response.Cookies.Delete(".AspNetCore.Session");
     context.Session.Clear();

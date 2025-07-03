@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using TMIS.Models.SMIS;
 using TMIS.Models.SMIS.VM;
 
 namespace TMIS.Helper
@@ -7,14 +8,8 @@ namespace TMIS.Helper
   {
     public static void ValidateRentedMachine(McCreatedRnVM mcCreatedRnVM, ModelStateDictionary modelState)
     {
-      // QR Code Validation
-      if (string.IsNullOrWhiteSpace(mcCreatedRnVM.McInventory!.QrCode))
-      {
-        modelState.AddModelError("McInventory.QrCode", "QR Code is Required.");
-      }
-
       // Serial Number Validation
-      if (string.IsNullOrWhiteSpace(mcCreatedRnVM.McInventory.SerialNo))
+      if (string.IsNullOrWhiteSpace(mcCreatedRnVM.McInventory!.SerialNo))
       {
         modelState.AddModelError("McInventory.SerialNo", "Serial No is Required.");
       }
@@ -78,14 +73,9 @@ namespace TMIS.Helper
 
     public static void ValidateOwnedMachine(McCreateVM mcCreateVM, ModelStateDictionary modelState)
     {
-      // QR Code Validation
-      if (string.IsNullOrWhiteSpace(mcCreateVM.McInventory!.QrCode))
-      {
-        modelState.AddModelError("McInventory.QrCode", "QR Code is Required.");
-      }
 
       // Serial Number Validation
-      if (string.IsNullOrWhiteSpace(mcCreateVM.McInventory.SerialNo))
+      if (string.IsNullOrWhiteSpace(mcCreateVM.McInventory!.SerialNo))
       {
         modelState.AddModelError("McInventory.SerialNo", "Serial No is Required.");
       }
@@ -125,6 +115,59 @@ namespace TMIS.Helper
       {
         modelState.AddModelError("McInventory.LocationId", "Location is Required.");
       }
+
+      // Date Validation
+      if (mcCreateVM.McInventory.DatePurchased == null)
+      {
+        modelState.AddModelError("McInventory.DatePurchased", "Purchased Date is Required.");
+      }
+      else if (mcCreateVM.McInventory.DatePurchased > DateTime.Now)
+      {
+        modelState.AddModelError("McInventory.DatePurchased", "Purchase Date Should be a Current or Past Date.");
+      }
+
+      // Cost Validation
+      if (mcCreateVM.McInventory.Cost <= 0)
+      {
+        modelState.AddModelError("McInventory.Cost", "Purchased Cost is Required.");
+      }
+    }
+
+    public static void ValidateOwnedMachineEdit(McCreateVM mcCreateVM, ModelStateDictionary modelState)
+    {
+
+      // Serial Number Validation
+      if (string.IsNullOrWhiteSpace(mcCreateVM.McInventory!.SerialNo))
+      {
+        modelState.AddModelError("McInventory.SerialNo", "Serial No is Required.");
+      }
+
+      // Far Code Validation
+      if (string.IsNullOrWhiteSpace(mcCreateVM.McInventory.FarCode))
+      {
+        modelState.AddModelError("McInventory.FarCode", "FarCode is Required.");
+      }
+
+      // Service Sequence Validation
+      if (mcCreateVM.McInventory.ServiceSeq <= 0)
+      {
+        modelState.AddModelError("McInventory.ServiceSeq", "Service Sequence is Required.");
+      }
+
+      // Model and Brand Validation
+      if (mcCreateVM.McInventory.MachineModelId == 0)
+      {
+        modelState.AddModelError("McInventory.MachineModelId", "Machine Model is Required.");
+      }
+      if (mcCreateVM.McInventory.MachineBrandId == 0)
+      {
+        modelState.AddModelError("McInventory.MachineBrandId", "Machine Brand is Required.");
+      }
+      if (mcCreateVM.McInventory.MachineTypeId == 0)
+      {
+        modelState.AddModelError("McInventory.MachineTypeId", "Machine Type is Required.");
+      }
+
 
       // Date Validation
       if (mcCreateVM.McInventory.DatePurchased == null)

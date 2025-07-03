@@ -8,7 +8,7 @@
         public int ResponseTypeId { get; set; }
         public int CustomerId { get; set; }
         public string CustomerName { get; set; } = string.Empty;
-        public int InquirySeasonId { get; set; }
+        public string Season { get; set; } = string.Empty;
         public int SampleTypeId { get; set; }
         public int SampleStageId { get; set; }
         public bool IsPriceStageAv { get; set; }

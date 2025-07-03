@@ -65,7 +65,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
             try
             {
 
-                string genRef = await _userControls.GenerateGpRefAsync(dbConnection, transaction, "[TGPS_XysGenerateNumber]", "TEP");
+                string genRef = await _userControls.GenerateRefAsync(dbConnection, transaction, "[TGPS_XysGenerateNumber]", "TEP");
 
                 // Insert Header
                 string insertHeaderSql = @"

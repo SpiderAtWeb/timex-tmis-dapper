@@ -33,7 +33,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
 
             try
             {
-                string referenceNumber = await _userControls.GenerateGpRefAsync(connection, transaction, "[TGPS_XysGenerateNumber]", "TGP");
+                string referenceNumber = await _userControls.GenerateRefAsync(connection, transaction, "[TGPS_XysGenerateNumber]", "TGP");
                 returnRefrence = referenceNumber;
 
                 // Insert Header and get GGpPassId

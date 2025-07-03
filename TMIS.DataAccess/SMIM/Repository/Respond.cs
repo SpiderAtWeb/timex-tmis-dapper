@@ -1,15 +1,18 @@
 ﻿using Dapper;
 using TMIS.DataAccess.COMON.IRpository;
+using TMIS.DataAccess.COMON.Rpository;
 using TMIS.DataAccess.SMIM.IRpository;
 using TMIS.Models.SMIS;
 using TMIS.Models.SMIS.VM;
 
 namespace TMIS.DataAccess.SMIM.Repository
 {
-    public class Respond(IDatabaseConnectionSys dbConnection, ISMIMLogdb iSMIMLogdb) : IRespond
+    public class Respond(IDatabaseConnectionSys dbConnection, ISMIMLogdb iSMIMLogdb, ISessionHelper sessionHelper) : IRespond
     {
         private readonly IDatabaseConnectionSys _dbConnection = dbConnection;
         private readonly ISMIMLogdb _iSMIMLogdb = iSMIMLogdb;
+        private readonly ISessionHelper _iSessionHelper = sessionHelper;
+
 
         public IEnumerable<RespondVM> GetRequestList()
         {
@@ -75,9 +78,9 @@ namespace TMIS.DataAccess.SMIM.Repository
                 // Update machine transfer status
                 string updateTransferQuery = @"
                 UPDATE [dbo].[SMIM_TrTransfers]
-                SET [TrStatusId] = @StatusId, [isCompleted] = 1, [DateResponseDate] = @NowDT, [ResposeUserId] = 100
+                SET [TrStatusId] = @StatusId, [isCompleted] = 1, [DateResponseDate] = @NowDT, [ResposeUserId] = @ResposeUserId
                 WHERE [Id] = @iD";
-                rowsAffected += _dbConnection.GetConnection().Execute(updateTransferQuery, new { StatusId = statusId, NowDT = nowDT, iD });
+                rowsAffected += _dbConnection.GetConnection().Execute(updateTransferQuery, new { StatusId = statusId, NowDT = nowDT, iD, ResposeUserId = _iSessionHelper.GetUserId() });
 
                 string logMessage = sts ? "MACHINE REQUEST APPROVED - WEB" : "MACHINE REQUEST REJECTED - WEB";
 

@@ -222,14 +222,11 @@
 
             <div class="col-md-4">
                 <div class="form-floating form-floating-outline">
-                    <select asp-for="@Model.Inquiry!.InquirySeasonId" asp-items="@Model.SeasonsList" class="select2 form-select" data-allow-clear="true">
-                        <option Disabled Selected>- Select Season -</option>
-                    </select>
-
-                    <label for="InquirySeasonId">
+                    <input asp-for="@Model.Inquiry!.Season" type="text" id="season" class="form-control" placeholder="SHAPEWEAR" readonly style="background-color: #e6f0fa;" />
+                    <label for="Season">
                         Season
                     </label>
-                    <span asp-validation-for="Inquiry!.InquirySeasonId" class="text-warning"></span>
+                    <span asp-validation-for="Inquiry!.Season" class="text-warning"></span>
                 </div>
             </div>
 

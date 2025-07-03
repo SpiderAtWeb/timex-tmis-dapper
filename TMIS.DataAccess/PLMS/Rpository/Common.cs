@@ -1,15 +1,17 @@
 ﻿using Dapper;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using TMIS.DataAccess.COMON.IRpository;
+using TMIS.DataAccess.COMON.Rpository;
 using TMIS.DataAccess.PLMS.IRpository;
 using TMIS.Models.PLMS;
 
 namespace TMIS.DataAccess.PLMS.Rpository
 {
-    public class Common(IDatabaseConnectionSys dbConnection, IUserControls userControls) : ICommon
+    public class Common(IDatabaseConnectionSys dbConnection, IUserControls userControls, ISessionHelper sessionHelper) : ICommon
     {
         private readonly IDatabaseConnectionSys _dbConnection = dbConnection;
         private readonly IUserControls _userControls = userControls;
+        private readonly ISessionHelper _iSessionHelper = sessionHelper;
 
         public async Task<IEnumerable<ShowInquiryDataVM>> GetInquiriesAsync()
         {
@@ -19,6 +21,7 @@ namespace TMIS.DataAccess.PLMS.Rpository
 
             return await _dbConnection.GetConnection().QueryAsync<ShowInquiryDataVM>(sql);
         }
+             
 
         public async Task<ModalShowVM> LoadModalDataAsync(string Id)
         {
@@ -26,7 +29,7 @@ namespace TMIS.DataAccess.PLMS.Rpository
             var dynamicModel = new ModalShowVM
             {
                 ArtWork = (await _dbConnection.GetConnection().QueryAsync<byte[]>(@"
-                SELECT ImageSketch FROM PLMS_TrInqDetails WHERE (Id = @Id)",
+                SELECT ArtWork FROM PLMS_TrInquiryDetails WHERE (Id = @Id)",
                 new
                 {
                     Id
@@ -46,10 +49,8 @@ namespace TMIS.DataAccess.PLMS.Rpository
             using (var connection = _dbConnection.GetConnection())
             {
                 // Fetch activities asynchronously
-                var activities = (await connection.QueryAsync<PLMSTrActivity>(@"
-                    SELECT    TaskId, ActivityId, ActivityText, ActivityRequiredDate, ActivityComment, 
-                              ActivityActualCmpltdDate, ActivityDoneComment, ActivityDoneBy, ActivityIsCompleted
-                    FROM PLMS_VwTrActivityList WHERE (Id = @Id) ORDER BY TaskId",
+                var activities = (await connection.QueryAsync<PLMSTrActivity>(@"SELECT Id, ActivityId, ActivityName, RequiredDate, PlanRemakrs, 
+                ActualCompletedDate, Remarks, DoneBy, IsCompleted, ZipFilePath  FROM PLMS_VwTrActivityList WHERE (TrINQDTId = @Id) ORDER BY Id",
                  new
                  {
                      Id
@@ -57,9 +58,8 @@ namespace TMIS.DataAccess.PLMS.Rpository
 
                 // Fetch sub-activities asynchronously
                 var subActivities = (await connection.QueryAsync<PLMSTrActivity>(@"
-                   SELECT     TaskId, ActivityId, SubActivityText, ActivityRequiredDate, ActivityComment, 
-                              ActivityActualCmpltdDate, ActivityDoneComment, ActivityDoneBy, ActivityIsCompleted
-                   FROM       PLMS_VwTrActivitySubList WHERE (Id = @Id) ORDER BY TaskId",
+                SELECT  Id, ActivityId, ActivityName, RequiredDate, PlanRemakrs, ActualCompletedDate, Remarks, DoneBy, IsCompleted, ZipFilePath
+                FROM       PLMS_VwTrActivitySubList WHERE (TrINQDTId = @Id) ORDER BY Id",
                  new
                  {
                      Id
@@ -72,37 +72,38 @@ namespace TMIS.DataAccess.PLMS.Rpository
 
                 foreach (var activity in activities)
                 {
-                    if (activity.ActivityIsCompleted)
+                    if (activity.IsCompleted)
                     {
                         // Calculate DueDates when the activity is completed
-                        DueDates = (activity.ActivityRequiredDate != "" && activity.ActivityActualCmpltdDate != "")
-                            ? (Convert.ToDateTime(activity.ActivityActualCmpltdDate) - Convert.ToDateTime(activity.ActivityRequiredDate!)).Days
+                        DueDates = (activity.RequiredDate != "" && activity.ActualCompletedDate != "")
+                            ? (Convert.ToDateTime(activity.ActualCompletedDate) - Convert.ToDateTime(activity.RequiredDate!)).Days
                             : 0;
                     }
                     else
                     {
                         // Calculate DueDates when the activity is not completed and the required date is before today
-                        DueDates = (activity.ActivityRequiredDate != "" && Convert.ToDateTime(activity.ActivityRequiredDate) < today)
-                            ? (Convert.ToDateTime(activity.ActivityRequiredDate) - today).Days
+                        DueDates = (activity.RequiredDate != "" && Convert.ToDateTime(activity.RequiredDate) < today)
+                            ? (Convert.ToDateTime(activity.RequiredDate) - today).Days
                             : 0;
                     }
 
 
                     var activityModel = new PLMSTrActivity
                     {
-                        TaskId = activity.TaskId,
-                        ActivityText = activity.ActivityText,
-                        ActivityRequiredDate = activity.ActivityRequiredDate != ""
-                        ? Convert.ToDateTime(activity.ActivityRequiredDate).ToString("MM-dd-yy")
+                        Id = activity.Id,
+                        ActivityName = activity.ActivityName,
+                        RequiredDate = activity.RequiredDate != ""
+                        ? Convert.ToDateTime(activity.RequiredDate).ToString("MM-dd-yy")
                         : "",
-                        ActivityActualCmpltdDate = activity.ActivityActualCmpltdDate != ""
-                           ? Convert.ToDateTime(activity.ActivityActualCmpltdDate).ToString("MM-dd-yy")
+                        ActualCompletedDate = activity.ActualCompletedDate != ""
+                           ? Convert.ToDateTime(activity.ActualCompletedDate).ToString("MM-dd-yy")
                            : "",
                         DueDates = DueDates,
-                        ActivityComment = activity.ActivityComment,
-                        ActivityDoneComment = activity.ActivityDoneComment,
-                        ActivityDoneBy = activity.ActivityDoneBy,
-                        ActivityIsCompleted = activity.ActivityIsCompleted,
+                        PlanRemakrs = activity.PlanRemakrs,
+                        Remarks = activity.Remarks,
+                        DoneBy = activity.DoneBy,
+                        IsCompleted = activity.IsCompleted,
+                        ZipFilePath = activity.ZipFilePath,
                         SubActivityList = []
                     };
 
@@ -111,37 +112,38 @@ namespace TMIS.DataAccess.PLMS.Rpository
                         foreach (var subActivity in value)
                         {
 
-                            if (activity.ActivityIsCompleted)
+                            if (activity.IsCompleted)
                             {
                                 // Calculate DueDates when the activity is completed
-                                DueDates = (activity.ActivityRequiredDate != "" && subActivity.ActivityActualCmpltdDate != "")
-                                    ? (Convert.ToDateTime(subActivity.ActivityActualCmpltdDate) - Convert.ToDateTime(subActivity.ActivityRequiredDate!)).Days
+                                DueDates = (activity.RequiredDate != "" && subActivity.ActualCompletedDate != "")
+                                    ? (Convert.ToDateTime(subActivity.ActualCompletedDate) - Convert.ToDateTime(subActivity.RequiredDate!)).Days
                                     : 0;
                             }
                             else
                             {
                                 // Calculate DueDates when the activity is not completed and the required date is before today
-                                DueDates = (activity.ActivityRequiredDate != "" && Convert.ToDateTime(subActivity.ActivityRequiredDate) < today)
-                                    ? (Convert.ToDateTime(subActivity.ActivityRequiredDate) - today).Days
+                                DueDates = (activity.RequiredDate != "" && Convert.ToDateTime(subActivity.RequiredDate) < today)
+                                    ? (Convert.ToDateTime(subActivity.RequiredDate) - today).Days
                                     : 0;
                             }
 
                             activityModel.SubActivityList.Add(new PLMSTrActivity
                             {
-                                TaskId = subActivity.TaskId,
-                                SubActivityText = subActivity.SubActivityText,
-                                ActivityRequiredDate = subActivity.ActivityRequiredDate != ""
-                                ? Convert.ToDateTime(subActivity.ActivityRequiredDate).ToString("MM-dd-yy")
+                                Id = subActivity.Id,
+                                ActivityName = subActivity.ActivityName,
+                                RequiredDate = subActivity.RequiredDate != ""
+                                ? Convert.ToDateTime(subActivity.RequiredDate).ToString("MM-dd-yy")
                                 : "",
 
-                                ActivityActualCmpltdDate = subActivity.ActivityActualCmpltdDate != ""
-                                   ? Convert.ToDateTime(subActivity.ActivityActualCmpltdDate).ToString("MM-dd-yy")
+                                ActualCompletedDate = subActivity.ActualCompletedDate != ""
+                                   ? Convert.ToDateTime(subActivity.ActualCompletedDate).ToString("MM-dd-yy")
                                    : "",
                                 DueDates = DueDates,
-                                ActivityComment = subActivity.ActivityComment,
-                                ActivityDoneComment = subActivity.ActivityDoneComment,
-                                ActivityDoneBy = subActivity.ActivityDoneBy,
-                                ActivityIsCompleted = subActivity.ActivityIsCompleted,
+                                PlanRemakrs = subActivity.PlanRemakrs,
+                                Remarks = subActivity.Remarks,
+                                DoneBy = subActivity.DoneBy,
+                                IsCompleted = subActivity.IsCompleted,
+                                ZipFilePath = subActivity.ZipFilePath
                             });
                         }
                     }
@@ -157,7 +159,6 @@ namespace TMIS.DataAccess.PLMS.Rpository
             {
                 InquiryTypesList = await _userControls.LoadDropDownsAsync("PLMS_MasterTwoInquiryTypes"),
                 CustomersList = await _userControls.LoadDropDownsAsync("PLMS_MasterTwoCustomers"),
-                SeasonsList = await _userControls.LoadDropDownsAsync("PLMS_MasterTwoSeasons"),
                 SampleTypesList = await _userControls.LoadDropDownsAsync("PLMS_MasterTwoSampleTypes"),
                 RoutingPresetsList = await LoadRouteDropAsync("PLMS_CPTemplateHeader"),
             };

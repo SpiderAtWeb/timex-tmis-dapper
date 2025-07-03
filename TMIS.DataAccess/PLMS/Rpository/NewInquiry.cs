@@ -188,7 +188,7 @@ namespace TMIS.DataAccess.PLMS.Rpository
 
         private async Task<int> InsertHeaderAsync(IDbConnection connection, IDbTransaction transaction, NewInquiryVM inquiryVM)
         {
-            string referenceNumber = await _userControls.GenerateGpRefAsync(connection, transaction, "[PLMS_XysGenerateNumber]", "PLM");
+            string referenceNumber = await _userControls.GenerateRefAsync(connection, transaction, "[PLMS_XysGenerateNumber]", "PLM");
 
             var sqlHeader = @"INSERT INTO [dbo].[PLMS_TrInquiryHeader]
                ([InquiryRef]
@@ -286,7 +286,7 @@ namespace TMIS.DataAccess.PLMS.Rpository
                            ([TrINQId]
                            ,[CycleNo]
                            ,[ColorCode]
-                           ,[SeasonId]
+                           ,[Season]
                            ,[SampleTypeId]
                            ,[IsPriceStageAv]
                            ,[IsSMVStageAv]
@@ -297,7 +297,7 @@ namespace TMIS.DataAccess.PLMS.Rpository
                            (@TrINQId
                            ,1
                            ,@ColorCode
-                           ,@SeasonsId
+                           ,@Season
                            ,@SampleTypeId
                            ,@IsPriceStageAv
                            ,@IsSMVStageAv
@@ -310,7 +310,7 @@ namespace TMIS.DataAccess.PLMS.Rpository
             {
                 TrINQId = inquiryHeaderId,
                 inquiryVM.ColorCode,
-                inquiryVM.SeasonsId,
+                inquiryVM.Season,
                 inquiryVM.SampleTypeId,
                 inquiryVM.IsPriceStageAv,
                 inquiryVM.IsSMVStageAv,

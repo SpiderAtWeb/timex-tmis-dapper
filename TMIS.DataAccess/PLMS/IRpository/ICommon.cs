@@ -4,7 +4,7 @@ namespace TMIS.DataAccess.PLMS.IRpository
 {
     public interface ICommon
     {
-        Task<IEnumerable<ShowInquiryDataVM>> GetInquiriesAsync();
+        Task<IEnumerable<ShowInquiryDataVM>> GetInquiriesAsync();      
 
         Task<ModalShowVM> LoadModalDataAsync(string Id);
 
