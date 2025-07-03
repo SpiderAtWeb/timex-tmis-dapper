@@ -30,31 +30,31 @@
 			</div>
 			<div class="col-md-3">
 				<div class="form-floating form-floating-outline">
-					<input type="text" class="form-control" value="@Model.FixedAssetCode" disabled />
+					<input type="text" class="form-control" value="@(string.IsNullOrEmpty(Model.FixedAssetCode) ? "-" : Model.FixedAssetCode)" disabled />
 					<label asp-for="@Model.FixedAssetCode"></label>
 				</div>
 			</div>
 			<div class="col-md-3">
 				<div class="form-floating form-floating-outline">
-					<input type="text" class="form-control" value="@Model.Depreciation" disabled />
+					<input type="text" class="form-control" value="@(string.IsNullOrEmpty(Model.Depreciation) ? "-" : Model.Depreciation)" disabled />
 					<label asp-for="@Model.Depreciation"></label>
 				</div>
 			</div>
 			<div class="col-md-3">
 				<div class="form-floating form-floating-outline">
-					<input type="text" class="form-control" value="@(Model.PurchasedDate.HasValue ? Model.PurchasedDate.Value.ToString("yyyy-MM-dd") : "")" disabled />
+					<input type="text" class="form-control" value="@(Model.PurchasedDate.HasValue ? Model.PurchasedDate.Value.ToString("yyyy-MM-dd") : "-")" disabled />
 					<label asp-for="@Model.PurchasedDate"></label>
 				</div>
 			</div>
 			<div class="col-md-3">
 				<div class="form-floating form-floating-outline">
-					<input type="text" class="form-control" value="@Model.Remark" disabled />
+					<input type="text" class="form-control" value="@(string.IsNullOrEmpty(Model.Remark) ? "-" : Model.Remark)" disabled />
 					<label asp-for="@Model.Remark"></label>
 				</div>
 			</div>
 			<div class="col-md-3">
 				<div class="form-floating form-floating-outline">
-					<input type="text" class="form-control" value="@Model.AssignedDate" disabled />
+					<input type="text" class="form-control" value="@Model.AssignedDate.ToString("MM-dd-yyyy")" disabled />
 					<label asp-for="@Model.AssignedDate"></label>
 				</div>
 			</div>
@@ -62,6 +62,24 @@
 				<div class="form-floating form-floating-outline">
 					<input type="text" class="form-control" value="@Model.EmpName" disabled />
 					<label asp-for="@Model.EmpName"></label>
+				</div>
+			</div>
+			<div class="col-md-3">
+				<div class="form-floating form-floating-outline">
+					<input type="text" class="form-control" value="@Model.Designation" disabled />
+					<label asp-for="@Model.Designation"></label>
+				</div>
+			</div>
+			<div class="col-md-3">
+				<div class="form-floating form-floating-outline">
+					<input type="text" class="form-control" value="@Model.AssignLocation" disabled />
+					<label asp-for="@Model.AssignLocation"></label>
+				</div>
+			</div>
+			<div class="col-md-3">
+				<div class="form-floating form-floating-outline">
+					<input type="text" class="form-control" value="@Model.AssignDepartment" disabled />
+					<label asp-for="@Model.AssignDepartment"></label>
 				</div>
 			</div>
 			<div class="col-md-3">

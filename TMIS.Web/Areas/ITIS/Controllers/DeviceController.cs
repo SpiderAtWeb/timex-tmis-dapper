@@ -53,12 +53,14 @@ namespace TMIS.Areas.ITIS.Controllers
       return View(createDeviceVM);
     }
 
+    #region APICaLL
+
     [HttpPost]
     public async Task<IActionResult> Edit(CreateDeviceVM obj, IFormFile? image1, IFormFile? image2, IFormFile? image3, IFormFile? image4)
     {
       var createDeviceVM = await _deviceRepository.LoadDropDowns(obj.Device!.DeviceID);
 
-      if(obj.Device!.SerialNumber != null && obj.Device!.SerialNumber.Any())
+      if (obj.Device!.SerialNumber != null && obj.Device!.SerialNumber.Any())
       {
         if (await _deviceRepository.CheckSerialEdit(obj.Device!.SerialNumber, obj.Device!.DeviceID))
         {
@@ -95,6 +97,11 @@ namespace TMIS.Areas.ITIS.Controllers
     {
       // Load the necessary lists before validation
       var createDeviceVM = await _deviceRepository.LoadDropDowns(null);
+      obj.LocationList = createDeviceVM.LocationList;
+      obj.DeviceTypeList = createDeviceVM.DeviceTypeList;
+      obj.DeviceStatusList = createDeviceVM.DeviceStatusList;
+      obj.VendorsList = createDeviceVM.VendorsList;
+      obj.DepartmentList = createDeviceVM.DepartmentList;      
 
       if (obj.Device!.SerialNumber != null)
       {
@@ -103,7 +110,7 @@ namespace TMIS.Areas.ITIS.Controllers
           ModelState.AddModelError("Device.SerialNumber", "Serial Number Already Available !");
         }
       }
-      if(obj.Device.DeviceTypeID == 0)
+      if (obj.Device.DeviceTypeID == 0)
       {
         ModelState.AddModelError("Device.DeviceTypeID", "Device Type  field is required.");
       }
@@ -117,16 +124,16 @@ namespace TMIS.Areas.ITIS.Controllers
       }
       // Check if the ModelState is valid
       if (!ModelState.IsValid)
-      {
-        return View(createDeviceVM);
+      {       
+        return View(obj);
       }
 
       // Insert Device
-      bool record =  await _deviceRepository.AddAsync(obj, image1, image2, image3, image4);
+      bool record = await _deviceRepository.AddAsync(obj, image1, image2, image3, image4);
 
       if (!record)
       {
-        return View(createDeviceVM);
+        return View(obj);
       }
 
       // Show success message and redirect
@@ -143,5 +150,7 @@ namespace TMIS.Areas.ITIS.Controllers
       var attributes = await _deviceRepository.GetAllAttributes(deviceTypeId);
       return Json(attributes);
     }
+
+    #endregion
   }
 }

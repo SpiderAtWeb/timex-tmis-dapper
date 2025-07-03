@@ -24,8 +24,7 @@
 	</h5>
 	<form asp-action="Edit" method="post" class="card-body" id="myForm" enctype="multipart/form-data">
 		<input asp-for="@Model.Device!.DeviceID" type="hidden" />
-		<div class="row g-2">
-
+		<div class="row g-2">		
 			<div class="col-md-3">
 				<div class="form-floating form-floating-outline">
 					<select asp-for="@Model.Device!.Location" asp-items="@Model.LocationList" class="select2 form-select" data-allow-clear="true">
@@ -34,6 +33,16 @@
 
 					<label asp-for="Device!.Location"></label>
 					<span asp-validation-for="@Model.Device!.Location" class="text-warning"></span>
+				</div>
+			</div>
+			<div class="col-md-3">
+				<div class="form-floating form-floating-outline">
+					<select asp-for="@Model.Device!.Department" asp-items="@Model.DepartmentList" class="select2 form-select" data-allow-clear="true">
+						<option value="" Disabled Selected>- Select Department -</option>
+					</select>
+
+					<label asp-for="Device!.Department"></label>
+					<span asp-validation-for="@Model.Device!.Department" class="text-warning"></span>
 				</div>
 			</div>
 			<div class="col-md-3">
@@ -136,7 +145,7 @@
 					</label>
 				</div>
 			</div>
-			<div class="col-md-3">
+			<div class="col-md-5">
 				<div class="form-floating form-floating-outline">
 					<input asp-for="@Model.Device!.Remark" type="text" id="style-no" class="form-control" />
 					<label asp-for="@Model.Device!.Remark"></label>

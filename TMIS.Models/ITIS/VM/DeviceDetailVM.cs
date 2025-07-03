@@ -35,5 +35,7 @@ namespace TMIS.Models.ITIS.VM
 
         public string? Vendor {  get; set; }
         public string? Status {  get; set; }
+        public string? Department { get; set; }
+        public string? DeviceType { get; set; }
     }
 }

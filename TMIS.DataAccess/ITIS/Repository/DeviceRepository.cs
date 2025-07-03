@@ -25,13 +25,14 @@ namespace TMIS.DataAccess.ITIS.Repository
 
         public async Task<IEnumerable<Device>> GetAllAsync()
         {
-            string sql = @"select d.DeviceID, d.DeviceName, d.SerialNumber, d.FixedAssetCode, s.PropName as Status,
-                            v.Name as Vendor, d.PurchasedDate, d.Remark, t.DeviceType
-                            from ITIS_Devices as d 
-                            left join COMN_MasterTwoLocations as l on l.Id=d.Location
-                            left join ITIS_DeviceStatus as s on s.Id=d.DeviceStatusID
-                            left join ITIS_VendorTemp as v on v.ID=d.VendorID
-                            left join ITIS_DeviceTypes as t on t.DeviceTypeID=d.DeviceTypeID";
+            string sql = @"select d.DeviceID,l.PropName as Location, t.DeviceType, d.DeviceName, d.SerialNumber, dd.DepartmentName as Department,
+                        s.PropName as Status
+                        from ITIS_Devices as d 
+                        left join COMN_MasterTwoLocations as l on l.Id=d.Location
+                        left join COMN_MasterDepartments as dd on dd.DepartmentID=d.Department
+                        left join ITIS_DeviceStatus as s on s.Id=d.DeviceStatusID
+                        left join ITIS_VendorTemp as v on v.ID=d.VendorID
+                        left join ITIS_DeviceTypes as t on t.DeviceTypeID=d.DeviceTypeID";
 
             return await _dbConnection.GetConnection().QueryAsync<Device>(sql);
         }
@@ -45,7 +46,8 @@ namespace TMIS.DataAccess.ITIS.Repository
                 LocationList = await _icommonList.LoadLocations(),
                 DeviceTypeList = await _icommonList.LoadDeviceTypes(),
                 DeviceStatusList = await _icommonList.LoadDeviceStatus(),
-                VendorsList = await _icommonList.LoadVendors()
+                VendorsList = await _icommonList.LoadVendors(),
+                DepartmentList = await _icommonList.LoadDepartments()
             };
 
             if(deviceID != null && deviceID.HasValue)
@@ -141,12 +143,12 @@ namespace TMIS.DataAccess.ITIS.Repository
                 DeviceTypeID, DeviceName, SerialNumber, FixedAssetCode, Location,
                 Image1Data, Image2Data, Image3Data, Image4Data, PurchasedDate,
                 AddedBy, DeviceStatusID, Remark, depreciation, VendorID,
-                IsRented, IsBrandNew
+                IsRented, IsBrandNew, Department
             ) VALUES (
                 @DeviceTypeID, @DeviceName, @SerialNumber, @FixedAssetCode, @Location,
                 @Image1Data, @Image2Data, @Image3Data, @Image4Data, @PurchasedDate,
                 @AddedBy, @DeviceStatusID, @Remark, @Depreciation, @VendorID,
-                @IsRented, @IsBrandNew
+                @IsRented, @IsBrandNew, @Department
             );
             SELECT CAST(SCOPE_IDENTITY() AS INT) AS InsertedId;";
 
@@ -213,7 +215,8 @@ namespace TMIS.DataAccess.ITIS.Repository
                             Depreciation = obj.Device.Depreciation,
                             VendorID = obj.Device.VendorID,
                             IsRented = obj.Device.IsRented,
-                            IsBrandNew = obj.Device.IsBrandNew
+                            IsBrandNew = obj.Device.IsBrandNew,
+                            Department = obj.Device.Department
                         }, trns);
 
                         if (insertedId.HasValue)

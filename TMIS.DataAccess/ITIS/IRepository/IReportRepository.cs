@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TMIS.Models.ITIS;
+using TMIS.Models.ITIS.VM;
 using TMIS.Models.SMIS;
 
 namespace TMIS.DataAccess.ITIS.IRepository
@@ -12,5 +13,6 @@ namespace TMIS.DataAccess.ITIS.IRepository
     {
         Task<IEnumerable<SummaryReportData>> GetAllDeviceData();
         Task<IEnumerable<DeviceCountReport>> GetAllDevicesCount();
+        Task<IEnumerable<DeviceViewModel>> GetDeviceDetail();
     }
 }

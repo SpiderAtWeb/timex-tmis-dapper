@@ -34,14 +34,12 @@
 						<table class="datatables-ajax table table-bordered dt-tbl">
 							<thead>
 								<tr class="table-info">															
-									<th>Device Type</th>
-									<th>Device Name</th>
+									<th>Device Type</th>									
 									<th class ="text-start">Serial#</th>
 									<th>Employee</th>
 									<th>Designation</th>
 									<th>Assigned Date</th>
-									<th>Location</th>
-									<th>Department</th>
+									<th>Location</th>									
 									<th>Action</th>
 								</tr>
 							</thead>
@@ -49,14 +47,12 @@
 								@foreach (var item in Model)
 								{
 								  <tr>									
-									  <td>@item.DeviceType</td>
-									  <td>@item.DeviceName</td>
+									  <td>@item.DeviceType</td>									  
 									  <td class="text-start">@item.SerialNumber</td>
 									  <td>@item.EmpName</td>
 									  <td>@item.Designation</td>									 
 									  <td>@(DateTime.TryParse(item.AssignedDate, out var parsedDate) ? parsedDate.ToString("MM-dd-yyyy") : "-")</td>
-									  <td>@item.LocationName</td>
-									  <td>@item.DepartmentName</td>									  									
+									  <td>@item.LocationName</td>									  
 									  <td>
 										  <a class="edit-record btn btn-primary btn-sm" asp-controller="ApproveDeviceUser" asp-action="Approve" asp-route-assignmentID="@item.AssignmentID"> <i class="ri-contract-fill"></i> </a>
 									  </td>

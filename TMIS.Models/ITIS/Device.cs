@@ -65,5 +65,8 @@ namespace TMIS.Models.ITIS
         public string? DeviceType {  get; set; }
 
         public List<AttributeValue>? AttributeValues { get; set; }
+        [Required]
+        [DisplayName("Department")]
+        public string? Department { get; set; }
     }
 }

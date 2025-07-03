@@ -1,0 +1,175 @@
+@using TMIS.Models.ITIS.VM
+@model DeviceViewModel
+
+@section VendorStyles {
+	<link href="~/styles/kendo.common.min.css" rel="stylesheet" />
+	<link href="~/styles/kendo.metro.min.css" rel="stylesheet" />
+}
+@section VendorScripts {
+	<script src="~/kendo/jszip.min.js"></script>
+	<script src="~/kendo/kendo.all.min.js"></script>
+}
+@section PageScripts {
+	<script src="~/custom/summary.js"></script>
+	<script>
+		const flatData = [
+			{
+				DeviceName: "HP EliteBook",
+				SerialNumber: "SN001",
+				DeviceType: "Laptop",
+				DeviceLocation: "Colombo",
+				DeviceStatus: "Active",
+				DeviceDepartment: "IT",
+				UserStatus: "In Use",
+				EMPNo: "EMP001",
+				EmpName: "John",
+				AssignedBy: "Admin",
+				AssignedDate: "2024-06-01T00:00:00",
+				AssignLocation: "Colombo",
+				AssignDepartment: "IT",
+				EmpEmail: "john@example.com",
+				Designation: "Admin Officer",
+				AssignRemarks: "Initial",
+				ReturnedDate: null,
+				ReturnRemarks: ""
+			},
+			{
+				DeviceName: "HP EliteBook",
+				SerialNumber: "SN001",
+				DeviceType: "Laptop",
+				DeviceLocation: "Colombo",
+				DeviceStatus: "Active",
+				DeviceDepartment: "IT",
+				UserStatus: "Returned",
+				EMPNo: "EMP002",
+				EmpName: "Jane",
+				AssignedBy: "Admin",
+				AssignedDate: "2024-07-01T00:00:00",
+				AssignLocation: "Kandy",
+				AssignDepartment: "HR",
+				EmpEmail: "jane@example.com",
+				Designation: "Support Officer",
+				AssignRemarks: "Temp",
+				ReturnedDate: "2024-07-10T00:00:00",
+				ReturnRemarks: "Good condition"
+			},
+			{
+				DeviceName: "HP Probook",
+				SerialNumber: "SN001",
+				DeviceType: "Laptop",
+				DeviceLocation: "Colombo",
+				DeviceStatus: "Active",
+				DeviceDepartment: "IT",
+				UserStatus: "Returned",
+				EMPNo: "EMP002",
+				EmpName: "Jane",
+				AssignedBy: "Admin",
+				AssignedDate: "2024-07-01T00:00:00",
+				AssignLocation: "Kandy",
+				AssignDepartment: "HR",
+				EmpEmail: "jane@example.com",
+				Designation: "Support Officer",
+				AssignRemarks: "Temp",
+				ReturnedDate: "2024-07-10T00:00:00",
+				ReturnRemarks: "Good condition"
+			},
+			{
+				DeviceName: "HP Probook",
+				SerialNumber: "SN001",
+				DeviceType: "Laptop",
+				DeviceLocation: "Colombo",
+				DeviceStatus: "Active",
+				DeviceDepartment: "IT",
+				UserStatus: "Returned",
+				EMPNo: "EMP002",
+				EmpName: "Jane",
+				AssignedBy: "Admin",
+				AssignedDate: "2024-07-01T00:00:00",
+				AssignLocation: "Kandy",
+				AssignDepartment: "HR",
+				EmpEmail: "jane@example.com",
+				Designation: "Support Officer",
+				AssignRemarks: "Temp",
+				ReturnedDate: "2024-07-10T00:00:00",
+				ReturnRemarks: "Good condition"
+			}
+		];
+
+		$(document).ready(function () {
+			$("#grid").kendoGrid({
+				dataSource: {
+					data: flatData,
+					group: {
+						field: "DeviceName",
+						aggregates: []
+					}
+				},
+				toolbar: ["excel"],
+				excel: {
+					fileName: "Device_Assignments_Report.xlsx",
+					allPages: true
+				},
+				sortable: true,
+				pageable: true,
+				groupable: true,
+				pageable: {
+					buttonCount: 5
+				},
+				columns: [
+					{
+						field: "DeviceName",
+						title: "Device Info",
+						hidden: true,
+						groupHeaderTemplate: function (e) {
+							return `Device Name: ${e.value}, Serial#: ${e.items[0].SerialNumber}, Type: ${e.items[0].DeviceType}, Device Location: ${e.items[0].DeviceLocation}, Device Status: ${e.items[0].DeviceStatus}, Device Department: ${e.items[0].DeviceDepartment}`;
+						}
+					},
+					{ field: "UserStatus", title: "User Status" },
+					{ field: "EMPNo", title: "EPF" },
+					{ field: "EmpName", title: "Employee" },
+					{ field: "AssignedBy", title: "Assigned By" },
+					{ field: "AssignedDate", title: "Assigned Date", format: "{0:yyyy-MM-dd}" },
+					{ field: "AssignLocation", title: "Assigned Location" },
+					{ field: "AssignDepartment", title: "Assigned Department" },
+					{ field: "EmpEmail", title: "Email" },
+					{ field: "Designation", title: "Designation" },
+					{ field: "AssignRemarks", title: "Assign Remarks" },
+					{ field: "ReturnedDate", title: "Returned Date", format: "{0:yyyy-MM-dd}" },
+					{ field: "ReturnRemarks", title: "Returned Remarks" }
+				]
+			});
+		});
+	</script>
+	<script src="~/custom/loading-hide.js"></script>
+}
+
+@* ************** Content ************** *@
+<!-- Ajax Sourced Server-side -->
+@await Html.PartialAsync("_Loading")
+
+<div class="panelDiv">
+	<div id="modal" style="display:none;">
+		<h3><span id="modal-id"></span></h3>
+		<div><span id="modal-logs"></span></div>
+	</div>
+	<div class="card">
+		<div class="row">
+			<div>
+				<!-- Transactions -->
+				<div class="col align-self-end">
+					<div class="card-body">
+						<hr class="my-2">
+						<div class="row">
+							<div class="col-6">
+								<h5 class="card-header page-header">Overal Report</h5>
+							</div>
+						</div>
+						<div id="example">
+							<div id="grid"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

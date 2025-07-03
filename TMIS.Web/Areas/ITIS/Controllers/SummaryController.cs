@@ -19,6 +19,21 @@ namespace TMIS.Areas.ITIS.Controllers
       return View();
     }
 
+    public IActionResult OveralReport()
+    {
+      _logger.Info("[ " + _iSessionHelper.GetShortName() + " ] - PAGE VISIT OVERAL REPORT");
+      return View();
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetDevices()
+    {
+      _logger.Info("[ " + _iSessionHelper.GetShortName() + " ] - GET ALL DEVICES");
+      var data = await _reportRepository.GetDeviceDetail();
+      var jsonConverted = Json(data);
+      return jsonConverted;
+    }
+
     [HttpGet]
     public async Task<IActionResult> GetAllDataList(string callback)
     {

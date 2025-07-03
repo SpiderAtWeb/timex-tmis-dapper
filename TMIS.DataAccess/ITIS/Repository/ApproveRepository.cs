@@ -21,22 +21,30 @@ namespace TMIS.DataAccess.ITIS.Repository
 
         public async Task<IEnumerable<ApproveDeviceUserVM>> GetAllAsync()
         {
-            string sql = @"select a.AssignmentID, a.DeviceID, t.DeviceType, d.DeviceName, d.SerialNumber, a.EmpName, a.Designation, a.AssignedDate, 
-                            a.AssignLocation as LocationName,  a.AssignDepartment as DepartmentName from ITIS_DeviceAssignments as a 
-                            inner join ITIS_Devices as d on d.DeviceID=a.DeviceID
-                            inner join ITIS_DeviceTypes as t on t.DeviceTypeID=d.DeviceTypeID                            
-                            where a.AssignStatusID = 2"; // replace with actual approver
+            // GetUserId
+            string sql = @"select a.AssignmentID, a.DeviceID, t.DeviceType, d.DeviceName, d.SerialNumber, ISNull(ad.EmpName, a.EmpName) as EmpName, a.Designation, 
+                            a.AssignedDate, a.AssignLocation as LocationName, a.AssignDepartment as DepartmentName, st.PropName as AssignStatus 
+                            from ITIS_DeviceAssignments as a 
+                            left join ITIS_MasterADEmployees as ad on ad.EmpUserName=a.EmpName
+                            left join ITIS_Devices as d on d.DeviceID=a.DeviceID
+                            left join ITIS_DeviceTypes as t on t.DeviceTypeID=d.DeviceTypeID                  
+                            left join ITIS_DeviceAssignStatus as st on st.Id=a.AssignStatusID                           
+                            where a.AssignStatusID = 2 and a.ApproverEMPNo = @ApproverEMPNo"; 
 
-            return await _dbConnection.GetConnection().QueryAsync<ApproveDeviceUserVM>(sql);
+            return await _dbConnection.GetConnection().QueryAsync<ApproveDeviceUserVM>(sql, new {
+                ApproverEMPNo = _iSessionHelper.GetUserId()
+            });
         }
 
         public async Task<ApproveVM?> GetSelectedRecord(int assignmentID)
         {
-            string sql = @"select da.AssignmentID, da.DeviceID, da.EmpName, da.AssignedDate, da.AssignRemarks, d.DeviceName, 
+            string sql = @"select da.AssignmentID, da.DeviceID,  ISNull(ad.EmpName, da.EmpName) as EmpName, 
+							da.AssignLocation, da.AssignDepartment, da.Designation, da.AssignedDate, da.AssignRemarks, d.DeviceName, 
                             d.SerialNumber, d.FixedAssetCode, d.Image1Data, d.Image2Data,
                             d.Image3Data, d.Image4Data, d.PurchasedDate, d.depreciation, d.IsRented, 
                             d.IsBrandNew from ITIS_DeviceAssignments as da 
                             inner join ITIS_Devices as d on d.DeviceID=da.DeviceID
+							left join ITIS_MasterADEmployees as ad on ad.EmpUserName=da.EmpName
                             where da.AssignmentID=@AssignmentID";
 
             var deviceDetails =  await _dbConnection.GetConnection().QueryFirstOrDefaultAsync<ApproveVM>(sql, new {
@@ -70,7 +78,10 @@ namespace TMIS.DataAccess.ITIS.Repository
                 Depreciation   = deviceDetails.Depreciation,
                 IsBrandNew = deviceDetails.IsBrandNew,
                 IsRented = deviceDetails.IsRented,
-                AttributeValues = attributeValue.ToList()
+                AttributeValues = attributeValue.ToList(),
+                AssignDepartment = deviceDetails.AssignDepartment,
+                AssignLocation = deviceDetails.AssignLocation,
+                Designation = deviceDetails.Designation
             };
 
             return approveVM;

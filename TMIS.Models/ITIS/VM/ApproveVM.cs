@@ -35,7 +35,7 @@ namespace TMIS.Models.ITIS.VM
         [DisplayName("FA Code")]
         public string? FixedAssetCode { get; set; }
     
-        [DisplayName("Location")]
+        [DisplayName("User Location")]
         public string? Location { get; set; }
 
         [DisplayName("Image 1")]
@@ -71,5 +71,12 @@ namespace TMIS.Models.ITIS.VM
         public bool IsBrandNew { get; set; }
 
         public List<AttributeValue>? AttributeValues { get; set; }
+
+        [DisplayName("User Department")]
+        public string? AssignDepartment { get; set; }
+        [DisplayName("User Location")]
+        public string? AssignLocation { get; set; }
+        [DisplayName("Designation")]
+        public string? Designation { get; set; }
     }
 }

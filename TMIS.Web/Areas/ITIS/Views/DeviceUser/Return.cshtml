@@ -28,36 +28,94 @@
 			$.get(`/ITIS/DeviceUser/GetDeviceDetails?deviceId=${deviceId}`, function (data) {
 				let allHtml =  '<div class="row g-2">'; // Wrap with Bootstrap row;
 
-				allHtml += `<div class="col-md-3">
+				allHtml += `
+						<div class="col-md-3">
+						  <div class="form-floating form-floating-outline">
+								<input type="text" class="form-control" value="${data.deviceType ? data.deviceType : '-'}" disabled/>
+								<label>Device Type</label>
+						  </div>
+						</div>
+						<div class="col-md-3">
+						  <div class="form-floating form-floating-outline">
+								<input type="text" class="form-control" value="${data.deviceName ? data.deviceName : '-'}" disabled/>
+								<label>Device Name</label>
+						  </div>
+						</div>
+						<div class="col-md-3">
+						  <div class="form-floating form-floating-outline">
+								<input type="text" class="form-control" value="${data.serialNumber ? data.serialNumber : '-'}" disabled/>
+								<label>Serial Number</label>
+						  </div>
+						</div>
+						<div class="col-md-3">
+						  <div class="form-floating form-floating-outline">
+								<input type="text" class="form-control" value="${data.fixedAssetCode ? data.fixedAssetCode : '-'}" disabled/>
+								<label>FA Code</label>
+						  </div>
+						</div>
+						<div class="col-md-3">
+						  <div class="form-floating form-floating-outline">								
+								<input type="text" class="form-control" value="${data.purchasedDate ? (new Date(data.purchasedDate).toLocaleDateString('en-GB').split('/').reverse().join('-')) : '-'}" disabled/>
+								<label>Purchased Date</label>
+						  </div>
+						</div>
+						<div class="col-md-3">
+						  <div class="form-floating form-floating-outline">
+								<input type="text" class="form-control" value="${data.depreciation ? data.depreciation : '-'}" disabled/>
+								<label>Depreciation</label>
+						  </div>
+						</div>
+							<div class="col-md-3">
 							  <div class="form-floating form-floating-outline">
-									<input type="text" class="form-control" value="${data.deviceName}" disabled/>
-									<label>Device Name</label>
+								<input type="text" class="form-control" value="${data.vendor ? data.vendor : '-'}" disabled/>
+								<label>Vendor</label>
 							  </div>
 							</div>
 							<div class="col-md-3">
 							  <div class="form-floating form-floating-outline">
-											<input type="text" class="form-control" value="${data.serialNumber}" disabled/>
-											<label>Serial Number</label>
+								<input type="text" class="form-control" value="${data.location ? data.location : '-'}" disabled/>
+								<label>Location</label>
+							  </div>
+							</div>
+							<div class="col-md-2">
+							  <div class="list-group">
+								<label class="list-group-item w-100">
+								  <span class="form-check mb-0">
+									<input type="checkbox"
+									  class="form-check-input me-4"
+									  ${data.isRented ? "checked disabled" : "disabled"}
+									  id="isRentedCheck" />
+									<label class="form-check-label" for="isRentedCheck">Is Rented</label>
+								  </span>
+								</label>
+							  </div>
+							</div>
+							<div class="col-md-2">
+							  <div class="list-group">
+								<label class="list-group-item w-100">
+								  <span class="form-check mb-0">
+									<input type="checkbox"
+									  class="form-check-input me-4"
+									  ${data.isBrandNew ? "checked disabled" : "disabled"}
+									  id="isRentedCheck" />
+									<label class="form-check-label" for="isRentedCheck">Is Rented</label>
+								  </span>
+								</label>
 							  </div>
 							</div>
 							<div class="col-md-3">
 							  <div class="form-floating form-floating-outline">
-											<input type="text" class="form-control" value="${data.fixedAssetCode}" disabled/>
-											<label>FA Code</label>
+								<input type="text" class="form-control" value="${data.department ? data.department : '-'}" disabled/>
+								<label>Department</label>
 							  </div>
 							</div>
-							<div class="col-md-3">
+							<div class="col-md-5">
 							  <div class="form-floating form-floating-outline">
-											<input type="text" class="form-control" value="${data.purchasedDate}" disabled/>
-											<label>Purchased Date</label>
+								<input type="text" class="form-control" value="${data.remark ? data.remark : '-' }" disabled/>
+								<label>Description</label>
 							  </div>
 							</div>
-							<div class="col-md-3">
-							  <div class="form-floating form-floating-outline">
-											<input type="text" class="form-control" value="${data.depreciation}" disabled/>
-											<label>Depreciation</label>
-							  </div>
-							</div>`;
+							`;
 
 				  data.attributeValues.forEach(attr => {
 					let html = `<div class="col-md-3">
@@ -76,55 +134,71 @@
 			
 			$.get(`/ITIS/DeviceUser/GetUserDetails?deviceId=${deviceId}`, function (data){
 				let allHtml2 =  '<div class="row g-2">';
-				allHtml2 += `<div class="col-md-3">
-							  <div class="form-floating form-floating-outline">							  
-								  <input type="text" class="form-control" value="${data.empNo}" disabled/>						
-									  <input name="RecordID" type="hidden" value="${data.assignmentID}" />
+				allHtml2 += `
+							<div class="col-md-3">
+							  <div class="form-floating form-floating-outline">
+								  <input type="text" class="form-control" value="${data.empName ? data.empName : '-' }" disabled/>
+								  <label>Employee</label>
+							  </div>
+							</div>
+							<div class="col-md-3">
+							  <div class="form-floating form-floating-outline">
+								  <input type="text" class="form-control" value="${data.assignLocation ? data.assignLocation : '-' }" disabled/>
+								  <label>User Location</label>
+							  </div>
+							</div>
+							<div class="col-md-3">
+							  <div class="form-floating form-floating-outline">
+								  <input type="text" class="form-control" value="${data.assignDepartment ? data.assignDepartment : '-' }" disabled/>
+								  <label>User Department</label>
+							  </div>
+							</div>
+							<div class="col-md-3">
+							  <div class="form-floating form-floating-outline">
+								  <input type="text" class="form-control" value="${data.empNo ? data.empNo : '-'}" disabled/>
+								  <input name="RecordID" type="hidden" value="${data.assignmentID}" />
 								  <label>Employee #</label>
 							  </div>
 							</div>
 							<div class="col-md-3">
 							  <div class="form-floating form-floating-outline">
-											<input type="text" class="form-control" value="${data.empName}" disabled/>
-											<label>Employee</label>
+									<input type="text" class="form-control" value="${data.designation ? data.designation : '-'}" disabled/>
+									<label>Designation</label>
 							  </div>
 							</div>
 							<div class="col-md-3">
 							  <div class="form-floating form-floating-outline">
-											<input type="text" class="form-control" value="${data.designation}" disabled/>
-											<label>Designation</label>
+								  <input type="text" class="form-control" value="${data.assignedDate ? (new Date(data.assignedDate).toLocaleDateString('en-GB').split('/').reverse().join('-')) : '-'}" disabled/>
+								  <label>Assigned Date</label>
 							  </div>
 							</div>
 							<div class="col-md-3">
 							  <div class="form-floating form-floating-outline">
-											<input type="text" class="form-control" value="${data.assignedDate}" disabled/>
-											<label>Assigned Date</label>
+									<input type="text" class="form-control" value="${data.assignRemarks ? data.assignRemarks : '-'}" disabled/>
+									<label>Assigner Comment</label>
+							  </div>
+							</div>
+							<div class="col-md-3">							 
+							</div>
+							<div class="col-md-3">
+							  <div class="form-floating form-floating-outline">
+								  <input type="text" class="form-control" value="${data.approverResponseDate ? (new Date(data.approverResponseDate).toLocaleDateString('en-GB').split('/').reverse().join('-')) : '-'}" disabled/>
+								  <label>Approved Date</label>
 							  </div>
 							</div>
 							<div class="col-md-3">
 							  <div class="form-floating form-floating-outline">
-											<input type="text" class="form-control" value="${data.assignRemarks}" disabled/>
-											<label>Assigner Comment</label>
+								  <input type="text" class="form-control" value="${data.approverRemark ? data.approverRemark : '-'}" disabled/>
+								  <label>Approver Comment</label>
 							  </div>
 							</div>
 							<div class="col-md-3">
 							  <div class="form-floating form-floating-outline">
-											<input type="text" class="form-control" value="${data.approverEMPNO}" disabled/>
-											<label>Approver</label>
+								  <input type="text" class="form-control" value="${data.assignStatus ? data.assignStatus : '-'}" disabled/>
+								  <label>Assign State</label>
 							  </div>
 							</div>
-							<div class="col-md-3">
-							  <div class="form-floating form-floating-outline">
-											<input type="text" class="form-control" value="${data.approverResponseDate}" disabled/>
-											<label>Approved Date</label>
-							  </div>
-							</div>
-							<div class="col-md-3">
-							  <div class="form-floating form-floating-outline">
-											<input type="text" class="form-control" value="${data.approverRemark}" disabled/>
-											<label>Approver Comment</label>
-							  </div>
-							</div>`;
+							`;
 				allHtml2 += '</div>'; // Close the row
 				$('#userDetailContainer').html(allHtml2);
 			});

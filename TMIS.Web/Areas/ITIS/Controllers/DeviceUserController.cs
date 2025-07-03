@@ -71,7 +71,7 @@ namespace TMIS.Areas.ITIS.Controllers
       _logger.Info("[" + _iSessionHelper.GetShortName() + "] - PAGE VISIT DEVICEUSER VIEW");
 
       var deviceDetails = await _deviceUserRepository.LoadDeviceDetail(deviceId);
-      var userDetails = await _deviceUserRepository.LoadUserDetail(deviceId);
+      var userDetails = await _deviceUserRepository.LoadUserDetail(deviceId);    
 
       ViewDeviceUserVM viewDeviceUserVM = new ViewDeviceUserVM();
 

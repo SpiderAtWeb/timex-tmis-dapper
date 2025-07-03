@@ -94,6 +94,16 @@
 			</div>
 			<div class="col-md-3">
 				<div class="form-floating form-floating-outline">
+					<select asp-for="@Model.Device!.Department" asp-items="@Model.DepartmentList" class="select2 form-select" data-allow-clear="true">
+						<option value="" Disabled Selected>- Select Department -</option>
+					</select>
+
+					<label asp-for="Device!.Department"></label>
+					<span asp-validation-for="@Model.Device!.Department" class="text-warning"></span>
+				</div>
+			</div>
+			<div class="col-md-3">
+				<div class="form-floating form-floating-outline">
 					<input asp-for="@Model.Device!.DeviceName" type="text" id="style-no" class="form-control" placeholder="CHO0001" />
 					<label asp-for="@Model.Device!.DeviceName"></label>
 					<span asp-validation-for="@Model.Device!.DeviceName" class="customerError text-warning"></span>
@@ -192,7 +202,7 @@
 					</label>
 				</div>
 			</div>		
-			<div class="col-md-3">
+			<div class="col-md-5">
 				<div class="form-floating form-floating-outline">
 					<input asp-for="@Model.Device!.Remark" type="text" id="style-no" class="form-control"/>
 					<label asp-for="@Model.Device!.Remark"></label>

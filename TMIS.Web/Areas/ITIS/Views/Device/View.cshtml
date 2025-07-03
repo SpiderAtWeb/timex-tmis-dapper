@@ -32,8 +32,13 @@
 					Device Details
 				</div>
 				<div class="card-body">
-					<div class="row g-1" id="deviceDetailContainer">
-
+					<div class="row g-2" id="deviceDetailContainer">
+						<div class="col-md-3">
+							<div class="form-floating form-floating-outline">
+								<input type="text" class="form-control" value="@Model.DeviceDetail!.DeviceType" disabled />
+								<label>Device Type</label>
+							</div>
+						</div>
 						<div class="col-md-3">
 							<div class="form-floating form-floating-outline">
 								<input type="text" class="form-control" value="@Model.DeviceDetail!.DeviceName" disabled />
@@ -70,6 +75,12 @@
 								<label>Vendor</label>
 							</div>
 						</div>
+						<div class="col-md-3">
+							<div class="form-floating form-floating-outline">
+								<input type="text" class="form-control" value="@Model.DeviceDetail!.Location" disabled />
+								<label>Location</label>
+							</div>
+						</div>
 						<div class="col-md-2">
 							<div class="list-group">
 								<label class="list-group-item w-100">
@@ -95,14 +106,14 @@
 									</span>
 								</label>
 							</div>
-						</div>
+						</div>						
 						<div class="col-md-3">
 							<div class="form-floating form-floating-outline">
-								<input type="text" class="form-control" value="@Model.DeviceDetail!.Location" disabled />
-								<label>Location</label>
+								<input type="text" class="form-control" value="@Model.DeviceDetail!.Department" disabled />
+								<label>Department</label>
 							</div>
 						</div>
-						<div class="col-md-3">
+						<div class="col-md-5">
 							<div class="form-floating form-floating-outline">
 								<input type="text" class="form-control" value="@Model.DeviceDetail!.Remark" disabled />
 								<label>Description</label>
@@ -185,7 +196,7 @@
 						User Details
 					</div>
 					<div class="card-body">
-						<div class="row g-1" id="userDetailContainer">
+						<div class="row g-2" id="userDetailContainer">
 							<div class="col-md-3">
 								<div class="form-floating form-floating-outline">
 									<input type="text" class="form-control" value="@Model.DeviceUserDetail!.EmpName" disabled />

@@ -33,11 +33,10 @@
 				</div>
 				<div class="card-body">
 					<div class="row g-2" id="deviceDetailContainer">
-
-						<div class="col-md-4">
+						<div class="col-md-3">
 							<div class="form-floating form-floating-outline">
-								<input type="text" class="form-control" value="@Model.DeviceDetail!.DeviceName" disabled />
-								<label>Device Name</label>
+								<input type="text" class="form-control" value="@Model.DeviceDetail!.DeviceType" disabled />
+								<label>Device Type</label>
 							</div>
 						</div>
 						<div class="col-md-3">
@@ -46,6 +45,24 @@
 								<label>Serial Number</label>
 							</div>
 						</div>
+						<div class="col-md-3">
+							<div class="form-floating form-floating-outline">
+								<input type="text" class="form-control" value="@Model.DeviceDetail!.Location" disabled />
+								<label>Initial Location</label>
+							</div>
+						</div>
+						<div class="col-md-3">
+							<div class="form-floating form-floating-outline">
+								<input type="text" class="form-control" value="@Model.DeviceDetail!.Department" disabled />
+								<label>Initial Department</label>
+							</div>
+						</div>
+						<div class="col-md-3">
+							<div class="form-floating form-floating-outline">
+								<input type="text" class="form-control" value="@Model.DeviceDetail!.DeviceName" disabled />
+								<label>Device Name</label>
+							</div>
+						</div>						
 						<div class="col-md-3">
 							<div class="form-floating form-floating-outline">
 								<input type="text" class="form-control" value="@Model.DeviceDetail!.FixedAssetCode" disabled />
@@ -96,6 +113,24 @@
 						</div>
 						<div class="col-md-3">
 							<div class="form-floating form-floating-outline">
+								<input type="text" class="form-control" value="@Model.DeviceUserDetail!.AssignLocation" disabled />
+								<label>User Location</label>
+							</div>
+						</div>
+						<div class="col-md-3">
+							<div class="form-floating form-floating-outline">
+								<input type="text" class="form-control" value="@Model.DeviceUserDetail!.AssignDepartment" disabled />
+								<label>User Department</label>
+							</div>
+						</div>
+						<div class="col-md-3">
+							<div class="form-floating form-floating-outline">
+								<input type="text" class="form-control" value="@Model.DeviceUserDetail!.EmpNo" disabled />
+								<label>Employee#</label>
+							</div>
+						</div>
+						<div class="col-md-3">
+							<div class="form-floating form-floating-outline">
 								<input type="text" class="form-control" value="@Model.DeviceUserDetail!.Designation" disabled />
 								<label>Designation</label>
 							</div>
@@ -123,19 +158,7 @@
 								<input type="text" class="form-control" value="@Model.DeviceUserDetail!.ApproverRemark" disabled />
 								<label>Approver Comment</label>
 							</div>
-						</div>
-						<div class="col-md-3">
-							<div class="form-floating form-floating-outline">
-								<input type="text" class="form-control" value="@Model.DeviceUserDetail!.AssignLocation" disabled />
-								<label>Location</label>
-							</div>
-						</div>
-						<div class="col-md-3">
-							<div class="form-floating form-floating-outline">
-								<input type="text" class="form-control" value="@Model.DeviceUserDetail!.AssignDepartment" disabled />
-								<label>Department</label>
-							</div>
-						</div>
+						</div>					
 						<div class="col-md-3">
 							<div class="form-floating form-floating-outline">
 								<input type="text" class="form-control" value="@Model.DeviceUserDetail!.AssignStatus" disabled />
