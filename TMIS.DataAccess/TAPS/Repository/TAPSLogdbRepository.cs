@@ -13,16 +13,16 @@ using TMIS.Models.TAPS;
 namespace TMIS.DataAccess.TAPS.Repository
 {
     public class TAPSLogdbRepository(IHttpContextAccessor httpCtxtAcsor,
-        IDatabaseConnectionAdm dbConnection,
+        IDatabaseConnectionSys dbConnection,
         ISessionHelper sessionHelper) : ITAPSLogdbRepository
     {
-        private readonly IDatabaseConnectionAdm _dbConnection = dbConnection;
+        private readonly IDatabaseConnectionSys _dbConnection = dbConnection;
         private readonly IHttpContextAccessor _httpCtxtAcsor = httpCtxtAcsor;
         private readonly ISessionHelper _iSessionHelper = sessionHelper;
 
         public void InsertLog(TAPSLogdb log)
         {
-            var sql = @"INSERT INTO [dbo].[_TrLogger]
+            var sql = @"INSERT INTO [dbo].[TAPS_TrLogger]
                        ([TrDateTime]
                        ,[RefID]
                        ,[TrLog]
