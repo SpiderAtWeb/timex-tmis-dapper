@@ -66,7 +66,7 @@ namespace TMIS.Models.ITIS
 
         public List<AttributeValue>? AttributeValues { get; set; }
         [Required]
-        [DisplayName("Department")]
+        [DisplayName("Cost Center")]
         public string? Department { get; set; }
     }
 }
