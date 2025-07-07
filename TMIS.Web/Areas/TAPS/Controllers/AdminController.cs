@@ -18,7 +18,7 @@ namespace TMIS.Areas.TAPS.Controllers
     private readonly IAdminRepository _adminRepository = adminRepository;
     public async Task<IActionResult> Index()
     {
-      _logger.Info("[" + _iSessionHelper.GetShortName() + "] - PAGE VISIT TYPE INDEX");
+      _logger.Info("[" + _iSessionHelper.GetShortName() + "] - PAGE VISIT ADMIN INDEX");
       var roles = await _adminRepository.LoadUserRoles();
       var users = await _adminRepository.LoadUsers();
 
@@ -28,6 +28,20 @@ namespace TMIS.Areas.TAPS.Controllers
         UserRoleList = roles
       };
       return View(userRoleVM);
+    }
+
+    public async Task<IActionResult> AssignLocation()
+    {
+      _logger.Info("[" + _iSessionHelper.GetShortName() + "] - PAGE VISIT AssignLocation");
+      var users = await _adminRepository.LoadUsers();
+      var locations = await _adminRepository.LoadLocationList();
+
+      UserLocationVM userLocationVM = new()
+      {
+        UserList = users,
+        UserLocationList = locations
+      };
+      return View(userLocationVM);
     }
 
     [HttpGet]
@@ -155,6 +169,56 @@ namespace TMIS.Areas.TAPS.Controllers
       };
       _adminRepository.DeleteApprover(obj);
       return Json(new { success = true });
+    }
+    [HttpGet]
+    public async Task<IActionResult> GetUserLocationDetails(int userID)
+    {
+      var userLocation = await _adminRepository.LoadUserLocation(userID);
+      return Json(userLocation);
+    }
+    [HttpPost]
+    public IActionResult UnAssignUserLocation(int userId, int userLocationId)
+    {
+      _adminRepository.DeleteUserLocation(userId, userLocationId);
+      return Json(new { success = true });
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> AssignLocation(UserLocationVM userLocation)
+    {
+      var locations = await _adminRepository.LoadLocationList();
+      var users = await _adminRepository.LoadUsers();
+
+      UserLocationVM userLocationVM = new()
+      {
+        UserList = users,
+        UserLocationList = locations
+      };
+      var exist = await _adminRepository.CheckLocationExistToUser(userLocation.selectedUserID, userLocation.selectedlocationID);
+
+      if (exist)
+      {
+        ModelState.AddModelError("selectedlocationID", "This location is already assigned to the user.");
+      }
+      // Check if the ModelState is valid
+      if (!ModelState.IsValid)
+      {
+        return View(userLocationVM);
+      }
+
+      var rowAffected = await _adminRepository.AssignUserLocation(userLocation.selectedUserID, userLocation.selectedlocationID);
+
+      if (rowAffected)
+      {
+        TempData["success"] = "User Location Assigned Successfully";
+        _logger.Info("USER LOCATION ASSIGNED [" + userLocation.selectedUserID + "] - [" + _iSessionHelper.GetShortName() + "]");
+      }
+      else
+      {
+        TempData["error"] = "Failed to Assign User Role";
+        _logger.Error("FAILED TO ASSIGN USER LOCATION [" + userLocation.selectedUserID + "] - [" + _iSessionHelper.GetShortName() + "]");
+      }
+      return RedirectToAction("AssignLocation");
     }
   }
 }

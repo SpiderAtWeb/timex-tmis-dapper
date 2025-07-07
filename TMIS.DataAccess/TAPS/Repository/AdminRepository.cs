@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Dapper;
+using iTextSharp.text;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using TMIS.DataAccess.COMON.IRpository;
 using TMIS.DataAccess.ITIS.IRepository;
@@ -66,6 +67,18 @@ namespace TMIS.DataAccess.TAPS.Repository
                 UserId = userID,
                 UserRoleId = roleID
             });
+
+            if (rowAfected > 0)
+            {
+                TAPSLogdb logdb = new()
+                {
+                    TrObjectId = userID,
+                    TrLog = $"Assigned role from user. User ID: {userID}, role ID: {roleID}, Status: CREATE"
+
+                };
+
+                _iTAPSLogdb.InsertLog(logdb);
+            }
 
             return rowAfected > 0;
         }
@@ -215,6 +228,85 @@ namespace TMIS.DataAccess.TAPS.Repository
             var result = await _dbConnection.GetConnection().QueryAsync<UserApprover>(query, new { userID });
 
             return result;
+        }
+        public async Task<IEnumerable<UserLocation>> LoadUserLocation(int UserId)
+        {
+            string locationQuery = @"select Id as Value, PropName AS Text from COMN_VwTwoCompLocs";
+            //replace with real datasource
+            var locations = await _dbConnectionSys.GetConnection().QueryAsync<SelectListItem>(locationQuery);
+
+            string query = @"select t.UserId, t.LocRelId as UserLocationId, u.UserEmail from _TrPermissionLocation as t left join _MasterUsers as u on u.Id=t.UserId
+                            where t.UserId=@UserId";
+
+            var result = await _dbConnection.GetConnection().QueryAsync<UserLocation>(query, new { UserId });
+
+            if (result != null && result.Any())
+            {
+                foreach (var userLocation in result)
+                {
+                    userLocation.UserLocationDesc = locations.FirstOrDefault(x => x.Value == userLocation.UserLocationId.ToString())?.Text;
+                }
+            }
+
+            return result ?? [];
+        }
+        public async Task<bool> AssignUserLocation(int userID, int locationID)
+        {
+            string query = @"INSERT INTO _TrPermissionLocation (UserId, LocRelId)
+                            VALUES (@UserId,@LocRelId);";
+
+            int rowAfected = await _dbConnection.GetConnection().ExecuteAsync(query, new
+            {
+                UserId = userID,
+                LocRelId = locationID
+            });
+
+            if (rowAfected > 0)
+            {
+                TAPSLogdb logdb = new()
+                {
+                    TrObjectId = userID,
+                    TrLog = $"Assigned location from user. User ID: {userID}, location ID: {locationID}, Status: CREATE"
+
+                };
+
+                _iTAPSLogdb.InsertLog(logdb);
+            }
+
+            return rowAfected > 0;
+        }
+        public void DeleteUserLocation(int userID, int locationID)
+        {
+            string query = @"DELETE FROM _TrPermissionLocation WHERE UserId = @UserId AND LocRelId = @LocRelId;";
+            int row = _dbConnection.GetConnection().Execute(query, new
+            {
+                UserId = userID,
+                LocRelId = locationID
+            });
+
+            if (row > 0)
+            {
+                TAPSLogdb logdb = new()
+                {
+                    TrObjectId = userID,
+                    TrLog = $"Unassigned location from user. User ID: {userID}, location ID: {locationID}, Status: DELETED"
+
+                };
+
+                _iTAPSLogdb.InsertLog(logdb);
+            }
+
+        }
+        public async Task<bool> CheckLocationExistToUser(int userID, int locationID)
+        {
+            string query = @"SELECT COUNT(*) FROM _TrPermissionLocation WHERE UserId = @UserId AND  LocRelId = @LocRelId;";
+
+            int count = await _dbConnection.GetConnection().ExecuteScalarAsync<int>(query, new
+            {
+                UserId = userID,
+                LocRelId = locationID
+            });
+            return count > 0;
         }
     }
 }

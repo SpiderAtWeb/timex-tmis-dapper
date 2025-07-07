@@ -16,6 +16,7 @@ namespace TMIS.DataAccess.TAPS.IRepository
         Task<IEnumerable<UserRole>> LoadUserRole(int UserId);
         Task<bool> AssignUserRole(int userID, int roleID);
         Task<bool> CheckRoleExistToUser(int userID, int roleID);
+        Task<bool> CheckLocationExistToUser(int userID, int roleID);
         void DeleteUserRole(int userID, int roleID);
         Task<IEnumerable<SelectListItem>> LoadEmployeeList();
         Task<bool> InsertNewUser(NewUserVM newUserVM);
@@ -25,5 +26,8 @@ namespace TMIS.DataAccess.TAPS.IRepository
         Task<bool> InsertApprover(AssignApproverVM obj);
         void DeleteApprover(AssignApproverVM obj);
         Task<IEnumerable<UserApprover>> LoadUserApprovers(int userID);
+        Task<IEnumerable<UserLocation>> LoadUserLocation(int UserId);
+        void DeleteUserLocation(int userID, int locationID);
+        Task<bool> AssignUserLocation(int userID, int locationID);
     }
 }
