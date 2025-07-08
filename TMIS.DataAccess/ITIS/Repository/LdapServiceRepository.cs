@@ -39,30 +39,7 @@ namespace TMIS.DataAccess.ITIS.Repository
             };
             int rowsAffected = await _dbConnection.GetConnection().ExecuteAsync(sql, parameters);
             return rowsAffected > 0;
-        }
-
-        //public async Task<bool> InsertADEMPLOYEES(List<ADEMPLOYEE> employeeList)
-        //{
-        //    const string deleteSql = @"DELETE FROM ITIS_MasterADEMPLOYEES";
-
-        //    const string sql = @"INSERT INTO ITIS_MasterADEMPLOYEES (EmpEmail, EmpName, EmpDesignation, EmpDepartment, EmpLocation, EmpUserName)
-        //        VALUES (@mail, @displayName, @jobTitle, @department, @office, @username)";
-
-        //    try
-        //    {
-        //        // Clear existing records before inserting new ones
-        //        await _dbConnection.GetConnection().ExecuteAsync(deleteSql);
-        //        // Insert new employee records
-        //        int rowsAffected = await _dbConnection.GetConnection().ExecuteAsync(sql, employeeList);
-        //        return rowsAffected > 0;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine("Error inserting employees: " + ex.Message);
-        //        return false;
-        //    }
-        //}
-
+        }       
         public async Task<bool> InsertADEMPLOYEES(List<ADEMPLOYEE> employeeList)
         {
             var adUsernames = employeeList.Select(e => e.username).ToList();
