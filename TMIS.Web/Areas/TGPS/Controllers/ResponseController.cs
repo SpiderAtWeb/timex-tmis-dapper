@@ -5,7 +5,6 @@ using TMIS.DataAccess.TGPS.IRpository;
 
 namespace TMIS.Areas.TGPS.Controllers
 {
-
   [Area("TGPS")]
   public class ResponseController(IResponse db) : BaseController
   {
@@ -72,6 +71,5 @@ namespace TMIS.Areas.TGPS.Controllers
 
       return Ok();
     }
-
   }
 }

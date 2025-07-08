@@ -82,8 +82,9 @@ namespace TMIS.DataAccess.TGPS.Rpository
                 string sql = @"UPDATE [dbo].[TGPS_TrGpGoodsHeader]
                    SET [IsApproved] = @Action
                       ,[ApprovedDateTime] = GETDATE()
+                      ,[IsCompleted] = @IsCompleted
                  WHERE Id = @Id";
-                var parameters = new { Id = id, Action = action };
+                var parameters = new { Id = id, Action = action, IsCompleted = int.Parse(action) > 1 ? 2 : 0 };
                 await _dbConnection.GetConnection().ExecuteAsync(sql, parameters);
                 return true;
             }
@@ -123,7 +124,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
 
             var details = await dbConnection.QueryAsync<EmpPassEmployees>(detailsSql, new { Id = id });
 
-            header.ShowGPItemVMList = details.ToList();
+            header.ShowGPItemVMList = [.. details];
 
             return header;
         }
