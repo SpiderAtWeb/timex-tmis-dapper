@@ -41,31 +41,72 @@ namespace TMIS.DataAccess.ITIS.Repository
             return rowsAffected > 0;
         }
 
+        //public async Task<bool> InsertADEMPLOYEES(List<ADEMPLOYEE> employeeList)
+        //{
+        //    const string deleteSql = @"DELETE FROM ITIS_MasterADEMPLOYEES";
+
+        //    const string sql = @"INSERT INTO ITIS_MasterADEMPLOYEES (EmpEmail, EmpName, EmpDesignation, EmpDepartment, EmpLocation, EmpUserName)
+        //        VALUES (@mail, @displayName, @jobTitle, @department, @office, @username)";
+
+        //    try
+        //    {
+        //        // Clear existing records before inserting new ones
+        //        await _dbConnection.GetConnection().ExecuteAsync(deleteSql);
+        //        // Insert new employee records
+        //        int rowsAffected = await _dbConnection.GetConnection().ExecuteAsync(sql, employeeList);
+        //        return rowsAffected > 0;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine("Error inserting employees: " + ex.Message);
+        //        return false;
+        //    }
+        //}
+
         public async Task<bool> InsertADEMPLOYEES(List<ADEMPLOYEE> employeeList)
         {
-            const string deleteSql = @"DELETE FROM ITIS_MasterADEMPLOYEES";
+            var adUsernames = employeeList.Select(e => e.username).ToList();
 
-            const string sql = @"INSERT INTO ITIS_MasterADEMPLOYEES (EmpEmail, EmpName, EmpDesignation, EmpDepartment, EmpLocation, EmpUserName)
-                VALUES (@mail, @displayName, @jobTitle, @department, @office, @username)";
+            string updateMissingUsersSql = @"
+            UPDATE ITIS_MasterADEmployees
+            SET IsDelete = 1
+            WHERE EmpUserName NOT IN @ADUsernames";
+            await _dbConnection.GetConnection().ExecuteAsync(updateMissingUsersSql, new { ADUsernames = adUsernames });
+
+            const string mergeSql = @"
+            MERGE ITIS_MasterADEmployees AS Target
+            USING (VALUES (@empNo, @displayName, @mail, @jobTitle, @department, @office, @username))
+                   AS Source (EmpNo, EmpName, EmpEmail, EmpDesignation, EmpDepartment, EmpLocation, EmpUserName)
+            ON Target.EmpUserName = Source.EmpUserName
+            WHEN MATCHED THEN
+                UPDATE SET 
+                    EmpNo = Source.EmpNo,
+                    EmpName = Source.EmpName,
+                    EmpEmail = Source.EmpEmail,
+                    EmpDesignation = Source.EmpDesignation,
+                    EmpDepartment = Source.EmpDepartment,
+                    EmpLocation = Source.EmpLocation,
+                    IsDelete = 0
+            WHEN NOT MATCHED THEN
+                INSERT (EmpNo, EmpName, EmpEmail, EmpDesignation, EmpDepartment, EmpLocation, EmpUserName, IsDelete)
+                VALUES (Source.EmpNo, Source.EmpName, Source.EmpEmail, Source.EmpDesignation, Source.EmpDepartment, Source.EmpLocation, Source.EmpUserName, 0);";
 
             try
             {
-                // Clear existing records before inserting new ones
-                await _dbConnection.GetConnection().ExecuteAsync(deleteSql);
-                // Insert new employee records
-                int rowsAffected = await _dbConnection.GetConnection().ExecuteAsync(sql, employeeList);
-                return rowsAffected > 0;
+                foreach (var emp in employeeList)
+                {
+                    await _dbConnection.GetConnection().ExecuteAsync(mergeSql, emp);
+                }
+                return true;
             }
-            catch (Exception ex)
+            catch
             {
-                Console.WriteLine("Error inserting employees: " + ex.Message);
                 return false;
             }
         }
         public async Task<bool> GetEmployeesFromAD()
         {
-            bool updateBtnStatus = await SetButtonStatus("SYNCBTN", true);
-            bool isSuccess = false;
+            bool updateBtnStatus = await SetButtonStatus("SYNCBTN", true);  
             var employeeList = new List<ADEMPLOYEE>();
             var credentials = new NetworkCredential("servicedesk", "T9#vLp@72k!QzM$w");
 
@@ -96,9 +137,10 @@ namespace TMIS.DataAccess.ITIS.Repository
 
             await Task.Run(() =>
             {
-                const int pageSize = 1000;                
-                var searchFilter = "(&(objectClass=user)(mail=*))";
-                var attributesToLoad = new[] { "displayName", "mail", "title", "department", "physicalDeliveryOfficeName", "sAMAccountName" };
+                const int pageSize = 1000;
+                //var searchFilter = "(&(objectClass=user)(mail=*))";
+                var searchFilter = "(&(objectClass=user)(mail=*)(!(userAccountControl:1.2.840.113556.1.4.803:=2)))";
+                var attributesToLoad = new[] { "displayName", "mail", "title", "department", "physicalDeliveryOfficeName", "sAMAccountName", "extensionAttribute1" };
 
                 byte[]? cookie = null; // Cookie for pagination
                 int pageCount = 0;
@@ -123,6 +165,7 @@ namespace TMIS.DataAccess.ITIS.Repository
                         var department = entry.Attributes["department"]?[0]?.ToString();
                         var office = entry.Attributes["physicalDeliveryOfficeName"]?[0]?.ToString();
                         var username = entry.Attributes["sAMAccountName"]?[0]?.ToString();
+                        var empNo = entry.Attributes["extensionAttribute1"]?[0]?.ToString();
 
                         if (!string.IsNullOrWhiteSpace(displayName))
                         {
@@ -133,7 +176,8 @@ namespace TMIS.DataAccess.ITIS.Repository
                                 jobTitle = jobTitle,
                                 department = department,
                                 office = office,
-                                username = username
+                                username = username,
+                                empNo = empNo
                             });
 
                             totalCount++;
@@ -152,15 +196,10 @@ namespace TMIS.DataAccess.ITIS.Repository
                 Console.WriteLine($"AD Query complete. Total users fetched: {totalCount}");
                 return employeeList.OrderBy(x => x.mail);
             });
-
-            if (employeeList.Count > 0)
-            {
-                isSuccess = true;
-            }
-
+            
             bool rowAffected = await InsertADEMPLOYEES(employeeList);
             updateBtnStatus = await SetButtonStatus("SYNCBTN", false);
-            return isSuccess;           
+            return rowAffected;           
         }
     }
 }
