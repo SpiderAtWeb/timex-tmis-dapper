@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Dapper;
+using iTextSharp.text;
 using Microsoft.AspNetCore.Http;
 using TMIS.DataAccess.COMON.IRpository;
 using TMIS.DataAccess.ITIS.IRepository;
@@ -16,9 +17,10 @@ namespace TMIS.DataAccess.ITIS.Repository
 {
     public class DeviceUserRepository(IDatabaseConnectionSys dbConnection,
                             ICommonList iCommonList, ISessionHelper sessionHelper,
-                            IITISLogdb iITISLogdb, IGmailSender gmailSender) : IDeviceUserRepository
+                            IITISLogdb iITISLogdb, IGmailSender gmailSender, IDatabaseConnectionAdm admConnection) : IDeviceUserRepository
     {
         private readonly IDatabaseConnectionSys _dbConnection = dbConnection;
+        private readonly IDatabaseConnectionAdm _admConnection = admConnection;
         private readonly ICommonList _icommonList = iCommonList;
         private readonly IITISLogdb _iITISLogdb = iITISLogdb;
         private readonly ISessionHelper _iSessionHelper = sessionHelper;
@@ -161,6 +163,9 @@ namespace TMIS.DataAccess.ITIS.Repository
 
                     _iITISLogdb.InsertLog(_dbConnection, logdb);
                 }
+                int? id = insertedId;
+                
+                PrepairEmail(id);
 
                 return insertedId > 0;
             }
@@ -205,50 +210,53 @@ namespace TMIS.DataAccess.ITIS.Repository
             return objDeviceUserDetailVM;
         }
 
-        private void PrepairEmail(int genId)
+        private void PrepairEmail(int? genId)
         {
             using var connection = _dbConnection.GetConnection();
 
-            string headerQuery = @"SELECT  EmpGpNo, GateName, ExpLoc, ExpReason, ExpOutTime, IsReturn, GenUser, ApprovedById
-            FROM TGPS_VwEGPHeaders WHERE (Id = @GenId)";
+            string headerQuery = @"select da.AssignmentID, dt.DeviceType, d.SerialNumber, da.AssignedDate, da.AssignedBy, da.AssignRemarks, da.AssignLocation, 
+                                    da.AssignDepartment, da.ApproverEMPNo from ITIS_DeviceAssignments as da 
+                                    inner join ITIS_Devices as d on d.DeviceID=da.DeviceID
+                                    inner join itis_deviceTypes as dt  on dt.DeviceTypeID=d.DeviceTypeID
+                                    where da.AssignmentID=@AssignmentID";
+     
+            var header = connection.Query(headerQuery, new { AssignmentID = genId }).FirstOrDefault();
 
-            var header = connection.Query(headerQuery, new { GenId = genId }).FirstOrDefault();
+            string detailsQuery = @"select ad.EmpName, da.EMPNo, da.Designation, ad.EmpEmail from ITIS_DeviceAssignments as da 
+                                    left join ITIS_MasterADEmployees as ad on ad.EmpUserName=da.EmpName
+                                    where da.AssignmentID=@AssignmentID";
 
-            string detailsQuery = @"SELECT EmpName, EmpEPF
-            FROM            TGPS_VwEGPDetails WHERE        (EGpPassId = @GenId)";
-
-            var details = connection.Query(detailsQuery, new { GenId = genId }).ToList();
+            var details = connection.Query(detailsQuery, new { AssignmentID = genId }).FirstOrDefault();
 
             // Prepare header part of array
             var myList = new List<string>
             {
-                $"{header!.EmpGpNo}",
-                $"{header.GateName}",
-                $"{header.ExpLoc}",
-                $"{header.ExpReason}",
-                $"{header.ExpOutTime}",
-                $"{header.IsReturn}",
-                $"{header.GenUser}"
+                $"{header!.AssignmentID}",
+                $"{header!.DeviceType}",
+                $"{header.SerialNumber}",
+                $"{header.AssignedDate}",
+                $"{header.AssignedBy}",
+                $"{header.AssignRemarks}",
+                $"{header.AssignLocation}",
+                $"{header.AssignDepartment}",
+                $"{details!.EmpName}",
+                $"{details!.EMPNo}",
+                $"{details!.EmpEmail}",
+                $"{details!.Designation}"
+
             };
-
-            // Append each detail row as a string item in the array
-            foreach (var d in details)
-            {
-                string detailString = $"{d.EmpName}|{d.EmpEPF}";
-                myList.Add(detailString);
-            }
-
+       
             // Convert to array
             string[] myArray = [.. myList];
 
             // Prepare email recipient
-            string mailTo = connection.QuerySingleOrDefault<string>(
-                "SELECT UserEmail FROM ADMIN.dbo._MasterUsers WHERE Id = @Id",
-                new { Id = header.ApprovedById }
+            string mailTo = _admConnection.GetConnection().QuerySingleOrDefault<string>(
+                "SELECT UserEmail FROM _MasterUsers WHERE Id = @Id",
+                new { Id = header.ApproverEMPNo }
             ) ?? throw new InvalidOperationException("No email found for the approved user.");
 
             // Send email
-            Task.Run(() => _gmailSender.EPRequestToApprove(mailTo, myArray));
+            Task.Run(() => _gmailSender.RequestToApprove(mailTo, myArray));
         }
 
     }

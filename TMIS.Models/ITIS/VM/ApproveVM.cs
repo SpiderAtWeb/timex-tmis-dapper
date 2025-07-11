@@ -78,5 +78,6 @@ namespace TMIS.Models.ITIS.VM
         public string? AssignLocation { get; set; }
         [DisplayName("Designation")]
         public string? Designation { get; set; }
+        public int AssignStatusID { get; set; }
     }
 }
