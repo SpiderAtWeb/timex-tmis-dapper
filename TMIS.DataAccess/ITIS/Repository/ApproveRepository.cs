@@ -38,7 +38,7 @@ namespace TMIS.DataAccess.ITIS.Repository
 
         public async Task<ApproveVM?> GetSelectedRecord(int assignmentID)
         {
-            string sql = @"select da.AssignmentID, da.DeviceID,  ISNull(ad.EmpName, da.EmpName) as EmpName, 
+            string sql = @"select da.AssignStatusID, da.AssignmentID, da.DeviceID,  ISNull(ad.EmpName, da.EmpName) as EmpName, 
 							da.AssignLocation, da.AssignDepartment, da.Designation, da.AssignedDate, da.AssignRemarks, d.DeviceName, 
                             d.SerialNumber, d.FixedAssetCode, d.Image1Data, d.Image2Data,
                             d.Image3Data, d.Image4Data, d.PurchasedDate, d.depreciation, d.IsRented, 
@@ -81,7 +81,9 @@ namespace TMIS.DataAccess.ITIS.Repository
                 AttributeValues = attributeValue.ToList(),
                 AssignDepartment = deviceDetails.AssignDepartment,
                 AssignLocation = deviceDetails.AssignLocation,
-                Designation = deviceDetails.Designation
+                Designation = deviceDetails.Designation,
+                AssignStatusID = deviceDetails.AssignStatusID
+
             };
 
             return approveVM;

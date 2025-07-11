@@ -257,6 +257,114 @@ namespace TMIS.Utility
             string recipientEmailBcc = "rasika.dalpathadu@timexsl.com";
 
             SendMail(recipientEmailTo, recipientEmailCc, recipientEmailBcc, emailBody, subjectText);
-        }       
+        }
+
+        #region - ITIS EMAIL AREA
+
+        //Request To Approve
+        public void RequestToApprove(string mailTo, string[] myArray)
+        {
+            if (myArray.Length < 8)
+                throw new ArgumentException("Expected at least 6 header fields");
+            string baseUrl = _configuration["BaseUrl"] ?? "https://localhost:44383"; // Configure this in appsettings.json
+
+            string refID = myArray[0];
+
+            string subjectText = $"Device Assignment Request For Approval [{refID}] (TMIS)";
+            var encryptedCode = SecurityBox.EncryptString(refID);
+
+            var mainComps = new Dictionary<string, string>
+            {
+                { "MailHeading", "Device Assignment Request For Approval" },
+                { "ReferenceNumber", refID },
+                { "TableHeading", "Device Assignment Details" },
+                { "DetailsHeadA", "Emp Name" },
+                { "DetailsHeadB", "Emp #" },
+                { "DetailsHeadC", "Email" },
+                { "DetailsHeadD", "Designation" },
+                { "MailDate", DateTime.Now.ToString("yyyy-MM-dd") },
+                { "MailTime", DateTime.Now.ToString("HH:mm:ss") },
+                { "approveUrl", $"{baseUrl}/api/ITISAPI/device-approve?assignmentID={encryptedCode}&action=approve" },
+                { "rejectUrl",  $"{baseUrl}/api/ITISAPI/device-approve?assignmentID={encryptedCode}&action=reject" }
+            };
+
+            var headerRowsH = new List<(string, string)>
+            {
+                ("Device", myArray[1]),
+                ("Serial", myArray[2]),
+                ("Assigned Date Time", myArray[3]),
+                ("Assigned By", myArray[4]),
+                ("Assigned Location", myArray[6]),
+                ("Assigned Department", myArray[7]),
+                ("Remarks", myArray[5]),
+            };
+
+            var headerD = new List<(string, string, string, string)>();
+
+            headerD.Add((myArray[8], myArray[9], myArray[10], myArray[11]));
+                
+
+            string emailBody = EMailFormatRead.GetApprovalThreeColumnsEmailBody(mainComps, headerRowsH, headerD);
+
+            string recipientEmailTo = mailTo;
+            string recipientEmailCc = "";
+            string recipientEmailBcc = "sujitha.costha@timexsl.com";
+
+            SendMailITIS(recipientEmailTo, recipientEmailCc, recipientEmailBcc, emailBody, subjectText);
+        }
+
+        private void SendMailITIS(string mailTo, string mailCc, string mailBcc, string mailBody, string mailSubject)
+        {
+            try
+            {
+                var smtpSettings = _configuration.GetSection("SmtpSettings");
+
+                // Create the MailMessage object
+                MailMessage mail = new()
+                {
+                    From = new MailAddress(smtpSettings["senderEmail"], "TMIS Messenger"),
+                    Subject = mailSubject,
+                    Body = mailBody,
+                    IsBodyHtml = true // Enable HTML formatting
+                };
+
+                if (mailTo.Trim().Length > 0)
+                {
+                    foreach (string sToBreak in mailTo.Split(",".ToCharArray()))
+                        mail.To.Add(sToBreak);
+                }
+
+                if (mailCc.Trim().Length > 0)
+                {
+                    foreach (string sCcBreak in mailCc.Split(",".ToCharArray()))
+                        mail.CC.Add(sCcBreak);
+                }
+
+                if (mailBcc.Trim().Length > 0)
+                {
+                    foreach (string sBccBreak in mailBcc.Split(",".ToCharArray()))
+                        mail.Bcc.Add(sBccBreak);
+                }
+
+                // Configure the SMTP client
+                SmtpClient smtpClient = new(smtpSettings["Host"], int.Parse(smtpSettings["Port"]))
+                {
+                    Credentials = (ICredentialsByHost)new NetworkCredential(smtpSettings["senderEmail"], smtpSettings["senderPassword"]),
+                    EnableSsl = true, // Secure connection
+                    UseDefaultCredentials = false,
+                    Timeout = 20000
+                };
+
+                // Send the email
+                smtpClient.Send(mail);
+                _logger.LogInformation($"Email sent for approve device Succefully {mailSubject}");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Failed to send approve device email : {ex.Message}");
+            }
+        }
+
+        #endregion
     }
 }
