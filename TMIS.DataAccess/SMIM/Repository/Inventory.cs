@@ -566,7 +566,6 @@ namespace TMIS.DataAccess.SMIM.Repository
 
                 var logChanges = new StringBuilder();
                 LogFieldChanges(logChanges, "SerialNo", beforeUpdate.SerialNo.ToUpper(), afterUpdate?.SerialNo.ToUpper(), beforeUpdate.SerialNo, afterUpdate?.SerialNo);
-                LogFieldChanges(logChanges, "FarCode", beforeUpdate.FarCode.ToUpper(), afterUpdate?.FarCode.ToUpper(), beforeUpdate.FarCode, afterUpdate?.FarCode);
                 LogFieldChanges(logChanges, "DateBorrow", beforeUpdate.DateBorrow?.ToString(), afterUpdate?.DateBorrow?.ToString(), beforeUpdate.DateBorrow?.ToString(), afterUpdate?.DateBorrow?.ToString());
                 LogFieldChanges(logChanges, "DateDue", beforeUpdate.DateDue?.ToString(), afterUpdate?.DateDue?.ToString(), beforeUpdate.DateDue?.ToString(), afterUpdate?.DateDue?.ToString());
                 LogFieldChanges(logChanges, "ServiceSeq", beforeUpdate.ServiceSeq.ToString(), afterUpdate?.ServiceSeq.ToString(), beforeUpdate.ServiceSeq.ToString(), afterUpdate?.ServiceSeq.ToString());
