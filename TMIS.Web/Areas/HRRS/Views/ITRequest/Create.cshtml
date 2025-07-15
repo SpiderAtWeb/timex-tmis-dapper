@@ -1,0 +1,278 @@
+@using TMIS.Models.HRRS.VM
+@model Create
+
+@section VendorStyles {
+    <link rel="stylesheet" href="~/vendor/libs/flatpickr/flatpickr.css" />
+    <link rel="stylesheet" href="~/vendor/libs/select2/select2.css" />
+    <link href="~/css/input-text-upper.css" rel="stylesheet" />
+    <link href="~/vendor/libs/toastr/toastr.css" rel="stylesheet" />
+}
+
+@section VendorScripts {
+    <script src="~/vendor/libs/flatpickr/flatpickr.js"></script>
+    <script src="~/vendor/libs/select2/select2.js"></script>
+}
+
+@section PageScripts {
+    <script src="~/vendor/libs/toastr/toastr.js"></script>
+    <script src="~/js/form-layouts.js"></script>
+    <script src="~/custom/input-text-upper.js"></script>
+
+    @if (TempData["success"] != null)
+	{
+		<script src="~/vendor/libs/toastr/toastr.js"></script>
+		<script type="text/javascript">
+			toastr.success('@TempData["success"]');
+		</script>
+		TempData.Clear();
+	}
+	@if (TempData["error"] != null)
+	{
+		<script src="~/vendor/libs/toastr/toastr.js"></script>
+		<script type="text/javascript">
+			toastr.success('@TempData["error"]');
+		</script>
+		TempData.Clear();
+	}
+
+
+    <script>
+        $(document).ready(function () {
+            $('select[name="Designation"]').select2({
+                placeholder: "- Choose or enter a designation -",
+                allowClear: true,
+                tags: true, // Allow custom values
+                createTag: function (params) {
+                    var term = $.trim(params.term);
+                    if (term === '') {
+                        return null;
+                    }
+                    return {
+                        id: term,
+                        text: term,
+                        newOption: true
+                    };
+                },
+                insertTag: function (data, tag) {
+                    data.push(tag); // Add custom entry to the list
+                }
+            });
+
+            $('select[name="Location"]').select2({
+                placeholder: "- Choose or enter a location -",
+                allowClear: true,
+                tags: true, // Allow custom values
+                createTag: function (params) {
+                    var term = $.trim(params.term);
+                    if (term === '') {
+                        return null;
+                    }
+                    return {
+                        id: term,
+                        text: term,
+                        newOption: true
+                    };
+                },
+                insertTag: function (data, tag) {
+                    data.push(tag); // Add custom entry to the list
+                }
+            });
+        });
+    </script>
+}
+
+<div class="card mb-6">
+    <h5 class="card-header page-header">New IT Request</h5>
+    <form asp-action="Create" method="post" class="card-body" id="itRequestForm">
+        <div class="row g-2">
+            <div class="col-md-3">
+                <div class="form-floating form-floating-outline">
+                    <input asp-for="EmployeeName" class="form-control" placeholder="Employee Name" />
+                    <label asp-for="EmployeeName"></label>
+                    <span asp-validation-for="EmployeeName" class="text-warning"></span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-floating form-floating-outline">
+                    <input asp-for="EmployeeNo" type="number" class="form-control" placeholder="Employee No" />
+                    <label asp-for="EmployeeNo"></label>
+                    <span asp-validation-for="EmployeeNo" class="text-warning"></span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-floating form-floating-outline">
+                    <select asp-for="Designation" asp-items="Model.DesignationList" class="select2 form-select" data-allow-clear="true">
+                        <option value="" disabled selected>- Choose or enter a designation -</option>
+                    </select>
+                    <label asp-for="Designation"></label>
+                    <span asp-validation-for="Designation" class="text-warning"></span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-floating form-floating-outline">
+                    <select asp-for="Department" asp-items="@Model.DepartmentList" class="select2 form-select" data-allow-clear="true">
+                        <option value="" Disabled Selected>- Select Department -</option>
+                    </select>
+
+                    <label asp-for="Department"></label>
+                    <span asp-validation-for="@Model.Department" class="text-warning"></span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-floating form-floating-outline">
+                    <select asp-for="Location" asp-items="@Model.LocationList" class="select2 form-select" data-allow-clear="true">
+                        <option value="" Disabled Selected>- Choose or enter a Location -</option>
+                    </select>
+
+                    <label asp-for="Location"></label>
+                    <span asp-validation-for="Location" class="text-warning"></span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-floating form-floating-outline">
+                    <input asp-for="Company" class="form-control" placeholder="Company" />
+                    <label asp-for="Company"></label>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-floating form-floating-outline">
+                    <input asp-for="NIC" class="form-control" placeholder="NIC" />
+                    <label asp-for="NIC"></label>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-floating form-floating-outline">
+                    <input asp-for="InterviewDate" type="date" class="form-control" />
+                    <label asp-for="InterviewDate"></label>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-floating form-floating-outline">
+                    <input asp-for="DueStartDate" type="date" class="form-control" />
+                    <label asp-for="DueStartDate"></label>
+                </div>
+            </div>         
+            <div class="col-md-3">
+                <div class="form-floating form-floating-outline">
+                    <select asp-for="RecruitmentType" asp-items="@Model.RecruitmentTypeList" class="select2 form-select" data-allow-clear="true">
+                        <option value="" Disabled Selected>- Select Recruitment Type -</option>
+                    </select>
+
+                    <label asp-for="RecruitmentType"></label>
+                    <span asp-validation-for="@Model.RecruitmentType" class="text-warning"></span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-floating form-floating-outline">
+                    <select asp-for="Computer" asp-items="@Model.ComputerList" class="select2 form-select" data-allow-clear="true">
+                        <option value="" Disabled Selected>- Select Computer -</option>
+                    </select>
+
+                    <label asp-for="Computer"></label>
+                    <span asp-validation-for="@Model.Computer" class="text-warning"></span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-floating form-floating-outline">
+                    <select asp-for="ComputerGroup" asp-items="@Model.ComputerGroupList" class="select2 form-select" data-allow-clear="true">
+                        <option value="" Disabled Selected>- Select Computer Group -</option>
+                    </select>
+
+                    <label asp-for="ComputerGroup"></label>
+                    <span asp-validation-for="@Model.ComputerGroup" class="text-warning"></span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-floating form-floating-outline">
+                    <select asp-for="ComputerLogin" asp-items="@Model.ChoiceList" class="select2 form-select" data-allow-clear="true">
+                        <option value="" Disabled Selected>- Select -</option>
+                    </select>
+
+                    <label asp-for="ComputerLogin"></label>
+                    <span asp-validation-for="@Model.ComputerLogin" class="text-warning"></span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-floating form-floating-outline">
+                    <select asp-for="SAPAccess" asp-items="@Model.ChoiceList" class="select2 form-select" data-allow-clear="true">
+                        <option value="" Disabled Selected>- Select -</option>
+                    </select>
+
+                    <label asp-for="SAPAccess"></label>
+                    <span asp-validation-for="@Model.SAPAccess" class="text-warning"></span>
+                </div>
+            </div>                       
+            <div class="col-md-3">
+                <div class="form-floating form-floating-outline">
+                    <select asp-for="Landnewline" asp-items="@Model.ChoiceList" class="select2 form-select" data-allow-clear="true">
+                        <option value="" Disabled Selected>- Select -</option>
+                    </select>
+
+                    <label asp-for="Landnewline"></label>
+                    <span asp-validation-for="@Model.Landnewline" class="text-warning"></span>
+                </div>
+            </div>                                   
+            <div class="col-md-3">
+                <div class="form-floating form-floating-outline">
+                    <select asp-for="ExistingLandLine" asp-items="@Model.ChoiceList" class="select2 form-select" data-allow-clear="true">
+                        <option value="" Disabled Selected>- Select -</option>
+                    </select>
+
+                    <label asp-for="ExistingLandLine"></label>
+                    <span asp-validation-for="@Model.ExistingLandLine" class="text-warning"></span>
+                </div>
+            </div>                                               
+            <div class="col-md-3">
+                <div class="form-floating form-floating-outline">
+                    <select asp-for="Extension" asp-items="@Model.ChoiceList" class="select2 form-select" data-allow-clear="true">
+                        <option value="" Disabled Selected>- Select -</option>
+                    </select>
+
+                    <label asp-for="Extension"></label>
+                    <span asp-validation-for="@Model.Extension" class="text-warning"></span>
+                </div>
+            </div>                                                           
+            <div class="col-md-3">
+                <div class="form-floating form-floating-outline">
+                    <select asp-for="SmartPhone" asp-items="@Model.ChoiceList" class="select2 form-select" data-allow-clear="true">
+                        <option value="" Disabled Selected>- Select -</option>
+                    </select>
+
+                    <label asp-for="SmartPhone"></label>
+                    <span asp-validation-for="@Model.SmartPhone" class="text-warning"></span>
+                </div>
+            </div>                                                                       
+            <div class="col-md-3">
+                <div class="form-floating form-floating-outline">
+                    <select asp-for="BasicPhone" asp-items="@Model.ChoiceList" class="select2 form-select" data-allow-clear="true">
+                        <option value="" Disabled Selected>- Select -</option>
+                    </select>
+
+                    <label asp-for="BasicPhone"></label>
+                    <span asp-validation-for="@Model.BasicPhone" class="text-warning"></span>
+                </div>
+            </div>                                                                                   
+            <div class="col-md-3">
+                <div class="form-floating form-floating-outline">
+                    <select asp-for="SMSOnly" asp-items="@Model.ChoiceList" class="select2 form-select" data-allow-clear="true">
+                        <option value="" Disabled Selected>- Select -</option>
+                    </select>
+
+                    <label asp-for="SMSOnly"></label>
+                    <span asp-validation-for="@Model.SMSOnly" class="text-warning"></span>
+                </div>
+            </div>                                                                                                                                                                                                                
+            <div class="col-6">
+                <div class="form-floating form-floating-outline">
+                    <textarea asp-for="RequestRemark" class="form-control" placeholder="Request Remark"></textarea>
+                    <label asp-for="RequestRemark"></label>
+                </div>
+            </div>            
+        </div>
+        <div class="mt-4">
+            <button type="submit" class="btn btn-primary me-1">Submit</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+

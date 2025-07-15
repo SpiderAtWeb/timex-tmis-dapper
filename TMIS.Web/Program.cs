@@ -6,6 +6,8 @@ using TMIS.DataAccess.COMON.IRpository;
 using TMIS.DataAccess.COMON.Rpository;
 using TMIS.DataAccess.GDRM.IRpository;
 using TMIS.DataAccess.GDRM.Rpository;
+using TMIS.DataAccess.HRRS.IRepository;
+using TMIS.DataAccess.HRRS.Repository;
 using TMIS.DataAccess.ITIS.IRepository;
 using TMIS.DataAccess.ITIS.Repository;
 using TMIS.DataAccess.PLMS.IRpository;
@@ -122,6 +124,10 @@ builder.Services.AddScoped<IAdminRepository, AdminRepository>();
 builder.Services.AddScoped<IGREmployee, GREmployee>();
 builder.Services.AddScoped<IGatepassService, GatepassService>();
 builder.Services.AddScoped<ITAPSLogdbRepository, TAPSLogdbRepository>();
+
+//HRRS
+builder.Services.AddScoped<IHRRSLogdb, HRRSLogdb>();
+builder.Services.AddScoped<IITRequestRepository, ITRequestRepository>();
 
 
 builder.Services.AddScoped<ISessionHelper, SessionHelper>();
