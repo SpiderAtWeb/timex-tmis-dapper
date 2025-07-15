@@ -14,5 +14,6 @@ namespace TMIS.Models.ITIS
         public string? jobTitle { get; set; }
         public string? office { get; set; }
         public string? username { get; set; }
+        public string? empNo { get; set; }
     }
 }

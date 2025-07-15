@@ -11,6 +11,7 @@ namespace TMIS.Utility
         public void McRequestToApprove(params string[] myArray);
         public void GPRequestToApprove(string mailTo, string[] myArray);
         public void EPRequestToApprove(string mailTo, string[] myArray);
+        public void RequestToApprove(string mailTo, string[] myArray);
 
     }
 }
