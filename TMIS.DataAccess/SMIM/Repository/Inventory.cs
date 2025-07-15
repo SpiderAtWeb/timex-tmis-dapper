@@ -565,7 +565,6 @@ namespace TMIS.DataAccess.SMIM.Repository
                   new { mcInventory.Id }, transaction);
 
                 var logChanges = new StringBuilder();
-                LogFieldChanges(logChanges, "QrCode", beforeUpdate.QrCode.ToUpper(), afterUpdate?.QrCode.ToUpper(), beforeUpdate.QrCode, afterUpdate?.QrCode);
                 LogFieldChanges(logChanges, "SerialNo", beforeUpdate.SerialNo.ToUpper(), afterUpdate?.SerialNo.ToUpper(), beforeUpdate.SerialNo, afterUpdate?.SerialNo);
                 LogFieldChanges(logChanges, "FarCode", beforeUpdate.FarCode.ToUpper(), afterUpdate?.FarCode.ToUpper(), beforeUpdate.FarCode, afterUpdate?.FarCode);
                 LogFieldChanges(logChanges, "DateBorrow", beforeUpdate.DateBorrow?.ToString(), afterUpdate?.DateBorrow?.ToString(), beforeUpdate.DateBorrow?.ToString(), afterUpdate?.DateBorrow?.ToString());
