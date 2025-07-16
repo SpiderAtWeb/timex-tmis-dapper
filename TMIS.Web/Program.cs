@@ -198,7 +198,7 @@ app.Use(async (context, next) =>
   try
   {
     //Allow anonymous access to gatepass approval API
-    if (context.Request.Path.StartsWithSegments("/api/gatepass"))
+    if (context.Request.Path.StartsWithSegments("/api/endorse"))
     {
       await next();
       return;

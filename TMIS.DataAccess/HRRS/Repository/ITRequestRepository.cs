@@ -35,53 +35,61 @@ namespace TMIS.DataAccess.HRRS.Repository
                 LocationList = await _icommonList.LoadLocationsFromAD(),
                 DepartmentList = await _icommonList.LoadDepartmentsFromAD(),                                
                 DesignationList = await _icommonList.LoadDesignationsFromAD(),
+                EmployeeList = await _icommonList.LoadEmployeeList()
             };
             return objCreateVM;
         }
         public async Task<bool> AddAsync(Create obj)
         {
             const string query = @"
-                INSERT INTO HRRS_ITRequests
-                (EmployeeName, EmployeeNo, Designation, Department, Location, Company, NIC, InterviewDate, DueStartDate,
-                RecruitmentType, Computer, ComputerGroup, ComputerLogin, SAPAccess, Landnewline, ExistingLandLine, Extension,
-                SmartPhone, BasicPhone, SMSOnly, RequestDate, RequestRemark, Status)
-                VALUES
-                (@EmployeeName, @EmployeeNo, @Designation, @Department, @Location, @Company, @NIC, @InterviewDate, @DueStartDate,
-                @RecruitmentType, @Computer, @ComputerGroup, @ComputerLogin, @SAPAccess, @Landnewline, @ExistingLandLine, @Extension,
-                @SmartPhone, @BasicPhone, @SMSOnly, @RequestDate, @RequestRemark, @Status);
-                SELECT CAST(SCOPE_IDENTITY() AS INT) AS InsertedId;";
+            INSERT INTO HRRS_ITRequests
+            (FirstName, LastName, EmployeeNo, Designation, Department, Location, Company, NIC, InterviewDate, DueStartDate,
+            RecruitmentType, Replacement, Computer, Email, EmailGroup, ComputerLogin, SAPAccess, WFXAccess, Landnewline,
+            ExistingLandLine, Extension, SmartPhone, BasicPhone, SIM, HomeAddress, RequestRemark, Status)
+            VALUES
+            (@FirstName, @LastName, @EmployeeNo, @Designation, @Department, @Location, @Company, @NIC, @InterviewDate, @DueStartDate,
+            @RecruitmentType, @Replacement, @Computer, @Email, @EmailGroup, @ComputerLogin, @SAPAccess, @WFXAccess, @Landnewline,
+            @ExistingLandLine, @Extension, @SmartPhone, @BasicPhone, @SIM, @HomeAddress, @RequestRemark, @Status);
+            SELECT CAST(SCOPE_IDENTITY() AS INT);";
+
+
 
             try
             {
                 var insertedId = await _dbConnection.GetConnection().QuerySingleOrDefaultAsync<int?>(query, new
                 {
-                    EmployeeName = obj.EmployeeName,
-                    EmployeeNo = obj.EmployeeNo,
-                    Designation = obj.Designation,
-                    Department = obj.Department,
-                    Location = obj.Location,
-                    Company = obj.Company,
-                    NIC = obj.NIC,
-                    InterviewDate = obj.InterviewDate,
-                    DueStartDate = obj.DueStartDate,
-                    RecruitmentType = obj.RecruitmentType,
-                    Computer = obj.Computer,
-                    ComputerGroup = obj.ComputerGroup,
-                    ComputerLogin = obj.ComputerLogin,
-                    SAPAccess = obj.SAPAccess,
-                    Landnewline = obj.Landnewline,
-                    ExistingLandLine = obj.ExistingLandLine,
-                    Extension = obj.Extension,
-                    SmartPhone = obj.SmartPhone,
-                    BasicPhone = obj.BasicPhone,
-                    SMSOnly = obj.SMSOnly,                    
-                    RequestRemark = obj.RequestRemark,
-                    Status = 1 // 1 is the status for 'Pending'
+                    obj.HRRS_ITRequest!.FirstName,
+                    obj.HRRS_ITRequest!.LastName,
+                    obj.HRRS_ITRequest!.EmployeeNo,
+                    obj.HRRS_ITRequest!.Designation,
+                    obj.HRRS_ITRequest!.Department,
+                    obj.HRRS_ITRequest!.Location,
+                    obj.HRRS_ITRequest!.Company,
+                    obj.HRRS_ITRequest!.NIC,
+                    obj.HRRS_ITRequest!.InterviewDate,
+                    obj.HRRS_ITRequest!.DueStartDate,
+                    obj.HRRS_ITRequest!.RecruitmentType,
+                    obj.HRRS_ITRequest!.Replacement,
+                    obj.HRRS_ITRequest!.Computer,
+                    obj.HRRS_ITRequest!.Email,
+                    obj.HRRS_ITRequest!.EmailGroup,
+                    obj.HRRS_ITRequest!.ComputerLogin,
+                    obj.HRRS_ITRequest!.SAPAccess,
+                    obj.HRRS_ITRequest!.WFXAccess,
+                    obj.HRRS_ITRequest!.Landnewline,
+                    obj.HRRS_ITRequest!.ExistingLandLine,
+                    obj.HRRS_ITRequest!.Extension,
+                    obj.HRRS_ITRequest!.SmartPhone,
+                    obj.HRRS_ITRequest!.BasicPhone,
+                    obj.HRRS_ITRequest!.SIM,
+                    obj.HRRS_ITRequest!.HomeAddress,              
+                    obj.HRRS_ITRequest!.RequestRemark,
+                    Status = 1 // Default to 'Pending' or adjust as needed
                 });
                 
                 int? id = insertedId;
 
-                //PrepairEmail(id);
+                PrepairEmail(id);
 
                 return insertedId > 0;
             }

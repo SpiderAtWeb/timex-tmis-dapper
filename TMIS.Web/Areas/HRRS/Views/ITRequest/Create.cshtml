@@ -30,7 +30,7 @@
 	{
 		<script src="~/vendor/libs/toastr/toastr.js"></script>
 		<script type="text/javascript">
-			toastr.success('@TempData["error"]');
+            toastr.error('@TempData["error"]');
 		</script>
 		TempData.Clear();
 	}
@@ -77,6 +77,38 @@
                     data.push(tag); // Add custom entry to the list
                 }
             });
+
+            const $simDropdown = $('select[name="HRRS_ITRequest.SIM"]');
+            const $homeAddress = $('#homeAddressContainer');
+
+            const $recruitmentTypeDropdown = $('select[name="HRRS_ITRequest.RecruitmentType"]');
+            const $employeeList = $('#employeeListContainer');
+
+            function toggleHomeAddress() {
+              const val = $simDropdown.val();
+              if (val == "Yes") {
+                  $homeAddress.show();
+              } else {
+                  $homeAddress.hide(); 
+              }
+            }
+
+            function toggleEmpList() {
+              const val = $recruitmentTypeDropdown.val();
+              if (val == "Replacement") {
+                  $employeeList.fadeIn();
+              } else {
+                  $employeeList.fadeOut();
+              }
+            }
+
+            // Trigger on change
+            $simDropdown.on('change', toggleHomeAddress);
+            $recruitmentTypeDropdown.on('change', toggleEmpList);
+
+            // Trigger once on page load (to handle postback with validation errors)
+            toggleHomeAddress();
+            toggleEmpList();      
         });
     </script>
 }
@@ -87,191 +119,234 @@
         <div class="row g-2">
             <div class="col-md-3">
                 <div class="form-floating form-floating-outline">
-                    <input asp-for="EmployeeName" class="form-control" placeholder="Employee Name" />
-                    <label asp-for="EmployeeName"></label>
-                    <span asp-validation-for="EmployeeName" class="text-warning"></span>
+                    <input asp-for="HRRS_ITRequest.FirstName" class="form-control" placeholder="First Name" />
+                    <label asp-for="HRRS_ITRequest.FirstName"></label>
+                    <span asp-validation-for="HRRS_ITRequest.FirstName" class="text-warning"></span>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="form-floating form-floating-outline">
-                    <input asp-for="EmployeeNo" type="number" class="form-control" placeholder="Employee No" />
-                    <label asp-for="EmployeeNo"></label>
-                    <span asp-validation-for="EmployeeNo" class="text-warning"></span>
+                    <input asp-for="HRRS_ITRequest.LastName" class="form-control" placeholder="Last Name" />
+                    <label asp-for="HRRS_ITRequest.LastName"></label>
+                    <span asp-validation-for="HRRS_ITRequest.LastName" class="text-warning"></span>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="form-floating form-floating-outline">
-                    <select asp-for="Designation" asp-items="Model.DesignationList" class="select2 form-select" data-allow-clear="true">
+                    <input asp-for="HRRS_ITRequest.EmployeeNo" type="number" class="form-control" placeholder="Employee No" />
+                    <label asp-for="HRRS_ITRequest.EmployeeNo"></label>
+                    <span asp-validation-for="HRRS_ITRequest.EmployeeNo" class="text-warning"></span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-floating form-floating-outline">
+                    <select asp-for="HRRS_ITRequest.Designation" asp-items="Model.DesignationList" class="select2 form-select" data-allow-clear="true">
                         <option value="" disabled selected>- Choose or enter a designation -</option>
                     </select>
-                    <label asp-for="Designation"></label>
-                    <span asp-validation-for="Designation" class="text-warning"></span>
+                    <label asp-for="HRRS_ITRequest.Designation"></label>
+                    <span asp-validation-for="HRRS_ITRequest.Designation" class="text-warning"></span>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="form-floating form-floating-outline">
-                    <select asp-for="Department" asp-items="@Model.DepartmentList" class="select2 form-select" data-allow-clear="true">
+                    <select asp-for="HRRS_ITRequest.Department" asp-items="@Model.DepartmentList" class="select2 form-select" data-allow-clear="true">
                         <option value="" Disabled Selected>- Select Department -</option>
                     </select>
 
-                    <label asp-for="Department"></label>
-                    <span asp-validation-for="@Model.Department" class="text-warning"></span>
+                    <label asp-for="HRRS_ITRequest.Department"></label>
+                    <span asp-validation-for="HRRS_ITRequest.Department" class="text-warning"></span>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="form-floating form-floating-outline">
-                    <select asp-for="Location" asp-items="@Model.LocationList" class="select2 form-select" data-allow-clear="true">
+                    <select asp-for="HRRS_ITRequest.Location" asp-items="@Model.LocationList" class="select2 form-select" data-allow-clear="true">
                         <option value="" Disabled Selected>- Choose or enter a Location -</option>
                     </select>
 
-                    <label asp-for="Location"></label>
-                    <span asp-validation-for="Location" class="text-warning"></span>
+                    <label asp-for="HRRS_ITRequest.Location"></label>
+                    <span asp-validation-for="HRRS_ITRequest.Location" class="text-warning"></span>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="form-floating form-floating-outline">
-                    <input asp-for="Company" class="form-control" placeholder="Company" />
-                    <label asp-for="Company"></label>
+                    <input asp-for="HRRS_ITRequest.Company" class="form-control" placeholder="Company" />
+                    <label asp-for="HRRS_ITRequest.Company"></label>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="form-floating form-floating-outline">
-                    <input asp-for="NIC" class="form-control" placeholder="NIC" />
-                    <label asp-for="NIC"></label>
+                    <input asp-for="HRRS_ITRequest.NIC" class="form-control" placeholder="NIC" />
+                    <label asp-for="HRRS_ITRequest.NIC"></label>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="form-floating form-floating-outline">
-                    <input asp-for="InterviewDate" type="date" class="form-control" />
-                    <label asp-for="InterviewDate"></label>
+                    <input asp-for="HRRS_ITRequest.InterviewDate" type="date" class="form-control" />
+                    <label asp-for="HRRS_ITRequest.InterviewDate"></label>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="form-floating form-floating-outline">
-                    <input asp-for="DueStartDate" type="date" class="form-control" />
-                    <label asp-for="DueStartDate"></label>
+                    <input asp-for="HRRS_ITRequest.DueStartDate" type="date" class="form-control" />
+                    <label asp-for="HRRS_ITRequest.DueStartDate"></label>
                 </div>
             </div>         
             <div class="col-md-3">
                 <div class="form-floating form-floating-outline">
-                    <select asp-for="RecruitmentType" asp-items="@Model.RecruitmentTypeList" class="select2 form-select" data-allow-clear="true">
+                    <select asp-for="HRRS_ITRequest.RecruitmentType" asp-items="@Model.RecruitmentTypeList" class="select2 form-select" data-allow-clear="true">
                         <option value="" Disabled Selected>- Select Recruitment Type -</option>
                     </select>
 
-                    <label asp-for="RecruitmentType"></label>
-                    <span asp-validation-for="@Model.RecruitmentType" class="text-warning"></span>
+                    <label asp-for="HRRS_ITRequest.RecruitmentType"></label>
+                    <span asp-validation-for="HRRS_ITRequest.RecruitmentType" class="text-warning"></span>
+                </div>
+            </div>
+            <div class="col-md-3" id="employeeListContainer" style="display: none;">
+                <div class="form-floating form-floating-outline">
+                    <select asp-for="HRRS_ITRequest.Replacement" asp-items="@Model.EmployeeList" class="select2 form-select" data-allow-clear="true">
+                        <option value="" Disabled Selected>- Select Recruitment Type -</option>
+                    </select>
+
+                    <label asp-for="HRRS_ITRequest.Replacement"></label>
+                    <span asp-validation-for="HRRS_ITRequest.Replacement" class="text-warning"></span>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="form-floating form-floating-outline">
-                    <select asp-for="Computer" asp-items="@Model.ComputerList" class="select2 form-select" data-allow-clear="true">
+                    <select asp-for="HRRS_ITRequest.Computer" asp-items="@Model.ComputerList" class="select2 form-select" data-allow-clear="true">
                         <option value="" Disabled Selected>- Select Computer -</option>
                     </select>
 
-                    <label asp-for="Computer"></label>
-                    <span asp-validation-for="@Model.Computer" class="text-warning"></span>
+                    <label asp-for="HRRS_ITRequest.Computer"></label>
+                    <span asp-validation-for="HRRS_ITRequest.Computer" class="text-warning"></span>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="form-floating form-floating-outline">
-                    <select asp-for="ComputerGroup" asp-items="@Model.ComputerGroupList" class="select2 form-select" data-allow-clear="true">
-                        <option value="" Disabled Selected>- Select Computer Group -</option>
+                    <select asp-for="HRRS_ITRequest.Email" asp-items="@Model.ChoiceList" class="select2 form-select" data-allow-clear="true">
+                        <option value="" Disabled Selected>- Select Email -</option>
                     </select>
 
-                    <label asp-for="ComputerGroup"></label>
-                    <span asp-validation-for="@Model.ComputerGroup" class="text-warning"></span>
+                    <label asp-for="HRRS_ITRequest.Email"></label>
+                    <span asp-validation-for="HRRS_ITRequest.Email" class="text-warning"></span>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="form-floating form-floating-outline">
-                    <select asp-for="ComputerLogin" asp-items="@Model.ChoiceList" class="select2 form-select" data-allow-clear="true">
+                    <select asp-for="HRRS_ITRequest.EmailGroup" asp-items="@Model.EmailGroupList" class="select2 form-select" data-allow-clear="true">
+                        <option value="" Disabled Selected>- Select Email Group -</option>
+                    </select>
+
+                    <label asp-for="HRRS_ITRequest.EmailGroup"></label>
+                    <span asp-validation-for="HRRS_ITRequest.EmailGroup" class="text-warning"></span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-floating form-floating-outline">
+                    <select asp-for="HRRS_ITRequest.ComputerLogin" asp-items="@Model.ChoiceList" class="select2 form-select" data-allow-clear="true">
                         <option value="" Disabled Selected>- Select -</option>
                     </select>
 
-                    <label asp-for="ComputerLogin"></label>
-                    <span asp-validation-for="@Model.ComputerLogin" class="text-warning"></span>
+                    <label asp-for="HRRS_ITRequest.ComputerLogin"></label>
+                    <span asp-validation-for="HRRS_ITRequest.ComputerLogin" class="text-warning"></span>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="form-floating form-floating-outline">
-                    <select asp-for="SAPAccess" asp-items="@Model.ChoiceList" class="select2 form-select" data-allow-clear="true">
+                    <select asp-for="HRRS_ITRequest.SAPAccess" asp-items="@Model.ChoiceList" class="select2 form-select" data-allow-clear="true">
                         <option value="" Disabled Selected>- Select -</option>
                     </select>
 
-                    <label asp-for="SAPAccess"></label>
-                    <span asp-validation-for="@Model.SAPAccess" class="text-warning"></span>
+                    <label asp-for="HRRS_ITRequest.SAPAccess"></label>
+                    <span asp-validation-for="HRRS_ITRequest.SAPAccess" class="text-warning"></span>
                 </div>
             </div>                       
             <div class="col-md-3">
                 <div class="form-floating form-floating-outline">
-                    <select asp-for="Landnewline" asp-items="@Model.ChoiceList" class="select2 form-select" data-allow-clear="true">
+                    <select asp-for="HRRS_ITRequest.WFXAccess" asp-items="@Model.ChoiceList" class="select2 form-select" data-allow-clear="true">
                         <option value="" Disabled Selected>- Select -</option>
                     </select>
 
-                    <label asp-for="Landnewline"></label>
-                    <span asp-validation-for="@Model.Landnewline" class="text-warning"></span>
+                    <label asp-for="HRRS_ITRequest.WFXAccess"></label>
+                    <span asp-validation-for="HRRS_ITRequest.WFXAccess" class="text-warning"></span>
+                </div>
+            </div>                       
+            <div class="col-md-3">
+                <div class="form-floating form-floating-outline">
+                    <select asp-for="HRRS_ITRequest.Landnewline" asp-items="@Model.ChoiceList" class="select2 form-select" data-allow-clear="true">
+                        <option value="" Disabled Selected>- Select -</option>
+                    </select>
+
+                    <label asp-for="HRRS_ITRequest.Landnewline"></label>
+                    <span asp-validation-for="HRRS_ITRequest.Landnewline" class="text-warning"></span>
                 </div>
             </div>                                   
             <div class="col-md-3">
                 <div class="form-floating form-floating-outline">
-                    <select asp-for="ExistingLandLine" asp-items="@Model.ChoiceList" class="select2 form-select" data-allow-clear="true">
+                    <select asp-for="HRRS_ITRequest.ExistingLandLine" asp-items="@Model.ChoiceList" class="select2 form-select" data-allow-clear="true">
                         <option value="" Disabled Selected>- Select -</option>
                     </select>
 
-                    <label asp-for="ExistingLandLine"></label>
-                    <span asp-validation-for="@Model.ExistingLandLine" class="text-warning"></span>
+                    <label asp-for="HRRS_ITRequest.ExistingLandLine"></label>
+                    <span asp-validation-for="HRRS_ITRequest.ExistingLandLine" class="text-warning"></span>
                 </div>
             </div>                                               
             <div class="col-md-3">
                 <div class="form-floating form-floating-outline">
-                    <select asp-for="Extension" asp-items="@Model.ChoiceList" class="select2 form-select" data-allow-clear="true">
+                    <select asp-for="HRRS_ITRequest.Extension" asp-items="@Model.ChoiceList" class="select2 form-select" data-allow-clear="true">
                         <option value="" Disabled Selected>- Select -</option>
                     </select>
 
-                    <label asp-for="Extension"></label>
-                    <span asp-validation-for="@Model.Extension" class="text-warning"></span>
+                    <label asp-for="HRRS_ITRequest.Extension"></label>
+                    <span asp-validation-for="HRRS_ITRequest.Extension" class="text-warning"></span>
                 </div>
             </div>                                                           
             <div class="col-md-3">
                 <div class="form-floating form-floating-outline">
-                    <select asp-for="SmartPhone" asp-items="@Model.ChoiceList" class="select2 form-select" data-allow-clear="true">
+                    <select asp-for="HRRS_ITRequest.SmartPhone" asp-items="@Model.ChoiceList" class="select2 form-select" data-allow-clear="true">
                         <option value="" Disabled Selected>- Select -</option>
                     </select>
 
-                    <label asp-for="SmartPhone"></label>
-                    <span asp-validation-for="@Model.SmartPhone" class="text-warning"></span>
+                    <label asp-for="HRRS_ITRequest.SmartPhone"></label>
+                    <span asp-validation-for="HRRS_ITRequest.SmartPhone" class="text-warning"></span>
                 </div>
             </div>                                                                       
             <div class="col-md-3">
                 <div class="form-floating form-floating-outline">
-                    <select asp-for="BasicPhone" asp-items="@Model.ChoiceList" class="select2 form-select" data-allow-clear="true">
+                    <select asp-for="HRRS_ITRequest.BasicPhone" asp-items="@Model.ChoiceList" class="select2 form-select" data-allow-clear="true">
                         <option value="" Disabled Selected>- Select -</option>
                     </select>
 
-                    <label asp-for="BasicPhone"></label>
-                    <span asp-validation-for="@Model.BasicPhone" class="text-warning"></span>
+                    <label asp-for="HRRS_ITRequest.BasicPhone"></label>
+                    <span asp-validation-for="HRRS_ITRequest.BasicPhone" class="text-warning"></span>
                 </div>
             </div>                                                                                   
             <div class="col-md-3">
                 <div class="form-floating form-floating-outline">
-                    <select asp-for="SMSOnly" asp-items="@Model.ChoiceList" class="select2 form-select" data-allow-clear="true">
+                    <select asp-for="HRRS_ITRequest.SIM" asp-items="@Model.ChoiceList" class="select2 form-select" data-allow-clear="true">
                         <option value="" Disabled Selected>- Select -</option>
                     </select>
 
-                    <label asp-for="SMSOnly"></label>
-                    <span asp-validation-for="@Model.SMSOnly" class="text-warning"></span>
+                    <label asp-for="HRRS_ITRequest.SIM"></label>
+                    <span asp-validation-for="HRRS_ITRequest.SIM" class="text-warning"></span>
                 </div>
-            </div>                                                                                                                                                                                                                
+            </div>
+            <div class="col-3" id="homeAddressContainer" style="display: none;">
+                <div class="form-floating form-floating-outline">
+                    <textarea asp-for="HRRS_ITRequest.HomeAddress" class="form-control" placeholder="Home Address"></textarea>
+                    <label asp-for="HRRS_ITRequest.HomeAddress"></label>
+                </div>
+            </div>
             <div class="col-6">
                 <div class="form-floating form-floating-outline">
-                    <textarea asp-for="RequestRemark" class="form-control" placeholder="Request Remark"></textarea>
-                    <label asp-for="RequestRemark"></label>
+                    <textarea asp-for="HRRS_ITRequest.RequestRemark" class="form-control" placeholder="Request Remark"></textarea>
+                    <label asp-for="HRRS_ITRequest.RequestRemark"></label>
                 </div>
             </div>            
         </div>
         <div class="mt-4">
             <button type="submit" class="btn btn-primary me-1">Submit</button>
-            <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+            <a asp-action="Create" class="btn btn-outline-secondary">Cancel</a>
         </div>
     </form>
 </div>

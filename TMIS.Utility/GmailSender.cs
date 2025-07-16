@@ -168,8 +168,8 @@ namespace TMIS.Utility
                 { "DetailsHeadB", "Employee Number" },
                 { "MailDate", DateTime.Now.ToString("yyyy-MM-dd") },
                 { "MailTime", DateTime.Now.ToString("HH:mm:ss") },
-                { "approveUrl", $"{baseUrl}/api/gatepass/emp-approve?gatepassNumber={encryptedGpCode}&action=approve" },
-                { "rejectUrl",  $"{baseUrl}/api/gatepass/emp-approve?gatepassNumber={encryptedGpCode}&action=reject" }
+                { "approveUrl", $"{baseUrl}/api/endorse/emp-approve?gatepassNumber={encryptedGpCode}&action=approve" },
+                { "rejectUrl",  $"{baseUrl}/api/endorse/emp-approve?gatepassNumber={encryptedGpCode}&action=reject" }
             };
 
             var headerRowsH = new List<(string, string)>
@@ -225,8 +225,8 @@ namespace TMIS.Utility
                 { "DetailsHeadD", "Units" },
                 { "MailDate", DateTime.Now.ToString("yyyy-MM-dd") },
                 { "MailTime", DateTime.Now.ToString("HH:mm:ss") },
-                { "approveUrl", $"{baseUrl}/api/gatepass/gp-approve?gatepassNumber={encryptedGpCode}&action=approve" },
-                { "rejectUrl",  $"{baseUrl}/api/gatepass/gp-approve?gatepassNumber={encryptedGpCode}&action=reject" }
+                { "approveUrl", $"{baseUrl}/api/endorse/gp-approve?gatepassNumber={encryptedGpCode}&action=approve" },
+                { "rejectUrl",  $"{baseUrl}/api/endorse/gp-approve?gatepassNumber={encryptedGpCode}&action=reject" }
             };
 
             var headerRowsH = new List<(string, string)>
@@ -284,8 +284,8 @@ namespace TMIS.Utility
                 { "DetailsHeadD", "Designation" },
                 { "MailDate", DateTime.Now.ToString("yyyy-MM-dd") },
                 { "MailTime", DateTime.Now.ToString("HH:mm:ss") },
-                { "approveUrl", $"{baseUrl}/api/ITISAPI/device-approve?assignmentID={encryptedCode}&action=approve" },
-                { "rejectUrl",  $"{baseUrl}/api/ITISAPI/device-approve?assignmentID={encryptedCode}&action=reject" }
+                { "approveUrl", $"{baseUrl}/api/endorse/device-approve?assignmentID={encryptedCode}&action=approve" },
+                { "rejectUrl",  $"{baseUrl}/api/endorse/device-approve?assignmentID={encryptedCode}&action=reject" }
             };
 
             var headerRowsH = new List<(string, string)>
@@ -304,7 +304,7 @@ namespace TMIS.Utility
             headerD.Add((myArray[8], myArray[9], myArray[10], myArray[11]));
                 
 
-            string emailBody = EMailFormatRead.GetApprovalThreeColumnsEmailBody(mainComps, headerRowsH, headerD);
+            string emailBody = EMailFormatRead.GetApprovalThreeColumnsITISEmailBody(mainComps, headerRowsH, headerD);
 
             string recipientEmailTo = mailTo;
             string recipientEmailCc = "";
