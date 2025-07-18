@@ -119,5 +119,10 @@ namespace TMIS.Models.HRRS
         public DateTime? ApproverResponseDate { get; set; }
         public string? ApproverRemark { get; set; }
         public int Status { get; set; }
+
+        //HRRS_ITReqStatus table properties
+        public int id { get; set; }
+        public string? PropName { get; set; }
+        public string? PropDesc { get; set; }        
     }
 }

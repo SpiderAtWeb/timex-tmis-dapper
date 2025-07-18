@@ -35,5 +35,6 @@ namespace TMIS.Models.HRRS.VM
         public IEnumerable<SelectListItem>? DesignationList { get; set; }
         public IEnumerable<SelectListItem>? EmployeeList { get; set; }
         public HRRS_ITRequest? HRRS_ITRequest { get; set; } = new HRRS_ITRequest();
+       
     }
 }

@@ -5,12 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TMIS.DataAccess.COMON.IRpository;
-using TMIS.DataAccess.COMON.Rpository;
 using TMIS.DataAccess.HRRS.IRepository;
 using TMIS.DataAccess.ITIS.IRepository;
-using TMIS.DataAccess.ITIS.Repository;
+using TMIS.Models.HRRS;
 using TMIS.Models.HRRS.VM;
-using TMIS.Models.ITIS.VM;
 using TMIS.Utility;
 
 namespace TMIS.DataAccess.HRRS.Repository
@@ -45,11 +43,11 @@ namespace TMIS.DataAccess.HRRS.Repository
             INSERT INTO HRRS_ITRequests
             (FirstName, LastName, EmployeeNo, Designation, Department, Location, Company, NIC, InterviewDate, DueStartDate,
             RecruitmentType, Replacement, Computer, Email, EmailGroup, ComputerLogin, SAPAccess, WFXAccess, Landnewline,
-            ExistingLandLine, Extension, SmartPhone, BasicPhone, SIM, HomeAddress, RequestRemark, Status)
+            ExistingLandLine, Extension, SmartPhone, BasicPhone, SIM, HomeAddress, RequestRemark, Status, RequestBy)
             VALUES
             (@FirstName, @LastName, @EmployeeNo, @Designation, @Department, @Location, @Company, @NIC, @InterviewDate, @DueStartDate,
             @RecruitmentType, @Replacement, @Computer, @Email, @EmailGroup, @ComputerLogin, @SAPAccess, @WFXAccess, @Landnewline,
-            @ExistingLandLine, @Extension, @SmartPhone, @BasicPhone, @SIM, @HomeAddress, @RequestRemark, @Status);
+            @ExistingLandLine, @Extension, @SmartPhone, @BasicPhone, @SIM, @HomeAddress, @RequestRemark, @Status, @RequestBy);
             SELECT CAST(SCOPE_IDENTITY() AS INT);";
 
 
@@ -84,12 +82,22 @@ namespace TMIS.DataAccess.HRRS.Repository
                     obj.HRRS_ITRequest!.SIM,
                     obj.HRRS_ITRequest!.HomeAddress,              
                     obj.HRRS_ITRequest!.RequestRemark,
-                    Status = 1 // Default to 'Pending' or adjust as needed
+                    Status = 1, // Default to 'Pending' or adjust as needed
+                    RequestBy = _iSessionHelper.GetShortName().ToUpper()
                 });
-                
-                int? id = insertedId;
+                if (insertedId.HasValue)
+                {
+                    LogdbHRRS logdb = new()
+                    {
+                        TrObjectId = insertedId.Value,
+                        TrLog = "IT REQUEST CREATED"
 
-                PrepairEmail(id);
+                    };
+
+                    _iHRRSLogdb.InsertLog(_dbConnection, logdb);
+                }
+
+                int? id = insertedId;             
 
                 return insertedId > 0;
             }
@@ -99,7 +107,7 @@ namespace TMIS.DataAccess.HRRS.Repository
                 return false;
             }
         }
-        private void PrepairEmail(int? genId)
+        public void PrepairEmail(int? genId)
         {
             using var connection = _dbConnection.GetConnection();
 
@@ -147,6 +155,14 @@ namespace TMIS.DataAccess.HRRS.Repository
             // Send email
             Task.Run(() => _gmailSender.RequestToApprove(mailTo, myArray));
         }
+        public async Task<IEnumerable<HRRS_ITRequest>> GetAllAsync()
+        {
+            string sql = @"select * from HRRS_ITRequests as it 
+                inner join HRRS_ITReqStatus as st on st.id=it.Status";
+
+            return await _dbConnection.GetConnection().QueryAsync<HRRS_ITRequest>(sql);
+        }
+
 
     }
 }
