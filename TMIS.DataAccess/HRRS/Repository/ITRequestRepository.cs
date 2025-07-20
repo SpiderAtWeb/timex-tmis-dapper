@@ -158,11 +158,97 @@ namespace TMIS.DataAccess.HRRS.Repository
         public async Task<IEnumerable<HRRS_ITRequest>> GetAllAsync()
         {
             string sql = @"select * from HRRS_ITRequests as it 
-                inner join HRRS_ITReqStatus as st on st.id=it.Status";
+                inner join HRRS_ITReqStatus as st on st.id=it.Status where it.IsDelete=0";
 
             return await _dbConnection.GetConnection().QueryAsync<HRRS_ITRequest>(sql);
         }
-
+        public async Task<HRRS_ITRequest?> LoadRequest(int id)
+        {
+            string sql = @"select * from HRRS_ITRequests as it 
+                inner join HRRS_ITReqStatus as st on st.id=it.Status
+                where it.ID=@ID and it.IsDelete=0";
+            return await _dbConnection.GetConnection().QuerySingleOrDefaultAsync<HRRS_ITRequest>(sql, new { ID = id });
+        }
+        public async Task<bool> UpdateAsync(HRRS_ITRequest obj)
+        {
+            string sql = @"UPDATE HRRS_ITRequests
+                           SET FirstName = @FirstName,
+                               LastName = @LastName,
+                               EmployeeNo = @EmployeeNo,
+                               Designation = @Designation,
+                               Department = @Department,
+                               Location = @Location,
+                               Company = @Company,
+                               NIC = @NIC,
+                               InterviewDate = @InterviewDate,
+                               DueStartDate = @DueStartDate,
+                               RecruitmentType = @RecruitmentType,
+                               Replacement = @Replacement,
+                               Computer = @Computer,
+                               Email = @Email,
+                               EmailGroup = @EmailGroup,
+                               ComputerLogin = @ComputerLogin,
+                               SAPAccess = @SAPAccess,
+                               WFXAccess = @WFXAccess,
+                               Landnewline = @Landnewline,
+                               ExistingLandLine = @ExistingLandLine,
+                               Extension = @Extension,
+                               SmartPhone = @SmartPhone,
+                               BasicPhone = @BasicPhone,
+                               SIM = @SIM,
+                               HomeAddress = @HomeAddress,              
+                               RequestRemark = @RequestRemark,
+                               RequestBy = @RequestBy,
+                               RequestDate = @RequestDate
+                           WHERE ID = @ID";
+            var result = await _dbConnection.GetConnection().ExecuteAsync(sql, new { 
+                FirstName = obj.FirstName,
+                LastName = obj.LastName,
+                EmployeeNo = obj.EmployeeNo,
+                Designation = obj.Designation,
+                Department = obj.Department,
+                Location = obj.Location,
+                Company = obj.Company,
+                NIC = obj.NIC,
+                InterviewDate = obj.InterviewDate,
+                DueStartDate = obj.DueStartDate,
+                RecruitmentType = obj.RecruitmentType,
+                Replacement = obj.Replacement,
+                Computer = obj.Computer,
+                Email = obj.Email,
+                EmailGroup = obj.EmailGroup,
+                ComputerLogin = obj.ComputerLogin,
+                SAPAccess = obj.SAPAccess,
+                WFXAccess = obj.WFXAccess,
+                Landnewline = obj.Landnewline,
+                ExistingLandLine = obj.ExistingLandLine,
+                Extension = obj.Extension,
+                SmartPhone = obj.SmartPhone,
+                BasicPhone = obj.BasicPhone,
+                SIM = obj.SIM,
+                HomeAddress = obj.HomeAddress,
+                RequestRemark = obj.RequestRemark,
+                RequestBy = _iSessionHelper.GetShortName().ToUpper(),
+                RequestDate = DateTime.Now,
+                ID = obj.ID
+            });
+            return result > 0;
+        }
+        public async Task<bool> DeleteAsync(int id)
+        {
+            string sql = "UPDATE HRRS_ITRequests SET IsDelete = 1 WHERE ID = @ID";
+            var result = await _dbConnection.GetConnection().ExecuteAsync(sql, new { ID = id });
+            if (result > 0)
+            {
+                LogdbHRRS logdb = new()
+                {
+                    TrObjectId = id,
+                    TrLog = "IT REQUEST DELETED"
+                };
+                _iHRRSLogdb.InsertLog(_dbConnection, logdb);
+            }
+            return result > 0;
+        }
 
     }
 }
