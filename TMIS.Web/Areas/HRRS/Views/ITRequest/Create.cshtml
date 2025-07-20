@@ -22,16 +22,14 @@
 	<script src="~/custom/tables-datatables-basic.js"></script>
 
     @if (TempData["success"] != null)
-	{
-		<script src="~/vendor/libs/toastr/toastr.js"></script>
+	{		
 		<script type="text/javascript">
 			toastr.success('@TempData["success"]');
 		</script>
 		TempData.Clear();
 	}
 	@if (TempData["error"] != null)
-	{
-		<script src="~/vendor/libs/toastr/toastr.js"></script>
+	{	
 		<script type="text/javascript">
             toastr.error('@TempData["error"]');
 		</script>
@@ -41,7 +39,7 @@
 
     <script>
         $(document).ready(function () {
-            $('select[name="Designation"]').select2({
+            $('select[name="CreateObj.HRRS_ITRequest.Designation"]').select2({
                 placeholder: "- Choose or enter a designation -",
                 allowClear: true,
                 tags: true, // Allow custom values
@@ -61,7 +59,7 @@
                 }
             });
 
-            $('select[name="Location"]').select2({
+            $('select[name="CreateObj.HRRS_ITRequest.Location"]').select2({
                 placeholder: "- Choose or enter a location -",
                 allowClear: true,
                 tags: true, // Allow custom values
@@ -81,28 +79,28 @@
                 }
             });
 
-            const $simDropdown = $('select[name="HRRS_ITRequest.SIM"]');
+            const $simDropdown = $('select[name="CreateObj.HRRS_ITRequest.SIM"]');
             const $homeAddress = $('#homeAddressContainer');
 
-            const $recruitmentTypeDropdown = $('select[name="HRRS_ITRequest.RecruitmentType"]');
+            const $recruitmentTypeDropdown = $('select[name="CreateObj.HRRS_ITRequest.RecruitmentType"]');
             const $employeeList = $('#employeeListContainer');
 
             function toggleHomeAddress() {
-              const val = $simDropdown.val();
-              if (val == "Yes") {
-                  $homeAddress.show();
-              } else {
-                  $homeAddress.hide(); 
-              }
+                const val = $simDropdown.val();
+                if (val == "Yes") {
+                    $homeAddress.show();
+                } else {
+                    $homeAddress.hide(); 
+                }
             }
 
             function toggleEmpList() {
-              const val = $recruitmentTypeDropdown.val();
-              if (val == "Replacement") {
-                  $employeeList.fadeIn();
-              } else {
-                  $employeeList.fadeOut();
-              }
+                const val = $recruitmentTypeDropdown.val();
+                if (val == "Replacement") {
+                    $employeeList.fadeIn();
+                } else {
+                    $employeeList.fadeOut();
+                }
             }
 
             // Trigger on change
@@ -113,90 +111,7 @@
             toggleHomeAddress();
             toggleEmpList();
 
-            $('.btn-edit').click(function () {
-              const $btn = $(this);
-              const status = $btn.data('status');
-
-              // ❌ If status is Approved, don't allow editing
-              if (status && status.toLowerCase() === 'approved') {
-                  toastr.warning("This record is already approved and cannot be edited.");
-                  return;
-              }
-
-              // Proceed to populate form
-              const ID = $btn.data('id');
-              const firstName = $btn.data('firstname');
-              const lastName = $btn.data('lastname');
-              const empNo = $btn.data('empno');
-              const designation = $btn.data('designation');
-              const department = $btn.data('department');
-              const location = $btn.data('location');
-              const company = $btn.data('company');
-              const nic = $btn.data('nic');
-              const interviewDate = $btn.data('interviewdate');
-              const dueStartDate = $btn.data('duestartdate');
-              const recruitmentType = $btn.data('recruitmenttype');
-              const computerRequired = $btn.data('computerrequired');
-              const emailRequired = $btn.data('emailrequired');
-              const computerLogin = $btn.data('computerlogin');
-              const sapAccess = $btn.data('sapaccess');
-              const newLandLine = $btn.data('newlandline');
-              const existingLandLine = $btn.data('existinglandline');
-              const extension = $btn.data('extension');
-              const smartPhone = $btn.data('smartphone');
-              const basicPhone = $btn.data('basicphone');
-              const sim = $btn.data('sim');
-              const remark = $btn.data('remark');
-
-              console.log("ID:", ID);
-              console.log("First Name:", firstName);
-              console.log("Last Name:", lastName);
-              console.log("Employee No:", empNo);
-              console.log("Designation:", designation);
-              console.log("Department:", department);
-              console.log("Location:", location);
-              console.log("Company:", company);
-              console.log("NIC:", nic);
-              console.log("Interview Date:", interviewDate);
-              console.log("Due Start Date:", dueStartDate);
-              console.log("Recruitment Type:", recruitmentType);
-              console.log("Computer Required:", computerRequired);
-              console.log("Email Required:", emailRequired);
-              console.log("Computer Login:", computerLogin);
-              console.log("SAP Access:", sapAccess);
-              console.log("New Land Line:", newLandLine);
-              console.log("Existing Land Line:", existingLandLine);
-              console.log("Extension:", extension);
-              console.log("Smart Phone:", smartPhone);
-              console.log("Basic Phone:", basicPhone);
-              console.log("SIM:", sim);
-              console.log("Remark:", remark);
-
-              $('input[name="CreateObj.HRRS_ITRequest.FirstName"]').val(firstName);
-              $('input[name="CreateObj.HRRS_ITRequest.LastName"]').val(lastName);
-              $('input[name="CreateObj.HRRS_ITRequest.EmployeeNo"]').val(empNo);
-              $('select[name="CreateObj.HRRS_ITRequest.Designation"]').val(designation).trigger('change');
-              $('select[name="CreateObj.HRRS_ITRequest.Department"]').val(department).trigger('change');
-              $('select[name="CreateObj.HRRS_ITRequest.Location"]').val(location).trigger('change');
-              $('input[name="CreateObj.HRRS_ITRequest.Company"]').val(company);
-              $('input[name="CreateObj.HRRS_ITRequest.NIC"]').val(nic);
-              $('input[name="CreateObj.HRRS_ITRequest.InterviewDate"]').val(interviewDate);
-              $('input[name="CreateObj.HRRS_ITRequest.DueStartDate"]').val(dueStartDate);
-              $('select[name="CreateObj.HRRS_ITRequest.RecruitmentType"]').val(recruitmentType).trigger('change');
-              $('select[name="CreateObj.HRRS_ITRequest.Computer"]').val(computerRequired).trigger('change');
-              $('select[name="CreateObj.HRRS_ITRequest.EmailGroup"]').val(emailGroup).trigger('change');
-              $('select[name="CreateObj.HRRS_ITRequest.ComputerLogin"]').val(computerLogin).trigger('change');
-              $('select[name="CreateObj.HRRS_ITRequest.SAPAccess"]').val(sapAccess).trigger('change');
-              $('select[name="CreateObj.HRRS_ITRequest.Landnewline"]').val(newLandLine).trigger('change');
-              $('select[name="CreateObj.HRRS_ITRequest.ExistingLandLine"]').val(existingLandLine).trigger('change');
-              $('select[name="CreateObj.HRRS_ITRequest.Extension"]').val(extension).trigger('change');
-              $('select[name="CreateObj.HRRS_ITRequest.SmartPhone"]').val(smartPhone).trigger('change');
-              $('select[name="CreateObj.HRRS_ITRequest.BasicPhone"]').val(basicPhone).trigger('change');
-              $('select[name="CreateObj.HRRS_ITRequest.SIM"]').val(sim).trigger('change');
-              $('textarea[name="CreateObj.HRRS_ITRequest.RequestRemark"]').val(remark);
-          });
-
-        });
+        });       
     </script>
 }
 
@@ -260,24 +175,28 @@
                 <div class="form-floating form-floating-outline">
                     <input asp-for="CreateObj.HRRS_ITRequest.Company" class="form-control" placeholder="Company" />
                     <label asp-for="CreateObj.HRRS_ITRequest.Company"></label>
+                    <span asp-validation-for="CreateObj.HRRS_ITRequest.Company" class="text-warning"></span>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="form-floating form-floating-outline">
                     <input asp-for="CreateObj.HRRS_ITRequest.NIC" class="form-control" placeholder="NIC" />
                     <label asp-for="CreateObj.HRRS_ITRequest.NIC"></label>
+                    <span asp-validation-for="CreateObj.HRRS_ITRequest.NIC" class="text-warning"></span>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="form-floating form-floating-outline">
                     <input asp-for="CreateObj.HRRS_ITRequest.InterviewDate" type="date" class="form-control" />
                     <label asp-for="CreateObj.HRRS_ITRequest.InterviewDate"></label>
+                    <span asp-validation-for="CreateObj.HRRS_ITRequest.InterviewDate" class="text-warning"></span>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="form-floating form-floating-outline">
                     <input asp-for="CreateObj.HRRS_ITRequest.DueStartDate" type="date" class="form-control" />
                     <label asp-for="CreateObj.HRRS_ITRequest.DueStartDate"></label>
+                    <span asp-validation-for="CreateObj.HRRS_ITRequest.DueStartDate" class="text-warning"></span>
                 </div>
             </div>         
             <div class="col-md-3">
@@ -437,91 +356,8 @@
         <div class="mt-4">
             <button type="submit" class="btn btn-primary me-1">Submit</button>
             <a asp-action="Create" class="btn btn-outline-secondary">Cancel</a>
+            <a asp-action="Index" class="btn btn-outline-secondary">Back to List</a>
         </div>
     </form>
-</div>
-<div class="card mb-6">
-    <h5 class="card-header page-header">Approve Device Request</h5>
-    <div class="card-body">
-        <div class="tab-content p-0">
-            <div class="tab-pane fade show active" id="navs-top-home" role="tabpanel">
-                <div class="card-datatable text-nowrap">
-                    <table class="datatables-ajax table table-bordered dt-tbl">
-                        <thead>
-                            <tr class="table-info">
-                                <th>Emp Name</th>
-                                <th>Designation</th>
-                                <th>Department</th>
-                                <th>Location</th>
-                                <th>Company</th>
-                                <th>NIC</th>
-                                <th>Due Start</th>
-                                <th>Recruitment</th>
-                                <th>Status</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                           @if(Model.ITRequestTableObj != null)
-                            {
-                                @foreach (var item in Model.ITRequestTableObj)
-                                {
-                                    <tr>
-                                        <td>@item.FirstName @item.LastName</td>
-                                        <td>@item.Designation</td>
-                                        <td>@item.Department</td>
-                                        <td>@item.Location</td>
-                                        <td>@item.Company</td>
-                                        <td>@item.NIC</td>
-                                        <td>@item.DueStartDate?.ToString("MM-dd-yyyy")</td>
-                                        <td>@item.RecruitmentType</td>
-                                        <td>@item.PropName</td>
-                                        <td>
-                                            <a href="javascript:void(0);"
-                                               class="btn btn-sm @(item.PropName == "Approved" ? "btn-secondary disabled" : "btn-warning") btn-edit"
-                                               data-id="@item.ID"
-                                               data-firstName="@item.FirstName"
-                                               data-lastName="@item.LastName"
-                                               data-empNo="@item.EmployeeNo"
-                                               data-designation="@item.Designation"
-                                               data-department="@item.Department"
-                                               data-location="@item.Location"
-                                               data-company="@item.Company"
-                                               data-nic="@item.NIC"
-                                               data-interviewDate="@item.InterviewDate"
-                                               data-dueStartDate="@item.DueStartDate"
-                                               data-recruitmentType="@item.RecruitmentType"                                            
-                                               data-computerRequired="@item.Computer"
-                                               data-emailRequired="@item.EmailGroup"
-                                               data-computerLogin="@item.ComputerLogin"
-                                               data-sapAccess="@item.SAPAccess"
-                                               data-newLandLine="@item.Landnewline"
-                                               data-existingLandLine="@item.ExistingLandLine"
-                                               data-extension="@item.Extension"
-                                               data-smartPhone="@item.SmartPhone"
-                                               data-basicPhone="@item.BasicPhone"
-                                               data-sim="@item.SIM"
-                                               data-remark="@item.RequestRemark"
-                                               >                                            
-                                               <i class="fa-solid fa-pen-to-square"></i>
-                                             </a>
-                                            <a class="edit-record btn btn-primary btn-sm" asp-controller="ApproveDeviceUser" asp-action="Approve" asp-route-ID="@item.ID"> <i class="fa-solid fa-paper-plane"></i> </a>
-                                        </td>
-                                    </tr>
-                                }
-                            }
-                            else
-                            {
-                                <tr>
-                                    <td colspan="10" class="text-center text-muted">No records found.</td>
-                                </tr>
-                            }
-                            
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
 

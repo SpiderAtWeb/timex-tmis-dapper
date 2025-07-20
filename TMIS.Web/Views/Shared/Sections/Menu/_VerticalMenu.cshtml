@@ -691,28 +691,6 @@
             </li>
         }
 
-        @if (User.IsInRole("HRRS-USER"))
-        {
-            <li class='menu-item@(currentPage.StartsWith("/HRRS") ? " active open" : "")'>
-                <a href="javascript:void(0);" class="menu-link menu-toggle">
-                    <i class="menu-icon fa-solid fa-gear"></i>
-                    <div>IT Request</div>
-                </a>
-                <ul class="menu-sub">
-                    <li class='menu-item@(currentPage == "/HRRS/ITRequest/Create" ? " active" : "")'>
-                        <a asp-area="HRRS" asp-controller="ITRequest" asp-action="Create" class="menu-link">
-                            <div>  <span>    <i class="menu-icon fa-solid fa-users-gear"></i></span>Create</div>
-                        </a>
-                    </li>
-                    <li class='menu-item@(currentPage == "/HRRS/ITRequest/Approve" ? " active" : "")'>
-                        <a asp-area="HRRS" asp-controller="ITRequest" asp-action="Approve" class="menu-link">
-                            <div>  <span>    <i class="menu-icon fa-solid fa-users-gear"></i></span>Approve</div>
-                        </a>
-                    </li>
-                </ul>
-            </li>
-        }
-
 
         @if (User.IsInRole("SUPER-ADMIN"))
         {
@@ -746,6 +724,29 @@
 				</ul>
 			</li>
 		}
+
+
+        @if (User.IsInRole("HRRS-USER"))
+        {
+            <li class='menu-item@(currentPage.StartsWith("/HRRS") ? " active open" : "")'>
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon fa-solid fa-gear"></i>
+                    <div>HR Request</div>
+                </a>
+                <ul class="menu-sub">
+                    <li class='menu-item@(currentPage == "/HRRS/ITRequest/Index" ? " active" : "")'>
+                        <a asp-area="HRRS" asp-controller="ITRequest" asp-action="Index" class="menu-link">
+                            <div>  <span>    <i class="menu-icon fa-solid fa-users-gear"></i></span>Create</div>
+                        </a>
+                    </li>
+                    <li class='menu-item@(currentPage == "/HRRS/ITRequest/Approve" ? " active" : "")'>
+                        <a asp-area="HRRS" asp-controller="ITRequest" asp-action="Approve" class="menu-link">
+                            <div>  <span>    <i class="menu-icon fa-solid fa-users-gear"></i></span>Approve</div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+        }
     </ul>
 
 </aside>

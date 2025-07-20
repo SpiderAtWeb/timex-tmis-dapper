@@ -18,13 +18,17 @@ namespace TMIS.Areas.HRRS.Controllers
     private readonly ISessionHelper _iSessionHelper = sessionHelper;
     private readonly IITRequestRepository _iTRequestRepository = iTRequestRepository;
 
+    public async Task<IActionResult> Index()
+    {
+      _logger.Info("[" + _iSessionHelper.GetShortName() + "] - PAGE VISIT ITREQUEST INDEX");      
+      var Obj = await _iTRequestRepository.GetAllAsync();
+      return View(Obj);
+    }
     public async Task<IActionResult> Create()
     {
       _logger.Info("[" + _iSessionHelper.GetShortName() + "] - PAGE VISIT ITREQUEST CREATE");
 
-      ITRequestPageViewModel obj = new();
-
-      obj.ITRequestTableObj = await _iTRequestRepository.GetAllAsync();
+      ITRequestPageViewModel obj = new();      
       obj.CreateObj = await _iTRequestRepository.LoadDropDowns();
 
       return View(obj);
