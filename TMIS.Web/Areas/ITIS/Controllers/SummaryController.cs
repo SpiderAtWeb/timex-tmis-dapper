@@ -25,6 +25,12 @@ namespace TMIS.Areas.ITIS.Controllers
       return View();
     }
 
+    public IActionResult Analytics()
+    {
+      _logger.Info("[ " + _iSessionHelper.GetShortName() + " ] - PAGE VISIT ANALYTICS");
+      return View();
+    }
+
     [HttpGet]
     public async Task<IActionResult> GetDevices()
     {

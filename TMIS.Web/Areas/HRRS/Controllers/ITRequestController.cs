@@ -37,9 +37,10 @@ namespace TMIS.Areas.HRRS.Controllers
       obj.CreateObj.DesignationList = objnew.DesignationList;
       obj.CreateObj.EmployeeList = objnew.EmployeeList;
 
-      if (obj == null)
+      if (obj.CreateObj.HRRS_ITRequest == null)
       {
-        return NotFound();
+        TempData["error"] = "This request already approved.";
+        return RedirectToAction("Index"); 
       }
 
       _logger.Info("[" + _iSessionHelper.GetShortName() + "] - PAGE VISIT IT REQUEST EDIT [" + id + "]");
@@ -180,7 +181,7 @@ namespace TMIS.Areas.HRRS.Controllers
       {
         return NotFound();
       }
-      bool isDeleted = await _iTRequestRepository.DeleteAsync(itRequest.ID);
+      bool isDeleted = await _iTRequestRepository.DeleteAsync(itRequest.RequestID);
       if (isDeleted)
       {
         TempData["success"] = "IT Request Deleted Successfully";

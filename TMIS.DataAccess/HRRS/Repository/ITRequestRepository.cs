@@ -166,7 +166,7 @@ namespace TMIS.DataAccess.HRRS.Repository
         {
             string sql = @"select * from HRRS_ITRequests as it 
                 inner join HRRS_ITReqStatus as st on st.id=it.Status
-                where it.ID=@ID and it.IsDelete=0";
+                where it.RequestID=@ID and it.IsDelete=0 and st.PropName!='Approved'";
             return await _dbConnection.GetConnection().QuerySingleOrDefaultAsync<HRRS_ITRequest>(sql, new { ID = id });
         }
         public async Task<bool> UpdateAsync(HRRS_ITRequest obj)
@@ -200,7 +200,7 @@ namespace TMIS.DataAccess.HRRS.Repository
                                RequestRemark = @RequestRemark,
                                RequestBy = @RequestBy,
                                RequestDate = @RequestDate
-                           WHERE ID = @ID";
+                           WHERE RequestID = @ID";
             var result = await _dbConnection.GetConnection().ExecuteAsync(sql, new { 
                 FirstName = obj.FirstName,
                 LastName = obj.LastName,
@@ -230,13 +230,13 @@ namespace TMIS.DataAccess.HRRS.Repository
                 RequestRemark = obj.RequestRemark,
                 RequestBy = _iSessionHelper.GetShortName().ToUpper(),
                 RequestDate = DateTime.Now,
-                ID = obj.ID
+                ID = obj.RequestID
             });
             return result > 0;
         }
         public async Task<bool> DeleteAsync(int id)
         {
-            string sql = "UPDATE HRRS_ITRequests SET IsDelete = 1 WHERE ID = @ID";
+            string sql = "UPDATE HRRS_ITRequests SET IsDelete = 1 WHERE RequestID = @ID";
             var result = await _dbConnection.GetConnection().ExecuteAsync(sql, new { ID = id });
             if (result > 0)
             {

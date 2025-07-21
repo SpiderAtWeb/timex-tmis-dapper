@@ -79,7 +79,7 @@
                                     @foreach (var item in Model)
                                     {
                                         <tr>
-                                            <td>@item.FirstName @item.LastName</td>
+                                            <td>@item.FirstName @item.LastName</td>                                     
                                             <td>@item.Designation</td>
                                             <td>@item.Department</td>
                                             <td>@item.Location</td>
@@ -90,11 +90,11 @@
                                             <td>@item.PropName</td>
                                             <td>
                                                 <a class="btn btn-sm @(item.PropName == "Approved" ? "btn-secondary disabled" : "btn-primary") btn-edit"
-                                                   asp-controller="ITRequest" asp-action="Edit" asp-route-ID="@item.ID">
+                                                   asp-controller="ITRequest" asp-action="Edit" asp-route-id="@item.RequestID">
                                                    <i class="fa-solid fa-pen-to-square"></i>
                                                 </a>
                                                 <a class="btn btn-sm @(item.PropName == "Approved" ? "btn-secondary disabled" : "btn-primary") btn-edit"
-                                                   asp-controller="ITRequest" asp-action="Approve" asp-route-ID="@item.ID">
+                                                   asp-controller="ITRequest" asp-action="Approve" asp-route-id="@item.RequestID">
                                                    <i class="fa-solid fa-paper-plane"></i>
                                                 </a>
                                             </td>
