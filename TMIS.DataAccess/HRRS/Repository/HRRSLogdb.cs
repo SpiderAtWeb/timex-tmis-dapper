@@ -1,13 +1,14 @@
-﻿using System;
+﻿using Dapper;
+using log4net.Util;
+using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Dapper;
-using log4net.Util;
-using Microsoft.AspNetCore.Http;
 using TMIS.DataAccess.COMON.IRpository;
 using TMIS.DataAccess.HRRS.IRepository;
+using TMIS.Models.HRRS;
 using TMIS.Models.ITIS;
 
 namespace TMIS.DataAccess.HRRS.Repository
@@ -20,7 +21,7 @@ namespace TMIS.DataAccess.HRRS.Repository
         private readonly IHttpContextAccessor _httpCtxtAcsor = httpCtxtAcsor;
         private readonly ISessionHelper _iSessionHelper = sessionHelper;
 
-        public void InsertLog(IDatabaseConnectionSys dbConnection, Logdb log)
+        public void InsertLog(IDatabaseConnectionSys dbConnection, LogdbHRRS log)
         {
             var sql = @"INSERT INTO [dbo].[HRRS_TrLogger]
                        ([TrDateTime]

@@ -7,111 +7,117 @@
     <link href="~/css/input-text-upper.css" rel="stylesheet" />
     <link href="~/vendor/libs/toastr/toastr.css" rel="stylesheet" />
     <link rel="stylesheet" href="~/vendor/libs/datatables-bs5/datatables.bootstrap5.css">
+    <!-- sweetalert2 -->
+    <link rel="stylesheet" href="~/vendor/libs/animate-css/animate.css" />
+    <link rel="stylesheet" href="~/vendor/libs/sweetalert2/sweetalert2.css" />
 }
 
 @section VendorScripts {
     <script src="~/vendor/libs/flatpickr/flatpickr.js"></script>
     <script src="~/vendor/libs/select2/select2.js"></script>
+
+    <!-- sweetalert2 -->
+    <script src="~/vendor/libs/sweetalert2/sweetalert2.js"></script>
 }
 
 @section PageScripts {
     <script src="~/vendor/libs/toastr/toastr.js"></script>
     <script src="~/js/form-layouts.js"></script>
     <script src="~/custom/input-text-upper.js"></script>
-  	<script src="~/custom/loading-hide.js"></script>
-	<script src="~/custom/tables-datatables-basic.js"></script>
+    <script src="~/custom/loading-hide.js"></script>
+    <script src="~/custom/tables-datatables-basic.js"></script>
 
     @if (TempData["success"] != null)
-	{		
-		<script type="text/javascript">
-			toastr.success('@TempData["success"]');
-		</script>
-		TempData.Clear();
-	}
-	@if (TempData["error"] != null)
-	{	
-		<script type="text/javascript">
+    {
+        <script type="text/javascript">
+            toastr.success('@TempData["success"]');
+        </script>
+        TempData.Clear();
+    }
+    @if (TempData["error"] != null)
+    {
+        <script type="text/javascript">
             toastr.error('@TempData["error"]');
-		</script>
-		TempData.Clear();
-	}
+        </script>
+        TempData.Clear();
+    }
 
 
     <script>
-        $(document).ready(function () {
-            $('select[name="CreateObj.HRRS_ITRequest.Designation"]').select2({
-                placeholder: "- Choose or enter a designation -",
-                allowClear: true,
-                tags: true, // Allow custom values
-                createTag: function (params) {
-                    var term = $.trim(params.term);
-                    if (term === '') {
-                        return null;
+            $(document).ready(function () {
+                $('select[name="CreateObj.HRRS_ITRequest.Designation"]').select2({
+                    placeholder: "- Choose or enter a designation -",
+                    allowClear: true,
+                    tags: true, // Allow custom values
+                    createTag: function (params) {
+                        var term = $.trim(params.term);
+                        if (term === '') {
+                            return null;
+                        }
+                        return {
+                            id: term,
+                            text: term,
+                            newOption: true
+                        };
+                    },
+                    insertTag: function (data, tag) {
+                        data.push(tag); // Add custom entry to the list
                     }
-                    return {
-                        id: term,
-                        text: term,
-                        newOption: true
-                    };
-                },
-                insertTag: function (data, tag) {
-                    data.push(tag); // Add custom entry to the list
-                }
-            });
+                });
 
-            $('select[name="CreateObj.HRRS_ITRequest.Location"]').select2({
-                placeholder: "- Choose or enter a location -",
-                allowClear: true,
-                tags: true, // Allow custom values
-                createTag: function (params) {
-                    var term = $.trim(params.term);
-                    if (term === '') {
-                        return null;
+                $('select[name="CreateObj.HRRS_ITRequest.Location"]').select2({
+                    placeholder: "- Choose or enter a location -",
+                    allowClear: true,
+                    tags: true, // Allow custom values
+                    createTag: function (params) {
+                        var term = $.trim(params.term);
+                        if (term === '') {
+                            return null;
+                        }
+                        return {
+                            id: term,
+                            text: term,
+                            newOption: true
+                        };
+                    },
+                    insertTag: function (data, tag) {
+                        data.push(tag); // Add custom entry to the list
                     }
-                    return {
-                        id: term,
-                        text: term,
-                        newOption: true
-                    };
-                },
-                insertTag: function (data, tag) {
-                    data.push(tag); // Add custom entry to the list
+                });
+
+                const $simDropdown = $('select[name="CreateObj.HRRS_ITRequest.SIM"]');
+                const $homeAddress = $('#homeAddressContainer');
+
+                const $recruitmentTypeDropdown = $('select[name="CreateObj.HRRS_ITRequest.RecruitmentType"]');
+                const $employeeList = $('#employeeListContainer');
+
+                function toggleHomeAddress() {
+                    const val = $simDropdown.val();
+                    if (val == "Yes") {
+                        $homeAddress.show();
+                    } else {
+                        $homeAddress.hide();
+                    }
                 }
+
+                function toggleEmpList() {
+                    const val = $recruitmentTypeDropdown.val();
+                    if (val == "Replacement") {
+                        $employeeList.fadeIn();
+                    } else {
+                        $employeeList.fadeOut();
+                    }
+                }
+
+                // Trigger on change
+                $simDropdown.on('change', toggleHomeAddress);
+                $recruitmentTypeDropdown.on('change', toggleEmpList);
+
+                // Trigger once on page load (to handle postback with validation errors)
+                toggleHomeAddress();
+                toggleEmpList();
+              
             });
-
-            const $simDropdown = $('select[name="CreateObj.HRRS_ITRequest.SIM"]');
-            const $homeAddress = $('#homeAddressContainer');
-
-            const $recruitmentTypeDropdown = $('select[name="CreateObj.HRRS_ITRequest.RecruitmentType"]');
-            const $employeeList = $('#employeeListContainer');
-
-            function toggleHomeAddress() {
-                const val = $simDropdown.val();
-                if (val == "Yes") {
-                    $homeAddress.show();
-                } else {
-                    $homeAddress.hide(); 
-                }
-            }
-
-            function toggleEmpList() {
-                const val = $recruitmentTypeDropdown.val();
-                if (val == "Replacement") {
-                    $employeeList.fadeIn();
-                } else {
-                    $employeeList.fadeOut();
-                }
-            }
-
-            // Trigger on change
-            $simDropdown.on('change', toggleHomeAddress);
-            $recruitmentTypeDropdown.on('change', toggleEmpList);
-
-            // Trigger once on page load (to handle postback with validation errors)
-            toggleHomeAddress();
-            toggleEmpList();
-
-        });       
     </script>
 }
 
@@ -119,8 +125,9 @@
 
 <div class="card mb-6">
     <h5 class="card-header page-header">New IT Request</h5>
-    <form asp-action="Create" method="post" class="card-body" id="itRequestForm">
+    <form asp-action="Edit" method="post" class="card-body" id="itRequestForm">
         <div class="row g-2">
+            <input asp-for="CreateObj.HRRS_ITRequest.RequestID" type="hidden" />
             <div class="col-md-3">
                 <div class="form-floating form-floating-outline">
                     <input asp-for="CreateObj.HRRS_ITRequest.FirstName" class="form-control" placeholder="First Name" />
@@ -198,7 +205,7 @@
                     <label asp-for="CreateObj.HRRS_ITRequest.DueStartDate"></label>
                     <span asp-validation-for="CreateObj.HRRS_ITRequest.DueStartDate" class="text-warning"></span>
                 </div>
-            </div>         
+            </div>
             <div class="col-md-3">
                 <div class="form-floating form-floating-outline">
                     <select asp-for="CreateObj.HRRS_ITRequest.RecruitmentType" asp-items="@Model.CreateObj.RecruitmentTypeList" class="select2 form-select" data-allow-clear="true">
@@ -268,7 +275,7 @@
                     <label asp-for="CreateObj.HRRS_ITRequest.SAPAccess"></label>
                     <span asp-validation-for="CreateObj.HRRS_ITRequest.SAPAccess" class="text-warning"></span>
                 </div>
-            </div>                       
+            </div>
             <div class="col-md-3">
                 <div class="form-floating form-floating-outline">
                     <select asp-for="CreateObj.HRRS_ITRequest.WFXAccess" asp-items="@Model.CreateObj.ChoiceList" class="select2 form-select" data-allow-clear="true">
@@ -278,7 +285,7 @@
                     <label asp-for="CreateObj.HRRS_ITRequest.WFXAccess"></label>
                     <span asp-validation-for="CreateObj.HRRS_ITRequest.WFXAccess" class="text-warning"></span>
                 </div>
-            </div>                       
+            </div>
             <div class="col-md-3">
                 <div class="form-floating form-floating-outline">
                     <select asp-for="CreateObj.HRRS_ITRequest.Landnewline" asp-items="@Model.CreateObj.ChoiceList" class="select2 form-select" data-allow-clear="true">
@@ -288,7 +295,7 @@
                     <label asp-for="CreateObj.HRRS_ITRequest.Landnewline"></label>
                     <span asp-validation-for="CreateObj.HRRS_ITRequest.Landnewline" class="text-warning"></span>
                 </div>
-            </div>                                   
+            </div>
             <div class="col-md-3">
                 <div class="form-floating form-floating-outline">
                     <select asp-for="CreateObj.HRRS_ITRequest.ExistingLandLine" asp-items="@Model.CreateObj.ChoiceList" class="select2 form-select" data-allow-clear="true">
@@ -298,7 +305,7 @@
                     <label asp-for="CreateObj.HRRS_ITRequest.ExistingLandLine"></label>
                     <span asp-validation-for="CreateObj.HRRS_ITRequest.ExistingLandLine" class="text-warning"></span>
                 </div>
-            </div>                                               
+            </div>
             <div class="col-md-3">
                 <div class="form-floating form-floating-outline">
                     <select asp-for="CreateObj.HRRS_ITRequest.Extension" asp-items="@Model.CreateObj.ChoiceList" class="select2 form-select" data-allow-clear="true">
@@ -308,7 +315,7 @@
                     <label asp-for="CreateObj.HRRS_ITRequest.Extension"></label>
                     <span asp-validation-for="CreateObj.HRRS_ITRequest.Extension" class="text-warning"></span>
                 </div>
-            </div>                                                           
+            </div>
             <div class="col-md-3">
                 <div class="form-floating form-floating-outline">
                     <select asp-for="CreateObj.HRRS_ITRequest.SmartPhone" asp-items="@Model.CreateObj.ChoiceList" class="select2 form-select" data-allow-clear="true">
@@ -318,7 +325,7 @@
                     <label asp-for="CreateObj.HRRS_ITRequest.SmartPhone"></label>
                     <span asp-validation-for="CreateObj.HRRS_ITRequest.SmartPhone" class="text-warning"></span>
                 </div>
-            </div>                                                                       
+            </div>
             <div class="col-md-3">
                 <div class="form-floating form-floating-outline">
                     <select asp-for="CreateObj.HRRS_ITRequest.BasicPhone" asp-items="@Model.CreateObj.ChoiceList" class="select2 form-select" data-allow-clear="true">
@@ -328,7 +335,7 @@
                     <label asp-for="CreateObj.HRRS_ITRequest.BasicPhone"></label>
                     <span asp-validation-for="CreateObj.HRRS_ITRequest.BasicPhone" class="text-warning"></span>
                 </div>
-            </div>                                                                                   
+            </div>
             <div class="col-md-3">
                 <div class="form-floating form-floating-outline">
                     <select asp-for="CreateObj.HRRS_ITRequest.SIM" asp-items="@Model.CreateObj.ChoiceList" class="select2 form-select" data-allow-clear="true">
@@ -351,12 +358,12 @@
                     <textarea asp-for="CreateObj.HRRS_ITRequest.RequestRemark" class="form-control" placeholder="Request Remark"></textarea>
                     <label asp-for="CreateObj.HRRS_ITRequest.RequestRemark"></label>
                 </div>
-            </div>            
+            </div>
         </div>
         <div class="mt-4">
             <button type="submit" class="btn btn-primary me-1">Submit</button>
-            <a asp-action="Create" class="btn btn-outline-secondary">Cancel</a>
             <a asp-action="Index" class="btn btn-outline-secondary">Back to List</a>
+            <a asp-action="Delete" class="btn btn-danger">Delete</a>     
         </div>
     </form>
 </div>

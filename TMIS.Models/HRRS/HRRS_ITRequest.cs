@@ -9,7 +9,7 @@ namespace TMIS.Models.HRRS
 {
     public class HRRS_ITRequest
     {
-        public int ID { get; set; }
+        public int RequestID { get; set; }
        
         [Required]
         [Display(Name = "First Name")]
@@ -57,7 +57,6 @@ namespace TMIS.Models.HRRS
         [Display(Name = "Recruitment Type")]
         public string? RecruitmentType { get; set; }
         
-        [Required]
         [Display(Name = "Replacement Of")]
         public string? Replacement { get; set; }
 
@@ -119,5 +118,11 @@ namespace TMIS.Models.HRRS
         public DateTime? ApproverResponseDate { get; set; }
         public string? ApproverRemark { get; set; }
         public int Status { get; set; }
+        public string? RequestBy { get; set; }
+
+        //HRRS_ITReqStatus table properties
+        public int id { get; set; }
+        public string? PropName { get; set; }
+        public string? PropDesc { get; set; }        
     }
 }
