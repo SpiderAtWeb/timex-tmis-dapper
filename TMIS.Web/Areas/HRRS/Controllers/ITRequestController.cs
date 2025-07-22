@@ -65,22 +65,33 @@ namespace TMIS.Areas.HRRS.Controllers
       obj.CreateObj.DesignationList = objnew.DesignationList;
       obj.CreateObj.EmployeeList = objnew.EmployeeList;
 
-      if (obj.CreateObj.HRRS_ITRequest!.RecruitmentType != "Replacement")
+      if (obj.CreateObj.HRRS_ITRequest!.IsReplacement == false)
       {
         obj.CreateObj.HRRS_ITRequest.Replacement = null; // Clear Replacement if not applicable
       }
-      else if (obj.CreateObj.HRRS_ITRequest.RecruitmentType == "Replacement")
+      else
       {
         if (string.IsNullOrWhiteSpace(obj.CreateObj.HRRS_ITRequest.Replacement))
         {
           ModelState.AddModelError("CreateObj.HRRS_ITRequest.Replacement", "Replacement is required.");
         }
       }
-      if (obj.CreateObj.HRRS_ITRequest.SIM != "Yes")
+      if (obj.CreateObj.HRRS_ITRequest!.Email == false)
+      {
+        obj.CreateObj.HRRS_ITRequest.EmailGroup = null; // Clear Replacement if not applicable
+      }
+      else
+      {
+        if (string.IsNullOrWhiteSpace(obj.CreateObj.HRRS_ITRequest.EmailGroup))
+        {
+          ModelState.AddModelError("CreateObj.HRRS_ITRequest.EmailGroup", "Email Group is required.");
+        }
+      }
+      if (obj.CreateObj.HRRS_ITRequest.SIM == false)
       {
         obj.CreateObj.HRRS_ITRequest.HomeAddress = null; // Clear HomeAddress if SIM is not Yes
       }
-      else if (obj.CreateObj.HRRS_ITRequest.SIM == "Yes")
+      else
       {
         if (string.IsNullOrWhiteSpace(obj.CreateObj.HRRS_ITRequest.HomeAddress))
         {
@@ -122,23 +133,42 @@ namespace TMIS.Areas.HRRS.Controllers
       obj.CreateObj.DepartmentList = objnew.DepartmentList;
       obj.CreateObj.DesignationList = objnew.DesignationList;
       obj.CreateObj.EmployeeList = objnew.EmployeeList;
+     
+      var itRequest = await _iTRequestRepository.LoadRequest(obj.CreateObj.HRRS_ITRequest!.RequestID);
 
-      if (obj.CreateObj.HRRS_ITRequest!.RecruitmentType != "Replacement")
+      if(itRequest == null)
+      {
+        TempData["error"] = "Something went wrong, please try again.";
+        return RedirectToAction("Index");
+      }
+
+      if (obj.CreateObj.HRRS_ITRequest!.Email == false)
+      {
+        obj.CreateObj.HRRS_ITRequest.EmailGroup = null; // Clear Replacement if not applicable
+      }
+      else
+      {
+        if (string.IsNullOrWhiteSpace(obj.CreateObj.HRRS_ITRequest.EmailGroup))
+        {
+          ModelState.AddModelError("CreateObj.HRRS_ITRequest.EmailGroup", "Email Group is required.");
+        }
+      }
+      if (obj.CreateObj.HRRS_ITRequest!.IsReplacement == false)
       {
         obj.CreateObj.HRRS_ITRequest.Replacement = null; // Clear Replacement if not applicable
       }
-      else if (obj.CreateObj.HRRS_ITRequest.RecruitmentType == "Replacement")
+      else
       {
         if (string.IsNullOrWhiteSpace(obj.CreateObj.HRRS_ITRequest.Replacement))
         {
           ModelState.AddModelError("CreateObj.HRRS_ITRequest.Replacement", "Replacement is required.");
         }
       }
-      if (obj.CreateObj.HRRS_ITRequest.SIM != "Yes")
+      if (obj.CreateObj.HRRS_ITRequest.SIM == false)
       {
         obj.CreateObj.HRRS_ITRequest.HomeAddress = null; // Clear HomeAddress if SIM is not Yes
       }
-      else if (obj.CreateObj.HRRS_ITRequest.SIM == "Yes")
+      else
       {
         if (string.IsNullOrWhiteSpace(obj.CreateObj.HRRS_ITRequest.HomeAddress))
         {
@@ -166,7 +196,8 @@ namespace TMIS.Areas.HRRS.Controllers
         TempData["success"] = "IT Request Edit Successful";
       }
       else
-      {         // Show error message
+      {
+        // Show error message
         TempData["error"] = "Something went wrong, please try again.";
       }
 

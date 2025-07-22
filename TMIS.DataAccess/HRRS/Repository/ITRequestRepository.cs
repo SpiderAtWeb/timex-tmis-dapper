@@ -41,13 +41,19 @@ namespace TMIS.DataAccess.HRRS.Repository
         {
             const string query = @"
             INSERT INTO HRRS_ITRequests
-            (FirstName, LastName, EmployeeNo, Designation, Department, Location, Company, NIC, InterviewDate, DueStartDate,
-            RecruitmentType, Replacement, Computer, Email, EmailGroup, ComputerLogin, SAPAccess, WFXAccess, Landnewline,
-            ExistingLandLine, Extension, SmartPhone, BasicPhone, SIM, HomeAddress, RequestRemark, Status, RequestBy)
+            (
+                FirstName, LastName, EmployeeNo, Designation, Department, Location, Company, NIC, InterviewDate, DueStartDate,
+                IsReplacement, Replacement, Email, EmailGroup, Computer, ComputerLogin, SAP, WFX, NewLandline,
+                ExistingLandline, Extension, SmartPhone, BasicPhone, SIM, HomeAddress, RequestDate, RequestRemark,
+                Status, RequestBy
+            )
             VALUES
-            (@FirstName, @LastName, @EmployeeNo, @Designation, @Department, @Location, @Company, @NIC, @InterviewDate, @DueStartDate,
-            @RecruitmentType, @Replacement, @Computer, @Email, @EmailGroup, @ComputerLogin, @SAPAccess, @WFXAccess, @Landnewline,
-            @ExistingLandLine, @Extension, @SmartPhone, @BasicPhone, @SIM, @HomeAddress, @RequestRemark, @Status, @RequestBy);
+            (
+                @FirstName, @LastName, @EmployeeNo, @Designation, @Department, @Location, @Company, @NIC, @InterviewDate, @DueStartDate,
+                @IsReplacement, @Replacement, @Email, @EmailGroup, @Computer, @ComputerLogin, @SAP, @WFX, @NewLandline,
+                @ExistingLandline, @Extension, @SmartPhone, @BasicPhone, @SIM, @HomeAddress, GETDATE(), @RequestRemark,
+                @Status, @RequestBy
+            );
             SELECT CAST(SCOPE_IDENTITY() AS INT);";
 
 
@@ -66,23 +72,23 @@ namespace TMIS.DataAccess.HRRS.Repository
                     obj.HRRS_ITRequest!.NIC,
                     obj.HRRS_ITRequest!.InterviewDate,
                     obj.HRRS_ITRequest!.DueStartDate,
-                    obj.HRRS_ITRequest!.RecruitmentType,
+                    obj.HRRS_ITRequest!.IsReplacement,
                     obj.HRRS_ITRequest!.Replacement,
-                    obj.HRRS_ITRequest!.Computer,
                     obj.HRRS_ITRequest!.Email,
                     obj.HRRS_ITRequest!.EmailGroup,
+                    obj.HRRS_ITRequest!.Computer,
                     obj.HRRS_ITRequest!.ComputerLogin,
-                    obj.HRRS_ITRequest!.SAPAccess,
-                    obj.HRRS_ITRequest!.WFXAccess,
-                    obj.HRRS_ITRequest!.Landnewline,
-                    obj.HRRS_ITRequest!.ExistingLandLine,
+                    obj.HRRS_ITRequest!.SAP,
+                    obj.HRRS_ITRequest!.WFX,
+                    obj.HRRS_ITRequest!.NewLandline,
+                    obj.HRRS_ITRequest!.ExistingLandline,
                     obj.HRRS_ITRequest!.Extension,
                     obj.HRRS_ITRequest!.SmartPhone,
                     obj.HRRS_ITRequest!.BasicPhone,
                     obj.HRRS_ITRequest!.SIM,
-                    obj.HRRS_ITRequest!.HomeAddress,              
+                    obj.HRRS_ITRequest!.HomeAddress,
                     obj.HRRS_ITRequest!.RequestRemark,
-                    Status = 1, // Default to 'Pending' or adjust as needed
+                    Status = 1, // Default to 'Pending' or change based on logic
                     RequestBy = _iSessionHelper.GetShortName().ToUpper()
                 });
                 if (insertedId.HasValue)
@@ -171,66 +177,68 @@ namespace TMIS.DataAccess.HRRS.Repository
         }
         public async Task<bool> UpdateAsync(HRRS_ITRequest obj)
         {
-            string sql = @"UPDATE HRRS_ITRequests
-                           SET FirstName = @FirstName,
-                               LastName = @LastName,
-                               EmployeeNo = @EmployeeNo,
-                               Designation = @Designation,
-                               Department = @Department,
-                               Location = @Location,
-                               Company = @Company,
-                               NIC = @NIC,
-                               InterviewDate = @InterviewDate,
-                               DueStartDate = @DueStartDate,
-                               RecruitmentType = @RecruitmentType,
-                               Replacement = @Replacement,
-                               Computer = @Computer,
-                               Email = @Email,
-                               EmailGroup = @EmailGroup,
-                               ComputerLogin = @ComputerLogin,
-                               SAPAccess = @SAPAccess,
-                               WFXAccess = @WFXAccess,
-                               Landnewline = @Landnewline,
-                               ExistingLandLine = @ExistingLandLine,
-                               Extension = @Extension,
-                               SmartPhone = @SmartPhone,
-                               BasicPhone = @BasicPhone,
-                               SIM = @SIM,
-                               HomeAddress = @HomeAddress,              
-                               RequestRemark = @RequestRemark,
-                               RequestBy = @RequestBy,
-                               RequestDate = @RequestDate
-                           WHERE RequestID = @ID";
-            var result = await _dbConnection.GetConnection().ExecuteAsync(sql, new { 
-                FirstName = obj.FirstName,
-                LastName = obj.LastName,
-                EmployeeNo = obj.EmployeeNo,
-                Designation = obj.Designation,
-                Department = obj.Department,
-                Location = obj.Location,
-                Company = obj.Company,
-                NIC = obj.NIC,
-                InterviewDate = obj.InterviewDate,
-                DueStartDate = obj.DueStartDate,
-                RecruitmentType = obj.RecruitmentType,
-                Replacement = obj.Replacement,
-                Computer = obj.Computer,
-                Email = obj.Email,
-                EmailGroup = obj.EmailGroup,
-                ComputerLogin = obj.ComputerLogin,
-                SAPAccess = obj.SAPAccess,
-                WFXAccess = obj.WFXAccess,
-                Landnewline = obj.Landnewline,
-                ExistingLandLine = obj.ExistingLandLine,
-                Extension = obj.Extension,
-                SmartPhone = obj.SmartPhone,
-                BasicPhone = obj.BasicPhone,
-                SIM = obj.SIM,
-                HomeAddress = obj.HomeAddress,
-                RequestRemark = obj.RequestRemark,
+            string sql = @"
+            UPDATE HRRS_ITRequests
+            SET FirstName = @FirstName,
+                LastName = @LastName,
+                EmployeeNo = @EmployeeNo,
+                Designation = @Designation,
+                Department = @Department,
+                Location = @Location,
+                Company = @Company,
+                NIC = @NIC,
+                InterviewDate = @InterviewDate,
+                DueStartDate = @DueStartDate,
+                IsReplacement = @IsReplacement,
+                Replacement = @Replacement,
+                Email = @Email,
+                EmailGroup = @EmailGroup,
+                Computer = @Computer,
+                ComputerLogin = @ComputerLogin,
+                SAP = @SAP,
+                WFX = @WFX,
+                NewLandline = @NewLandline,
+                ExistingLandline = @ExistingLandline,
+                Extension = @Extension,
+                SmartPhone = @SmartPhone,
+                BasicPhone = @BasicPhone,
+                SIM = @SIM,
+                HomeAddress = @HomeAddress,
+                RequestRemark = @RequestRemark,
+                RequestBy = @RequestBy,
+                RequestDate = @RequestDate
+            WHERE RequestID = @RequestID";
+
+            var result = await _dbConnection.GetConnection().ExecuteAsync(sql, new {
+                obj.FirstName,
+                obj.LastName,
+                obj.EmployeeNo,
+                obj.Designation,
+                obj.Department,
+                obj.Location,
+                obj.Company,
+                obj.NIC,
+                obj.InterviewDate,
+                obj.DueStartDate,
+                obj.IsReplacement,
+                obj.Replacement,
+                obj.Email,
+                obj.EmailGroup,
+                obj.Computer,
+                obj.ComputerLogin,
+                obj.SAP,
+                obj.WFX,
+                obj.NewLandline,
+                obj.ExistingLandline,
+                obj.Extension,
+                obj.SmartPhone,
+                obj.BasicPhone,
+                obj.SIM,
+                obj.HomeAddress,
+                obj.RequestRemark,
                 RequestBy = _iSessionHelper.GetShortName().ToUpper(),
                 RequestDate = DateTime.Now,
-                ID = obj.RequestID
+                obj.RequestID
             });
             return result > 0;
         }
