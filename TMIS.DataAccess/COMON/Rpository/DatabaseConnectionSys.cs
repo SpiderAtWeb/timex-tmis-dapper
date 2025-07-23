@@ -1,6 +1,6 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
 using System.Data;
-using System.Data.SqlClient;
 using TMIS.DataAccess.COMON.IRpository;
 
 namespace TMIS.DataAccess.COMON.Rpository
@@ -18,6 +18,6 @@ namespace TMIS.DataAccess.COMON.Rpository
         public IDbConnection GetConnection() => _connection;
 
         public void Dispose() => _connection.Dispose();
-       
+
     }
 }

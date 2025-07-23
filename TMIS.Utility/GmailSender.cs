@@ -22,7 +22,7 @@ namespace TMIS.Utility
                 // Create the MailMessage object
                 MailMessage mail = new()
                 {
-                    From = new MailAddress(smtpSettings["senderEmail"], "TMIS Messenger"),
+                    From = new MailAddress(smtpSettings["senderEmail"]!, "TMIS Messenger"),
                     Subject = mailSubject,
                     Body = mailBody,
                     IsBodyHtml = true // Enable HTML formatting
@@ -47,7 +47,7 @@ namespace TMIS.Utility
                 }
 
                 // Configure the SMTP client
-                SmtpClient smtpClient = new(smtpSettings["Host"], int.Parse(smtpSettings["Port"]))
+                SmtpClient smtpClient = new(smtpSettings["Host"], int.Parse(smtpSettings["Port"]!))
                 {
                     Credentials = (ICredentialsByHost)new NetworkCredential(smtpSettings["senderEmail"], smtpSettings["senderPassword"]),
                     EnableSsl = true, // Secure connection
@@ -322,7 +322,7 @@ namespace TMIS.Utility
                 // Create the MailMessage object
                 MailMessage mail = new()
                 {
-                    From = new MailAddress(smtpSettings["senderEmail"], "TMIS Messenger"),
+                    From = new MailAddress(smtpSettings["senderEmail"]!, "TMIS Messenger"),
                     Subject = mailSubject,
                     Body = mailBody,
                     IsBodyHtml = true // Enable HTML formatting
@@ -347,7 +347,7 @@ namespace TMIS.Utility
                 }
 
                 // Configure the SMTP client
-                SmtpClient smtpClient = new(smtpSettings["Host"], int.Parse(smtpSettings["Port"]))
+                SmtpClient smtpClient = new(smtpSettings["Host"], int.Parse(smtpSettings["Port"]!))
                 {
                     Credentials = (ICredentialsByHost)new NetworkCredential(smtpSettings["senderEmail"], smtpSettings["senderPassword"]),
                     EnableSsl = true, // Secure connection

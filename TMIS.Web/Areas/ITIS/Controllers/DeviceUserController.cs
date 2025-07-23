@@ -1,12 +1,8 @@
-using System.Data.Entity;
 using log4net;
 using Microsoft.AspNetCore.Mvc;
 using TMIS.Controllers;
 using TMIS.DataAccess.COMON.IRpository;
-using TMIS.DataAccess.COMON.Rpository;
 using TMIS.DataAccess.ITIS.IRepository;
-using TMIS.DataAccess.ITIS.Repository;
-using TMIS.Models.ITIS;
 using TMIS.Models.ITIS.VM;
 
 namespace TMIS.Areas.ITIS.Controllers
@@ -20,14 +16,14 @@ namespace TMIS.Areas.ITIS.Controllers
     public async Task<IActionResult> Index()
     {
       _logger.Info("[" + _iSessionHelper.GetShortName() + "] - PAGE VISIT DEVICEUSER INDEX");
-      var deviceUserVM = await _deviceUserRepository.GetAllAsync(); 
+      var deviceUserVM = await _deviceUserRepository.GetAllAsync();
       return View(deviceUserVM);
     }
 
     public async Task<IActionResult> Create()
     {
       _logger.Info("[" + _iSessionHelper.GetShortName() + "] - PAGE VISIT DEVICEUSER CREATE");
-      var deviceUserVM = await _deviceUserRepository.LoadDropDowns();    
+      var deviceUserVM = await _deviceUserRepository.LoadDropDowns();
       return View(deviceUserVM);
     }
 
@@ -46,7 +42,7 @@ namespace TMIS.Areas.ITIS.Controllers
 
       if (obj.AssignDevice!.Device == 0)
       {
-        ModelState.AddModelError("AssignDevice.Device", "The Device field is required.");        
+        ModelState.AddModelError("AssignDevice.Device", "The Device field is required.");
       }
 
       // Check if the ModelState is valid
@@ -71,7 +67,7 @@ namespace TMIS.Areas.ITIS.Controllers
       _logger.Info("[" + _iSessionHelper.GetShortName() + "] - PAGE VISIT DEVICEUSER VIEW");
 
       var deviceDetails = await _deviceUserRepository.LoadDeviceDetail(deviceId);
-      var userDetails = await _deviceUserRepository.LoadUserDetail(deviceId);    
+      var userDetails = await _deviceUserRepository.LoadUserDetail(deviceId);
 
       ViewDeviceUserVM viewDeviceUserVM = new ViewDeviceUserVM();
 
