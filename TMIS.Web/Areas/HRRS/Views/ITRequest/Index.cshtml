@@ -90,48 +90,39 @@
                                     <th>Action</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                @if (Model != null && Model.Any())
-                                {
-                                    @foreach (var item in Model)
-                                    {
-                                        <tr>
-                                            <td>@item.FirstName @item.LastName</td>                                     
-                                            <td>@item.Designation</td>
-                                            <td>@item.Department</td>
-                                            <td>@item.Location</td>
-                                            <td>@item.Company</td>
-                                            <td>@item.NIC</td>
-                                            <td>@item.DueStartDate?.ToString("MM-dd-yyyy")</td>
-                                            <td>@item.IsReplacement</td>
-                                            <td>@item.PropName</td>
-                                            <td>
-                                                <a class="btn btn-sm @(item.PropName == "Approved" ? "btn-secondary disabled" : "btn-primary") btn-edit"
-                                                   asp-controller="ITRequest" asp-action="Edit" asp-route-id="@item.RequestID">
-                                                   <i class="fa-solid fa-pen-to-square"></i>
-                                                </a>
-                                             @*    <a class="btn btn-sm @(item.PropName == "Approved" ? "btn-secondary disabled" : "btn-primary") btn-edit"
-                                                   asp-controller="ITRequest" asp-action="SendEmail" asp-route-id="@item.RequestID">
-                                                   <i class="fa-solid fa-paper-plane"></i>
-                                                </a>   *@
-                                                <button type="button"
-                                                        class="btn btn-sm @(item.PropName == "Approved" ? "btn-secondary disabled" : "btn-primary") btn-edit"
-                                                        data-bs-toggle="modal"
-                                                        data-bs-target="#sendEmailModal"
-                                                        data-id="@item.RequestID"
-                                                        @(item.PropName == "Approved" ? "disabled" : "")>
-                                                    <i class="fa-solid fa-paper-plane"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    }
-                                }
-                                else
-                                {
-                                    <tr>
-                                        <td colspan="10" class="text-center text-muted">No records found.</td>
-                                    </tr>
-                                }                                
+                            <tbody>                             
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@item.FirstName @item.LastName</td>                                     
+                                    <td>@item.Designation</td>
+                                    <td>@item.Department</td>
+                                    <td>@item.Location</td>
+                                    <td>@item.Company</td>
+                                    <td>@item.NIC</td>
+                                    <td>@item.DueStartDate?.ToString("MM-dd-yyyy")</td>
+                                    <td>@item.IsReplacement</td>
+                                    <td>@item.PropName</td>
+                                    <td>
+                                        <a class="btn btn-sm @(item.PropName == "Approved" ? "btn-secondary disabled" : "btn-primary") btn-edit"
+                                            asp-controller="ITRequest" asp-action="Edit" asp-route-id="@item.RequestID">
+                                            <i class="fa-solid fa-pen-to-square"></i>
+                                        </a>
+                                      @*    <a class="btn btn-sm @(item.PropName == "Approved" ? "btn-secondary disabled" : "btn-primary") btn-edit"
+                                            asp-controller="ITRequest" asp-action="SendEmail" asp-route-id="@item.RequestID">
+                                            <i class="fa-solid fa-paper-plane"></i>
+                                        </a>   *@
+                                        <button type="button"
+                                                class="btn btn-sm @(item.PropName == "Approved" ? "btn-secondary disabled" : "btn-primary") btn-edit"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#sendEmailModal"
+                                                data-id="@item.RequestID"
+                                                @(item.PropName == "Approved" ? "disabled" : "")>
+                                            <i class="fa-solid fa-paper-plane"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            }                                                                                        
                             </tbody>
                         </table>
                     </div>

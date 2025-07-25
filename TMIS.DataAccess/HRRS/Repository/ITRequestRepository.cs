@@ -269,7 +269,10 @@ namespace TMIS.DataAccess.HRRS.Repository
             });
             if (result > 0)
             {
-                PrepairEmailForIT(obj.RequestID);
+                if (status == 2)
+                {
+                    PrepairEmailForIT(obj.RequestID);
+                }                
             }
             return result > 0;
         }
