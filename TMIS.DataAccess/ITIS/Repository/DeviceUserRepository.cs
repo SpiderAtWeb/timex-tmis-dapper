@@ -67,7 +67,7 @@ namespace TMIS.DataAccess.ITIS.Repository
 
         public async Task<bool> ReturnDevice(ReturnDeviceVM obj, IFormFile? image)
         {
-            const string query = @"update ITIS_DeviceAssignments set AssignStatusID=5, ReturnedDate=GETDATE(), ReturnRemarks=@ReturnRemarks, 
+            const string query = @"update ITIS_DeviceAssignments set AssignStatusID=5, ReturnedDate=getdate(), ReturnRemarks=@ReturnRemarks, 
                          ReturnTimeImage= @ReturnTimeImag where AssignmentID=@AssignmentID";
 
             try

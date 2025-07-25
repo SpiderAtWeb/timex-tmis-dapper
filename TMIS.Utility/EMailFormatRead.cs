@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using static iTextSharp.text.pdf.AcroFields;
 
 namespace TMIS.Utility
 {
@@ -159,6 +160,32 @@ namespace TMIS.Utility
                 htmlBody = htmlBody.Replace($"{{{item.Key}}}", item.Value);
             }
 
+            return htmlBody;
+        }
+        public static string GetApprovalThreeColumnsHRRSEmailBody(Dictionary<string, string> placeholders)
+        {
+            string templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "EmailTemplates", "Approval-HRRS.htm");
+
+            string htmlBody = File.ReadAllText(templatePath);
+
+            // Replace placeholders
+            foreach (var item in placeholders)
+            {
+                htmlBody = htmlBody.Replace($"{{{item.Key}}}", item.Value);
+            }
+            return htmlBody;
+        }
+        public static string GetITRequestHRRSEmailBody(Dictionary<string, string> placeholders)
+        {
+            string templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "EmailTemplates", "ITRequest-HRRS.htm");
+
+            string htmlBody = File.ReadAllText(templatePath);
+
+            // Replace placeholders
+            foreach (var item in placeholders)
+            {
+                htmlBody = htmlBody.Replace($"{{{item.Key}}}", item.Value);
+            }
             return htmlBody;
         }
     }

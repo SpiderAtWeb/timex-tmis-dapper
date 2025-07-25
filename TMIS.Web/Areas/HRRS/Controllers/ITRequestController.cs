@@ -232,5 +232,20 @@ namespace TMIS.Areas.HRRS.Controllers
       input = input.Trim().ToLower(); // Make all lowercase first
       return char.ToUpper(input[0]) + input.Substring(1);
     }
+    public IActionResult SendEmail(int id)
+    {
+      try
+      {
+        _iTRequestRepository.PrepairEmail(id);
+        TempData["success"] = "Request Email Send Successful";
+      }
+      catch (Exception ex)
+      {
+        TempData["error"] = "Something went wrong, please try again.: " + ex.Message;        
+      }
+
+      return RedirectToAction("Index");
+
+    }
   }
 }

@@ -25,5 +25,6 @@ namespace TMIS.DataAccess.ITIS.IRepository
         Task<IEnumerable<SelectListItem>> LoadLocationsFromAD();
         Task<IEnumerable<SelectListItem>> LoadDepartmentsFromAD();
         Task<IEnumerable<SelectListItem>> LoadDesignationsFromAD();
+        Task<IEnumerable<SelectListItem>> LoadEmployeeListHRRS();
     }
 }
