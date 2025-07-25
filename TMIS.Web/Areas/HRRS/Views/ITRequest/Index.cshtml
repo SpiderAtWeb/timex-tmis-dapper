@@ -40,10 +40,27 @@
         </script>
         TempData.Clear();
     }
+
+    <script>
+        const sendEmailModal = document.getElementById('sendEmailModal');
+        sendEmailModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const requestId = button.getAttribute('data-id');
+            const confirmBtn = document.getElementById('confirmSendEmailBtn');
+
+            // Set the href to your controller method
+            confirmBtn.href = `/HRRS/ITRequest/SendEmail/${requestId}`;
+        });
+    </script>
+
 }
 
 @await Html.PartialAsync("_Loading")
 
+<div>    
+    <input type="hidden" id="deleteUrl" value=@Url.Action("ITRequest", "ITRequest")>
+    <input type="hidden" id="recordId" />
+</div>
 @* ************** Content ************** *@
 <!-- Ajax Sourced Server-side -->
 <div class="panelDiv">
@@ -86,17 +103,25 @@
                                             <td>@item.Company</td>
                                             <td>@item.NIC</td>
                                             <td>@item.DueStartDate?.ToString("MM-dd-yyyy")</td>
-                                            <td>@item.RecruitmentType</td>
+                                            <td>@item.IsReplacement</td>
                                             <td>@item.PropName</td>
                                             <td>
                                                 <a class="btn btn-sm @(item.PropName == "Approved" ? "btn-secondary disabled" : "btn-primary") btn-edit"
                                                    asp-controller="ITRequest" asp-action="Edit" asp-route-id="@item.RequestID">
                                                    <i class="fa-solid fa-pen-to-square"></i>
                                                 </a>
-                                                <a class="btn btn-sm @(item.PropName == "Approved" ? "btn-secondary disabled" : "btn-primary") btn-edit"
-                                                   asp-controller="ITRequest" asp-action="Approve" asp-route-id="@item.RequestID">
+                                             @*    <a class="btn btn-sm @(item.PropName == "Approved" ? "btn-secondary disabled" : "btn-primary") btn-edit"
+                                                   asp-controller="ITRequest" asp-action="SendEmail" asp-route-id="@item.RequestID">
                                                    <i class="fa-solid fa-paper-plane"></i>
-                                                </a>
+                                                </a>   *@
+                                                <button type="button"
+                                                        class="btn btn-sm @(item.PropName == "Approved" ? "btn-secondary disabled" : "btn-primary") btn-edit"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#sendEmailModal"
+                                                        data-id="@item.RequestID"
+                                                        @(item.PropName == "Approved" ? "disabled" : "")>
+                                                    <i class="fa-solid fa-paper-plane"></i>
+                                                </button>
                                             </td>
                                         </tr>
                                     }
@@ -115,7 +140,23 @@
         </div>
     </div>
 </div>
-
+<div class="modal fade" id="sendEmailModal" tabindex="-1" role="dialog" aria-labelledby="sendEmailModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="sendEmailModalLabel">Confirm Email Send</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to send the request email?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <a id="confirmSendEmailBtn" href="#" class="btn btn-primary">Yes, Send</a>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 

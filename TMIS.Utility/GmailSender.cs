@@ -1,10 +1,12 @@
 ﻿using iTextSharp.text;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Org.BouncyCastle.Ocsp;
 using System;
 using System.Net;
 using System.Net.Mail;
 using System.Text;
+using TMIS.Models.HRRS;
 
 namespace TMIS.Utility
 {
@@ -365,6 +367,157 @@ namespace TMIS.Utility
             }
         }
 
+        #endregion
+        #region - HRRS EMAIL AREA
+        public void ITRequestToApprove(HRRS_ITRequest hRRS_ITRequest)
+        {
+            string baseUrl = _configuration["BaseUrl"] ?? "https://localhost:44383"; // Configure this in appsettings.json         
+            var encryptedCode = SecurityBox.EncryptString(hRRS_ITRequest.RequestID.ToString());
+
+            string subjectText = $"IT Request For Approval (TMIS) - Req# : " + hRRS_ITRequest.RequestID;            
+
+            var mainComps = new Dictionary<string, string?>
+            {
+                { "MailHeading", "IT Request For Approval" },                
+                { "TableHeading", "Request Details" },
+                { "EmployeeNo", hRRS_ITRequest.EmployeeNo},
+                { "FirstName", hRRS_ITRequest.FirstName},
+                { "LastName", hRRS_ITRequest.LastName},                
+                { "Designation" , hRRS_ITRequest.Designation},
+                { "Department" , hRRS_ITRequest.Department},
+                { "DueStartDate", hRRS_ITRequest.DueStartDate?.ToString("yyyy-MM-dd")},
+                { "InterviewDate", hRRS_ITRequest.InterviewDate?.ToString("yyyy-MM-dd")},
+                { "IsReplacement" , hRRS_ITRequest.IsReplacement? "Yes" : "No"},
+                { "Replacement" , string.IsNullOrWhiteSpace(hRRS_ITRequest.Replacement) ? "-" : hRRS_ITRequest.Replacement},
+                { "RequestRemark" , string.IsNullOrWhiteSpace(hRRS_ITRequest.RequestRemark) ? "-" : hRRS_ITRequest.RequestRemark},
+                { "ComputerLogin" , hRRS_ITRequest.ComputerLogin? "Yes" : "No"},
+                { "Email" , hRRS_ITRequest.Email? "Yes" : "No"},
+                { "SAP" , hRRS_ITRequest.SAP? "Yes" : "No"},
+                { "WFX" , hRRS_ITRequest.WFX? "Yes" : "No"},
+                { "NewLandline" , hRRS_ITRequest.NewLandline? "Yes" : "No"},
+                { "ExistingLandline" , hRRS_ITRequest.ExistingLandline? "Yes" : "No"},
+                { "Extension" , hRRS_ITRequest.Extension? "Yes" : "No"},
+                { "SIM" , hRRS_ITRequest.SIM? "Yes" : "No"},
+                { "BasicPhone" , hRRS_ITRequest.BasicPhone? "Yes" : "No"},
+                { "SmartPhone" , hRRS_ITRequest.SmartPhone? "Yes" : "No"},
+                { "HomeAddress" , string.IsNullOrWhiteSpace(hRRS_ITRequest.HomeAddress) ? "-" : hRRS_ITRequest.HomeAddress},
+                { "EmailGroup" , string.IsNullOrWhiteSpace(hRRS_ITRequest.EmailGroup) ? "-" : hRRS_ITRequest.EmailGroup},
+                { "Computer" , hRRS_ITRequest.Computer},                
+                { "MailDate", DateTime.Now.ToString("yyyy-MM-dd") },
+                { "MailTime", DateTime.Now.ToString("HH:mm:ss") },
+                { "approveUrl", $"{baseUrl}/api/endorse/itrequest-approve?requestID={encryptedCode}&action=approve" },
+                { "rejectUrl",  $"{baseUrl}/api/endorse/itrequest-approve?requestID={encryptedCode}&action=reject" }
+            };
+
+                        
+            string emailBody = EMailFormatRead.GetApprovalThreeColumnsHRRSEmailBody(mainComps);
+            string mailTo = _configuration["HRApprover"] ?? "admin@timexsl.com";
+            string recipientEmailTo = mailTo;
+            string recipientEmailCc = "";
+            string recipientEmailBcc = "sujitha.costha@timexsl.com";
+
+            SendEmailHRRS(recipientEmailTo, recipientEmailCc, recipientEmailBcc, emailBody, subjectText);
+        }
+        public void ITRequestToIT(HRRS_ITRequest hRRS_ITRequest)
+        {
+            string baseUrl = _configuration["BaseUrl"] ?? "https://localhost:44383"; // Configure this in appsettings.json         
+            var encryptedCode = SecurityBox.EncryptString(hRRS_ITRequest.RequestID.ToString());
+
+            string subjectText = $"IT Request (TMIS)_" + hRRS_ITRequest.FirstName + " " + hRRS_ITRequest.LastName + "_" + hRRS_ITRequest.EmployeeNo;            
+
+            var mainComps = new Dictionary<string, string?>
+            {
+                { "MailHeading", "NEW IT Request" },                
+                { "TableHeading", "Request Details" },
+                { "EmployeeNo", hRRS_ITRequest.EmployeeNo},
+                { "FirstName", hRRS_ITRequest.FirstName},
+                { "LastName", hRRS_ITRequest.LastName},                
+                { "Designation" , hRRS_ITRequest.Designation},
+                { "Department" , hRRS_ITRequest.Department},
+                { "DueStartDate", hRRS_ITRequest.DueStartDate?.ToString("yyyy-MM-dd")},
+                { "InterviewDate", hRRS_ITRequest.InterviewDate?.ToString("yyyy-MM-dd")},
+                { "IsReplacement" , hRRS_ITRequest.IsReplacement? "Yes" : "No"},
+                { "Replacement" , string.IsNullOrWhiteSpace(hRRS_ITRequest.Replacement) ? "-" : hRRS_ITRequest.Replacement},
+                { "RequestRemark" , string.IsNullOrWhiteSpace(hRRS_ITRequest.RequestRemark) ? "-" : hRRS_ITRequest.RequestRemark},
+                { "ComputerLogin" , hRRS_ITRequest.ComputerLogin? "Yes" : "No"},
+                { "Email" , hRRS_ITRequest.Email? "Yes" : "No"},
+                { "SAP" , hRRS_ITRequest.SAP? "Yes" : "No"},
+                { "WFX" , hRRS_ITRequest.WFX? "Yes" : "No"},
+                { "NewLandline" , hRRS_ITRequest.NewLandline? "Yes" : "No"},
+                { "ExistingLandline" , hRRS_ITRequest.ExistingLandline? "Yes" : "No"},
+                { "Extension" , hRRS_ITRequest.Extension? "Yes" : "No"},
+                { "SIM" , hRRS_ITRequest.SIM? "Yes" : "No"},
+                { "BasicPhone" , hRRS_ITRequest.BasicPhone? "Yes" : "No"},
+                { "SmartPhone" , hRRS_ITRequest.SmartPhone? "Yes" : "No"},
+                { "HomeAddress" , string.IsNullOrWhiteSpace(hRRS_ITRequest.HomeAddress) ? "-" : hRRS_ITRequest.HomeAddress},
+                { "EmailGroup" , string.IsNullOrWhiteSpace(hRRS_ITRequest.EmailGroup) ? "-" : hRRS_ITRequest.EmailGroup},
+                { "Computer" , hRRS_ITRequest.Computer},                
+                { "MailDate", DateTime.Now.ToString("yyyy-MM-dd") },
+                { "MailTime", DateTime.Now.ToString("HH:mm:ss") }             
+            };
+
+                        
+            string emailBody = EMailFormatRead.GetITRequestHRRSEmailBody(mainComps);
+            string mailTo = _configuration["ITUser"] ?? "admin@timexsl.com";
+            string recipientEmailTo = mailTo;
+            string recipientEmailCc = "";
+            string recipientEmailBcc = "sujitha.costha@timexsl.com";
+
+            SendEmailHRRS(recipientEmailTo, recipientEmailCc, recipientEmailBcc, emailBody, subjectText);
+        }
+
+
+        private void SendEmailHRRS(string mailTo, string mailCc, string mailBcc, string mailBody, string mailSubject)
+        {
+            try
+            {
+                var smtpSettings = _configuration.GetSection("SmtpSettings");
+
+                // Create the MailMessage object
+                MailMessage mail = new()
+                {
+                    From = new MailAddress(smtpSettings["senderEmail"], "TMIS Messenger"),
+                    Subject = mailSubject,
+                    Body = mailBody,
+                    IsBodyHtml = true // Enable HTML formatting
+                };
+
+                if (mailTo.Trim().Length > 0)
+                {
+                    foreach (string sToBreak in mailTo.Split(",".ToCharArray()))
+                        mail.To.Add(sToBreak);
+                }
+
+                if (mailCc.Trim().Length > 0)
+                {
+                    foreach (string sCcBreak in mailCc.Split(",".ToCharArray()))
+                        mail.CC.Add(sCcBreak);
+                }
+
+                if (mailBcc.Trim().Length > 0)
+                {
+                    foreach (string sBccBreak in mailBcc.Split(",".ToCharArray()))
+                        mail.Bcc.Add(sBccBreak);
+                }
+
+                // Configure the SMTP client
+                SmtpClient smtpClient = new(smtpSettings["Host"], int.Parse(smtpSettings["Port"]))
+                {
+                    Credentials = (ICredentialsByHost)new NetworkCredential(smtpSettings["senderEmail"], smtpSettings["senderPassword"]),
+                    EnableSsl = true, // Secure connection
+                    UseDefaultCredentials = false,
+                    Timeout = 20000
+                };
+
+                // Send the email
+                smtpClient.Send(mail);
+                _logger.LogInformation($"Email sent for approve ITRequest Succefully {mailSubject}");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Failed to send approve ITRequest email : {ex.Message}");
+            }
+        }
         #endregion
     }
 }

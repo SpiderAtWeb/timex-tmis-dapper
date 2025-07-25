@@ -17,5 +17,7 @@ namespace TMIS.DataAccess.HRRS.IRepository
         Task<HRRS_ITRequest?> LoadRequest(int id);
         Task<bool> UpdateAsync(HRRS_ITRequest obj);
         Task<bool> DeleteAsync(int id);
+        Task<bool> ApproveAsync(HRRS_ITRequest obj, int status);
+        Task<HRRS_ITRequest?> LoadRequestForEmail(int id);
     }
 }

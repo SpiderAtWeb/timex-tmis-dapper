@@ -171,5 +171,12 @@ namespace TMIS.DataAccess.ITIS.Repository
 
             return results;
         }
+        public async Task<IEnumerable<SelectListItem>> LoadEmployeeListHRRS()
+        {
+            string query = @"select EmpUserName + ' - ' + EmpEmail as Value, EmpUserName + ' - ' + EmpEmail AS Text from ITIS_MasterADEMPLOYEES where IsDelete=0";
+            //replace with real datasource
+            var results = await _dbConnection.GetConnection().QueryAsync<SelectListItem>(query);
+            return results;
+        }
     }
 }

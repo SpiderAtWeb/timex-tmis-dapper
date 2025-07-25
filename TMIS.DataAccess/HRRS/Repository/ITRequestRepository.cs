@@ -1,4 +1,6 @@
 ﻿using Dapper;
+using Microsoft.Extensions.Configuration;
+using Org.BouncyCastle.Asn1.Ocsp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +17,7 @@ namespace TMIS.DataAccess.HRRS.Repository
 {
     public class ITRequestRepository(IDatabaseConnectionSys dbConnection, IHRRSLogdb iHRRSLogdb,
          ISessionHelper sessionHelper, IGmailSender gmailSender,
-         ICommonList iCommonList, IDatabaseConnectionAdm admConnection) : IITRequestRepository
+         ICommonList iCommonList, IDatabaseConnectionAdm admConnection, IConfiguration configuration) : IITRequestRepository
     {
         private readonly IDatabaseConnectionSys _dbConnection = dbConnection;
         private readonly IDatabaseConnectionAdm _admConnection = admConnection;
@@ -23,6 +25,7 @@ namespace TMIS.DataAccess.HRRS.Repository
         private readonly ICommonList _icommonList = iCommonList;
         private readonly ISessionHelper _iSessionHelper = sessionHelper;
         private readonly IGmailSender _gmailSender = gmailSender;
+        private readonly IConfiguration _configuration = configuration;
 
         public async Task<Create> LoadDropDowns()
         {
@@ -33,7 +36,7 @@ namespace TMIS.DataAccess.HRRS.Repository
                 LocationList = await _icommonList.LoadLocationsFromAD(),
                 DepartmentList = await _icommonList.LoadDepartmentsFromAD(),                                
                 DesignationList = await _icommonList.LoadDesignationsFromAD(),
-                EmployeeList = await _icommonList.LoadEmployeeList()
+                EmployeeList = await _icommonList.LoadEmployeeListHRRS()
             };
             return objCreateVM;
         }
@@ -41,13 +44,19 @@ namespace TMIS.DataAccess.HRRS.Repository
         {
             const string query = @"
             INSERT INTO HRRS_ITRequests
-            (FirstName, LastName, EmployeeNo, Designation, Department, Location, Company, NIC, InterviewDate, DueStartDate,
-            RecruitmentType, Replacement, Computer, Email, EmailGroup, ComputerLogin, SAPAccess, WFXAccess, Landnewline,
-            ExistingLandLine, Extension, SmartPhone, BasicPhone, SIM, HomeAddress, RequestRemark, Status, RequestBy)
+            (
+                FirstName, LastName, EmployeeNo, Designation, Department, Location, Company, NIC, InterviewDate, DueStartDate,
+                IsReplacement, Replacement, Email, EmailGroup, Computer, ComputerLogin, SAP, WFX, NewLandline,
+                ExistingLandline, Extension, SmartPhone, BasicPhone, SIM, HomeAddress, RequestDate, RequestRemark,
+                Status, RequestBy
+            )
             VALUES
-            (@FirstName, @LastName, @EmployeeNo, @Designation, @Department, @Location, @Company, @NIC, @InterviewDate, @DueStartDate,
-            @RecruitmentType, @Replacement, @Computer, @Email, @EmailGroup, @ComputerLogin, @SAPAccess, @WFXAccess, @Landnewline,
-            @ExistingLandLine, @Extension, @SmartPhone, @BasicPhone, @SIM, @HomeAddress, @RequestRemark, @Status, @RequestBy);
+            (
+                @FirstName, @LastName, @EmployeeNo, @Designation, @Department, @Location, @Company, @NIC, @InterviewDate, @DueStartDate,
+                @IsReplacement, @Replacement, @Email, @EmailGroup, @Computer, @ComputerLogin, @SAP, @WFX, @NewLandline,
+                @ExistingLandline, @Extension, @SmartPhone, @BasicPhone, @SIM, @HomeAddress, GETDATE(), @RequestRemark,
+                @Status, @RequestBy
+            );
             SELECT CAST(SCOPE_IDENTITY() AS INT);";
 
 
@@ -66,27 +75,28 @@ namespace TMIS.DataAccess.HRRS.Repository
                     obj.HRRS_ITRequest!.NIC,
                     obj.HRRS_ITRequest!.InterviewDate,
                     obj.HRRS_ITRequest!.DueStartDate,
-                    obj.HRRS_ITRequest!.RecruitmentType,
+                    obj.HRRS_ITRequest!.IsReplacement,
                     obj.HRRS_ITRequest!.Replacement,
-                    obj.HRRS_ITRequest!.Computer,
                     obj.HRRS_ITRequest!.Email,
                     obj.HRRS_ITRequest!.EmailGroup,
+                    obj.HRRS_ITRequest!.Computer,
                     obj.HRRS_ITRequest!.ComputerLogin,
-                    obj.HRRS_ITRequest!.SAPAccess,
-                    obj.HRRS_ITRequest!.WFXAccess,
-                    obj.HRRS_ITRequest!.Landnewline,
-                    obj.HRRS_ITRequest!.ExistingLandLine,
+                    obj.HRRS_ITRequest!.SAP,
+                    obj.HRRS_ITRequest!.WFX,
+                    obj.HRRS_ITRequest!.NewLandline,
+                    obj.HRRS_ITRequest!.ExistingLandline,
                     obj.HRRS_ITRequest!.Extension,
                     obj.HRRS_ITRequest!.SmartPhone,
                     obj.HRRS_ITRequest!.BasicPhone,
                     obj.HRRS_ITRequest!.SIM,
-                    obj.HRRS_ITRequest!.HomeAddress,              
+                    obj.HRRS_ITRequest!.HomeAddress,
                     obj.HRRS_ITRequest!.RequestRemark,
-                    Status = 1, // Default to 'Pending' or adjust as needed
+                    Status = 1, // Default to 'Pending' or change based on logic
                     RequestBy = _iSessionHelper.GetShortName().ToUpper()
                 });
+               
                 if (insertedId.HasValue)
-                {
+                {                   
                     LogdbHRRS logdb = new()
                     {
                         TrObjectId = insertedId.Value,
@@ -96,64 +106,30 @@ namespace TMIS.DataAccess.HRRS.Repository
 
                     _iHRRSLogdb.InsertLog(_dbConnection, logdb);
                 }
-
-                int? id = insertedId;             
-
+            
                 return insertedId > 0;
             }
-            catch (Exception)
+            catch
             {
 
                 return false;
             }
         }
-        public void PrepairEmail(int? genId)
+        public void PrepairEmail(int? requestID)
         {
             using var connection = _dbConnection.GetConnection();
 
-            string headerQuery = @"select da.AssignmentID, dt.DeviceType, d.SerialNumber, da.AssignedDate, da.AssignedBy, da.AssignRemarks, da.AssignLocation, 
-                                    da.AssignDepartment, da.ApproverEMPNo from ITIS_DeviceAssignments as da 
-                                    inner join ITIS_Devices as d on d.DeviceID=da.DeviceID
-                                    inner join itis_deviceTypes as dt  on dt.DeviceTypeID=d.DeviceTypeID
-                                    where da.AssignmentID=@AssignmentID";
-
-            var header = connection.Query(headerQuery, new { AssignmentID = genId }).FirstOrDefault();
-
-            string detailsQuery = @"select ad.EmpName, da.EMPNo, da.Designation, ad.EmpEmail from ITIS_DeviceAssignments as da 
-                                    left join ITIS_MasterADEmployees as ad on ad.EmpUserName=da.EmpName
-                                    where da.AssignmentID=@AssignmentID";
-
-            var details = connection.Query(detailsQuery, new { AssignmentID = genId }).FirstOrDefault();
-
-            // Prepare header part of array
-            var myList = new List<string>
+            string headerQuery = @"select * from HRRS_ITRequests as it 
+                inner join HRRS_ITReqStatus as st on st.id=it.Status where it.RequestID=@RequestID";
+    
+            HRRS_ITRequest? header = connection.Query<HRRS_ITRequest>(headerQuery, new { RequestID = requestID }).FirstOrDefault();
+            if (header == null)
             {
-                $"{header!.AssignmentID}",
-                $"{header!.DeviceType}",
-                $"{header.SerialNumber}",
-                $"{header.AssignedDate}",
-                $"{header.AssignedBy}",
-                $"{header.AssignRemarks}",
-                $"{header.AssignLocation}",
-                $"{header.AssignDepartment}",
-                $"{details!.EmpName}",
-                $"{details!.EMPNo}",
-                $"{details!.EmpEmail}",
-                $"{details!.Designation}"
-
-            };
-
-            // Convert to array
-            string[] myArray = [.. myList];
-
-            // Prepare email recipient
-            string mailTo = _admConnection.GetConnection().QuerySingleOrDefault<string>(
-                "SELECT UserEmail FROM _MasterUsers WHERE Id = @Id",
-                new { Id = header.ApproverEMPNo }
-            ) ?? throw new InvalidOperationException("No email found for the approved user.");
-
+                throw new InvalidOperationException("No IT request found for the given RequestID.");
+            }
+             
             // Send email
-            Task.Run(() => _gmailSender.RequestToApprove(mailTo, myArray));
+            Task.Run(() => _gmailSender.ITRequestToApprove(header));
         }
         public async Task<IEnumerable<HRRS_ITRequest>> GetAllAsync()
         {
@@ -171,68 +147,94 @@ namespace TMIS.DataAccess.HRRS.Repository
         }
         public async Task<bool> UpdateAsync(HRRS_ITRequest obj)
         {
-            string sql = @"UPDATE HRRS_ITRequests
-                           SET FirstName = @FirstName,
-                               LastName = @LastName,
-                               EmployeeNo = @EmployeeNo,
-                               Designation = @Designation,
-                               Department = @Department,
-                               Location = @Location,
-                               Company = @Company,
-                               NIC = @NIC,
-                               InterviewDate = @InterviewDate,
-                               DueStartDate = @DueStartDate,
-                               RecruitmentType = @RecruitmentType,
-                               Replacement = @Replacement,
-                               Computer = @Computer,
-                               Email = @Email,
-                               EmailGroup = @EmailGroup,
-                               ComputerLogin = @ComputerLogin,
-                               SAPAccess = @SAPAccess,
-                               WFXAccess = @WFXAccess,
-                               Landnewline = @Landnewline,
-                               ExistingLandLine = @ExistingLandLine,
-                               Extension = @Extension,
-                               SmartPhone = @SmartPhone,
-                               BasicPhone = @BasicPhone,
-                               SIM = @SIM,
-                               HomeAddress = @HomeAddress,              
-                               RequestRemark = @RequestRemark,
-                               RequestBy = @RequestBy,
-                               RequestDate = @RequestDate
-                           WHERE RequestID = @ID";
-            var result = await _dbConnection.GetConnection().ExecuteAsync(sql, new { 
-                FirstName = obj.FirstName,
-                LastName = obj.LastName,
-                EmployeeNo = obj.EmployeeNo,
-                Designation = obj.Designation,
-                Department = obj.Department,
-                Location = obj.Location,
-                Company = obj.Company,
-                NIC = obj.NIC,
-                InterviewDate = obj.InterviewDate,
-                DueStartDate = obj.DueStartDate,
-                RecruitmentType = obj.RecruitmentType,
-                Replacement = obj.Replacement,
-                Computer = obj.Computer,
-                Email = obj.Email,
-                EmailGroup = obj.EmailGroup,
-                ComputerLogin = obj.ComputerLogin,
-                SAPAccess = obj.SAPAccess,
-                WFXAccess = obj.WFXAccess,
-                Landnewline = obj.Landnewline,
-                ExistingLandLine = obj.ExistingLandLine,
-                Extension = obj.Extension,
-                SmartPhone = obj.SmartPhone,
-                BasicPhone = obj.BasicPhone,
-                SIM = obj.SIM,
-                HomeAddress = obj.HomeAddress,
-                RequestRemark = obj.RequestRemark,
-                RequestBy = _iSessionHelper.GetShortName().ToUpper(),
-                RequestDate = DateTime.Now,
-                ID = obj.RequestID
-            });
-            return result > 0;
+            try
+            {
+                string sql = @"
+            UPDATE HRRS_ITRequests
+            SET FirstName = @FirstName,
+                LastName = @LastName,
+                EmployeeNo = @EmployeeNo,
+                Designation = @Designation,
+                Department = @Department,
+                Location = @Location,
+                Company = @Company,
+                NIC = @NIC,
+                InterviewDate = @InterviewDate,
+                DueStartDate = @DueStartDate,
+                IsReplacement = @IsReplacement,
+                Replacement = @Replacement,
+                Email = @Email,
+                EmailGroup = @EmailGroup,
+                Computer = @Computer,
+                ComputerLogin = @ComputerLogin,
+                SAP = @SAP,
+                WFX = @WFX,
+                NewLandline = @NewLandline,
+                ExistingLandline = @ExistingLandline,
+                Extension = @Extension,
+                SmartPhone = @SmartPhone,
+                BasicPhone = @BasicPhone,
+                SIM = @SIM,
+                HomeAddress = @HomeAddress,
+                RequestRemark = @RequestRemark,
+                Status = @Status,
+                RequestBy = @RequestBy,
+                RequestDate = @RequestDate
+            WHERE RequestID = @RequestID";
+
+                var result = await _dbConnection.GetConnection().ExecuteAsync(sql, new
+                {
+                    obj.FirstName,
+                    obj.LastName,
+                    obj.EmployeeNo,
+                    obj.Designation,
+                    obj.Department,
+                    obj.Location,
+                    obj.Company,
+                    obj.NIC,
+                    obj.InterviewDate,
+                    obj.DueStartDate,
+                    obj.IsReplacement,
+                    obj.Replacement,
+                    obj.Email,
+                    obj.EmailGroup,
+                    obj.Computer,
+                    obj.ComputerLogin,
+                    obj.SAP,
+                    obj.WFX,
+                    obj.NewLandline,
+                    obj.ExistingLandline,
+                    obj.Extension,
+                    obj.SmartPhone,
+                    obj.BasicPhone,
+                    obj.SIM,
+                    obj.HomeAddress,
+                    obj.RequestRemark,
+                    Status = '1',
+                    RequestBy = _iSessionHelper.GetShortName().ToUpper(),
+                    RequestDate = DateTime.Now,
+                    obj.RequestID
+                });
+
+                if(result > 0)
+                {
+                    LogdbHRRS logdb = new()
+                    {
+                        TrObjectId = obj.RequestID,
+                        TrLog = "IT REQUEST UPDATED"
+
+                    };
+
+                    _iHRRSLogdb.InsertLog(_dbConnection, logdb);
+                }
+
+                return result > 0;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+            
         }
         public async Task<bool> DeleteAsync(int id)
         {
@@ -249,6 +251,50 @@ namespace TMIS.DataAccess.HRRS.Repository
             }
             return result > 0;
         }
+        public async Task<bool> ApproveAsync(HRRS_ITRequest obj, int status)
+        {
+            string sql = @"
+            UPDATE HRRS_ITRequests
+            SET Status = @Status,
+                ApproverResponseDate = @ApproverResponseDate,
+                ApproverRemark = @ApproverRemark              
+            WHERE RequestID = @RequestID";
 
+            var result = await _dbConnection.GetConnection().ExecuteAsync(sql, new
+            {
+                Status = status,                
+                ApproverResponseDate = DateTime.Now,
+                ApproverRemark = obj.ApproverRemark,
+                obj.RequestID
+            });
+            if (result > 0)
+            {
+                PrepairEmailForIT(obj.RequestID);
+            }
+            return result > 0;
+        }
+        public async Task<HRRS_ITRequest?> LoadRequestForEmail(int id)
+        {
+            string sql = @"select * from HRRS_ITRequests as it 
+                inner join HRRS_ITReqStatus as st on st.id=it.Status
+                where it.RequestID=@ID and it.IsDelete=0 ";
+            return await _dbConnection.GetConnection().QuerySingleOrDefaultAsync<HRRS_ITRequest>(sql, new { ID = id });
+        }
+        public void PrepairEmailForIT(int? requestID)
+        {
+            using var connection = _dbConnection.GetConnection();
+
+            string headerQuery = @"select * from HRRS_ITRequests as it 
+                inner join HRRS_ITReqStatus as st on st.id=it.Status where it.RequestID=@RequestID";
+
+            HRRS_ITRequest? header = connection.Query<HRRS_ITRequest>(headerQuery, new { RequestID = requestID }).FirstOrDefault();
+            if (header == null)
+            {
+                throw new InvalidOperationException("No IT request found for the given RequestID.");
+            }
+
+            // Send email
+            Task.Run(() => _gmailSender.ITRequestToIT(header));
+        }
     }
 }
