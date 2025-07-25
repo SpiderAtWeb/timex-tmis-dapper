@@ -112,6 +112,13 @@ namespace TMIS.DataAccess.GDRM.Rpository
                 {
                     if (gPGrUpdate.ActionType == 2)
                     {
+
+                        if (gPGrUpdate.GPGrUpdateDetailList.Count <= 0)
+                        {
+                            return new GPGrUpdateResult { IsSuccess = false, Message = "Please select a reason for rejection!", ErrorFieldId = "" };
+                        }
+
+
                         await UpdateRouteAsync(connection, transaction, gpId, 2, gPGrUpdate.GRId, userId, true);
                         await MarkHeaderCompletedAsync(connection, transaction, gpId, 2);
                     }
@@ -130,6 +137,11 @@ namespace TMIS.DataAccess.GDRM.Rpository
                 {
                     if (gPGrUpdate.ActionType == 2)
                     {
+                        if (gPGrUpdate.GPGrUpdateDetailList.Count <= 0)
+                        {
+                            return new GPGrUpdateResult { IsSuccess = false, Message = "Please select a reason for rejection!", ErrorFieldId = "" };
+                        }
+
                         await UpdateRouteAsync(connection, transaction, gpId, 2, gPGrUpdate.GRId, userId, false);
                         await MarkHeaderCompletedAsync(connection, transaction, gpId, 2);
                     }
