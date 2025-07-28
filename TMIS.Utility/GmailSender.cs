@@ -410,7 +410,7 @@ namespace TMIS.Utility
             };
 
                         
-            string emailBody = EMailFormatRead.GetApprovalThreeColumnsHRRSEmailBody(mainComps);
+            string emailBody = EMailFormatRead.GetApprovalThreeColumnsHRRSEmailBody(mainComps!);
             string mailTo = _configuration["HRApprover"] ?? "admin@timexsl.com";
             string recipientEmailTo = mailTo;
             string recipientEmailCc = "";
@@ -457,7 +457,7 @@ namespace TMIS.Utility
             };
 
                         
-            string emailBody = EMailFormatRead.GetITRequestHRRSEmailBody(mainComps);
+            string emailBody = EMailFormatRead.GetITRequestHRRSEmailBody(mainComps!);
             string mailTo = _configuration["ITUser"] ?? "admin@timexsl.com";
             string recipientEmailTo = mailTo;
             string recipientEmailCc = "";
@@ -476,7 +476,7 @@ namespace TMIS.Utility
                 // Create the MailMessage object
                 MailMessage mail = new()
                 {
-                    From = new MailAddress(smtpSettings["senderEmail"], "TMIS Messenger"),
+                    From = new MailAddress(smtpSettings["senderEmail"]!, "TMIS Messenger"),
                     Subject = mailSubject,
                     Body = mailBody,
                     IsBodyHtml = true // Enable HTML formatting
@@ -501,7 +501,7 @@ namespace TMIS.Utility
                 }
 
                 // Configure the SMTP client
-                SmtpClient smtpClient = new(smtpSettings["Host"], int.Parse(smtpSettings["Port"]))
+                SmtpClient smtpClient = new(smtpSettings["Host"], int.Parse(smtpSettings["Port"]!))
                 {
                     Credentials = (ICredentialsByHost)new NetworkCredential(smtpSettings["senderEmail"], smtpSettings["senderPassword"]),
                     EnableSsl = true, // Secure connection

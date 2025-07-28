@@ -230,7 +230,7 @@ namespace TMIS.DataAccess.HRRS.Repository
 
                 return result > 0;
             }
-            catch (Exception ex)
+            catch
             {
                 return false;
             }
