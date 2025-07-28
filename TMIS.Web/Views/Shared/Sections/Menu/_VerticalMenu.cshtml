@@ -731,7 +731,7 @@
 		}
 
 
-        @if (User.IsInRole("HRRS-USER"))
+        @if (User.IsInRole("HRRS-USER") || User.IsInRole("HRRS-APPROVER") || User.IsInRole("SUPER-ADMIN"))
         {
             <li class='menu-item@(currentPage.StartsWith("/HRRS") ? " active open" : "")'>
                 <a href="javascript:void(0);" class="menu-link menu-toggle">
@@ -744,11 +744,14 @@
                             <div>  <span>    <i class="menu-icon fa-solid fa-users-gear"></i></span>Create</div>
                         </a>
                     </li>
-                    <li class='menu-item@(currentPage == "/HRRS/ITRequest/Approve" ? " active" : "")'>
-                        <a asp-area="HRRS" asp-controller="ITRequest" asp-action="Approve" class="menu-link">
-                            <div>  <span>    <i class="menu-icon fa-solid fa-users-gear"></i></span>Approve</div>
-                        </a>
-                    </li>
+                    @if (User.IsInRole("HRRS-APPROVER") || User.IsInRole("SUPER-ADMIN"))
+                    {
+                        <li class='menu-item@(currentPage == "/HRRS/ApproveITRequest/Index" ? " active" : "")'>
+                            <a asp-area="HRRS" asp-controller="ApproveITRequest" asp-action="Index" class="menu-link">
+                                <div>  <span>    <i class="menu-icon fa-solid fa-users-gear"></i></span>Approve</div>
+                            </a>
+                        </li>
+                    }
                 </ul>
             </li>
         }

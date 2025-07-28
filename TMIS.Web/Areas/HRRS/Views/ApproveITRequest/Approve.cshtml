@@ -132,43 +132,43 @@
 @await Html.PartialAsync("_Loading")
 
 <div class="card mb-6">
-    <h5 class="card-header page-header">Update IT Request</h5>
-    <form asp-action="Edit" method="post" class="card-body" id="itRequestForm">        
+    <h5 class="card-header page-header">Approve IT Request</h5>
+    <form asp-action="Approve" method="post" class="card-body" id="itRequestForm">
         <input asp-for="@Model.CreateObj.HRRS_ITRequest!.RequestID" type="hidden" />
         <!-- Employee Info -->
         <h6>Employee Information</h6>
         <div class="row g-3">
             <div class="col-md-2">
                 <div class="form-floating form-floating-outline">
-                    <input asp-for="CreateObj.HRRS_ITRequest.FirstName" class="form-control" placeholder="First Name" />
+                    <input asp-for="CreateObj.HRRS_ITRequest.FirstName" class="form-control" placeholder="First Name" disabled/>
                     <label asp-for="CreateObj.HRRS_ITRequest.FirstName"></label>
                     <span asp-validation-for="CreateObj.HRRS_ITRequest.FirstName" class="text-warning"></span>
                 </div>
             </div>
             <div class="col-md-2">
                 <div class="form-floating form-floating-outline">
-                    <input asp-for="CreateObj.HRRS_ITRequest.LastName" class="form-control" placeholder="Last Name" />
+                    <input asp-for="CreateObj.HRRS_ITRequest.LastName" class="form-control" placeholder="Last Name" disabled/>
                     <label asp-for="CreateObj.HRRS_ITRequest.LastName"></label>
                     <span asp-validation-for="CreateObj.HRRS_ITRequest.LastName" class="text-warning"></span>
                 </div>
             </div>
             <div class="col-md-2">
                 <div class="form-floating form-floating-outline">
-                    <input asp-for="CreateObj.HRRS_ITRequest.EmployeeNo" type="number" class="form-control" placeholder="Employee No" />
+                    <input asp-for="CreateObj.HRRS_ITRequest.EmployeeNo" type="number" class="form-control" placeholder="Employee No" disabled/>
                     <label asp-for="CreateObj.HRRS_ITRequest.EmployeeNo"></label>
                     <span asp-validation-for="CreateObj.HRRS_ITRequest.EmployeeNo" class="text-warning"></span>
                 </div>
             </div>
             <div class="col-md-2">
                 <div class="form-floating form-floating-outline">
-                    <input asp-for="CreateObj.HRRS_ITRequest.NIC" class="form-control" placeholder="NIC" />
+                    <input asp-for="CreateObj.HRRS_ITRequest.NIC" class="form-control" placeholder="NIC" disabled/>
                     <label asp-for="CreateObj.HRRS_ITRequest.NIC"></label>
                     <span asp-validation-for="CreateObj.HRRS_ITRequest.NIC" class="text-warning"></span>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="form-floating form-floating-outline">
-                    <select asp-for="CreateObj.HRRS_ITRequest.Designation" asp-items="Model.CreateObj.DesignationList" class="select2 form-select" data-allow-clear="true">
+                    <select asp-for="CreateObj.HRRS_ITRequest.Designation" asp-items="Model.CreateObj.DesignationList" class="select2 form-select" data-allow-clear="true" disabled>
                         <option value="" disabled selected>- Choose or enter a designation -</option>
                     </select>
                     <label asp-for="CreateObj.HRRS_ITRequest.Designation"></label>
@@ -177,7 +177,7 @@
             </div>
             <div class="col-md-3">
                 <div class="form-floating form-floating-outline">
-                    <select asp-for="CreateObj.HRRS_ITRequest.Department" asp-items="@Model.CreateObj.DepartmentList" class="select2 form-select" data-allow-clear="true">
+                    <select asp-for="CreateObj.HRRS_ITRequest.Department" asp-items="@Model.CreateObj.DepartmentList" class="select2 form-select" data-allow-clear="true" disabled>
                         <option value="" Disabled Selected>- Select Department -</option>
                     </select>
 
@@ -187,7 +187,7 @@
             </div>
             <div class="col-md-3">
                 <div class="form-floating form-floating-outline">
-                    <select asp-for="CreateObj.HRRS_ITRequest.Location" asp-items="@Model.CreateObj.LocationList" class="select2 form-select" data-allow-clear="true">
+                    <select asp-for="CreateObj.HRRS_ITRequest.Location" asp-items="@Model.CreateObj.LocationList" class="select2 form-select" data-allow-clear="true" disabled>
                         <option value="" Disabled Selected>- Choose or enter a Location -</option>
                     </select>
 
@@ -197,7 +197,7 @@
             </div>
             <div class="col-md-2">
                 <div class="form-floating form-floating-outline">
-                    <input asp-for="CreateObj.HRRS_ITRequest.Company" class="form-control" placeholder="Company" />
+                    <input asp-for="CreateObj.HRRS_ITRequest.Company" class="form-control" placeholder="Company" disabled/>
                     <label asp-for="CreateObj.HRRS_ITRequest.Company"></label>
                     <span asp-validation-for="CreateObj.HRRS_ITRequest.Company" class="text-warning"></span>
                 </div>
@@ -209,14 +209,14 @@
         <div class="row g-3">
             <div class="col-md-2">
                 <div class="form-floating form-floating-outline">
-                    <input asp-for="CreateObj.HRRS_ITRequest.InterviewDate" type="date" class="form-control" />
+                    <input asp-for="CreateObj.HRRS_ITRequest.InterviewDate" type="date" class="form-control" disabled />
                     <label asp-for="CreateObj.HRRS_ITRequest.InterviewDate"></label>
                     <span asp-validation-for="CreateObj.HRRS_ITRequest.InterviewDate" class="text-warning"></span>
                 </div>
             </div>
             <div class="col-md-2">
                 <div class="form-floating form-floating-outline">
-                    <input asp-for="CreateObj.HRRS_ITRequest.DueStartDate" type="date" class="form-control" />
+                    <input asp-for="CreateObj.HRRS_ITRequest.DueStartDate" type="date" class="form-control" disabled />
                     <label asp-for="CreateObj.HRRS_ITRequest.DueStartDate"></label>
                     <span asp-validation-for="CreateObj.HRRS_ITRequest.DueStartDate" class="text-warning"></span>
                 </div>
@@ -225,7 +225,7 @@
                 <div class="list-group">
                     <label class="list-group-item w-100">
                         <span class="form-check mb-0">
-                            <input asp-for="CreateObj.HRRS_ITRequest.IsReplacement" class="form-check-input me-4" type="checkbox">
+                            <input asp-for="CreateObj.HRRS_ITRequest.IsReplacement" class="form-check-input me-4" type="checkbox" disabled>
                             Is Replacement
                         </span>
                     </label>
@@ -233,7 +233,7 @@
             </div>
             <div class="col-md-3" id="employeeListContainer" style="display: none;">
                 <div class="form-floating form-floating-outline">
-                    <select asp-for="CreateObj.HRRS_ITRequest.Replacement" asp-items="@Model.CreateObj.EmployeeList" class="select2 form-select" data-allow-clear="true">
+                    <select asp-for="CreateObj.HRRS_ITRequest.Replacement" asp-items="@Model.CreateObj.EmployeeList" class="select2 form-select" data-allow-clear="true" disabled>
                         <option value="" Disabled Selected>- Select Employee -</option>
                     </select>
 
@@ -248,7 +248,7 @@
         <div class="row g-3">
             <div class="col-md-2">
                 <div class="form-floating form-floating-outline">
-                    <select asp-for="CreateObj.HRRS_ITRequest.Computer" asp-items="@Model.CreateObj.ComputerList" class="select2 form-select" data-allow-clear="true">
+                    <select asp-for="CreateObj.HRRS_ITRequest.Computer" asp-items="@Model.CreateObj.ComputerList" class="select2 form-select" data-allow-clear="true" disabled>
                         <option value="" Disabled Selected>- Select Computer -</option>
                     </select>
 
@@ -260,7 +260,7 @@
                 <div class="list-group">
                     <label class="list-group-item w-100">
                         <span class="form-check mb-0">
-                            <input asp-for="CreateObj.HRRS_ITRequest.ComputerLogin" class="form-check-input me-4" type="checkbox">
+                            <input asp-for="CreateObj.HRRS_ITRequest.ComputerLogin" class="form-check-input me-4" type="checkbox" disabled>
                             Computer Login
                         </span>
                     </label>
@@ -270,7 +270,7 @@
                 <div class="list-group">
                     <label class="list-group-item w-100">
                         <span class="form-check mb-0">
-                            <input asp-for="CreateObj.HRRS_ITRequest.SAP" class="form-check-input me-4" type="checkbox">
+                            <input asp-for="CreateObj.HRRS_ITRequest.SAP" class="form-check-input me-4" type="checkbox" disabled>
                             SAP Access
                         </span>
                     </label>
@@ -280,7 +280,7 @@
                 <div class="list-group">
                     <label class="list-group-item w-100">
                         <span class="form-check mb-0">
-                            <input asp-for="CreateObj.HRRS_ITRequest.WFX" class="form-check-input me-4" type="checkbox">
+                            <input asp-for="CreateObj.HRRS_ITRequest.WFX" class="form-check-input me-4" type="checkbox" disabled>
                             WFX Access
                         </span>
                     </label>
@@ -290,7 +290,7 @@
                 <div class="list-group">
                     <label class="list-group-item w-100">
                         <span class="form-check mb-0">
-                            <input asp-for="CreateObj.HRRS_ITRequest.Email" class="form-check-input me-4" type="checkbox">
+                            <input asp-for="CreateObj.HRRS_ITRequest.Email" class="form-check-input me-4" type="checkbox" disabled>
                             Email Required
                         </span>
                     </label>
@@ -298,7 +298,7 @@
             </div>
             <div class="col-md-2" id="emailGroupListContainer" style="display: none;">
                 <div class="form-floating form-floating-outline">
-                    <select asp-for="CreateObj.HRRS_ITRequest.EmailGroup" asp-items="@Model.CreateObj.EmailGroupList" class="select2 form-select" data-allow-clear="true">
+                    <select asp-for="CreateObj.HRRS_ITRequest.EmailGroup" asp-items="@Model.CreateObj.EmailGroupList" class="select2 form-select" data-allow-clear="true" disabled>
                         <option value="" Disabled Selected>- Select Email Group -</option>
                     </select>
 
@@ -315,7 +315,7 @@
                 <div class="list-group">
                     <label class="list-group-item w-100">
                         <span class="form-check mb-0">
-                            <input asp-for="CreateObj.HRRS_ITRequest.NewLandline" class="form-check-input me-4" type="checkbox">
+                            <input asp-for="CreateObj.HRRS_ITRequest.NewLandline" class="form-check-input me-4" type="checkbox" disabled>
                             New Landline
                         </span>
                     </label>
@@ -325,7 +325,7 @@
                 <div class="list-group">
                     <label class="list-group-item w-100">
                         <span class="form-check mb-0">
-                            <input asp-for="CreateObj.HRRS_ITRequest.ExistingLandline" class="form-check-input me-4" type="checkbox">
+                            <input asp-for="CreateObj.HRRS_ITRequest.ExistingLandline" class="form-check-input me-4" type="checkbox" disabled>
                             Existing Landline
                         </span>
                     </label>
@@ -335,7 +335,7 @@
                 <div class="list-group">
                     <label class="list-group-item w-100">
                         <span class="form-check mb-0">
-                            <input asp-for="CreateObj.HRRS_ITRequest.Extension" class="form-check-input me-4" type="checkbox">
+                            <input asp-for="CreateObj.HRRS_ITRequest.Extension" class="form-check-input me-4" type="checkbox" disabled>
                             Extension
                         </span>
                     </label>
@@ -345,7 +345,7 @@
                 <div class="list-group">
                     <label class="list-group-item w-100">
                         <span class="form-check mb-0">
-                            <input asp-for="CreateObj.HRRS_ITRequest.SmartPhone" class="form-check-input me-4" type="checkbox">
+                            <input asp-for="CreateObj.HRRS_ITRequest.SmartPhone" class="form-check-input me-4" type="checkbox" disabled>
                             Smart Phone
                         </span>
                     </label>
@@ -355,7 +355,7 @@
                 <div class="list-group">
                     <label class="list-group-item w-100">
                         <span class="form-check mb-0">
-                            <input asp-for="CreateObj.HRRS_ITRequest.BasicPhone" class="form-check-input me-4" type="checkbox">
+                            <input asp-for="CreateObj.HRRS_ITRequest.BasicPhone" class="form-check-input me-4" type="checkbox" disabled>
                             Basic Phone
                         </span>
                     </label>
@@ -365,7 +365,7 @@
                 <div class="list-group">
                     <label class="list-group-item w-100">
                         <span class="form-check mb-0">
-                            <input asp-for="CreateObj.HRRS_ITRequest.SIM" class="form-check-input me-4" type="checkbox">
+                            <input asp-for="CreateObj.HRRS_ITRequest.SIM" class="form-check-input me-4" type="checkbox" disabled>
                             SIM
                         </span>
                     </label>
@@ -373,7 +373,7 @@
             </div>
             <div class="col-3" id="homeAddressContainer" style="display: none;">
                 <div class="form-floating form-floating-outline">
-                    <textarea asp-for="CreateObj.HRRS_ITRequest.HomeAddress" class="form-control" placeholder="Home Address"></textarea>
+                    <textarea asp-for="CreateObj.HRRS_ITRequest.HomeAddress" class="form-control" placeholder="Home Address" disabled></textarea>
                     <label asp-for="CreateObj.HRRS_ITRequest.HomeAddress"></label>
                     <span asp-validation-for="CreateObj.HRRS_ITRequest.HomeAddress" class="text-warning"></span>
                 </div>
@@ -385,25 +385,26 @@
         <div class="row g-3">
             <div class="col-6">
                 <div class="form-floating form-floating-outline">
-                    <textarea asp-for="CreateObj.HRRS_ITRequest.RequestRemark" class="form-control" placeholder="Request Remark"></textarea>
+                    <textarea asp-for="CreateObj.HRRS_ITRequest.RequestRemark" class="form-control" placeholder="Request Remark" disabled></textarea>
                     <label asp-for="CreateObj.HRRS_ITRequest.RequestRemark"></label>
                 </div>
-            </div>
+            </div>            
         </div>
+        <!-- Remarks -->
         <hr />
         <h6>Approver Remarks</h6>
-        <div class="row g-3">
+        <div class="row g-3">           
             <div class="col-6">
                 <div class="form-floating form-floating-outline">
-                    <textarea asp-for="CreateObj.HRRS_ITRequest.ApproverRemark" class="form-control" placeholder="Approver Remark" disabled></textarea>
+                    <textarea asp-for="CreateObj.HRRS_ITRequest.ApproverRemark" class="form-control" placeholder="Approver Remark"></textarea>
                     <label asp-for="CreateObj.HRRS_ITRequest.ApproverRemark"></label>
                 </div>
             </div>
         </div>
-        <div class="mt-4">
-            <button type="submit" class="btn btn-primary me-1">Submit</button>
+        <div class="mt-4">                                    
+            <button type="submit" name="action" value="Approve" class="btn btn-primary me-1">Approve</button>
+            <button type="submit" name="action" value="Reject" class="btn btn-danger me-1">Reject</button>
             <a asp-action="Index" class="btn btn-outline-secondary">Back to List</a>
-            <a asp-action="Delete" class="btn btn-danger">Delete</a>     
         </div>
     </form>
 </div>

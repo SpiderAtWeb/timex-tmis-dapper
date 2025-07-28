@@ -8,39 +8,49 @@ using System.Threading.Tasks;
 namespace TMIS.Models.HRRS
 {
     public class HRRS_ITRequest
-    {
+    {        
+        //HRRS_ITRequests table properties
+        [Key]
         public int RequestID { get; set; }
-       
+
         [Required]
         [Display(Name = "First Name")]
+        [StringLength(100)]
         public string? FirstName { get; set; }
-        
+
         [Required]
         [Display(Name = "Last Name")]
+        [StringLength(100)]
         public string? LastName { get; set; }
-        
+
         [Required]
         [Display(Name = "Employee No")]
+        [StringLength(20)]
         public string? EmployeeNo { get; set; }
-        
+
         [Required]
         [Display(Name = "Designation")]
+        [StringLength(50)]
         public string? Designation { get; set; }
-        
+
         [Required]
         [Display(Name = "Department")]
+        [StringLength(50)]
         public string? Department { get; set; }
 
         [Required]
         [Display(Name = "Location")]
+        [StringLength(50)]
         public string? Location { get; set; }
 
         [Required]
         [Display(Name = "Company")]
+        [StringLength(50)]
         public string? Company { get; set; }
 
         [Required]
         [Display(Name = "NIC")]
+        [StringLength(50)]
         public string? NIC { get; set; }
 
         [Required]
@@ -53,72 +63,74 @@ namespace TMIS.Models.HRRS
         [DataType(DataType.Date)]
         public DateTime? DueStartDate { get; set; }
 
-        [Required]
         [Display(Name = "Recruitment Type")]
-        public string? RecruitmentType { get; set; }
-        
+        public bool IsReplacement { get; set; } = false;
+
         [Display(Name = "Replacement Of")]
+        [StringLength(100)]
         public string? Replacement { get; set; }
 
-        [Required]
-        [Display(Name = "Computer Required")]
-        public string? Computer { get; set; }
-
-        [Required]
         [Display(Name = "Email")]
-        public string? Email { get; set; }
+        public bool Email { get; set; } = false;
 
-        [Required]
         [Display(Name = "Email Group")]
+        [StringLength(50)]
         public string? EmailGroup { get; set; }
 
-        [Required]
+        [Display(Name = "Computer Required")]
+        [StringLength(50)]
+        public string? Computer { get; set; }
+        
         [Display(Name = "Computer Login")]
-        public string? ComputerLogin { get; set; }
+        public bool ComputerLogin { get; set; } = false;
 
-        [Required]
         [Display(Name = "SAP Access")]
-        public string? SAPAccess { get; set; }
+        public bool SAP { get; set; } = false;
 
-        [Required]
         [Display(Name = "WFX Access")]
-        public string? WFXAccess { get; set; }
+        public bool WFX { get; set; } = false;
 
-        [Required]
         [Display(Name = "New Landline")]
-        public string? Landnewline { get; set; }
+        public bool NewLandline { get; set; } = false;
 
-        [Required]
         [Display(Name = "Existing Landline")]
-        public string? ExistingLandLine { get; set; }
+        public bool ExistingLandline { get; set; } = false;
 
-        [Required]
         [Display(Name = "Extension")]
-        public string? Extension { get; set; }
+        public bool Extension { get; set; } = false;
 
-        [Required]
         [Display(Name = "Smart Phone")]
-        public string? SmartPhone { get; set; }
+        public bool SmartPhone { get; set; } = false;
 
-        [Required]
         [Display(Name = "Basic Phone")]
-        public string? BasicPhone { get; set; }
+        public bool BasicPhone { get; set; } = false;
 
-        [Required]
         [Display(Name = "SIM")]
-        public string? SIM { get; set; }
+        public bool SIM { get; set; } = false;
 
-        [Display(Name = "Home Address")]        
+        [Display(Name = "Home Address")]
+        [StringLength(500)]
         public string? HomeAddress { get; set; }
-       
-        public DateTime? RequestDate { get; set; }
+
+        [DataType(DataType.Date)]
+        public DateTime? RequestDate { get; set; } = DateTime.Now;
 
         [Display(Name = "Request Remark")]
+        [StringLength(500)]
         public string? RequestRemark { get; set; }
+
         public DateTime? ApproverResponseDate { get; set; }
+
+        [StringLength(500)]
         public string? ApproverRemark { get; set; }
+
         public int Status { get; set; }
+
+        [StringLength(50)]
         public string? RequestBy { get; set; }
+
+        public bool IsDelete { get; set; } = false;
+
 
         //HRRS_ITReqStatus table properties
         public int id { get; set; }

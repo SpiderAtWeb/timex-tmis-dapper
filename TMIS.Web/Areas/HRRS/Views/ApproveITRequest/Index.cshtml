@@ -1,0 +1,90 @@
+@model IEnumerable<HRRS_ITRequest>
+
+@section VendorStyles {
+    <link rel="stylesheet" href="~/vendor/libs/datatables-bs5/datatables.bootstrap5.css">
+    <link href="~/vendor/libs/toastr/toastr.css" rel="stylesheet" />
+}
+
+@section PageScripts {
+    <script src="~/custom/tables-datatables-mc-request.js"></script>
+    <script src="~/custom/loading-hide.js"></script>
+
+    <script src="~/custom/loading-hide.js"></script>
+    <script src="~/custom/tables-datatables-basic.js"></script>
+
+    @if (TempData["success"] != null)
+    {
+        <script src="~/vendor/libs/toastr/toastr.js"></script>
+        <script type="text/javascript">
+            toastr.success('@TempData["success"]');
+        </script>
+        TempData.Clear();
+    }
+    @if (TempData["error"] != null)
+    {
+        <script src="~/vendor/libs/toastr/toastr.js"></script>
+        <script type="text/javascript">
+            toastr.error('@TempData["error"]');
+        </script>
+        TempData.Clear();
+    }
+}
+
+@await Html.PartialAsync("_Loading")
+
+@* ************** Content ************** *@
+<!-- Ajax Sourced Server-side -->
+<div class="panelDiv">
+    <div class="card mb-6">
+        <h5 class="card-header page-header">IT REQUESTS</h5>
+        <div class="card-body">
+            <div class="tab-content p-0">
+                <div class="tab-pane fade show active" id="navs-top-home" role="tabpanel">                  
+                    <div class="card-datatable text-nowrap">
+                        <table class="datatables-ajax table table-bordered" id="dashboard">
+                            <thead>
+                                <tr class="table-info">
+                                    <th>Emp Name</th>
+                                    <th>Designation</th>
+                                    <th>Department</th>
+                                    <th>Location</th>
+                                    <th>Company</th>
+                                    <th>NIC</th>
+                                    <th>Due Start</th>
+                                    <th>Recruitment</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>                      
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td>@item.FirstName @item.LastName</td>
+                                        <td>@item.Designation</td>
+                                        <td>@item.Department</td>
+                                        <td>@item.Location</td>
+                                        <td>@item.Company</td>
+                                        <td>@item.NIC</td>
+                                        <td>@item.DueStartDate?.ToString("MM-dd-yyyy")</td>
+                                        <td>@item.IsReplacement</td>
+                                        <td>@item.PropName</td>
+                                        <td>
+                                            <a class="edit-record btn btn-primary btn-sm" asp-controller="ApproveITRequest" asp-action="Approve"
+                                            asp-route-requestID="@item.RequestID"> <i class="ri-contract-fill"></i> </a>
+                                        </td>
+                                    </tr>
+                                }                          
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
