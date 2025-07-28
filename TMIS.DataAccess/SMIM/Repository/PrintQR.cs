@@ -12,26 +12,33 @@ namespace TMIS.DataAccess.SMIM.Repository
 
         public async Task<IEnumerable<string>> GetQrCode()
         {
-            string query = "SELECT QrCode +' - [ '+ SerialNo +' ]'  FROM SMIM_TrInventory WHERE (IsDelete = 0) ORDER BY QrCode";
+            string query = @"SELECT QrCode +' - [ '+ SerialNo +' ] '+ 
+            CASE
+            WHEN  IsOwned  = 1 THEN 'TIMEX'
+            ELSE 'RENTED' END AS STS
+            FROM SMIM_TrInventory WHERE (IsDelete = 0) ORDER BY QrCode";
             var result = await _dbConnection.GetConnection().QueryAsync<string>(query);
             return result;
         }
 
         public async Task<byte[]> GetQrCodesPrint(List<string> qrCodes)
         {
-            List<KeyValuePair<string, string>> oQrCodes = [.. qrCodes
+            List<GenerateQR.TripleValuePair<string, string, string>> oQrCodes = [.. qrCodes
             .Select(r =>
             {
-                var match = Regex.Match(r, @"^(.*?)\s*-\s*\[\s*(.*?)\s*\]");
+                var match = Regex.Match(r, @"^(.*?)\s*-\s*\[\s*(.*?)\s*\]\s*(.*)$");
                 if (match.Success)
                 {
                     string qrCode = match.Groups[1].Value.Trim();   // e.g. "TSM00001"
                     string serial = match.Groups[2].Value.Trim();    // e.g. "FD25791"
-                    return new KeyValuePair<string, string>(qrCode, serial);
+                    string status = match.Groups[3].Value.Trim();
+
+
+                    return new GenerateQR.TripleValuePair<string, string, string>(qrCode, serial, status);
                 }
                 else
                 {
-                    return new KeyValuePair<string, string>(r, ""); // fallback if format unexpected
+                    return new GenerateQR.TripleValuePair<string, string, string>(r, "", ""); // fallback if format unexpected
                 }
             })];
 
