@@ -15,7 +15,12 @@ namespace TMIS.Areas.SMIS.Controllers
     private readonly IDashBoard _db = db;
     private readonly ISessionHelper _iSessionHelper = sessionHelper;
 
-    public async Task<IActionResult> Index()
+    public IActionResult Index()
+    {     
+      return View();
+    }
+
+    public async Task<IActionResult> Summary()
     {
       _logger.Info("[ " + _iSessionHelper.GetShortName() + " ] - PAGE VISIT INDEX");
 

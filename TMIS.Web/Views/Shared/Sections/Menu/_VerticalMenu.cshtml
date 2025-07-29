@@ -46,6 +46,13 @@
                         <ul class="menu-sub">
                             <li class='menu-item@(currentPage == "/SMIS/Overview" ? " active" : "")'>
                                 <a asp-area="SMIS" asp-controller="Overview" asp-action="Index" class="menu-link">
+                                    <div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Dashboard</div>
+                                </a>
+                            </li>
+                        </ul>
+                        <ul class="menu-sub">
+                            <li class='menu-item@(currentPage == "/SMIS/Overview/Summary" ? " active" : "")'>
+                                <a asp-area="SMIS" asp-controller="Overview" asp-action="Summary" class="menu-link">
                                     <div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Summary</div>
                                 </a>
                             </li>

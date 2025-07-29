@@ -1,104 +1,16 @@
 @{
-    ViewData["Title"] = "DataTables - Advanced Tables";
+    ViewBag.Title = "Power BI Report";
 }
 
-@model VMCluster
-
-@section VendorStyles {
-    <link href="~/vendor/libs/pivottable/dist/pivot.min.css" rel="stylesheet" />
-    <style>
-        .pvtTable {
-            table-layout: fixed;
-            color: black;
-            width: 100%; /* Adjust if you need a fixed width */
-        }
-
-            .pvtTable th:nth-child(1), .pvtTable td:nth-child(1) {
-                width: 10%; /* Make the second column (Units) the same width */
-            }
-
-            .pvtTable th:nth-child(2), .pvtTable td:nth-child(2) {
-                width: 10%; /* Make the second column (Units) the same width */
-            }
-    </style>
+@section PageScripts {
+    <script src="~/js/form-layouts.js"></script>
+    <script src="~/custom/input-text-upper.js"></script>
 }
 
-@section VendorScripts {
-    <script src="~/vendor/libs/pivottable/dist/pivot.min.js"></script>
-}
-
-@section PageScripts {   
-    <script src="~/custom/loading-hide.js"></script>
-
-    <script>
-        $(document).ready(function () {
-            // Automatically select the first option
-            const firstClusterId = $("#OwnedClusterId option:first").val();
-            $("#OwnedClusterId").val(firstClusterId).trigger('change');
-
-            // Handle change event on dropdown to update the data dynamically
-            $('#OwnedClusterId').on('change', function () {
-                const selectedClusterId = $(this).val();
-                $.ajax({
-                    url: "/SMIS/Overview/GetSumryData",
-                    type: "GET",
-                    data: { clusterId: selectedClusterId },
-                    dataType: "json",
-                    success: function (response) {
-                        // Preprocess data to rename columns
-                        const processedData = response.data.map(item => ({
-                            MachineType: item.machineType,
-                            Units: item.units,
-                            Ownership: item.status
-                        }));
-
-                        // Generate pivot table
-                        $("#output").pivot(
-                            processedData,
-                            {
-                                rows: ["MachineType"],
-                                cols: ["Units", "Ownership"]
-                            }
-                        );
-                    },
-                    error: function (xhr, status, error) {
-                        console.error("Error fetching data: ", error);
-                    }
-                });
-            });
-
-            $('#OwnedClusterId').trigger('change');
-        });
-    </script>
-}
-
-@section PageStyles {
-    @* <link rel="stylesheet" href="~/custom/avatar.css" /> *@
-}
-
-@* ************** Content ************** *@
-<!-- Ajax Sourced Server-side -->
-@await Html.PartialAsync("_Loading")
-
-<div class="panelDiv">
-    <div class="card">
-      <h5 class="card-header page-header">Sewing Machine Summary</h5>
-        <div class="card-body">        
-        <div class="row mb-3 mt-2 ms-2">
-            <div class="col-4">
-                <div class="form-floating form-floating-outline">
-                    <select asp-for="OwnedClusterId" asp-items="@Model.OwnedClusterList" class="select2 form-select" data-allow-clear="true">
-                    </select>
-                </div>
-            </div>            
-        </div>
-
-        <div class="row ms-1 me-1 mb-2">
-            <div>
-                <div id="output"></div>
-            </div>
-        </div>
-          </div>
-
-    </div>
+<div class="card mb-6" style="width: 100%; height: 800px;">
+    <iframe src="https://app.powerbi.com/view?r=eyJrIjoiNWQ4MzQxNDQtNDk4MC00OGE5LWFmZDAtNzU2OTIyYzdjZWVjIiwidCI6ImMwM2Q0MWFkLWE5ODUtNDdkMy05MjA0LWExOWFlMDU2ZmYzYiIsImMiOjEwfQ%3D%3D"
+            frameborder="0"
+            allowfullscreen
+            style="width: 100%; height: 100%; border: none;">
+    </iframe>
 </div>
