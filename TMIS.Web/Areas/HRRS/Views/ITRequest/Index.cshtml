@@ -80,12 +80,9 @@
                                 <tr class="table-info">
                                     <th>Emp Name</th>
                                     <th>Designation</th>
-                                    <th>Department</th>
-                                    <th>Location</th>
-                                    <th>Company</th>
-                                    <th>NIC</th>
-                                    <th>Due Start</th>
-                                    <th>Recruitment</th>
+                                    <th>Department</th>                                   
+                                    <th>Location</th>                                    
+                                    <th>Due Start</th>                                 
                                     <th>Status</th>
                                     <th>Action</th>
                                 </tr>
@@ -97,21 +94,14 @@
                                     <td>@item.FirstName @item.LastName</td>                                     
                                     <td>@item.Designation</td>
                                     <td>@item.Department</td>
-                                    <td>@item.Location</td>
-                                    <td>@item.Company</td>
-                                    <td>@item.NIC</td>
-                                    <td>@item.DueStartDate?.ToString("MM-dd-yyyy")</td>
-                                    <td>@item.IsReplacement</td>
+                                    <td>@item.Location</td>                                  
+                                    <td>@item.DueStartDate?.ToString("MM-dd-yyyy")</td>                             
                                     <td>@item.PropName</td>
                                     <td>
                                         <a class="btn btn-sm @(item.PropName == "Approved" ? "btn-secondary disabled" : "btn-primary") btn-edit"
                                             asp-controller="ITRequest" asp-action="Edit" asp-route-id="@item.RequestID">
                                             <i class="fa-solid fa-pen-to-square"></i>
-                                        </a>
-                                      @*    <a class="btn btn-sm @(item.PropName == "Approved" ? "btn-secondary disabled" : "btn-primary") btn-edit"
-                                            asp-controller="ITRequest" asp-action="SendEmail" asp-route-id="@item.RequestID">
-                                            <i class="fa-solid fa-paper-plane"></i>
-                                        </a>   *@
+                                        </a>                                   
                                         <button type="button"
                                                 class="btn btn-sm @(item.PropName == "Approved" ? "btn-secondary disabled" : "btn-primary") btn-edit"
                                                 data-bs-toggle="modal"

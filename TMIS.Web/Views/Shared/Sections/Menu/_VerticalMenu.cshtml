@@ -741,14 +741,14 @@
                 <ul class="menu-sub">
                     <li class='menu-item@(currentPage == "/HRRS/ITRequest/Index" ? " active" : "")'>
                         <a asp-area="HRRS" asp-controller="ITRequest" asp-action="Index" class="menu-link">
-                            <div>  <span>    <i class="menu-icon fa-solid fa-users-gear"></i></span>Create</div>
+                            <div>  <span>    <i class="menu-icon fa-solid fa-file-invoice"></i></span>Create</div>
                         </a>
                     </li>
                     @if (User.IsInRole("HRRS-APPROVER") || User.IsInRole("SUPER-ADMIN"))
                     {
                         <li class='menu-item@(currentPage == "/HRRS/ApproveITRequest/Index" ? " active" : "")'>
                             <a asp-area="HRRS" asp-controller="ApproveITRequest" asp-action="Index" class="menu-link">
-                                <div>  <span>    <i class="menu-icon fa-solid fa-users-gear"></i></span>Approve</div>
+                                <div>  <span>    <i class="menu-icon fa-solid fa-thumbs-up"></i></span>Approve</div>
                             </a>
                         </li>
                     }
