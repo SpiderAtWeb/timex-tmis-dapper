@@ -36,11 +36,13 @@ namespace TMIS.Areas.ITIS.Controllers
 
       var deviceDetails = await _deviceRepository.LoadDeviceDetail(deviceID);
       var userDetails = await _deviceRepository.LoadUserDetail(deviceID);
+      var previousUsers = await _deviceRepository.LoadPreviousUserDetails(deviceID);
 
       ViewDeviceVM viewDeviceVM = new ViewDeviceVM();
 
       viewDeviceVM.DeviceUserDetail = userDetails;
       viewDeviceVM.DeviceDetail = deviceDetails;
+      viewDeviceVM.PreviousUsers = previousUsers;
 
       return View(viewDeviceVM);
     }

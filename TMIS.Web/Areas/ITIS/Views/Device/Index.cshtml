@@ -44,7 +44,7 @@
 	<!-- Ajax Sourced Server-side -->
 <div class="panelDiv">
 	<div class="card mb-6">
-		<h5 class="card-header page-header">Devices</h5>
+        <h5 class="card-header page-header">Assests</h5>
 		<div class="card-body">
 			<div class="tab-content p-0">
 				<div class="tab-pane fade show active" id="navs-top-home" role="tabpanel">
@@ -61,9 +61,9 @@
 									<th>Location</th>
 									<th>Type</th>
 									<th>Serial#</th>
-									<th>Device Name</th>
-									<th>Cost Center</th>
-									<th>Status</th>									
+									<th>Device Name</th>									
+									<th>Status</th>
+                                    <th>User Name</th>
 									<th>Action</th>
 								</tr>
 							</thead>
@@ -75,9 +75,9 @@
 									<td>@item.Location</td>
 									<td>@item.DeviceType</td>
 									<td>@item.SerialNumber</td>
-									<td>@item.DeviceName</td>
-									<td>@item.Department</td>
-									<td>@item.Status</td>									
+									<td>@item.DeviceName</td>									
+									<td>@item.Status</td>
+                                    <td>@item.EmpName</td>
 									<td>
 										<a class="btn btn-primary btn-sm" asp-controller="Device" asp-action="View" asp-route-deviceID="@item.DeviceID"><i class="ri-eye-fill"></i></a>
 										<a class="btn btn-primary btn-sm" asp-controller="Device" asp-action="Edit" asp-route-deviceID="@item.DeviceID"><i class="ri-pencil-fill"></i></a>

@@ -68,5 +68,8 @@ namespace TMIS.Models.ITIS
         [Required]
         [DisplayName("Cost Center")]
         public string? Department { get; set; }
+
+        //Assignment Details
+        public string? EmpName { get; set; }
     }
 }

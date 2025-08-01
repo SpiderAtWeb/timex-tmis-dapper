@@ -19,13 +19,15 @@ namespace TMIS.DataAccess.ITIS.Repository
         public async Task<IEnumerable<Device>> GetAllAsync()
         {
             string sql = @"select d.DeviceID,l.PropName as Location, t.DeviceType, d.DeviceName, d.SerialNumber, dd.DepartmentName as Department,
-                        s.PropName as Status
+                        s.PropName as Status, ISNULL(da.EmpName, '-') AS EmpName
                         from ITIS_Devices as d 
                         left join COMN_MasterTwoLocations as l on l.Id=d.Location
                         left join COMN_MasterDepartments as dd on dd.DepartmentID=d.Department
                         left join ITIS_DeviceStatus as s on s.Id=d.DeviceStatusID
                         left join ITIS_VendorTemp as v on v.ID=d.VendorID
-                        left join ITIS_DeviceTypes as t on t.DeviceTypeID=d.DeviceTypeID";
+                        left join ITIS_DeviceTypes as t on t.DeviceTypeID=d.DeviceTypeID
+						LEFT JOIN ITIS_DeviceAssignments AS da 
+                        ON da.DeviceID = d.DeviceID AND da.AssignStatusID = 3";
 
             return await _dbConnection.GetConnection().QueryAsync<Device>(sql);
         }
@@ -441,6 +443,20 @@ namespace TMIS.DataAccess.ITIS.Repository
                 Console.WriteLine(ex);
                 return false;
             }
+        }
+        public async Task<IEnumerable<DeviceUserDetailVM>> LoadPreviousUserDetails(int deviceID)
+        {
+            string sql = @"select a.AssignmentID, a.EMPNo, cm.EmpName as EMPName, a.Designation, a.AssignedDate, a.AssignRemarks, st.PropName as AssignStatus
+                            , a.ApproverEMPNo, a.ApproverResponseDate, a.ApproverRemark, a.AssignDepartment as AssignDepartment, a.AssignLocation as AssignLocation
+                            from ITIS_DeviceAssignments as a 
+                            inner join ITIS_DeviceAssignStatus as st on st.Id=a.AssignStatusID
+                            left join ITIS_MasterADEMPLOYEES as cm on cm.EmpUserName=a.EmpName
+                            where a.DeviceID=@DeviceID and a.AssignStatusID=5 Order by AssignedDate desc";
+
+            return await _dbConnection.GetConnection().QueryAsync<DeviceUserDetailVM>(sql, new
+            {
+                DeviceID = deviceID
+            });
         }
     }
 }
