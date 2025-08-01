@@ -5,6 +5,8 @@
 	<link rel="stylesheet" href="~/vendor/libs/flatpickr/flatpickr.css" />
 	<link rel="stylesheet" href="~/vendor/libs/select2/select2.css" />
 	<link href="~/css/input-text-upper.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/vendor/libs/datatables-bs5/datatables.bootstrap5.css">
+    <link href="~/css/site.css" rel="stylesheet" />
 }
 
 @section VendorScripts {
@@ -15,12 +17,28 @@
 @section PageScripts {
 	<script src="~/js/form-layouts.js"></script>
 	<script src="~/custom/input-text-upper.js"></script>
+    <script src="~/custom/tables-datatables-basic.js"></script>
+}
+
+@section PageStyles {
+    <style>
+        .table td {
+            max-width: 100px; /* Set a suitable width for your columns */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .dt-tbl {
+            font-size: 12px; /* Adjust this value to your preferred size */
+        }
+    </style>
 }
 
 <!-- Multi Column with Form Separator -->
 <div class="card mb-6">
 	<h5 class="card-header page-header">
-		Device Details
+        Details
 	</h5>
 	<form class="card-body" id="myForm" enctype="multipart/form-data">
 		<input asp-for="@Model.DeviceDetail!.DeviceID" type="hidden" />
@@ -29,55 +47,55 @@
 
 			<div class="card" id="deviceDetailsField">
 				<div class="card-header fw-bold">
-					Device Details
+                    Assest Details
 				</div>
 				<div class="card-body">
 					<div class="row g-2" id="deviceDetailContainer">
 						<div class="col-md-3">
 							<div class="form-floating form-floating-outline">
-								<input type="text" class="form-control" value="@Model.DeviceDetail!.DeviceType" disabled />
+                                <input type="text" class="form-control input-disabled-black" value="@Model.DeviceDetail!.DeviceType" disabled />
 								<label>Device Type</label>
 							</div>
 						</div>
 						<div class="col-md-3">
 							<div class="form-floating form-floating-outline">
-								<input type="text" class="form-control" value="@Model.DeviceDetail!.DeviceName" disabled />
+                                <input type="text" class="form-control input-disabled-black" value="@Model.DeviceDetail!.DeviceName" disabled />
 								<label>Device Name</label>
 							</div>
 						</div>
 						<div class="col-md-3">
 							<div class="form-floating form-floating-outline">
-								<input type="text" class="form-control" value="@Model.DeviceDetail!.SerialNumber" disabled />
+                                <input type="text" class="form-control input-disabled-black" value="@Model.DeviceDetail!.SerialNumber" disabled />
 								<label>Serial Number</label>
 							</div>
 						</div>
 						<div class="col-md-3">
 							<div class="form-floating form-floating-outline">
-								<input type="text" class="form-control" value="@Model.DeviceDetail!.FixedAssetCode" disabled />
+                                <input type="text" class="form-control input-disabled-black" value="@Model.DeviceDetail!.FixedAssetCode" disabled />
 								<label>FA Code</label>
 							</div>
 						</div>
 						<div class="col-md-3">
 							<div class="form-floating form-floating-outline">
-								<input type="text" class="form-control" value="@Model.DeviceDetail!.PurchasedDate?.ToString("MM-dd-yyyy")" disabled />
+                                <input type="text" class="form-control input-disabled-black" value="@Model.DeviceDetail!.PurchasedDate?.ToString("MM-dd-yyyy")" disabled />
 								<label>Purchased Date</label>
 							</div>
 						</div>
 						<div class="col-md-3">
 							<div class="form-floating form-floating-outline">
-								<input type="text" class="form-control" value="@Model.DeviceDetail!.Depreciation" disabled />
+                                <input type="text" class="form-control input-disabled-black" value="@Model.DeviceDetail!.Depreciation" disabled />
 								<label>Depreciation</label>
 							</div>
 						</div>
 						<div class="col-md-3">
 							<div class="form-floating form-floating-outline">
-								<input type="text" class="form-control" value="@Model.DeviceDetail!.Vendor" disabled />
+                                <input type="text" class="form-control input-disabled-black" value="@Model.DeviceDetail!.Vendor" disabled />
 								<label>Vendor</label>
 							</div>
 						</div>
 						<div class="col-md-3">
 							<div class="form-floating form-floating-outline">
-								<input type="text" class="form-control" value="@Model.DeviceDetail!.Location" disabled />
+                                <input type="text" class="form-control input-disabled-black" value="@Model.DeviceDetail!.Location" disabled />
 								<label>Location</label>
 							</div>
 						</div>
@@ -89,7 +107,7 @@
 											   class="form-check-input me-4"
 											   checked="@(Model.DeviceDetail!.IsRented == true)"
 											   disabled="@(Model.DeviceDetail.IsRented == true ? "disabled" : "disabled")" />
-										<label class="form-check-label" for="isRentedCheck">Is Rented</label>
+                                        <label class="form-check-label" for="isRentedCheck">Is Rented</label>
 									</span>
 								</label>
 							</div>
@@ -102,20 +120,20 @@
 											   class="form-check-input me-4"
 											   checked="@(Model.DeviceDetail!.IsBrandNew == true)"
 											   disabled="@(Model.DeviceDetail.IsBrandNew == true ? "disabled" : "disabled")" />
-										<label class="form-check-label" for="isRentedCheck">Is Brand New</label>
+                                        <label class="form-check-label" for="isRentedCheck">Is Brand New</label>
 									</span>
 								</label>
 							</div>
 						</div>						
 						<div class="col-md-3">
 							<div class="form-floating form-floating-outline">
-								<input type="text" class="form-control" value="@Model.DeviceDetail!.Department" disabled />
+                                <input type="text" class="form-control input-disabled-black" value="@Model.DeviceDetail!.Department" disabled />
 								<label>Cost Center</label>
 							</div>
 						</div>
 						<div class="col-md-5">
 							<div class="form-floating form-floating-outline">
-								<input type="text" class="form-control" value="@Model.DeviceDetail!.Remark" disabled />
+                                <input type="text" class="form-control input-disabled-black" value="@Model.DeviceDetail!.Remark" disabled />
 								<label>Description</label>
 							</div>
 						</div>
@@ -125,7 +143,7 @@
 							{
 								<div class="col-md-3">
 									<div class="form-floating form-floating-outline">
-										<input type="text" class="form-control" value="@item.ValueText" disabled />
+                                        <input type="text" class="form-control input-disabled-black" value="@item.ValueText" disabled />
 										<label>@item.Name</label>
 									</div>
 								</div>
@@ -199,64 +217,95 @@
 						<div class="row g-2" id="userDetailContainer">
 							<div class="col-md-3">
 								<div class="form-floating form-floating-outline">
-									<input type="text" class="form-control" value="@Model.DeviceUserDetail!.EmpName" disabled />
+                                    <input type="text" class="form-control input-disabled-black" value="@Model.DeviceUserDetail!.EmpName" disabled />
 									<label>Employee</label>
 								</div>
 							</div>
 							<div class="col-md-3">
 								<div class="form-floating form-floating-outline">
-									<input type="text" class="form-control" value="@Model.DeviceUserDetail!.Designation" disabled />
+                                    <input type="text" class="form-control input-disabled-black" value="@Model.DeviceUserDetail!.Designation" disabled />
 									<label>Designation</label>
 								</div>
 							</div>
 							<div class="col-md-3">
 								<div class="form-floating form-floating-outline">
-									<input type="text" class="form-control" value="@Model.DeviceUserDetail!.AssignedDate?.ToString("MM-dd-yyyy")" disabled />
+                                    <input type="text" class="form-control input-disabled-black" value="@Model.DeviceUserDetail!.AssignedDate?.ToString("MM-dd-yyyy")" disabled />
 									<label>Assigned Date</label>
 								</div>
 							</div>
 							<div class="col-md-3">
 								<div class="form-floating form-floating-outline">
-									<input type="text" class="form-control" value="@Model.DeviceUserDetail!.AssignRemarks" disabled />
+                                    <input type="text" class="form-control input-disabled-black" value="@Model.DeviceUserDetail!.AssignRemarks" disabled />
 									<label>Assigner Comment</label>
 								</div>
 							</div>
 							<div class="col-md-3">
 								<div class="form-floating form-floating-outline">
-									<input type="text" class="form-control" value="@Model.DeviceUserDetail!.ApproverResponseDate?.ToString("MM-dd-yyyy")" disabled />
+                                    <input type="text" class="form-control input-disabled-black" value="@Model.DeviceUserDetail!.ApproverResponseDate?.ToString("MM-dd-yyyy")" disabled />
 									<label>Approved Date</label>
 								</div>
 							</div>
 							<div class="col-md-3">
 								<div class="form-floating form-floating-outline">
-									<input type="text" class="form-control" value="@Model.DeviceUserDetail!.ApproverRemark" disabled />
+                                    <input type="text" class="form-control input-disabled-black" value="@Model.DeviceUserDetail!.ApproverRemark" disabled />
 									<label>Approver Comment</label>
 								</div>
 							</div>
 							<div class="col-md-3">
 								<div class="form-floating form-floating-outline">
-									<input type="text" class="form-control" value="@Model.DeviceUserDetail!.AssignLocation" disabled />
+                                    <input type="text" class="form-control input-disabled-black" value="@Model.DeviceUserDetail!.AssignLocation" disabled />
 									<label>Location</label>
 								</div>
 							</div>
 							<div class="col-md-3">
 								<div class="form-floating form-floating-outline">
-									<input type="text" class="form-control" value="@Model.DeviceUserDetail!.AssignDepartment" disabled />
+                                    <input type="text" class="form-control input-disabled-black" value="@Model.DeviceUserDetail!.AssignDepartment" disabled />
 									<label>Department</label>
 								</div>
 							</div>
 							<div class="col-md-3">
 								<div class="form-floating form-floating-outline">
-									<input type="text" class="form-control" value="@Model.DeviceUserDetail!.AssignStatus" disabled />
+                                    <input type="text" class="form-control input-disabled-black" value="@Model.DeviceUserDetail!.AssignStatus" disabled />
 									<label>Assign State</label>
 								</div>
 							</div>
 						</div>
 					</div>
+                </div>
+
+            }
+
+
+            <div class="card" id="userDetailsField">
+				<div class="card-header fw-bold">
+					Previous Users
 				</div>
-
-			}
-
+				<div class="card-body">
+                    <div class="card-datatable text-nowrap">
+                        <table class="datatables-ajax table table-bordered dt-tbl">
+                            <thead>
+                                <tr class="table-info">
+                                    <th>Employee Name</th>                                                               
+                                    <th>Designation</th>
+                                    <th>Assigned Date</th>
+                                    <th>Location</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.PreviousUsers!)
+                                {
+                                    <tr>
+                                        <td>@item.EmpName</td>
+                                        <td>@item.Designation</td>                                
+                                        <td>@item.AssignedDate?.ToString("MM-dd-yyyy")</td>
+                                        <td>@item.AssignLocation</td>                                       
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
 			<div class="col-md-3">
 			</div>
 

@@ -20,5 +20,6 @@ namespace TMIS.DataAccess.ITIS.IRepository
         Task<DeviceDetailVM> LoadDeviceDetail(int deviceID);
         Task<DeviceUserDetailVM> LoadUserDetail(int deviceID);
         Task<bool> CheckSerialEdit(string serialNumber, int deviceID);
+        Task<IEnumerable<DeviceUserDetailVM>> LoadPreviousUserDetails(int deviceID);
     }
 }
