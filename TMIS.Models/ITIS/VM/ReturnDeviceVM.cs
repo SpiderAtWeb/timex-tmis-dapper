@@ -17,7 +17,7 @@ namespace TMIS.Models.ITIS.VM
         [DisplayName("Comment")]
         public string? ReturnRemark {  get; set; }
         [Required]
-        [DisplayName("Device")]
+        [DisplayName("Asset")]
         public string? Device { get; set; }
         public int RecordID {  get; set; }
         public DeviceUserDetailVM? DeviceUserDetail { get; set; } = new DeviceUserDetailVM();

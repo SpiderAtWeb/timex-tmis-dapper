@@ -1,6 +1,6 @@
 /* Custom styles goes here */
 .input-disabled-black:disabled {
-  color: #000 !important;
+  color: #777474 !important;
   opacity: 1; /* Ensures full visibility in some frameworks like Bootstrap */
 }
 

@@ -14,9 +14,9 @@ namespace TMIS.Models.ITIS
         public int DeviceID { get; set; }
 
         [Required]
-        [DisplayName("Device Type")]
+        [DisplayName("Asset Type")]
         public int DeviceTypeID { get; set; }        
-        [DisplayName("Device Name")]
+        [DisplayName("Asset Name")]
         public string? DeviceName { get; set; }
         [Required]
         [DisplayName("Serial #")]
@@ -46,7 +46,7 @@ namespace TMIS.Models.ITIS
         public DateTime? AddedDate { get; set; }
 
         [Required]
-        [DisplayName("Device is currently")]
+        [DisplayName("Asset is currently")]
         public int DeviceStatusID { get; set; }
 
         public DateTime? UpdatedOn { get; set; }

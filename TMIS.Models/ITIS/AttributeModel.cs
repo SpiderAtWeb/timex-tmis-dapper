@@ -13,7 +13,7 @@ namespace TMIS.Models.ITIS
     {
         public int AttributeID {  get; set; }
         [Required]
-        [DisplayName("Device Type")]
+        [DisplayName("Asset Type")]
         public string? DeviceTypeID { get; set; }
         [Required]
         [DisplayName("Label")]
