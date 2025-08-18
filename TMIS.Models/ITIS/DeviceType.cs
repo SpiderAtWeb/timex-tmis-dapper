@@ -13,7 +13,7 @@ namespace TMIS.Models.ITIS
         public int DeviceTypeID { get; set; }
         [Required]
         [MaxLength(50)]
-        [DisplayName("Device Type")]
+        [DisplayName("Asset Type")]
         public string? DeviceTypeName { get; set; }
         public DateTime? CreatedDate { get; set; }
         [DisplayName("Remark")]

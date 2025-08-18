@@ -53,13 +53,13 @@
 			allHtml += `<div class="col-md-3">
 						  <div class="form-floating form-floating-outline">
 								<input type="text" class="form-control" value="${data.deviceType ? data.deviceType : '-'}" disabled/>
-								<label>Device Type</label>
+								<label>Asset Type</label>
 						  </div>
 						</div>
 						<div class="col-md-3">
 						  <div class="form-floating form-floating-outline">
 								<input type="text" class="form-control" value="${data.deviceName ? data.deviceName : '-'}" disabled/>
-								<label>Device Name</label>
+								<label>Asset Name</label>
 						  </div>
 						</div>
 						<div class="col-md-3">
@@ -159,7 +159,7 @@
 <!-- Multi Column with Form Separator -->
 <div class="card mb-6">
 	<h5 class="card-header page-header">
-		Assign Device 
+		Assign Asset
 	</h5>
 	<form asp-action="Create" method="post" class="card-body" id="myForm" enctype="multipart/form-data">
 
@@ -214,7 +214,7 @@
 			<div class="col-md-3">
 				<div class="form-floating form-floating-outline">
 					<select asp-for="@Model.AssignDevice!.Device" asp-items="@Model.DeviceSerialList" class="select2 form-select" data-allow-clear="true">
-						<option value="" Disabled Selected>- Select Device -</option>
+						<option value="" Disabled Selected>- Select Asset -</option>
 					</select>
 
 					<label asp-for="AssignDevice!.Device"></label>
@@ -233,7 +233,7 @@
 			</div>
 			<div class="card" id="deviceDetailsField">
 				<div class="card-header fw-bold">
-					Device Details
+					Asset Details
 				</div>
 				<div class="card-body">
 					<div class="row g-2" id="deviceDetailContainer">

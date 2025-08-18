@@ -640,12 +640,12 @@
                     <ul class="menu-sub">
                         <li class='menu-item@(currentPage == "/ITIS/Device" ? " active" : "")'>
                             <a asp-area="ITIS" asp-controller="Device" asp-action="Index" class="menu-link">
-                                <div> <span>    <i class="menu-icon fa-solid fa-plus"></i></span>Add New</div>
+                                <div> <span>    <i class="menu-icon fa-solid fa-computer"></i></span>Assets</div>
                             </a>
                         </li>
                         <li class='menu-item@(currentPage == "/ITIS/DeviceUser" ? " active" : "")'>
                             <a asp-area="ITIS" asp-controller="DeviceUser" asp-action="Index" class="menu-link">
-                                <div>  <span>    <i class="menu-icon fa-solid fa-users"></i></span>Assign Device</div>
+                                <div>  <span>    <i class="menu-icon fa-solid fa-users"></i></span>Allocation</div>
                             </a>
                         </li>
                     </ul>
@@ -674,19 +674,19 @@
                     </li>
                     <!-- Forms -->
                     <li class='menu-item@(currentPage.StartsWith("/ITIS/DeviceType") || currentPage.StartsWith("/ITIS/Attribute") ? " active open" : "")'>
-                        <a href="javascript:void(0);" class="menu-link menu-toggle">
+                       @*  <a href="javascript:void(0);" class="menu-link menu-toggle">
                             <i class="menu-icon fa-solid fa-desktop"></i>
                             <div>Device</div>
-                        </a>
-                        <ul class="menu-sub">
+                        </a> *@
+                        @* <ul class="menu-sub"> *@
                             <li class='menu-item@(currentPage == "/ITIS/DeviceType" ? " active" : "")'>
                                 <a asp-area="ITIS" asp-controller="DeviceType" asp-action="Index" class="menu-link">
-                                    <div> <span>    <i class="menu-icon fa-solid fa-layer-group"></i></span>Device Types</div>
+                                    <div> <span>    <i class="menu-icon fa-solid fa-layer-group"></i></span>Asset Types</div>
                                 </a>
                             </li>
                             <li class='menu-item@(currentPage == "/ITIS/Attribute" ? " active" : "")'>
                                 <a asp-area="ITIS" asp-controller="Attribute" asp-action="Index" class="menu-link">
-                                    <div> <span>    <i class="menu-icon fa-solid fa-gears"></i></span>Device Attributes</div>
+                                    <div> <span>    <i class="menu-icon fa-solid fa-gears"></i></span>Asset Attributes</div>
                                 </a>
                             </li>
 						@if (User.IsInRole("SUPER-ADMIN") || User.IsInRole("ITIS-ADMIN"))
@@ -697,7 +697,7 @@
 								</a>
 							</li>
 						}                           
-                        </ul>
+                    @*     </ul> *@
                     </li>
                 </ul>
             </li>
@@ -748,14 +748,14 @@
                 <ul class="menu-sub">
                     <li class='menu-item@(currentPage == "/HRRS/ITRequest/Index" ? " active" : "")'>
                         <a asp-area="HRRS" asp-controller="ITRequest" asp-action="Index" class="menu-link">
-                            <div>  <span>    <i class="menu-icon fa-solid fa-users-gear"></i></span>Create</div>
+                            <div>  <span>    <i class="menu-icon fa-solid fa-file-invoice"></i></span>Create</div>
                         </a>
                     </li>
                     @if (User.IsInRole("HRRS-APPROVER") || User.IsInRole("SUPER-ADMIN"))
                     {
                         <li class='menu-item@(currentPage == "/HRRS/ApproveITRequest/Index" ? " active" : "")'>
                             <a asp-area="HRRS" asp-controller="ApproveITRequest" asp-action="Index" class="menu-link">
-                                <div>  <span>    <i class="menu-icon fa-solid fa-users-gear"></i></span>Approve</div>
+                                <div>  <span>    <i class="menu-icon fa-solid fa-thumbs-up"></i></span>Approve</div>
                             </a>
                         </li>
                     }

@@ -20,7 +20,7 @@
 <!-- Multi Column with Form Separator -->
 <div class="card mb-6">
 	<h5 class="card-header page-header">
-		Device User Details
+		Asset User Details
 	</h5>
 	<form class="card-body" id="myForm" enctype="multipart/form-data">
 		<input asp-for="@Model.DeviceDetail!.DeviceID" type="hidden" />
@@ -29,14 +29,14 @@
 
 			<div class="card" id="deviceDetailsField">
 				<div class="card-header fw-bold">
-					Device Details
+					Asset Details
 				</div>
 				<div class="card-body">
 					<div class="row g-2" id="deviceDetailContainer">
 						<div class="col-md-3">
 							<div class="form-floating form-floating-outline">
 								<input type="text" class="form-control" value="@Model.DeviceDetail!.DeviceType" disabled />
-								<label>Device Type</label>
+								<label>Asset Type</label>
 							</div>
 						</div>
 						<div class="col-md-3">
@@ -60,7 +60,7 @@
 						<div class="col-md-3">
 							<div class="form-floating form-floating-outline">
 								<input type="text" class="form-control" value="@Model.DeviceDetail!.DeviceName" disabled />
-								<label>Device Name</label>
+								<label>Asset Name</label>
 							</div>
 						</div>						
 						<div class="col-md-3">

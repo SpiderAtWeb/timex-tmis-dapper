@@ -18,8 +18,9 @@ namespace TMIS.DataAccess.ITIS.Repository
         private readonly IDatabaseConnectionSys _dbConnection = dbConnection;
 
         public async Task<IEnumerable<SummaryReportData>> GetAllDeviceData()
-        {          
-            string query = "select * from ITIS_VwSummary;";
+        {
+            //order by ReturnedDate desc
+            string query = "select * from ITIS_VwSummary order by ReturnedDate desc;";
 
             var result = await _dbConnection.GetConnection().QueryAsync<SummaryReportData>(query);
             return result;

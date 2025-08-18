@@ -17,7 +17,7 @@ namespace TMIS.Models.ITIS.VM
         [DisplayName("Employee")]
         public string EmpName { get; set; } = string.Empty;
         [Required]
-        [DisplayName("Device")]
+        [DisplayName("Asset")]
         public int Device {  get; set; } 
         [Required]
         [DisplayName("Approver")]

@@ -26,7 +26,7 @@ namespace TMIS.Models.ITIS
         public string? Designation { get; set; }
         public string? AssignedRemark { get; set; }
         public string? ReturnRemarks { get; set; }
-        public string? ReturnDate { get; set; }
+        public string? ReturnedDate { get; set; }
 
     }
 }
