@@ -1,5 +1,21 @@
 @model MachineRentedVM
 
+@section VendorStyles {
+    <link rel="stylesheet" href="~/vendor/libs/flatpickr/flatpickr.css" />
+    <link rel="stylesheet" href="~/vendor/libs/select2/select2.css" />
+    <link href="~/css/input-text-upper.css" rel="stylesheet" />
+}
+
+@section VendorScripts {
+    <script src="~/vendor/libs/flatpickr/flatpickr.js"></script>
+    <script src="~/vendor/libs/select2/select2.js"></script>
+}
+
+@section PageScripts {
+    <script src="~/js/form-layouts.js"></script>
+    <script src="~/custom/input-text-upper.js"></script>
+}
+
 <!-- Multi Column with Form Separator -->
 <form asp-action="Details" method="post">
     <div class="card mb-6">
@@ -15,6 +31,12 @@
                         <input asp-for="RentTermRemark" type="text" class="form-control" placeholder="Remarks" />
                         <label for="RentTermRemark">Comments</label>
                         <span asp-validation-for="RentTermRemark" class="text-warning"></span>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="form-floating form-floating-outline">
+                        <input asp-for="RentTerminationDate" type="date" id="RentTerminationDate" class="form-control dob-picker" placeholder="YYYY-MM-DD" />
+                        <label for="RentTerminationDate">Termination Date</label>
                     </div>
                 </div>
             </div>
@@ -87,14 +109,7 @@
                         <input asp-for="DateBorrow" type="text" id="DateBorrow" class="form-control" placeholder="100" />
                         <label for="DateBorrow">Purchased Date</label>
                     </div>
-                </div>
-
-                <div class="col-3">
-                    <div class="form-floating form-floating-outline">
-                        <input asp-for="DateDue" type="text" id="DateDue" class="form-control" placeholder="100" />
-                        <label for="DateDue">Due Date</label>
-                    </div>
-                </div>
+                </div>              
 
                 <div class="col-3">
                     <div class="image-preview">

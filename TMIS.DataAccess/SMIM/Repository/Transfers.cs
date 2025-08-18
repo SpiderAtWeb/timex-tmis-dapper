@@ -18,9 +18,19 @@ namespace TMIS.DataAccess.SMIM.Repository
 
         public async Task<IEnumerable<TransMC>> GetList()
         {
+            string query = string.Empty;
 
-            string query = "SELECT [Id], [QrCode], [SerialNo], [MachineType], [CurrentUnit], [CurrentStatus], [Location] FROM [SMIM_VwMcInventory] WHERE [CurrentStatus] IN (1,2) AND (IsOwned = 1) AND CurrentUnitId NOT IN @AccessPlants ORDER BY QrCode;";
+            if (_iSessionHelper.GetUserRolesList().Contains("SUPER-ADMIN") || _iSessionHelper.GetUserRolesList().Contains("SMIM-ADMIN"))
+            {
+                query = "SELECT [Id], [QrCode], [SerialNo], [MachineType], [CurrentUnit], [CurrentStatus], [Location] FROM [SMIM_VwMcInventory] WHERE [CurrentStatus] IN (1,2) AND (IsOwned = 1) ORDER BY QrCode;";
+            }
+            else
+            {
+                query = "SELECT [Id], [QrCode], [SerialNo], [MachineType], [CurrentUnit], [CurrentStatus], [Location] FROM [SMIM_VwMcInventory] WHERE [CurrentStatus] IN (1,2) AND (IsOwned = 1) AND CurrentUnitId NOT IN @AccessPlants ORDER BY QrCode;";
+            }
+
             return await _dbConnection.GetConnection().QueryAsync<TransMC>(query, new { AccessPlants = _iSessionHelper.GetLocationList() });
+
         }
 
         public async Task<IEnumerable<TransMCUser>> GetListUser(string pDate)
@@ -50,7 +60,7 @@ namespace TMIS.DataAccess.SMIM.Repository
 
         public async Task<IEnumerable<SelectListItem>> GetUnitsList()
         {
-            var query = "SELECT Id, PropName FROM COMN_VwTwoCompLocs WHERE IsDelete = 0 AND Id NOT IN @AccessPlants ORDER BY PropName";
+            var query = "SELECT Id, PropName FROM COMN_VwTwoCompLocs WHERE IsDelete = 0 AND Id IN @AccessPlants ORDER BY PropName";
 
             var units = await _dbConnection.GetConnection().QueryAsync(query, new { AccessPlants = _iSessionHelper.GetLocationList() });
             return units.Select(unit => new SelectListItem

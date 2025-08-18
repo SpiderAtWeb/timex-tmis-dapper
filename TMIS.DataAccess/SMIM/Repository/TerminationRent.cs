@@ -32,7 +32,10 @@ namespace TMIS.DataAccess.SMIM.Repository
             using var connection = _dbConnection.GetConnection();
             using var transaction = connection.BeginTransaction();
 
-            var queryUpdate = @"UPDATE SMIM_TrInventory SET [CurrentStatusId] = @NewStatus, [RentTermRemark]= @RentTermRemark, [DateUpdate] = @Now WHERE Id = @MachineId";
+            var queryUpdate = @"UPDATE SMIM_TrInventory SET [CurrentStatusId] = @NewStatus,
+                                [RentTermDate]= @RentTermDate,
+                                [RentTermRemark]= @RentTermRemark,
+                                [DateUpdate] = @Now WHERE Id = @MachineId";
 
             try
             {
@@ -42,6 +45,7 @@ namespace TMIS.DataAccess.SMIM.Repository
                     MachineId = oModel.Id,
                     NewStatus = 10,
                     oModel.RentTermRemark,
+                    RentTermDate = oModel.RentTerminationDate,
                     DateTime.Now,
                 }, transaction);
 

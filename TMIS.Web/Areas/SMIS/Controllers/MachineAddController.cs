@@ -27,7 +27,6 @@ namespace TMIS.Areas.SMIS.Controllers
     public async Task<IActionResult> OwnedCreate()
     {
       var mcCreateVM = await _db.LoadInventoryDropDowns(null);
-
       _logger.Info("[" + _iSessionHelper.GetShortName() + "] - PAGE VISIT OW CREATE");
 
       return View(mcCreateVM);

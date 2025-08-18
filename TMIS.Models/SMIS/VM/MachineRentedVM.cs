@@ -29,6 +29,7 @@ namespace TMIS.Models.SMIS.VM
         public string Supplier { get; set; } = string.Empty;
         public string Comments { get; set; } = string.Empty;
         public string RentTermRemark { get; set; } = string.Empty;
+        public string RentTerminationDate { get; set; } = string.Empty;
         public string LastScanDateTime { get; set; } = string.Empty;
 
     }
