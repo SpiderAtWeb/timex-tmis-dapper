@@ -76,7 +76,7 @@ builder.Services.AddScoped<IUserControls, UserControls>();
 builder.Services.AddScoped<IGmailSender, GmailSender>();
 
 //SMIM
-builder.Services.AddScoped<ICommon, Common>();
+builder.Services.AddScoped<ISMIMCommon, SMIMCommon>();
 builder.Services.AddScoped<IInventory, Inventory>();
 builder.Services.AddScoped<IDashBoard, Dashboard>();
 builder.Services.AddScoped<ITransfers, Transfers>();
@@ -85,8 +85,11 @@ builder.Services.AddScoped<IDisposal, Disposal>();
 builder.Services.AddScoped<ITerminationRent, TerminationRent>();
 builder.Services.AddScoped<ISMIMLogdb, SMIMLogdb>();
 builder.Services.AddScoped<IPrintQR, PrintQR>();
+builder.Services.AddScoped<IRenting, Renting>();
+
 
 //PLMS
+builder.Services.AddScoped<IPLMSCommon, PLMSCommon>();
 builder.Services.AddScoped<IOverview, Overview>();
 builder.Services.AddScoped<INewInquiry, NewInquiry>();
 builder.Services.AddScoped<ISaveCriticalPathActivity, SaveCPActivity>();
@@ -107,6 +110,7 @@ builder.Services.AddScoped<IDeviceUserRepository, DeviceUserRepository>();
 builder.Services.AddScoped<IApproveRepository, ApproveRepository>();
 builder.Services.AddScoped<IReportRepository, ReportRepository>();
 builder.Services.AddScoped<ILdapServiceRepository, LdapServiceRepository>();
+
 //TGPS
 builder.Services.AddScoped<IGoodsGatePass, GoodsGatePass>();
 builder.Services.AddScoped<IAddressBank, AddressBank>();

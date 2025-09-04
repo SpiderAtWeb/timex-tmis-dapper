@@ -6,10 +6,10 @@ using TMIS.Models.SMIS;
 
 namespace TMIS.DataAccess.PLMS.Rpository
 {
-    public class SMV(IDatabaseConnectionSys dbConnection, ICommon common, IPLMSLogdb pLMSLogdb) : ISMV
+    public class SMV(IDatabaseConnectionSys dbConnection, IPLMSCommon common, IPLMSLogdb pLMSLogdb) : ISMV
     {
         private readonly IDatabaseConnectionSys _dbConnection = dbConnection;
-        private readonly ICommon _common = common;
+        private readonly IPLMSCommon _common = common;
         private readonly IPLMSLogdb _pLMSLogdb = pLMSLogdb;
 
         public async Task<IEnumerable<ShowInquiryDataVM>> GetInquiriesAsync()

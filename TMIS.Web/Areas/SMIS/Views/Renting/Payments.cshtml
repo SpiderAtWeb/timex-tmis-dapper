@@ -1,0 +1,172 @@
+@model IEnumerable<TransMC>
+
+@section VendorStyles {
+    <link rel="stylesheet" href="~/vendor/libs/datatables-bs5/datatables.bootstrap5.css">
+    <link href="~/vendor/libs/toastr/toastr.css" rel="stylesheet" />
+}
+
+@section PageScripts {
+    <script src="~/custom/tables-datatables-basic.js"></script>
+    <script src="~/custom/loading-hide.js"></script>
+    <script src="~/vendor/libs/toastr/toastr.js"></script>
+
+    @if (TempData["success"] != null)
+    {
+        <script type="text/javascript">
+            toastr.success('@TempData["success"]');
+        </script>
+        TempData.Clear();
+    }
+
+    <script>
+          // Select All checkbox
+          document.getElementById("selectAll").addEventListener("change", function () {
+              document.querySelectorAll(".row-check").forEach(cb => cb.checked = this.checked);
+          });
+
+          // Add to List button
+          document.getElementById("addToListBtn").addEventListener("click", function () {
+              let tbody = document.querySelector("#selectedList tbody");
+              tbody.innerHTML = ""; // clear old items before adding new
+
+              document.querySelectorAll(".row-check:checked").forEach(cb => {
+                  let row = document.createElement("tr");
+                  row.innerHTML = `
+                      <td class="d-none">${cb.value}</td>
+                      <td>${cb.dataset.qrcode}</td>
+                      <td>${cb.dataset.serial}</td>
+                      <td>${cb.dataset.supplier}</td>
+                  `;
+                  tbody.appendChild(row);
+              });
+          });
+
+           // Clear button
+          document.getElementById("addClear").addEventListener("click", function () {
+              document.querySelector("#selectedList tbody").innerHTML = "";
+              document.querySelectorAll(".row-check").forEach(cb => cb.checked = false);
+              document.getElementById("selectAll").checked = false;
+          });
+
+             document.getElementById("addGenCertificate").addEventListener("click", function () {
+              let selectedIds = [];
+
+              // collect hidden IDs from preview table
+              document.querySelectorAll("#selectedList tbody tr").forEach(row => {
+                  let idCell = row.querySelector("td"); // first cell is hidden ID
+                  if (idCell) {
+                      selectedIds.push(parseInt(idCell.textContent));
+                  }
+              });
+
+              if (selectedIds.length === 0) {
+                  alert("Please select at least one machine.");
+                  return;
+              }
+
+                fetch('/SMIS/Renting/GenerateCertificate', {
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'application/json',
+                      'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                  },
+                  body: JSON.stringify({ selectedIds: selectedIds })
+              })
+              .then(response => {
+                  if (!response.ok) throw new Error("Error generating certificate");
+                  return response.text(); // HTML view from backend
+              })
+              .then(html => {
+                  // overwrite current page content with certificate HTML
+                  document.open();
+                  document.write(html);
+                  document.close();
+              })
+              .catch(error => {
+                  console.error(error);
+                  alert("Something went wrong while generating certificate");
+              });
+          });
+
+    </script>
+}
+
+@* ************** Content ************** *@
+<!-- Ajax Sourced Server-side -->
+@await Html.PartialAsync("_Loading")
+<div class="panelDiv">
+    <div class="card mb-6">
+        <div class="card-header px-0 pt-0">
+            <h5 class="card-header page-header">
+                Renting Machine Requests
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <!-- Table Section -->
+                <div class="col-6">
+                    <div class="card-datatable text-nowrap">
+                        <table class="datatables-ajax table table-bordered dt-tbl" id="machineTable">
+                            <thead>
+                                <tr class="table-info">
+                                    <th>QR Code</th>
+                                    <th>Serial No</th>
+                                    <th>Type</th>
+                                    <th>Supplier</th>
+                                    <th>
+                                        <input type="checkbox" id="selectAll" class="form-check-input" />
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td>@item.QrCode</td>
+                                        <td>@item.SerialNo</td>
+                                        <td>@item.MachineType</td>
+                                        <td>@item.Supplier</td>
+                                        <td>
+                                            <input type="checkbox" name="selectedIds" value="@item.Id"
+                                                   data-qrcode="@item.QrCode"
+                                                   data-serial="@item.SerialNo"
+                                                   data-supplier="@item.Supplier"
+                                                   class="form-check-input row-check" />
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Selected List Section -->
+                <div class="col-6">
+                    <div class="card-datatable text-nowrap">
+                        <table class="datatables-ajax table table-bordered dt-tbl" id="selectedList">
+                            <thead>
+                                <tr class="table-secondary">
+                                    <th>QR Code</th>
+                                    <th>Serial No</th>
+                                    <th>Supplier</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Checked items will be added here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-4">
+                    <button type="button" class="btn btn-success mb-3" id="addToListBtn">Add to List</button>
+                    <button type="button" class="btn btn-primary mb-3" id="addClear">Clear</button>
+                    <button type="button" class="btn btn-primary mb-3" id="addGenCertificate">Generate Certificate</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

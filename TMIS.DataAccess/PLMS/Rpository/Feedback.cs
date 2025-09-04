@@ -6,10 +6,10 @@ using TMIS.Models.SMIS;
 
 namespace TMIS.DataAccess.PLMS.Rpository
 {
-    public class Feedback(IDatabaseConnectionSys dbConnection, ICommon common, IPLMSLogdb pLMSLogdb) : IFeedback
+    public class Feedback(IDatabaseConnectionSys dbConnection, IPLMSCommon common, IPLMSLogdb pLMSLogdb) : IFeedback
     {
         private readonly IDatabaseConnectionSys _dbConnection = dbConnection;
-        private readonly ICommon _common = common;
+        private readonly IPLMSCommon _common = common;
         private readonly IPLMSLogdb _pLMSLogdb = pLMSLogdb;
 
         public async Task<FeedbackVM> GetInquiryAsync(string id)

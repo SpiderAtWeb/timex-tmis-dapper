@@ -7,7 +7,6 @@
         <form asp-action="UpdateStatus" method="post">
             <input type="hidden" asp-for="RespondVM!.Id" />
 
-
             <div class="row g-6">
                 <div class="col-md-4">
                     <div class="form-floating form-floating-outline">
@@ -33,6 +32,7 @@
                         </div>
                     </div>
                 </div>
+
             </div>
         </form>
 
@@ -123,7 +123,6 @@
                 </div>
             </div>
 
-
             <div class="col-3">
                 <div class="image-preview">
                     @if (Model.MachinesData.ImageFR != null && Model.MachinesData.ImageFR.Length > 0)
@@ -150,6 +149,7 @@
                     }
                 </div>
             </div>
+
         </div>
         <div class="pt-3">
             <a asp-controller="ApprovalRequest" asp-action="Index" class="btn btn-outline-secondary">Back to List</a>

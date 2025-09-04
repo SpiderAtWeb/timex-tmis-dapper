@@ -7,10 +7,10 @@ namespace TMIS.Areas.PLMS.Controllers
 {
   [Area("PLMS")]
 
-  public class CommonController(ICommon common) : BaseController
+  public class CommonController(IPLMSCommon common) : BaseController
   {
     private readonly ILog _logger = LogManager.GetLogger(typeof(CommonController));
-    private readonly ICommon _common = common;
+    private readonly IPLMSCommon _common = common;
 
     public async Task<IActionResult> LoadModal(string Id)
     {

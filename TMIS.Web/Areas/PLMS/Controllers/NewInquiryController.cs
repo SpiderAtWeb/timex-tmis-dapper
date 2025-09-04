@@ -9,10 +9,10 @@ using TMIS.Models.PLMS;
 namespace TMIS.Areas.PLMS.Controllers
 {
   [Area("PLMS")]
-  public class NewInquiryController(ICommon common, INewInquiry db, ISessionHelper sessionHelper) : BaseController
+  public class NewInquiryController(IPLMSCommon common, INewInquiry db, ISessionHelper sessionHelper) : BaseController
   {
     private readonly ILog _logger = LogManager.GetLogger(typeof(NewInquiryController));
-    private readonly ICommon _common = common;
+    private readonly IPLMSCommon _common = common;
     private readonly INewInquiry _db = db;
     private readonly ISessionHelper _iSessionHelper = sessionHelper;
 
@@ -36,6 +36,15 @@ namespace TMIS.Areas.PLMS.Controllers
       if (artwork == null)
       {
         ModelState.AddModelError("artwork", "Artwork file is required.");
+      }
+
+      if (artwork != null)
+      {
+        var extension = Path.GetExtension(artwork.FileName).ToLowerInvariant();
+        if (extension != ".jpg" && extension != ".jpeg")
+        {
+          ModelState.AddModelError("artwork", "Only JPG/JPEG images are allowed.");
+        }
       }
 
       // Check if Inquiry data exists and validate

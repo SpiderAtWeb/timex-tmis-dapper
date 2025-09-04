@@ -12,11 +12,13 @@ namespace TMIS.Areas.SMIS.Controllers
 {
   [Authorize]
   [Area("SMIS")]
-  public class MachineRequestController(ITransfers db, ISessionHelper sessionHelper) : BaseController
+  public class MachineRequestController(ITransfers db, ISessionHelper sessionHelper, ISMIMCommon common) : BaseController
   {
     private readonly ITransfers _db = db;
     private readonly ILog _logger = LogManager.GetLogger(typeof(MachineRequestController));
     private readonly ISessionHelper _iSessionHelper = sessionHelper;
+    private readonly ISMIMCommon _common = common;
+
 
     public async Task<IActionResult> Index()
     {
@@ -33,7 +35,7 @@ namespace TMIS.Areas.SMIS.Controllers
       {
         oMcData = await _db.GetMachineData(Id),
         LocationList = await _db.GetLocationsList(),
-        UnitsList = await _db.GetUnitsList()
+        UnitsList = await _common.GetUnitsList()
       };
 
       if (oDetails.oMcData == null)
@@ -51,7 +53,7 @@ namespace TMIS.Areas.SMIS.Controllers
       if (!ModelState.IsValid)
       {
         mcRequestDetailsVM.LocationList = await _db.GetLocationsList();
-        mcRequestDetailsVM.UnitsList = await _db.GetUnitsList();
+        mcRequestDetailsVM.UnitsList = await _common.GetUnitsList();
         return View("Details", mcRequestDetailsVM);
       }
 

@@ -4,17 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TMIS.Models.SMIS
+namespace TMIS.Models.SMIS.VM
 {
-    public class TransMC
+    public class MachineCertificateVM
     {
         public int Id { get; set; }
         public string QrCode { get; set; } = string.Empty;
         public string SerialNo { get; set; } = string.Empty;
         public string MachineType { get; set; } = string.Empty;
-        public string CurrentStatus { get; set; } = string.Empty;
-        public string CurrentUnit { get; set; } = string.Empty;
-        public string Location { get; set; } = string.Empty;
         public string Supplier { get; set; } = string.Empty;
     }
 }

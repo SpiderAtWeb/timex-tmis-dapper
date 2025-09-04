@@ -62,7 +62,7 @@
                                 </th>
                                 <th>
                                     Machine Type
-                                </th>
+                                </th>                              
                                 <th>
                                     Action
                                 </th>
@@ -75,7 +75,7 @@
                                     <td>@item.QrCode</td>
                                     <td>@item.SerialNo</td>
                                     <td>@item.MachineBrand</td>
-                                    <td>@item.MachineType</td>
+                                    <td>@item.MachineType</td>                                
                                     <td> <a class="btn btn-primary btn-sm" asp-controller="MachineAdd" asp-action="OwnedDetails" asp-route-id="@item.Id"><i class="ri-eye-fill"></i></a></td>
                                 </tr>
                             }
@@ -108,6 +108,9 @@
                                     Machine Type
                                 </th>
                                 <th>
+                                   Finance Approval
+                                </th>
+                                <th>
                                     Action
                                 </th>
                             </tr>
@@ -120,6 +123,21 @@
                                     <td>@item.SerialNo</td>
                                     <td>@DateTime.Parse(item.DateBorrow).ToString("yyyy-MM-dd")</td>
                                     <td>@item.MachineType</td>
+                                    <td>
+                                    @if (item.FinanceApprove == "Approved")
+                                    {
+                                        <span class="badge rounded-pill bg-success">Approved</span>
+                                    }
+                                    else if (item.FinanceApprove == "Rejected")
+                                    {
+
+                                        <span class="badge rounded-pill bg-danger">Approved</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge rounded-pill bg-warning">Pending</span>
+                                    }
+                                    </td>
                                     <td> <a class="btn btn-primary btn-sm" asp-controller="MachineAdd" asp-action="RentedDetails" asp-route-id="@item.Id"><i class="ri-eye-fill"></i></a></td>
 
                                 </tr>

@@ -7,10 +7,10 @@ using TMIS.DataAccess.PLMS.IRpository;
 namespace TMIS.Areas.PLMS.Controllers
 {
   [Area("PLMS")]
-  public class CustomerResponseController(ICommon common, IFeedback feedback, ISessionHelper sessionHelper) : BaseController
+  public class CustomerResponseController(IPLMSCommon common, IFeedback feedback, ISessionHelper sessionHelper) : BaseController
   {
     private readonly ILog _logger = LogManager.GetLogger(typeof(CustomerResponseController));
-    private readonly ICommon _common = common;
+    private readonly IPLMSCommon _common = common;
     private readonly IFeedback _feedback = feedback;
     private readonly ISessionHelper _iSessionHelper = sessionHelper;
 

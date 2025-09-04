@@ -1,12 +1,11 @@
 ﻿using Dapper;
 using Microsoft.AspNetCore.Http;
-using System.Data.Common;
 using System.Text;
-using System.Transactions;
 using TMIS.DataAccess.COMON.IRpository;
 using TMIS.DataAccess.SMIM.IRpository;
 using TMIS.Models.SMIS;
 using TMIS.Models.SMIS.VM;
+using TMIS.Utility;
 
 namespace TMIS.DataAccess.SMIM.Repository
 {
@@ -91,7 +90,7 @@ namespace TMIS.DataAccess.SMIM.Repository
         {
             var sql = @"
             SELECT Id, QrCode, SerialNo, MachineBrand, MachineType FROM SMIM_VwMcInventory WHERE IsOwned = 1 AND [CurrentStatus] NOT IN (9) AND CurrentUnitId IN @AccessPlants ORDER BY QrCode;
-            SELECT Id, QrCode, SerialNo, DateBorrow, MachineType FROM SMIM_VwMcInventory WHERE IsOwned = 0 AND [CurrentStatus] NOT IN (10) AND CurrentUnitId  IN @AccessPlants ORDER BY QrCode;";
+            SELECT Id, QrCode, SerialNo, DateBorrow, MachineType, FinanceApprove FROM SMIM_VwMcInventory WHERE IsOwned = 0 AND [CurrentStatus] NOT IN (10) AND CurrentUnitId  IN @AccessPlants ORDER BY QrCode;";
 
             using var multi = await _dbConnection.GetConnection().QueryMultipleAsync(sql, new { AccessPlants = _iSessionHelper.GetLocationList() });
             var mcOwned = await multi.ReadAsync<McOwned>();
@@ -304,7 +303,7 @@ namespace TMIS.DataAccess.SMIM.Repository
 
                 var rowsAffected = await connection.ExecuteAsync(updateQuery, new
                 {
-                    mcInventory.Id,                    
+                    mcInventory.Id,
                     SerialNo = mcInventory.SerialNo?.ToUpper(),
                     FarCode = mcInventory.FarCode?.ToUpper(),
                     mcInventory.DatePurchased,
@@ -368,24 +367,28 @@ namespace TMIS.DataAccess.SMIM.Repository
             }
         }
 
-        public async Task<bool> InsertRentMachineAsync(McInventory mcInventory, IFormFile? imageFront, IFormFile? imageBack)
+        public async Task<bool> InsertRentMachineAsync(McInventory mcInventory, IFormFile? imageFront, IFormFile? imageBack, IFormFile? dispatchNote, IFormFile? returnGatePass)
         {
             using var connection = _dbConnection.GetConnection();
             using var transaction = connection.BeginTransaction();
 
-
             const string query = @"
         INSERT INTO SMIM_TrInventory 
         (QrCode, SerialNo, IsOwned, DateBorrow, DateDue,  ServiceSeq,
-         MachineBrandId, MachineTypeId, LocationId, OwnedUnitId, CurrentUnitId, CurrentStatusId, MachineModelId, Cost, ImageFR, ImageBK, DateCreate , IsDelete, SupplierId, CostMethodId, Comments ) OUTPUT INSERTED.Id
+         MachineBrandId, MachineTypeId, LocationId, OwnedUnitId, CurrentUnitId, CurrentStatusId, MachineModelId, Cost, ImageFR, ImageBK, DateCreate , IsDelete, SupplierId, CostMethodId, Comments, DispatchImageAv, DispatchImage, ReturnGPImageAv, ReturnGPImage ) OUTPUT INSERTED.Id
         VALUES 
         (@QrCode, @SerialNo, 0 , @DateBorrow, @DateDue, @ServiceSeq,
-         @MachineBrandId, @MachineTypeId, @LocationId, @OwnedUnitId, @OwnedUnitId, 1 , @MachineModelId, @Cost, @ImageFR, @ImageBK, @NowDT, 0, @SupplierId, @CostMethodId, @Comments )";
+         @MachineBrandId, @MachineTypeId, @LocationId, @OwnedUnitId, @OwnedUnitId, 1 , @MachineModelId, @Cost, @ImageFR, @ImageBK, @NowDT, 0, @SupplierId, @CostMethodId, @Comments, @DispatchImageAv, @DispatchImage, @ReturnGPImageAv, @ReturnGPImage )";
 
             try
             {
                 byte[]? imageFrontBytes = null;
                 byte[]? imageBackBytes = null;
+
+                byte[]? dispatchNoteBytes = null;
+                byte[]? returnGatePassBytes = null;
+
+                string docTypes =string.Empty; // Dispatch Note
 
                 if (imageFront != null && imageFront.Length > 0)
                 {
@@ -403,6 +406,18 @@ namespace TMIS.DataAccess.SMIM.Repository
                         await imageBack.CopyToAsync(memoryStream);
                         imageBackBytes = memoryStream.ToArray();
                     }
+                }
+
+                if (dispatchNote != null && dispatchNote.Length > 0)
+                {
+                    dispatchNoteBytes = await PdfMaster.ImageToPdfAsync(dispatchNote);
+                    docTypes += "-DISPATCH NOTE";
+                }
+
+                if (returnGatePass != null && returnGatePass.Length > 0)
+                {
+                    returnGatePassBytes = await PdfMaster.ImageToPdfAsync(returnGatePass);
+                    docTypes += "-RETURN GATE PASS";
                 }
 
                 string referenceNumber = await _userControls.GenerateSeqRefAsync(connection, transaction, "[SMIM_XysGenerateNumber]", "TSM");
@@ -425,17 +440,20 @@ namespace TMIS.DataAccess.SMIM.Repository
                     mcInventory.Comments,
                     ImageFR = imageFrontBytes,
                     ImageBK = imageBackBytes,
-                    NowDT = DateTime.Now
+                    NowDT = DateTime.Now,
+                    DispatchImageAv = dispatchNoteBytes != null && dispatchNoteBytes.Length > 0 ? 1 : 0,
+                    DispatchImage = dispatchNoteBytes,
+                    ReturnGPImageAv = returnGatePassBytes != null && returnGatePassBytes.Length > 0 ? 1 : 0,
+                    ReturnGPImage = returnGatePassBytes
                 }, transaction);
 
                 Logdb logdb = new()
                 {
                     TrObjectId = insertedId.Value,
-                    TrLog = "MACHINE RECORD CREATED"
+                    TrLog = "RENT MACHINE RECORD CREATED "+ docTypes
                 };
 
                 _iSMIMLogdb.InsertLog(connection, logdb, transaction);
-
 
                 transaction.Commit();
                 return insertedId > 0;
@@ -446,6 +464,8 @@ namespace TMIS.DataAccess.SMIM.Repository
                 return false;
             }
         }
+
+
 
         public async Task<McInventory?> GetRentMcInventoryByIdAsync(int? id)
         {
@@ -609,9 +629,21 @@ namespace TMIS.DataAccess.SMIM.Repository
         {
             const string query = @"
             SELECT Id, QrCode, SerialNo, FarCode, DateBorrow, DateDue, ServiceSeq, MachineBrand, MachineType, Location, OwnedUnit, CurrentUnit, MachineModel, Cost, ImageFR, ImageBK, Status, Supplier, CostMethod, Comments,
-            LastScanDateTime FROM SMIM_VwMcInventory WHERE Id = @Id AND IsDelete = 0";
+            LastScanDateTime, DispatchImageAv, ReturnGPImageAv FROM SMIM_VwMcInventory WHERE Id = @Id AND IsDelete = 0";
 
             return await _dbConnection.GetConnection().QuerySingleOrDefaultAsync<MachineRentedVM>(query, new { Id = id });
+        }
+
+        public async Task<byte[]?> GetPdfByIdAsync(int id, int docType)
+        {
+            string query = @"SELECT DispatchImage FROM SMIM_VwMcInventory WHERE Id = @Id";
+
+            if (docType == 2) // Return Gate Pass
+               query = @"SELECT ReturnGPImage FROM SMIM_VwMcInventory WHERE Id = @Id";
+
+            using var conn = _dbConnection.GetConnection(); // your IDbConnection
+            var result = await conn.QuerySingleOrDefaultAsync<byte[]>(query, new { Id = id });
+            return result;
         }
 
 

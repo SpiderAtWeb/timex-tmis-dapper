@@ -1,5 +1,6 @@
 using log4net;
 using Microsoft.AspNetCore.Mvc;
+using NuGet.Protocol.Core.Types;
 using TMIS.Controllers;
 using TMIS.DataAccess.COMON.IRpository;
 using TMIS.DataAccess.SMIM.IRpository;
@@ -86,14 +87,14 @@ namespace TMIS.Areas.SMIS.Controllers
     }
 
     [HttpPost]
-    public async Task<IActionResult> RentedCreate(McCreatedRnVM mcCreatedRnVM, IFormFile? imageFR, IFormFile? imageBK)
+    public async Task<IActionResult> RentedCreate(McCreatedRnVM mcCreatedRnVM, IFormFile? imageFR, IFormFile? imageBK, IFormFile? dispatchNote, IFormFile? returnGatePass)
     {
       // Load the necessary lists before validation
       await _db.LoadRentedMachineListsAsync(mcCreatedRnVM);
       mcCreatedRnVM.SupplierList = await _userControls.LoadDropDownsAsync("SMIM_MasterTwoRentSuppliers");
       mcCreatedRnVM.CostMethodsList = await _userControls.LoadDropDownsAsync("SMIM_MasterTwoCostDuration");
 
-      MachineValidator.ValidateRentedMachine(mcCreatedRnVM, ModelState);     
+      MachineValidator.ValidateRentedMachine(mcCreatedRnVM, ModelState);
 
       if (await _db.CheckSnAlreadyAvailable(mcCreatedRnVM.McInventory!.SerialNo))
       {
@@ -108,12 +109,20 @@ namespace TMIS.Areas.SMIS.Controllers
         return View(mcCreatedRnVM);
       }
 
-      await _db.InsertRentMachineAsync(mcCreatedRnVM.McInventory, imageFR, imageBK);
+      var result = await _db.InsertRentMachineAsync(mcCreatedRnVM.McInventory, imageFR, imageBK, dispatchNote, returnGatePass);
 
-      TempData["success"] = "Record Created Successfully";
-      _logger.Info("[" + _iSessionHelper.GetShortName() + "] - RENTED MC CREATED [" + mcCreatedRnVM.McInventory.SerialNo + "]");
+      if (result)
+      {
+        TempData["success"] = "Record Created Successfully";
+        _logger.Info("[" + _iSessionHelper.GetShortName() + "] - RENTED MC CREATED [" + mcCreatedRnVM.McInventory.SerialNo + "]");
 
-      return RedirectToAction("Index");
+        return RedirectToAction("Index");
+      }
+      else
+      {
+        ModelState.AddModelError(string.Empty, "An error occurred while creating the record. Please try again.");
+        return View(mcCreatedRnVM);
+      }
     }
 
     public async Task<IActionResult> RentedDetails(int id)
@@ -126,5 +135,15 @@ namespace TMIS.Areas.SMIS.Controllers
       }
       return View(oMachine);
     }
+
+    public async Task<IActionResult> GetPdf(int id, int docType)
+    {
+      var doc = await _db.GetPdfByIdAsync(id, docType); // using Dapper
+      if (doc == null)
+        return NotFound();
+
+      return File(doc, "application/pdf");
+    }
+
   }
 }

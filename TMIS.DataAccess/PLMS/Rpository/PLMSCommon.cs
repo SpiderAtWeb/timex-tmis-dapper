@@ -7,7 +7,7 @@ using TMIS.Models.PLMS;
 
 namespace TMIS.DataAccess.PLMS.Rpository
 {
-    public class Common(IDatabaseConnectionSys dbConnection, IUserControls userControls, ISessionHelper sessionHelper) : ICommon
+    public class PLMSCommon(IDatabaseConnectionSys dbConnection, IUserControls userControls, ISessionHelper sessionHelper) : IPLMSCommon
     {
         private readonly IDatabaseConnectionSys _dbConnection = dbConnection;
         private readonly IUserControls _userControls = userControls;

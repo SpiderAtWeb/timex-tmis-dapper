@@ -12,6 +12,8 @@ $(document).ready(function () {
     "info": true,
     "autoWidth": false,
     columnDefs: [
+      { className: "text-center", targets: "_all" },
+
       {
         // Label
         targets: 3,

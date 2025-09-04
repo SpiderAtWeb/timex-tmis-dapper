@@ -19,7 +19,7 @@ namespace TMIS.DataAccess.PLMS.Rpository
 
         public async Task<IEnumerable<ShowInquiryDataVM>> GetInquiriesUserIdAsync()
         {
-            string sql = @"SELECT Id, CONCAT(InquiryRef, '-', [CycleNo]) AS InquiryRef, [StyleNo], [StyleDesc], [ColorCode], 
+            string sql = @"SELECT DISTINCT Id, CONCAT(InquiryRef, '-', [CycleNo]) AS InquiryRef, [StyleNo], [StyleDesc], [ColorCode], 
                           [InquiryType], [Customer], [SeasonName], [SampleType], [ArtWork], [Remarks]
                    FROM PLMS_VwInquiryListPendingUserId WHERE [UserId] = @Id";
 

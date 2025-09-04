@@ -64,6 +64,15 @@ namespace TMIS.Helper
         modelState.AddModelError("McInventory.DateBorrow", "Borrow Date Should be a Current or Past Date.");
       }
 
+      if (mcCreatedRnVM.McInventory.DateDue == null)
+      {
+        modelState.AddModelError("McInventory.DateDue", "Due Date is Required.");
+      }
+      else if (mcCreatedRnVM.McInventory.DateDue < DateTime.Now)
+      {
+        modelState.AddModelError("McInventory.DateDue", "Due Date Not be a Current or Past Date.");
+      }
+
       // Cost Validation
       if (mcCreatedRnVM.McInventory.Cost <= 0)
       {

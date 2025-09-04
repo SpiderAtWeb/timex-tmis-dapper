@@ -9,7 +9,9 @@ $(document).ready(function () {
     "autoWidth": true,
     "scrollX": true, // Enables horizontal scrolling
     "columnDefs": [
+      { className: "text-center", targets: "_all" },
       {
+
         // Change '0' to your target column index
         "targets": 0,
         "render": function (data, type, row) {

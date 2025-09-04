@@ -32,5 +32,9 @@ namespace TMIS.Models.SMIS.VM
         public string RentTerminationDate { get; set; } = string.Empty;
         public string LastScanDateTime { get; set; } = string.Empty;
 
+        public bool ReturnGPImageAv { get; set; }
+        public bool DispatchImageAv { get; set; }
+
+        public string FinanceRemarks { get; set; } = string.Empty;
     }
 }

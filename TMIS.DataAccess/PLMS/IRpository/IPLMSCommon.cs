@@ -2,7 +2,7 @@
 
 namespace TMIS.DataAccess.PLMS.IRpository
 {
-    public interface ICommon
+    public interface IPLMSCommon
     {
         Task<IEnumerable<ShowInquiryDataVM>> GetInquiriesAsync();      
 

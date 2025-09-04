@@ -81,7 +81,7 @@
 
                     <!-- Forms -->
                     <li class='menu-item@(currentPage.Contains("/SMIS/MachineAdd") ||
-                                                                                                                                                                                                                                                                                                                                                          currentPage.Contains("/SMIS/MachineRequest") ? " active open" : "")'>
+                                          currentPage.Contains("/SMIS/MachineRequest") ? " active open" : "")'>
                     <a href="javascript:void(0)" class="menu-link menu-toggle">
                         <i class="menu-icon fa-regular fa-hard-drive"></i>
                         <div>Inventory</div>
@@ -96,9 +96,38 @@
                             <a asp-area="SMIS" asp-controller="MachineRequest" asp-action="Index" class="menu-link">
                                 <div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span> Machine Requests</div>
                             </a>
-                        </li>
+                        </li>                       
                     </ul>
                 </li>
+
+                    <li class="menu-header">
+                        <span class="menu-header-text">Master Data</span>
+                    </li>
+                    <!-- Forms -->
+                    <li class='menu-item@(currentPage.StartsWith("/SMIS/Renting") ? " active open" : "")'>
+                        <a href="javascript:void(0);" class="menu-link menu-toggle">
+                            <i class="menu-icon fa-solid fa-handshake"></i>
+                            <div>Renting</div>
+                        </a>
+                        <ul class="menu-sub">
+                            <li class='menu-item@(currentPage == "/SMIS/Renting/Approval" ? " active" : "")'>
+                                <a asp-area="SMIS" asp-controller="Renting" asp-action="Approval" class="menu-link">
+                                    <div> <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Rent Approval</div>
+                                </a>
+                            </li>
+                            <li class='menu-item@(currentPage == "/SMIS/Renting/Payments" ? " active" : "")'>
+                                <a asp-area="SMIS" asp-controller="Renting" asp-action="Payments" class="menu-link">
+                                    <div> <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Send to Payment</div>
+                                </a>
+                            </li>
+                            <li class='menu-item@(currentPage == "/SMIS/Renting/Ready" ? " active" : "")'>
+                                <a asp-area="SMIS" asp-controller="Renting" asp-action="Ready" class="menu-link">
+                                    <div> <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Payments Ready</div>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
 
                     <li class='menu-item@(currentPage.Contains("/SMIS/ApprovalRequest") ||
                                                             currentPage.Contains("/SMIS/MachineEdit") ||

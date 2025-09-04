@@ -23,7 +23,7 @@ namespace TMIS.DataAccess.SMIM.Repository
 
         public async Task<byte[]> GetQrCodesPrint(List<string> qrCodes)
         {
-            List<GenerateQR.TripleValuePair<string, string, string>> oQrCodes = [.. qrCodes
+            List<PdfMaster.TripleValuePair<string, string, string>> oQrCodes = [.. qrCodes
             .Select(r =>
             {
                 var match = Regex.Match(r, @"^(.*?)\s*-\s*\[\s*(.*?)\s*\]\s*(.*)$");
@@ -34,15 +34,15 @@ namespace TMIS.DataAccess.SMIM.Repository
                     string status = match.Groups[3].Value.Trim();
 
 
-                    return new GenerateQR.TripleValuePair<string, string, string>(qrCode, serial, status);
+                    return new PdfMaster.TripleValuePair<string, string, string>(qrCode, serial, status);
                 }
                 else
                 {
-                    return new GenerateQR.TripleValuePair<string, string, string>(r, "", ""); // fallback if format unexpected
+                    return new PdfMaster.TripleValuePair<string, string, string>(r, "", ""); // fallback if format unexpected
                 }
             })];
 
-            return await GenerateQR.GenerateQRCodeAsync(oQrCodes);
+            return await PdfMaster.GenerateQRCodeAsync(oQrCodes);
         }
     }
 }

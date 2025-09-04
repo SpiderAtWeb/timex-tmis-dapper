@@ -470,7 +470,7 @@
                 </div>
             </div>
             <div class="col-3">
-                <input class="form-control" type="file" id="artwork" name="artwork" accept=".jpg, .jpeg, .png">
+                <input class="form-control" type="file" id="artwork" name="artwork" accept=".jpg, .jpeg, image/jpeg">
                 @if (ViewData.ModelState["artwork"]?.Errors.Count > 0)
                 {
                     <span class="text-danger">@ViewData.ModelState["artwork"]!.Errors[0].ErrorMessage</span>

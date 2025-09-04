@@ -159,6 +159,17 @@
                 </div>
             </div>
         </div>
+        <h6>Documents</h6>
+        <div class="row g-1 mb-3">
+            <div class="col-3">
+                <input class="form-control" type="file" name="dispatchNote" accept=".jpg">
+                <label for="dispatchNote" class="form-label">Dispatch Note</label>
+            </div>
+            <div class="col-3">
+                <input class="form-control" type="file" name="returnGatePass" accept=".jpg">
+                <label for="returnGatePass" class="form-label">Return Gate pass</label>
+            </div>
+        </div>
         <div class="pt-1">
             <a asp-controller="MachineAdd" asp-action="Index" class="btn btn-outline-secondary">Back to List</a>
             <button type="submit" class="btn btn-primary me-4">Submit</button>

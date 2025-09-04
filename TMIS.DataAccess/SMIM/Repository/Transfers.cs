@@ -58,18 +58,6 @@ namespace TMIS.DataAccess.SMIM.Repository
             });
         }
 
-        public async Task<IEnumerable<SelectListItem>> GetUnitsList()
-        {
-            var query = "SELECT Id, PropName FROM COMN_VwTwoCompLocs WHERE IsDelete = 0 AND Id IN @AccessPlants ORDER BY PropName";
-
-            var units = await _dbConnection.GetConnection().QueryAsync(query, new { AccessPlants = _iSessionHelper.GetLocationList() });
-            return units.Select(unit => new SelectListItem
-            {
-                Value = unit.Id.ToString(),
-                Text = unit.PropName
-            });
-        }
-
         public async Task SaveMachineTransferAsync(McRequestDetailsVM oModel)
         {
             string insertQuery = @"

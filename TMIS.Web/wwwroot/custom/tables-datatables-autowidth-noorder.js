@@ -8,6 +8,8 @@ $(document).ready(function () {
     "info": true,
     "autoWidth": false,
     "columnDefs": [
+      { className: "text-center", targets: "_all" },
+
       {
         // Change '0' to your target column index
         "targets": 0,

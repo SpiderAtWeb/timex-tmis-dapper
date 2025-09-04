@@ -1,0 +1,63 @@
+@model WorkCompCertificate
+
+
+<div class="card mb-6">
+    <h5 class="card-header page-header">Pending Approval - Rented Sewing Machine Details</h5>
+    <div class="row g-4 card-body">
+
+        <div class="row g-1 mt-3">
+       
+@*             <div class="col-3">
+                <div class="form-floating form-floating-outline">
+                    <select asp-for="@Model.McInventory!.OwnedUnitId" asp-items="@Model.OwnedUnitList" class="select2 form-select" data-allow-clear="true">
+                        <option Disabled Selected>- Select Unit -</option>
+                    </select>
+                    <label for="multicol-country">Unit</label>
+                    <span asp-validation-for="McInventory!.OwnedUnitId" class="text-warning"></span>
+                </div>
+            </div>
+            <div class="col-3">
+                <div class="form-floating form-floating-outline">
+                    <input asp-for="SupplierName" type="text" id="qrCode" class="form-control" />
+                    <label for="qrCode">Supplier Name</label>
+                </div>
+            </div>
+            <div class="col-3">
+                <div class="form-floating form-floating-outline">
+                    <input asp-for="SupplierName" type="text" id="qrCode" class="form-control" />
+                    <label for="qrCode">Supplier Name</label>
+                </div>
+            </div> *@
+          
+        </div>
+
+
+        <form asp-action="UpdateStatus" method="post">
+            <div class="row g-1 mt-2">
+                <h6>Finance Remarks</h6>
+                <div class="col-6">
+                    <div class="form-floating form-floating-outline">
+                        <input type="text" name="Remarks" class="form-control" />
+                        <label for="Remarks">Remarks</label>
+                    </div>
+                </div>
+
+                <div class="col-4 row">
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <div class="pt-1 col-6">
+                        <button type="submit" name="action" value="approve" class="btn btn-success w-100 h-100"><i class="ri-check-line"></i>&nbsp;Approve</button>
+                    </div>
+                    <div class="pt-1 col-6">
+                        <button type="submit" name="action" value="reject" class="btn btn-danger w-100 h-100"><i class="ri-close-fill"></i>&nbsp;Reject</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+
+        <div class="pt-1">
+            <a asp-controller="Renting" asp-action="Approval" class="btn btn-outline-secondary">Back to List</a>
+        </div>
+    </div>
+</div>
+

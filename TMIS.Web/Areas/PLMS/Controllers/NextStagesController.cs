@@ -9,10 +9,10 @@ using TMIS.Models.PLMS;
 namespace TMIS.Areas.PLMS.Controllers
 {
   [Area("PLMS")]
-  public class NextStagesController(ICommon common, INextStages nextStages, ISessionHelper sessionHelper) : BaseController
+  public class NextStagesController(IPLMSCommon common, INextStages nextStages, ISessionHelper sessionHelper) : BaseController
   {
     private readonly ILog _logger = LogManager.GetLogger(typeof(NextStagesController));
-    private readonly ICommon _common = common;
+    private readonly IPLMSCommon _common = common;
     private readonly INextStages _nextStages = nextStages;
     private readonly ISessionHelper _iSessionHelper = sessionHelper;
 
