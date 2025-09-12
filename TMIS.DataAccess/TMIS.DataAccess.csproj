@@ -23,8 +23,4 @@
     <ProjectReference Include="..\TMIS.Utility\TMIS.Utility.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="TPMS\" />
-  </ItemGroup>
-
 </Project>
