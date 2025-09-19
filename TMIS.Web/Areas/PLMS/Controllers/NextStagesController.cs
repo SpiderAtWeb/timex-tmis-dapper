@@ -3,8 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using TMIS.Controllers;
 using TMIS.DataAccess.COMON.IRpository;
 using TMIS.DataAccess.PLMS.IRpository;
-using TMIS.DataAccess.PLMS.Rpository;
-using TMIS.Models.PLMS;
 
 namespace TMIS.Areas.PLMS.Controllers
 {
@@ -29,7 +27,7 @@ namespace TMIS.Areas.PLMS.Controllers
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateNext(Models.PLMS.NewInquiryVM inquiryVM, IFormFile? artwork)
+    public async Task<IActionResult> CreateNext(Models.PLMS.NextStageInquiryVM inquiryVM, IFormFile? artwork)
     {
       var result = await _nextStages.SaveNextInquiryAsync(inquiryVM, artwork);
       TempData["success"] = result;

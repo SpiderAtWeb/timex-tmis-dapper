@@ -1,0 +1,230 @@
+@model WorkCompCertificateVM
+
+@section PageStyles {
+
+    <style>
+        .certificate-header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .company-logo {
+            width: 60px;
+            height: 60px;
+            background: #34495e;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .table-bordered th, .table-bordered td {
+            border: 1px solid #dee2e6 !important;
+            padding: 8px !important;
+            font-size: 11px;
+        }
+
+        .signature-section {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        .amount-summary {
+            background: linear-gradient(to right, #e8f4fd, #f8f9fa);
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #3498db;
+        }
+
+        .footer-info {
+            font-size: 10px;
+            color: #6c757d;
+            border-top: 1px solid #dee2e6;
+            padding-top: 10px;
+            margin-top: 20px;
+        }
+
+        .qr-placeholder {
+            width: 40px;
+            height: 40px;
+            background: #f1f1f1;
+            border: 1px dashed #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8px;
+            color: #666;
+        }
+    </style>
+
+}
+
+<div class="container-fluid" style="max-width: 1000px;">
+    <!-- Header Section -->
+    <div class="certificate-header mb-2">
+        <div class="row align-items-center">
+            <h4 class="mb-0 fw-bold text-start"> <strong>INVOICE #: </strong>@Model.InvoiceNo</h4>
+        </div>
+    </div>
+
+    <!-- Company and Invoice Details -->
+    <div class="card mb-5">
+        <div class="card-body p-0">
+            <table class="table table-bordered mb-0">
+                <tbody>
+                    <tr>
+                        <td class="fw-bold bg-light" style="width: 20%;">Unit / Plant:</td>
+                        <td style="width: 30%;" id="unit">@Model.Unit</td>
+                        <td class="fw-bold bg-light" style="width: 20%;">Generated Date:</td>
+                        <td style="width: 30%;" id="generatedDate">@Model.RaisedDate</td>
+                    </tr>
+                    <tr>
+                        <td class="fw-bold bg-light">Supplier Name:</td>
+                        <td colspan="3" id="supplierName">@Model.Supplier</td>
+                    </tr>
+                    <tr>
+                        <td class="fw-bold bg-light">Invoice Date From:</td>
+                        <td id="invoiceFromDate">@Model.InvoiceFromDate</td>
+                        <td class="fw-bold bg-light">Invoice Date To:</td>
+                        <td id="invoiceToDate">@Model.InvoiceToDate</td>
+                    </tr>
+                    <tr>
+                        <td class="fw-bold bg-light">Remarks:</td>
+                        <td colspan="3" id="remarks">@Model.CertificateRemarks</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Items Table Header -->
+    <table class="table table-bordered">
+        <thead class="bg-dark-custom">
+            <tr>
+                <th style="width: 12%;">QR Code</th>
+                <th style="width: 12%;">Serial #</th>
+                <th style="width: 20%;">Machine Type</th>
+                <th style="width: 20%;">Cost Type</th>
+                <th style="width: 18%;">Day Cost (Rs.)</th>
+                <th style="width: 18%;">Cost (Rs.)</th>
+            </tr>
+        </thead>
+        <tbody id="itemsTableBody">
+            @foreach (var item in Model.WorkCompCertMcList)
+            {
+                <tr>
+                    <td class="text-center">
+                        <div class="text-center">@item.QrCode</div>
+                    </td>
+                    <td class="text-center">@item.SerialNo</td>
+                    <td class="text-center"><small>@item.MachineType</small></td>
+                    <td class="text-center"><small>@item.CostDisplay</small></td>
+                    <td class="text-center">@item.PerDayCost * @Model.DaysCount</td>
+                    <td class="text-end">@(@item.PerDayCost* @Model.DaysCount)</td>
+                </tr>
+            }
+
+        </tbody>
+    </table>
+
+    <!-- Amount Summary Section -->
+    <div class="row mb-5">
+        <div class="col-6">
+        </div>
+        <div class="col-6">
+            <div class="amount-summary">
+                <table class="table table-borderless mb-0">
+                    <tr>
+                        <td class="fw-bold">System Sum:</td>
+                        <td class="text-end" id="systemSum">Rs. @Model.SystemCalculatedSum</td>
+                    </tr>
+                    <tr>
+                        <td class="fw-bold bg-primary text-white">Invoice Contract Sum:</td>
+                        <td class="text-end bg-primary text-white" id="contractSum">Rs. @Model.VendorContractSum</td>
+                    </tr>
+                    <tr>
+                        <td class="fw-bold bg-primary text-white">Invoice Advance Payments:</td>
+                        <td class="text-end bg-primary text-white" id="advancePayments">Rs. @Model.VendorAdvancePayment</td>
+                    </tr>
+                    <tr>
+                        <td class="fw-bold bg-primary text-white">Invoice Total Amount:</td>
+                        <td class="text-end bg-primary text-white fw-bold" id="totalAmount">Rs. @Model.VendorTotalAmount</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Approval Section -->
+    <div class="signature-section">
+        <table class="table table-bordered">
+            <thead>
+                <tr class="bg-light">
+                    <th style="width: 25%;">Approval Level</th>
+                    <th style="width: 35%;">Name</th>
+                    <th style="width: 20%;">Status</th>
+                    <th style="width: 20%;">Responded On</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="fw-bold">Checked By<br><small>(Factory Accountant)</small></td>
+                    <td id="level2By">@Model.ApproveLevel2By</td>
+                    <td class="text-center" id="level2Status">@Model.AppLevelStat2</td>
+                    <td class="text-center" id="level2Date">@Model.AppLevelStat2On</td>
+                </tr>
+                <tr>
+                    <td class="fw-bold">Recommended By<br><small>(General Manager)</small></td>
+                    <td id="level3By">@Model.ApproveLevel3By</td>
+                    <td class="text-center" id="level3Status">@Model.AppLevelStat3</td>
+                    <td class="text-center" id="level3Date">@Model.AppLevelStat3On</td>
+                </tr>
+                <tr>
+                    <td class="fw-bold">Recommended By<br><small>(General Manager)</small></td>
+                    <td id="level4By">@Model.ApproveLevel4By</td>
+                    <td class="text-center" id="level4Status">@Model.AppLevelStat4</td>
+                    <td class="text-center" id="level4Date">@Model.AppLevelStat4On</td>
+                </tr>
+                <tr>
+                    <td class="fw-bold">Approved By<br><small>(CAO)</small></td>
+                    <td id="level5By">@Model.ApproveLevel5By</td>
+                    <td class="text-center" id="level5Status">@Model.AppLevelStat5</td>
+                    <td class="text-center" id="level5Date">@Model.AppLevelStat5On</td>
+                </tr>
+                <tr>
+                    <td class="fw-bold">Approved By<br><small>(Director)</small></td>
+                    <td id="level6By">@Model.ApproveLevel6By</td>
+                    <td class="text-center" id="level6Status">@Model.AppLevelStat6</td>
+                    <td class="text-center" id="level6Date">@Model.AppLevelStat6On</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Print Button -->
+    <div class="text-center mt-3 no-print">
+        @if (!Model.TaskStart)
+        {
+            <button class="btn btn-primary btn-start-approval" data-id="@Model.Id">
+                <i class="fas fa-paper-plane"></i> &nbsp; Start Email Approval
+            </button>
+        }
+
+        <button class="btn btn-success btn-cert-approval" data-id="@Model.Id">
+            <i class="fas fa-file-pdf"></i> &nbsp; Download Certificate
+        </button>
+
+        <button class="btn btn-success btn-invo-approval" data-id="@Model.Id">
+            <i class="fas fa-file-pdf"></i> &nbsp; Download Supplier Invoice
+        </button>
+    </div>
+</div>
+

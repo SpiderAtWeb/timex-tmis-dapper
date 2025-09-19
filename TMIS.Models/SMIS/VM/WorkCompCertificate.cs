@@ -1,29 +1,31 @@
-﻿namespace TMIS.Models.SMIS.VM
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+
+namespace TMIS.Models.SMIS.VM
 {
     public class WorkCompCertificate
     {
-        public int Id { get; set; }
-        public string InvoiceNumber { get; set; } = string.Empty;
+        //Collect
+       
+        public IEnumerable<SelectListItem>? UnitsList { get; set; }
+        public int UnitId { get; set; }
+        public int ApprovalCatId { get; set; }
+        public IEnumerable<SelectListItem>? ApprovalCat { get; set; }
+        public IEnumerable<SelectListItem>? SupplierList { get; set; }
         public int SupplierId { get; set; }
-        public string SupplierName { get; set; } = string.Empty;
-        public string PaymentDate { get; set; } = string.Empty;
-
-        public string DeductionOfWork { get; set; } = string.Empty;
-        public string DaysCount { get; set; } = string.Empty;
-
-        public string SysTotContaractSum { get; set; } = string.Empty;
-
-        public string InvTotContractSum { get; set; } = string.Empty;
+        public string FromDate { get; set; } = string.Empty;
+        public string ToDate { get; set; } = string.Empty;
+        public string InvContractSum { get; set; } = string.Empty;
         public string InvAdvancePayment { get; set; } = string.Empty;
-        public string InvDeductPayment { get; set; } = string.Empty;
         public string InvTotalAmountPay { get; set; } = string.Empty;
-
-        public string AmountInWords { get; set; } = string.Empty;
         public string Remarks { get; set; } = string.Empty;
-
-        public ApprovalOrgTemaplete ApprovalOrg { get; set; } = new ApprovalOrgTemaplete();
-
         public List<WorkCompCertMc> WorkCompCertMcList { get; set; } = [];
+
+        public int FactoryAcctId { get; set; }
+        public int GeneralMgrId { get; set; }
+        public int GroupEngId { get; set; }
+        public int AppLevel1Id { get; set; }
+        public int AppLevel2Id { get; set; }        
+
     }
 
 

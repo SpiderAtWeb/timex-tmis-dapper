@@ -86,7 +86,7 @@ builder.Services.AddScoped<ITerminationRent, TerminationRent>();
 builder.Services.AddScoped<ISMIMLogdb, SMIMLogdb>();
 builder.Services.AddScoped<IPrintQR, PrintQR>();
 builder.Services.AddScoped<IRenting, Renting>();
-
+builder.Services.AddScoped<ISMApprovalService, SMApprovalService>();
 
 //PLMS
 builder.Services.AddScoped<IPLMSCommon, PLMSCommon>();

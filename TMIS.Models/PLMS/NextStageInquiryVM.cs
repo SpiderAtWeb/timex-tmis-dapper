@@ -13,7 +13,8 @@ namespace TMIS.Models.PLMS
         public IEnumerable<SelectListItem>? InquiryTypesList { get; set; }
         public IEnumerable<SelectListItem>? ResponseTypesList { get; set; }
         public IEnumerable<SelectListItem>? SampleTypesList { get; set; }
-        public IEnumerable<SelectListItem>? SampleStagesList { get; set; }
+        public IEnumerable<SelectListItem>? SampleStagesList { get; set; }        
+        public IEnumerable<SelectListItem>? RoutingPresetsList { get; set; }
 
         public List<ActivityVM>? ActivityList { get; set; }
 

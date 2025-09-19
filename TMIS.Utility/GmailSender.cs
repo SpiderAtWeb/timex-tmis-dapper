@@ -1,11 +1,7 @@
-﻿using iTextSharp.text;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Org.BouncyCastle.Ocsp;
-using System;
 using System.Net;
 using System.Net.Mail;
-using System.Text;
 using TMIS.Models.HRRS;
 
 namespace TMIS.Utility
@@ -74,7 +70,7 @@ namespace TMIS.Utility
             string qrCode = myArray[1].ToString();
 
             string subject = "Machine Request To Approve " + "[" + qrCode + "] (TMIS)";
-           
+
             string serialNo = myArray[2].ToString();
             string mcModel = myArray[3].ToString();
             string mcBrand = myArray[4].ToString();
@@ -304,7 +300,7 @@ namespace TMIS.Utility
             var headerD = new List<(string, string, string, string)>();
 
             headerD.Add((myArray[8], myArray[9], myArray[10], myArray[11]));
-                
+
 
             string emailBody = EMailFormatRead.GetApprovalThreeColumnsITISEmailBody(mainComps, headerRowsH, headerD);
 
@@ -374,15 +370,15 @@ namespace TMIS.Utility
             string baseUrl = _configuration["BaseUrl"] ?? "https://localhost:44383"; // Configure this in appsettings.json         
             var encryptedCode = SecurityBox.EncryptString(hRRS_ITRequest.RequestID.ToString());
 
-            string subjectText = $"IT Request For Approval (TMIS) - Req# : " + hRRS_ITRequest.RequestID;            
+            string subjectText = $"IT Request For Approval (TMIS) - Req# : " + hRRS_ITRequest.RequestID;
 
             var mainComps = new Dictionary<string, string?>
             {
-                { "MailHeading", "IT Request For Approval" },                
+                { "MailHeading", "IT Request For Approval" },
                 { "TableHeading", "Request Details" },
                 { "EmployeeNo", hRRS_ITRequest.EmployeeNo},
                 { "FirstName", hRRS_ITRequest.FirstName},
-                { "LastName", hRRS_ITRequest.LastName},                
+                { "LastName", hRRS_ITRequest.LastName},
                 { "Designation" , hRRS_ITRequest.Designation},
                 { "Department" , hRRS_ITRequest.Department},
                 { "DueStartDate", hRRS_ITRequest.DueStartDate?.ToString("yyyy-MM-dd")},
@@ -402,14 +398,14 @@ namespace TMIS.Utility
                 { "SmartPhone" , hRRS_ITRequest.SmartPhone? "Yes" : "No"},
                 { "HomeAddress" , string.IsNullOrWhiteSpace(hRRS_ITRequest.HomeAddress) ? "-" : hRRS_ITRequest.HomeAddress},
                 { "EmailGroup" , string.IsNullOrWhiteSpace(hRRS_ITRequest.EmailGroup) ? "-" : hRRS_ITRequest.EmailGroup},
-                { "Computer" , hRRS_ITRequest.Computer},                
+                { "Computer" , hRRS_ITRequest.Computer},
                 { "MailDate", DateTime.Now.ToString("yyyy-MM-dd") },
                 { "MailTime", DateTime.Now.ToString("HH:mm:ss") },
                 { "approveUrl", $"{baseUrl}/api/endorse/itrequest-approve?requestID={encryptedCode}&action=approve" },
                 { "rejectUrl",  $"{baseUrl}/api/endorse/itrequest-approve?requestID={encryptedCode}&action=reject" }
             };
 
-                        
+
             string emailBody = EMailFormatRead.GetApprovalThreeColumnsHRRSEmailBody(mainComps!);
             string mailTo = _configuration["HRApprover"] ?? "admin@timexsl.com";
             string recipientEmailTo = mailTo;
@@ -423,15 +419,15 @@ namespace TMIS.Utility
             string baseUrl = _configuration["BaseUrl"] ?? "https://localhost:44383"; // Configure this in appsettings.json         
             var encryptedCode = SecurityBox.EncryptString(hRRS_ITRequest.RequestID.ToString());
 
-            string subjectText = $"IT Request (TMIS)_" + hRRS_ITRequest.FirstName + " " + hRRS_ITRequest.LastName + "_" + hRRS_ITRequest.EmployeeNo;            
+            string subjectText = $"IT Request (TMIS)_" + hRRS_ITRequest.FirstName + " " + hRRS_ITRequest.LastName + "_" + hRRS_ITRequest.EmployeeNo;
 
             var mainComps = new Dictionary<string, string?>
             {
-                { "MailHeading", "NEW IT Request" },                
+                { "MailHeading", "NEW IT Request" },
                 { "TableHeading", "Request Details" },
                 { "EmployeeNo", hRRS_ITRequest.EmployeeNo},
                 { "FirstName", hRRS_ITRequest.FirstName},
-                { "LastName", hRRS_ITRequest.LastName},                
+                { "LastName", hRRS_ITRequest.LastName},
                 { "Designation" , hRRS_ITRequest.Designation},
                 { "Department" , hRRS_ITRequest.Department},
                 { "DueStartDate", hRRS_ITRequest.DueStartDate?.ToString("yyyy-MM-dd")},
@@ -451,12 +447,12 @@ namespace TMIS.Utility
                 { "SmartPhone" , hRRS_ITRequest.SmartPhone? "Yes" : "No"},
                 { "HomeAddress" , string.IsNullOrWhiteSpace(hRRS_ITRequest.HomeAddress) ? "-" : hRRS_ITRequest.HomeAddress},
                 { "EmailGroup" , string.IsNullOrWhiteSpace(hRRS_ITRequest.EmailGroup) ? "-" : hRRS_ITRequest.EmailGroup},
-                { "Computer" , hRRS_ITRequest.Computer},                
+                { "Computer" , hRRS_ITRequest.Computer},
                 { "MailDate", DateTime.Now.ToString("yyyy-MM-dd") },
-                { "MailTime", DateTime.Now.ToString("HH:mm:ss") }             
+                { "MailTime", DateTime.Now.ToString("HH:mm:ss") }
             };
 
-                        
+
             string emailBody = EMailFormatRead.GetITRequestHRRSEmailBody(mainComps!);
             string mailTo = _configuration["ITUser"] ?? "admin@timexsl.com";
             string recipientEmailTo = mailTo;
@@ -519,5 +515,79 @@ namespace TMIS.Utility
             }
         }
         #endregion
+
+        //Gate Pass To Approve
+        public void SMInvoiceApproval(string ApproveById, string mailTo, int levelIndex,string[] myArray)
+        {
+            if (myArray.Length < 6)
+                throw new ArgumentException("Expected at least 6 header fields");
+            string baseUrl = _configuration["BaseUrl"] ?? "https://localhost:44383"; // Configure this in appsettings.json
+
+            string subjectText = $"Invoice Request For Approval [{myArray[1]}] (TMIS)";
+
+            var encryptedGpCode = SecurityBox.EncryptString(myArray[0] + "|" + ApproveById + "|" + levelIndex);
+
+            var endPlaceholders = new Dictionary<string, string>
+            {
+                {"MailDate", DateTime.Now.ToString("yyyy-MM-dd")},
+                {"MailTime", DateTime.Now.ToString("HH:mm:ss")},
+                {"StrAPprove", $"{baseUrl}/api/endorse/sm-approve?invoiceNumber={encryptedGpCode}&action=approve"},
+                {"StrReject", $"{baseUrl}/api/endorse/sm-approve?invoiceNumber={encryptedGpCode}&action=reject"},
+            };
+
+            var placeholders = new Dictionary<string, string>
+            {
+                //X1 to X30
+                {"InvoiceNo", myArray[1]},
+                {"RaisedDate", myArray[2]},
+                {"Supplier", myArray[3]},
+                {"Unit", myArray[4]},
+                {"InvoiceFromDate", myArray[5]},
+                {"InvoiceToDate", myArray[6]},
+                {"CertificateRemarks", myArray[8]},
+                {"SystemCalculatedSum", myArray[9]},
+                {"VendorContractSum", myArray[10]},
+                {"VendorAdvancePayment", myArray[11]},
+                {"VendorTotalAmount", myArray[12]},
+                {"PreparedBy", myArray[13]},
+                {"GeneratedOn", myArray[14]},
+                {"ApproveLevel2By", myArray[15]},
+                {"AppLevelStat2", myArray[16]},
+                {"AppLevelStat2On", myArray[17]},
+                {"ApproveLevel3By", myArray[18]},
+                {"AppLevelStat3", myArray[19]},
+                {"AppLevelStat3On", myArray[20]},
+                {"ApproveLevel4By", myArray[21]},
+                {"AppLevelStat4", myArray[22]},
+                {"AppLevelStat4On", myArray[23]},
+                {"ApproveLevel5By", myArray[24]},
+                {"AppLevelStat5", myArray[25]},
+                {"AppLevelStat5On", myArray[26]},
+                {"ApproveLevel6By", myArray[27]},
+                {"AppLevelStat6", myArray[28]},
+                {"AppLevelStat6On", myArray[29]},
+                {"ProcessStartDate", myArray[30]},
+            };
+
+            var machineDetails = new List<(string, string, string, string, string, string)>();
+
+            for (int i = 31; i < myArray.Length; i++)
+            {
+                var parts = myArray[i].Split('|');
+                if (parts.Length == 5)
+                {
+                    machineDetails.Add((parts[0], parts[1], parts[2], parts[3], parts[4] +" * "+ myArray[7], (decimal.Parse(parts[4]) * decimal.Parse(myArray[7])).ToString() ));
+                }
+            }
+
+            string emailBody = EMailFormatRead.GetApprovalSMIMsEmailBody(placeholders, endPlaceholders, machineDetails);
+
+            string recipientEmailTo = mailTo;
+            string recipientEmailCc = "";
+            string recipientEmailBcc = "rasika.dalpathadu@timexsl.com";
+
+            SendMail(recipientEmailTo, recipientEmailCc, recipientEmailBcc, emailBody, subjectText);
+        }
+
     }
 }

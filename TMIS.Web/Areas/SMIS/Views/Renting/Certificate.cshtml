@@ -1,63 +1,348 @@
 @model WorkCompCertificate
 
+@section VendorStyles {
+    <link rel="stylesheet" href="~/vendor/libs/flatpickr/flatpickr.css" />
+    <link rel="stylesheet" href="~/vendor/libs/select2/select2.css" />
+    <link href="~/css/input-text-upper.css" rel="stylesheet" />
+}
+
+@section VendorScripts {
+    <script src="~/vendor/libs/flatpickr/flatpickr.js"></script>
+    <script src="~/vendor/libs/select2/select2.js"></script>
+}
+
+@section PageScripts {
+    <script src="~/js/form-layouts.js"></script>
+    <script>
+        async function submitAjax() {
+
+                   const form = document.getElementById("myForm");
+        let isValid = true;
+        let messages = [];
+
+        // 🔹 Check Unit
+        const unitId = form.querySelector("[name='UnitId']").value;
+        if (!unitId || unitId === "0") {
+            isValid = false;
+            messages.push("Please select a Unit.");
+        }
+
+        // 🔹 Check Supplier
+        const supplierId = form.querySelector("[name='SupplierId']").value;
+        if (!supplierId || supplierId === "0") {
+            isValid = false;
+            messages.push("Please select a Supplier.");
+        }
+
+        // 🔹 Check FromDate
+        const fromDate = form.querySelector("[name='FromDate']").value;
+        if (!fromDate) {
+            isValid = false;
+            messages.push("Please enter From Date.");
+        }
+
+        // 🔹 Check ToDate
+        const toDate = form.querySelector("[name='ToDate']").value;
+        if (!toDate) {
+            isValid = false;
+            messages.push("Please enter To Date.");
+        }
+
+        // 🔹 Check FromDate <= ToDate
+        if (fromDate && toDate && new Date(fromDate) > new Date(toDate)) {
+            isValid = false;
+            messages.push("From Date cannot be greater than To Date.");
+        }
+
+        // 🔹 Check Invoice Total Contract Sum
+        const InvContractSum = form.querySelector("[name='InvContractSum']").value.trim();
+        if (!InvContractSum) {
+            isValid = false;
+            messages.push("Please enter Invoice Total Contract Sum.");
+        }
+
+         const InvAdvancePayment = form.querySelector("[name='InvAdvancePayment']").value.trim();
+        if (!InvAdvancePayment) {
+            isValid = false;
+            messages.push("Please enter Invoice Adavance Payment.");
+        }
+
+         const InvTotalAmountPay = form.querySelector("[name='InvTotalAmountPay']").value.trim();
+        if (!InvTotalAmountPay) {
+            isValid = false;
+            messages.push("Please enter Invoice Total Invoice Sum.");
+        }
+        // 🔹 Check Factory Accountant
+        const factoryAcct = form.querySelector("[name='FactoryAcctId']").value;
+        if (!factoryAcct || factoryAcct === "0") {
+            isValid = false;
+            messages.push("Please select Factory Accountant.");
+        }
+
+         // 🔹 Supplier Invoice Image
+        const fileInput = form.querySelector("[name='supplierInvoiceImage']");
+        if (!fileInput.files || fileInput.files.length === 0) {
+            isValid = false;
+            messages.push("Please upload Supplier Invoice image.");
+        } else {
+            const file = fileInput.files[0];
+            const ext = file.name.split('.').pop().toLowerCase();
+            if (ext !== "jpg") {
+                isValid = false;
+                messages.push("Supplier Invoice must be a JPG file.");
+            }
+            const maxSize = 2 * 1024 * 1024; // 2MB
+            if (file.size > maxSize) {
+                isValid = false;
+                messages.push("Supplier Invoice image must be less than 2MB.");
+            }
+        }
+
+        // 🔹 If not valid → show all errors and stop
+        if (!isValid) {
+            alert(messages.join("\n"));
+            return;
+        }
+
+            const formData = new FormData(document.getElementById('myForm'));
+            try {
+                const response = await fetch('/SMIS/Renting/GenerateVoucher', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                // Get filename from response headers
+                const contentDisposition = response.headers.get('Content-Disposition');
+                let filename = 'SM-INVOICE.pdf';
+
+                if (contentDisposition) {
+                    const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+                    if (filenameMatch) {
+                        filename = filenameMatch[1];
+                    }
+                }
+
+                // Convert to blob and create download link
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+
+                // Create temporary link and trigger download in new tab
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = filename;
+                a.target = '_blank';
+
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+
+                // Clean up
+                window.URL.revokeObjectURL(url);
+
+                // Redirect to Approval page after successful download
+                // Small delay to ensure download starts before redirect
+                setTimeout(() => {
+                    window.location.href = '/SMIS/Renting/Payments';
+                }, 500);
+
+            } catch (error) {
+                console.error('Error downloading PDF:', error);
+                alert('Failed to download PDF. Please try again.');
+            }
+        }
+    </script>
+}
 
 <div class="card mb-6">
     <h5 class="card-header page-header">Pending Approval - Rented Sewing Machine Details</h5>
     <div class="row g-4 card-body">
+        <h6 class="fw-bold">Selected Machines</h6>
 
-        <div class="row g-1 mt-3">
-       
-@*             <div class="col-3">
-                <div class="form-floating form-floating-outline">
-                    <select asp-for="@Model.McInventory!.OwnedUnitId" asp-items="@Model.OwnedUnitList" class="select2 form-select" data-allow-clear="true">
-                        <option Disabled Selected>- Select Unit -</option>
-                    </select>
-                    <label for="multicol-country">Unit</label>
-                    <span asp-validation-for="McInventory!.OwnedUnitId" class="text-warning"></span>
+        <form id="myForm">
+
+            @for (var i = 0; i < Model.WorkCompCertMcList.Count; i++)
+            {
+                <div class="row g-1 mb-2">
+                    <div class="col-2">
+                        <div class="form-floating form-floating-outline">
+                            <input type="hidden" asp-for="WorkCompCertMcList[@i].Id" class="form-control" />
+                            <input asp-for="WorkCompCertMcList[@i].QrCode" class="form-control" readonly />
+                            <label asp-for="WorkCompCertMcList[@i].QrCode"></label>
+                        </div>
+                    </div>
+                    <div class="col-2">
+                        <div class="form-floating form-floating-outline">
+                            <input asp-for="WorkCompCertMcList[@i].SerialNo" class="form-control" readonly />
+                            <label asp-for="WorkCompCertMcList[@i].SerialNo"></label>
+                            <label for="MachineSerialNo">Serial No</label>
+                        </div>
+                    </div>
+                    <div class="col-2">
+                        <div class="form-floating form-floating-outline">
+                            <input asp-for="WorkCompCertMcList[@i].MachineType" class="form-control" readonly />
+                            <label asp-for="WorkCompCertMcList[@i].MachineType"></label>
+                            <label for="MachineType">Machine Type</label>
+                        </div>
+                    </div>
+                    <div class="col-2">
+                        <div class="form-floating form-floating-outline">
+                            <input asp-for="WorkCompCertMcList[@i].Supplier" class="form-control" readonly />
+                            <label asp-for="WorkCompCertMcList[@i].Supplier"></label>
+                            <label for="SupplierName">Supplier Name</label>
+                        </div>
+                    </div>
+                    <div class="col-2">
+                        <div class="form-floating form-floating-outline">
+                            <input asp-for="WorkCompCertMcList[@i].CostDisplay" class="form-control" readonly />
+                            <label asp-for="WorkCompCertMcList[@i].CostDisplay"></label>
+                            <label for="CostType">Cost Type</label>
+                        </div>
+                    </div>
+                    <div class="col-2">
+                        <div class="form-floating form-floating-outline">
+                            <input asp-for="WorkCompCertMcList[@i].PerDayCost" class="form-control" readonly />
+                            <label asp-for="WorkCompCertMcList[@i].PerDayCost"></label>
+                            <label for="PerDayCost">Per Day Cost</label>
+                        </div>
+                    </div>
+                </div>
+            }
+            <hr class="my-1">
+            <h6 class="fw-bold">Payment Details</h6>
+            <div class="row g-1">
+                <div class="col-3">
+                    <div class="form-floating form-floating-outline">
+                        <select asp-for="UnitId" asp-items="@Model.UnitsList" class="select2 form-select" data-allow-clear="true">
+                            <option Disabled Selected>- Select Unit -</option>
+                        </select>
+                        <label for="Unity">Unit</label>
+                        <span asp-validation-for="UnitId" class="text-warning"></span>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="form-floating form-floating-outline">
+                        <select asp-for="SupplierId" asp-items="@Model.SupplierList" class="select2 form-select" data-allow-clear="true">
+                            <option Disabled Selected>- Select Supplier -</option>
+                        </select>
+                        <label for="Unity">Supplier</label>
+                        <span asp-validation-for="SupplierId" class="text-warning"></span>
+                    </div>
+                </div>
+
+                <div class="col-2">
+                    <div class="form-floating form-floating-outline">
+                        <input asp-for="FromDate" type="date" id="FromDate" class="form-control dob-picker" placeholder="YYYY-MM-DD" />
+                        <label for="datePurchased">Invoice From Date</label>
+                        <span asp-validation-for="FromDate" class="text-warning"></span>
+                    </div>
+                </div>
+
+                <div class="col-2">
+                    <div class="form-floating form-floating-outline">
+                        <input asp-for="ToDate" type="date" id="ToDate" class="form-control dob-picker" placeholder="YYYY-MM-DD" />
+                        <label for="datePurchased">Invoice To Date</label>
+                        <span asp-validation-for="ToDate" class="text-warning"></span>
+                    </div>
+                </div>              
+            </div>
+
+            <div class="row g-1 mt-3">
+                <div class="col-3">
+                    <input class="form-control" type="file" name="supplierInvoiceImage" accept=".jpg">
+                    <label for="supplierInvoiceImage" class="form-label">Supplier Invoice</label>
+                </div>              
+            </div>
+
+            <div class="row g-1 mt-3">              
+                <div class="col-2">
+                    <div class="form-floating form-floating-outline">
+                        <input asp-for="InvContractSum" type="text" id="InvContractSum" class="form-control" />
+                        <label for="InvContractSum">Invoice - Total Contract Sum</label>
+                    </div>
+                </div>
+
+                <div class="col-2">
+                    <div class="form-floating form-floating-outline">
+                        <input asp-for="InvAdvancePayment" type="text" id="InvAdvancePayment" class="form-control" />
+                        <label for="InvAdvancePayment">Invoice - Advance Payment</label>
+                    </div>
+                </div>
+
+                <div class="col-2">
+                    <div class="form-floating form-floating-outline">
+                        <input asp-for="InvTotalAmountPay" type="text" id="InvTotalAmountPay" class="form-control" />
+                        <label for="InvTotalAmountPay">Invoice - Total Amount</label>
+                    </div>
                 </div>
             </div>
-            <div class="col-3">
-                <div class="form-floating form-floating-outline">
-                    <input asp-for="SupplierName" type="text" id="qrCode" class="form-control" />
-                    <label for="qrCode">Supplier Name</label>
-                </div>
-            </div>
-            <div class="col-3">
-                <div class="form-floating form-floating-outline">
-                    <input asp-for="SupplierName" type="text" id="qrCode" class="form-control" />
-                    <label for="qrCode">Supplier Name</label>
-                </div>
-            </div> *@
-          
-        </div>
 
-
-        <form asp-action="UpdateStatus" method="post">
-            <div class="row g-1 mt-2">
-                <h6>Finance Remarks</h6>
+            <div class="row g-1 mt-3">
                 <div class="col-6">
                     <div class="form-floating form-floating-outline">
-                        <input type="text" name="Remarks" class="form-control" />
+                        <input asp-for="Remarks" type="text" id="Remarks" class="form-control" />
                         <label for="Remarks">Remarks</label>
                     </div>
                 </div>
+            </div>
 
-                <div class="col-4 row">
-                    <input type="hidden" name="id" value="@Model.Id" />
-                    <div class="pt-1 col-6">
-                        <button type="submit" name="action" value="approve" class="btn btn-success w-100 h-100"><i class="ri-check-line"></i>&nbsp;Approve</button>
+            <div class="row g-1 mt-3">
+                <div class="col-3">
+                    <div class="form-floating form-floating-outline">
+                        <select asp-for="FactoryAcctId" asp-items="@Model.ApprovalCat" class="select2 form-select" data-allow-clear="true">
+                            <option Disabled Selected>- Select Check By -</option>
+                        </select>
+                        <label for="FactoryAcctId">Factory Accountant</label>
+                        <span asp-validation-for="FactoryAcctId" class="text-warning"></span>
                     </div>
-                    <div class="pt-1 col-6">
-                        <button type="submit" name="action" value="reject" class="btn btn-danger w-100 h-100"><i class="ri-close-fill"></i>&nbsp;Reject</button>
+                </div>
+                <div class="col-3">
+                    <div class="form-floating form-floating-outline">
+                        <select asp-for="GeneralMgrId" asp-items="@Model.ApprovalCat" class="select2 form-select" data-allow-clear="true">
+                            <option Disabled Selected>- Select Recomended By -</option>
+                        </select>
+                        <label for="GeneralMgrId">General Manager</label>
+                        <span asp-validation-for="GeneralMgrId" class="text-warning"></span>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="form-floating form-floating-outline">
+                        <select asp-for="GroupEngId" asp-items="@Model.ApprovalCat" class="select2 form-select" data-allow-clear="true">
+                            <option Disabled Selected>- Select Recomended By -</option>
+                        </select>
+                        <label for="GroupEngId">Group Engineer</label>
+                        <span asp-validation-for="GroupEngId" class="text-warning"></span>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="form-floating form-floating-outline">
+                        <select asp-for="AppLevel1Id" asp-items="@Model.ApprovalCat" class="select2 form-select" data-allow-clear="true">
+                            <option Disabled Selected>- Select Approval Level -</option>
+                        </select>
+                        <label for="AppLevel1Id">Approval Level 1</label>
+                        <span asp-validation-for="AppLevel1Id" class="text-warning"></span>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="form-floating form-floating-outline">
+                        <select asp-for="AppLevel2Id" asp-items="@Model.ApprovalCat" class="select2 form-select" data-allow-clear="true">
+                            <option Disabled Selected>- Select Approval Level -</option>
+                        </select>
+                        <label for="AppLevel2Id">Approval Level 2</label>
+                        <span asp-validation-for="AppLevel2Id" class="text-warning"></span>
                     </div>
                 </div>
             </div>
+
+            <div class="pt-1">
+                <a asp-controller="Renting" asp-action="Payments" class="btn btn-outline-secondary">Back to List</a>
+                <button type="button" class="btn btn-primary me-4" onclick="submitAjax()">Submit</button>
+            </div>
         </form>
-
-
-        <div class="pt-1">
-            <a asp-controller="Renting" asp-action="Approval" class="btn btn-outline-secondary">Back to List</a>
-        </div>
     </div>
 </div>
 

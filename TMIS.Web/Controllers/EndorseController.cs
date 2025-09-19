@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TMIS.DataAccess.HRRS.IRepository;
 using TMIS.DataAccess.ITIS.IRepository;
+using TMIS.DataAccess.SMIM.IRpository;
 using TMIS.DataAccess.TGPS.IRpository;
 using TMIS.Models.HRRS;
 using TMIS.Models.ITIS.VM;
@@ -12,12 +13,13 @@ namespace TMIS.Controllers
   [Route("api/[controller]")]
   [ApiController]
   public class EndorseController(IGatepassService gatepassService, ILogger<EndorseController> logger, IApproveRepository approveRepository,
-    IITRequestRepository iTRequestRepository) : ControllerBase
+    IITRequestRepository iTRequestRepository, ISMApprovalService iSMApprovalService) : ControllerBase
   {
     private readonly IGatepassService _gatepassService = gatepassService;
     private readonly IApproveRepository _approveRepository = approveRepository;
     private readonly ILogger<EndorseController> _logger = logger;
     private readonly IITRequestRepository _iTRequestRepository = iTRequestRepository;
+    private readonly ISMApprovalService _iSMApprovalService = iSMApprovalService;
 
     #region Gatepass
 
@@ -265,7 +267,7 @@ namespace TMIS.Controllers
             <div class='container'>
                 <div class='warning-icon'>⚠️</div>
                 <h1 class='title'>Already Processed</h1>
-                <p>Gatepass <strong>{gatepassNumber}</strong> has already been <strong>{currentStatus}</strong>.</p>
+                <p>Gatepass : <strong> {gatepassNumber}</strong> has already been <strong>{currentStatus}</strong>.</p>
                 <p>No further action is required.</p>
             </div>
         </body>
@@ -814,5 +816,248 @@ namespace TMIS.Controllers
         </html>";
     }
     #endregion
+
+
+    #region SMIM
+    [HttpGet("sm-approve")]
+    [AllowAnonymous] // This allows access without authentication
+    public async Task<ActionResult> ApproveSMInvoice([FromQuery] string invoiceNumber, [FromQuery] string action)
+    {
+      var decInvoiceCode = SecurityBox.DecryptString(invoiceNumber);
+
+      try
+      {
+        // Validate parameters
+        if (string.IsNullOrEmpty(decInvoiceCode) || string.IsNullOrEmpty(action))
+        {
+          return BadRequest("Missing required parameters: Invoice # and action");
+        }
+
+        // Validate action
+        if (!action.Equals("approve") && !action.Equals("reject"))
+        {
+          return BadRequest("Invalid action. Use 'approve' or 'reject'");
+        }
+
+        // Check if gatepass exists
+        var _info = await _iSMApprovalService.GetSMInfoAsync(decInvoiceCode);
+        if (_info.Status == null)
+        {
+          return NotFound($"Invoice Not Found");
+        }
+
+        // Check if already processed
+        if (_info.Status == "Approved" || _info.Status == "Rejected")
+        {
+          var html = GenerateSMAlreadyProcessedHtml(_info.InvoiceNo, _info.Status);
+          return Content(html, "text/html");
+        }
+
+        // Update status
+        var status = action.Equals("approve") ? 1 : 2;
+        var result = await _iSMApprovalService.SMUpdateAsync(decInvoiceCode, status);
+
+        if (result > 0)
+        {
+          _logger.LogInformation($"Invoice has been {status} successfully via email link");
+
+          // Return success HTML page
+          var mStatus = action.Equals("approve") ? "Approved" : "Rejected";
+          var successHtml = GenerateSMSuccessHtml(_info.InvoiceNo, mStatus);
+          return Content(successHtml, "text/html");
+        }
+
+        var errorHtml = GenerateErrorHtml("Failed to process the request. Please try again or contact support.");
+        return Content(errorHtml, "text/html");
+      }
+      catch (Exception ex)
+      {
+        _logger.LogError(ex, $"Error processing Invoice approval");
+        var errorHtml = GenerateSMErrorHtml($"An error occurred: {ex.Message}");
+        return Content(errorHtml, "text/html");
+      }
+    }
+
+    private static string GenerateSMSuccessHtml(string invoiceNo, string status)
+    {
+      return $@"
+        <!DOCTYPE html>
+        <html lang='en'>
+        <head>
+            <meta charset='UTF-8'>
+            <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+            <title>Invoice {status}</title>
+            <style>
+                body {{
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    margin: 0;
+                    padding: 20px;
+                    min-height: 100vh;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }}
+                .container {{
+                    background: white;
+                    border-radius: 10px;
+                    padding: 40px;
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+                    text-align: center;
+                    max-width: 500px;
+                    width: 100%;
+                }}
+                .success-icon {{
+                    color: #4CAF50;
+                    font-size: 64px;
+                    margin-bottom: 20px;
+                }}
+                .title {{
+                    color: #333;
+                    font-size: 28px;
+                    margin-bottom: 10px;
+                }}
+                .message {{
+                    color: #666;
+                    font-size: 16px;
+                    line-height: 1.5;
+                    margin-bottom: 20px;
+                }}
+                .gatepass-info {{
+                    background: #f8f9fa;
+                    padding: 20px;
+                    border-radius: 8px;
+                    margin: 20px 0;
+                }}
+                .status-badge {{
+                    display: inline-block;
+                    padding: 8px 16px;
+                    border-radius: 20px;
+                    font-weight: bold;
+                    color: white;
+                    background-color: {(status == "Approved" ? "#4CAF50" : "#f44336")};
+                }}
+            </style>
+        </head>
+        <body>
+            <div class='container'>
+                <div class='success-icon'>✓</div>
+                <h1 class='title'>Action Completed Successfully!</h1>
+                <div class='gatepass-info'>
+                    <p><strong>Invoice Number: </strong> {invoiceNo}</p>
+                    <p><strong>Status:</strong> <span class='status-badge'>{status}</span></p>
+                    <p><strong>Processed Date:</strong> {DateTime.Now:yyyy-MM-dd HH:mm:ss}</p>
+                </div>
+                <p class='message'>
+                    The Invoice has been {status.ToLower()} successfully. 
+                    The system has been updated and relevant parties will be notified.
+                </p>
+            </div>
+        </body>
+        </html>";
+    }
+
+    private static string GenerateSMAlreadyProcessedHtml(string invoiceNo, string currentStatus)
+    {
+      return $@"
+        <!DOCTYPE html>
+        <html lang='en'>
+        <head>
+            <meta charset='UTF-8'>
+            <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+            <title>Invoice Already Processed</title>
+            <style>
+                body {{
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+                    margin: 0;
+                    padding: 20px;
+                    min-height: 100vh;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }}
+                .container {{
+                    background: white;
+                    border-radius: 10px;
+                    padding: 40px;
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+                    text-align: center;
+                    max-width: 500px;
+                    width: 100%;
+                }}
+                .warning-icon {{
+                    color: #ff9800;
+                    font-size: 64px;
+                    margin-bottom: 20px;
+                }}
+                .title {{
+                    color: #333;
+                    font-size: 28px;
+                    margin-bottom: 10px;
+                }}
+            </style>
+        </head>
+        <body>
+            <div class='container'>
+                <div class='warning-icon'>⚠️</div>
+                <h1 class='title'>Already Processed</h1>
+                <p>Invoice <strong>{invoiceNo}</strong> has already been <strong>{currentStatus}</strong>.</p>
+                <p>No further action is required.</p>
+            </div>
+        </body>
+        </html>";
+    }
+
+    private static string GenerateSMErrorHtml(string errorMessage)
+    {
+      return $@"
+        <!DOCTYPE html>
+        <html lang='en'>
+        <head>
+            <meta charset='UTF-8'>
+            <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+            <title>Error Processing Request</title>
+            <style>
+                body {{
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    background: linear-gradient(135deg, #ff7675 0%, #d63031 100%);
+                    margin: 0;
+                    padding: 20px;
+                    min-height: 100vh;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }}
+                .container {{
+                    background: white;
+                    border-radius: 10px;
+                    padding: 40px;
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+                    text-align: center;
+                    max-width: 500px;
+                    width: 100%;
+                }}
+                .error-icon {{
+                    color: #e74c3c;
+                    font-size: 64px;
+                    margin-bottom: 20px;
+                }}
+            </style>
+        </head>
+        <body>
+            <div class='container'>
+                <div class='error-icon'>❌</div>
+                <h1>Error</h1>
+                <p>{errorMessage}</p>
+                <p>Please contact support if this issue continues.</p>
+            </div>
+        </body>
+        </html>";
+    }
+
+    #endregion
+
+
   }
 }

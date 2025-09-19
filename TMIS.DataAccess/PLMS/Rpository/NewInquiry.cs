@@ -1,9 +1,7 @@
 ﻿using Dapper;
 using Microsoft.AspNetCore.Http;
 using System.Data;
-using System.Diagnostics;
 using TMIS.DataAccess.COMON.IRpository;
-using TMIS.DataAccess.COMON.Rpository;
 using TMIS.DataAccess.PLMS.IRpository;
 using TMIS.Models.PLMS;
 using TMIS.Models.SMIS;
@@ -16,7 +14,7 @@ namespace TMIS.DataAccess.PLMS.Rpository
         private readonly IPLMSLogdb _pLMSLogdb = pLMSLogdb;
         private readonly IUserControls _userControls = userControls;
 
-        List<DateTime> companyDateList = [];
+       List<DateTime> companyDateList = [];
 
         public async Task<NewInquiryVM> LoadActsAndSubActsAsync(RoutePresetParas paras)
         {
@@ -25,24 +23,22 @@ namespace TMIS.DataAccess.PLMS.Rpository
             using var connection = _dbConnection.GetConnection();
 
             var activities = (await connection.QueryAsync<PLMSActivity>(@"
-        SELECT ActivityId, UserCategoryId, UserCategoryText, Days, ActivityText, IsAwaitTask
-        FROM PLMS_VwActivityList
-        WHERE CpHeaderId = @ReacordId
-        ORDER BY Id",
-                new { ReacordId = paras.PresetId })).ToList();
+            SELECT ActivityId, UserCategoryId, UserCategoryText, Days, ActivityText, IsAwaitTask
+            FROM PLMS_VwActivityList
+            WHERE CpHeaderId = @ReacordId
+            ORDER BY Id", new { ReacordId = paras.PresetId })).ToList();
 
             var subActivities = (await connection.QueryAsync<PLMSActivity>(@"
-        SELECT ActivityId, SubActivityId, Days, UserCategoryId, UserCategoryText, SubActivityText, IsAwaitTask
-        FROM PLMS_VwActivitySubList
-        WHERE CpHeaderId = @ReacordId
-        ORDER BY Id",
-                new { ReacordId = paras.PresetId })).ToList();
+            SELECT ActivityId, SubActivityId, Days, UserCategoryId, UserCategoryText, SubActivityText, IsAwaitTask
+            FROM PLMS_VwActivitySubList
+            WHERE CpHeaderId = @ReacordId
+            ORDER BY Id", new { ReacordId = paras.PresetId })).ToList();
 
             var subActivityGroups = subActivities
                 .GroupBy(sa => sa.ActivityId)
                 .ToDictionary(g => g.Key, g => g.ToList());
 
-            int dateIndex = GetSelectedDateIndex(Convert.ToDateTime(paras.SelectedDate)) - 1;
+            int dateIndex = await  GetSelectedDateIndex(Convert.ToDateTime(paras.SelectedDate), connection) - 1;
             int activityRunningDays = 0;
             bool isAfterActivityAwait = false;
 
@@ -116,18 +112,14 @@ namespace TMIS.DataAccess.PLMS.Rpository
             return model;
         }
 
-
-
-        private int GetSelectedDateIndex(DateTime selectedDate)
+        public async Task<int> GetSelectedDateIndex(DateTime selectedDate, IDbConnection connection)
         {
+
             companyDateList = [];
 
             var query = "SELECT CalendarDate FROM COMN_MasterCompCalendar";
 
-            using (var connection = _dbConnection.GetConnection())
-            {
-                companyDateList = connection.Query<DateTime>(query).ToList();
-            }
+            companyDateList = [.. await connection.QueryAsync<DateTime>(query)];            
 
             int selectedIndex = companyDateList.FindIndex(d => d == selectedDate);
 
@@ -139,7 +131,7 @@ namespace TMIS.DataAccess.PLMS.Rpository
             return selectedIndex;
         }
 
-        private string GetDateFromCalander(int daysCount)
+        public string GetDateFromCalander(int daysCount)
         {
             DateTime postionDate = companyDateList.ElementAtOrDefault(daysCount);
             return postionDate.ToString("yyyy-MM-dd");
@@ -216,60 +208,7 @@ namespace TMIS.DataAccess.PLMS.Rpository
             }, transaction);
         }
 
-        private async Task<string> GenerateRefAsync(IDbConnection connection, IDbTransaction transaction)
-        {
-            int currentYear = DateTime.Now.Year;
-
-            // 1. Try to get the generator for the current year
-            var selectSql = @"SELECT TOP 1 [Id], [GenYear], [GenNo], [LastGeneratedDate]
-            FROM [dbo].[PLMS_XysGenerateNumber] WHERE GenYear = @Year";
-
-            var generator = await connection.QuerySingleOrDefaultAsync<dynamic>(
-                selectSql, new { Year = currentYear }, transaction);
-
-            int genNo;
-            int id;
-
-            if (generator == null)
-            {
-                // 2. No record for this year — insert new
-                genNo = 1;
-
-                var insertSql = @"INSERT INTO [dbo].[PLMS_XysGenerateNumber]
-                    (GenYear, GenNo, LastGeneratedDate) VALUES (@GenYear, @GenNo, GETDATE());
-                    SELECT CAST(SCOPE_IDENTITY() AS INT);";
-
-                await connection.ExecuteScalarAsync<int>(
-                    insertSql,
-                    new { GenYear = currentYear, GenNo = genNo + 1 },
-                    transaction
-                );
-            }
-            else
-            {
-                // 3. Record exists — increment and update
-                genNo = generator.GenNo;
-                id = generator.Id;
-
-                var updateSql = @"
-                UPDATE [dbo].[PLMS_XysGenerateNumber]
-                SET GenNo = @NewGenNo,
-                    LastGeneratedDate = GETDATE()
-                WHERE Id = @Id;";
-
-                await connection.ExecuteAsync(
-                    updateSql,
-                    new { NewGenNo = genNo + 1, Id = id },
-                    transaction
-                );
-            }
-
-            // 4. Format final reference number
-            string reference = $"PLM/{currentYear}/{genNo:D5}";
-            return reference;
-        }
-
-        private static async Task<int> InsertDetailsAsync(IDbConnection connection, IDbTransaction transaction, int inquiryHeaderId, Models.PLMS.NewInquiryVM inquiryVM, IFormFile? artwork)
+        public static async Task<int> InsertDetailsAsync(IDbConnection connection, IDbTransaction transaction, int inquiryHeaderId, NewInquiryVM inquiryVM, IFormFile? artwork)
         {
             byte[]? artworkBytes = null;
 
@@ -295,7 +234,7 @@ namespace TMIS.DataAccess.PLMS.Rpository
                            ,[Remarks])
                      VALUES
                            (@TrINQId
-                           ,1
+                           ,@cycleNo
                            ,@ColorCode
                            ,@Season
                            ,@SampleTypeId
@@ -306,9 +245,14 @@ namespace TMIS.DataAccess.PLMS.Rpository
                            ,@Remarks);
               SELECT CAST(SCOPE_IDENTITY() AS INT);";
 
+
+            var query = @"SELECT ISNULL(MAX(CycleNo), 0) + 1 FROM PLMS_TrInquiryDetails WHERE TrINQId = @InquiryId";
+            var cycleNo = await connection.QuerySingleAsync<int>(query, new { InquiryId = inquiryHeaderId, }, transaction);
+
             return await connection.QuerySingleAsync<int>(sqlDetail, new
             {
                 TrINQId = inquiryHeaderId,
+                cycleNo,
                 inquiryVM.ColorCode,
                 inquiryVM.Season,
                 inquiryVM.SampleTypeId,
@@ -320,7 +264,7 @@ namespace TMIS.DataAccess.PLMS.Rpository
             }, transaction);
         }
 
-        private async Task InsertActivitiesAsync(IDbConnection connection, IDbTransaction transaction, int inquiryDtId, List<ActivityVM>? activityList)
+        public static async Task InsertActivitiesAsync(IDbConnection connection, IDbTransaction transaction, int inquiryDtId, List<ActivityVM>? activityList)
         {
             foreach (var activity in activityList ?? [])
             {
@@ -329,7 +273,7 @@ namespace TMIS.DataAccess.PLMS.Rpository
             }
         }
 
-        private static async Task InsertSizeQtysAsync(IDbConnection connection, IDbTransaction transaction, int inquiryDtId, List<SizeQtys>? sizeQtys)
+        private async Task InsertSizeQtysAsync(IDbConnection connection, IDbTransaction transaction, int inquiryDtId, List<SizeQtys>? sizeQtys)
         {
             foreach (var oSizeQtys in sizeQtys ?? [])
             {

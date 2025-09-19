@@ -28,7 +28,7 @@ namespace TMIS.DataAccess.SMIM.IRpository
 
         Task<bool> InsertRentMachineAsync(McInventory mcInventory, IFormFile? imageFront, IFormFile? imageBack, IFormFile? dispatchNote, IFormFile? returnGatePass);
 
-        Task<int> UpdateRentMachineAsync(McInventory mcInventory, IFormFile? imageFront, IFormFile? imageBack);
+        Task<int> UpdateRentMachineAsync(McInventory mcInventory, IFormFile? imageFront, IFormFile? imageBack, IFormFile? dispatchNote, IFormFile? returnGatePass);
 
         Task<McInventory?> GetRentMcInventoryByIdAsync(int? id);
 

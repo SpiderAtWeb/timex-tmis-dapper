@@ -24,12 +24,11 @@
     <link href="~/custom/plms/modal-popup.css" rel="stylesheet" />
 }
 
-
 @await Html.PartialAsync("_Loading")
 
 <!-- Modal -->
 <div class="modal fade" id="rowModal" tabindex="-1" role="dialog" aria-labelledby="rowModalLabel" aria-hidden="true">
-    <div class="modal-dialog" style="max-width: 1250px;"  role="document">
+    <div class="modal-dialog" style="max-width: 950px;"  role="document">
         <div class="modal-content">
 
             <div class="modal-header row">
@@ -47,7 +46,7 @@
                 </ul>
                 </div>
                 <div class="col-3 offset-3  text-center">
-                    <h5 id="rowModalLabel" class="modal-title rounded-pill bg-label-primary fs-4"></h5>
+                    <h5 id="rowModalLabel" class="modal-title rounded-pill bg-label-primary fs-5 px-4 py-2"></h5>
                 </div>
             </div>
 
@@ -90,8 +89,7 @@
                             <th>Inquiry Type</th>
                             <th>Style No</th>
                             <th>Style Desc</th>
-                            <th>Color Code</th>
-                            <th>Inquiry Type</th>                           
+                            <th>Color Code</th>                          
                             <th>Sample Type</th>
                             <th class="d-none">SeasonName</th>
                             <th class="d-none">Remarks</th>
@@ -108,8 +106,7 @@
                                 <td>@item.InquiryType</td>
                                 <td>@item.StyleNo</td>
                                 <td>@item.StyleDesc</td>
-                                <td>@item.ColorCode</td>
-                                <td>@item.InquiryType</td>
+                                <td>@item.ColorCode</td>       
                                 <td>@item.SampleType</td>
                                 <td class="d-none">@item.SeasonName</td>
                                 <td class="d-none">@item.Remarks</td>

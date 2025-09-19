@@ -1,0 +1,221 @@
+@model IEnumerable<PaymentsVM>
+
+@section VendorStyles {
+    <link rel="stylesheet" href="~/vendor/libs/datatables-bs5/datatables.bootstrap5.css">
+    <link href="~/vendor/libs/toastr/toastr.css" rel="stylesheet" />
+}
+
+@section VendorScripts {
+    <script src="~/vendor/libs/select2/select2.js"></script>
+    <script src="~/custom/loading-hide.js"></script>
+    <script src="~/vendor/libs/toastr/toastr.js"></script>
+}
+
+@section PageScripts {
+    <script src="~/custom/tables-datatables-basic.js"></script>
+    <script src="~/custom/loading-hide.js"></script>
+    <script src="~/vendor/libs/toastr/toastr.js"></script>
+
+    <script>
+          $(document).ready(function () {
+        // When fa-eye icon is clicked
+              $('.btn-y-action').on('click', function () {
+                  var invoId = $(this).data("id");
+
+                       $.ajax({
+              url: "/SMIS/Renting/GetInvoiceDetails",
+              type: "POST",
+              data: { id: invoId },
+              success: function (data) {
+                  $("#invoiceModalContent").html(data);
+                  $("#viewInvoiceModal").modal("show");
+              },
+              error: function (xhr) {
+                  $("#invoiceModalContent").html("<p class='text-danger'>" + xhr.responseText + "</p>");
+                  $("#viewInvoiceModal").modal("show");
+              }
+          });
+        });
+
+                // modal script
+          $(document).on('click', '.btn-start-approval', function () {
+              var id = $(this).data('id');
+
+              fetch('/SMIS/Renting/StarApprovalProcess?id=' + id, {
+                  method: 'GET'
+              })
+              .then(response => response.ok ? response.json() : response.json().then(err => { throw err; }))
+              .then(data => {
+                  console.log("Approval process started: " + (data.message ?? 'OK'));
+                  toastr.success(data.message);
+
+                   // Reload page after short delay so user sees the toast
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+              })
+              .catch(err => {
+                  console.error(err);
+                  error.success("Something went wrong: " + (err?.message ?? ''));
+              });
+          });
+
+
+                        $(document).on('click', '.btn-cert-approval', function () {
+                            var invoiceId = $(this).data("id");
+
+                            $.ajax({
+                                url: "/SMIS/Renting/DownloadCertPdf",
+                                type: "POST",
+                                data: { id: invoiceId },
+                                xhrFields: {
+                                    responseType: 'blob' // tell jQuery to expect binary
+                                },
+                                success: function (data) {
+                                    var blob = new Blob([data], { type: "application/pdf" });
+                                    var link = document.createElement('a');
+                                    link.href = window.URL.createObjectURL(blob);
+                                    link.download = "Certificate.pdf";
+                                    link.click();
+                                },
+                                error: function (xhr) {
+                                    console.error(xhr.responseText);
+                                    alert("Failed to download invoice. Please try again.");
+                                }
+                            });
+                        });
+
+                        $(document).on('click', '.btn-invo-approval', function () {
+                            var invoiceId = $(this).data("id");
+
+                            $.ajax({
+                                url: "/SMIS/Renting/DownloadSupInvoicePdf",
+                                type: "POST",
+                                data: { id: invoiceId },
+                                xhrFields: {
+                                    responseType: 'blob' // tell jQuery to expect binary
+                                },
+                                success: function (data) {
+                                    var blob = new Blob([data], { type: "application/pdf" });
+                                    var link = document.createElement('a');
+                                    link.href = window.URL.createObjectURL(blob);
+                                    link.download = "invoice.pdf";
+                                    link.click();
+                                },
+                                error: function (xhr) {
+                                    console.error(xhr.responseText);
+                                    alert("Failed to download invoice. Please try again.");
+                                }
+                            });
+                        });
+
+                });
+
+    </script>
+}
+
+<!-- Modal -->
+<div class="modal fade" id="viewInvoiceModal" tabindex="-1" role="dialog" aria-labelledby="viewModalLabel" aria-hidden="true">
+    <div class="modal-dialog" style="max-width: 1000px;" role="document">
+        <div class="modal-content">
+            <div class="modal-body" id="invoiceModalContent">
+                <p>Loading...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@await Html.PartialAsync("_Loading")
+
+@* ************** Content ************** *@
+<!-- Ajax Sourced Server-side -->
+<div class="panelDiv">
+    <div class="card mb-6">
+
+        <div class="card-header px-0 pt-0">
+            <div class="nav-align-top">
+                <ul class="nav nav-pills nav-justified" role="tablist">
+                    <li class="nav-item">
+                        <button type="button" class="nav-link active" role="tab" data-bs-toggle="tab" data-bs-target="#ownedMachines" aria-controls="ownedMachines" aria-selected="true">Pending Approvals</button>
+                    </li>
+                    <li class="nav-item">
+                        <button type="button" class="nav-link" role="tab" data-bs-toggle="tab" data-bs-target="#rentedMachines" aria-controls="rentedMachines" aria-selected="false">Completed Invoices</button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="tab-content p-0">
+                <div class="tab-pane fade show active" id="ownedMachines" role="tabpanel">
+
+                    <table class="datatables-ajax table table-bordered dt-tbl">
+                        <thead>
+                            <tr class="table-info">
+                                <th>
+                                    Invoice #
+                                </th>
+                                <th>
+                                    Generate Date
+                                </th>
+                                <th>
+                                    Supplier
+                                </th>
+                                <th>
+                                    Invoice Total
+                                </th>
+                                <th>
+                                    Action
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@item.InvoiceNo</td>
+                                    <td>@item.RaisedDate</td>
+                                    <td>@item.Supplier</td>
+                                    <td>@item.VendorTotalAmount</td>
+                                    <td>
+                                        <span class="btn btn-success btn-y-action" data-id="@item.Id"><i class="fa-solid fa-eye"></i></span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+
+                </div>
+
+                <div class="tab-pane fade" id="rentedMachines" role="tabpanel">
+
+                    <table class="datatables-ajax table table-bordered dt-tbl">
+                        <thead>
+                            <tr class="table-info">
+                                <th>
+                                    Invoice #
+                                </th>
+                                <th>
+                                    Generate Date
+                                </th>
+                                <th>
+                                    Supplier
+                                </th>
+                                <th>
+                                    Invoice Total
+                                </th>
+                                <th>
+                                    Action
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+

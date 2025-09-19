@@ -116,7 +116,7 @@ namespace TMIS.Areas.SMIS.Controllers
     }
 
     [HttpPost]
-    public async Task<IActionResult> RentedEdit(McCreatedRnVM mcCreatedRnVM, IFormFile? imageFR, IFormFile? imageBK)
+    public async Task<IActionResult> RentedEdit(McCreatedRnVM mcCreatedRnVM, IFormFile? imageFR, IFormFile? imageBK, IFormFile? dispatchNote, IFormFile? returnGatePass)
     {
       await _db.LoadRentedMachineListsAsync(mcCreatedRnVM);
 
@@ -148,7 +148,7 @@ namespace TMIS.Areas.SMIS.Controllers
 
       try
       {
-        int msg = await _db.UpdateRentMachineAsync(mcCreatedRnVM.McInventory!, imageFR, imageBK);
+        int msg = await _db.UpdateRentMachineAsync(mcCreatedRnVM.McInventory!, imageFR, imageBK, dispatchNote, returnGatePass);
         if (msg == 1)
         {
           TempData["success"] = "Record Updated Successfully";

@@ -1,3 +1,4 @@
+using iTextSharp.text.pdf;
 using log4net;
 using Microsoft.AspNetCore.Mvc;
 using TMIS.DataAccess.COMON.IRpository;
@@ -70,25 +71,78 @@ namespace TMIS.Areas.SMIS.Controllers
     }
 
     [HttpPost]
-    public IActionResult GenerateCertificate([FromBody] SelectedRequest request)
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Certificate(List<int> SelectedIds)
     {
-      if (request == null || request.SelectedIds == null || !request.SelectedIds.Any())
-      {
-        return BadRequest("Please select at least one machine.");
-      }
-
-      // Do your certificate generation logic...
-      string ids = string.Join(",", request.SelectedIds);
-      return RedirectToAction("Certificate", new { ids });
+      var certificateData = await _db.GetMachinesByIdsAsync(SelectedIds);
+      return View(certificateData);
     }
 
-    public async Task<IActionResult> Certificate(string ids)
+    [HttpPost]
+    public async Task<IActionResult> GenerateVoucher(WorkCompCertificate workCompCertificate, IFormFile supplierInvoiceImage)
     {
-      //Need load data from request
-      var selectedIds = ids.Split(',').Select(int.Parse).ToList();
-      var  certificateData= await _db.GetMachinesByIdsAsync(selectedIds);
+      var (pdfBytes, message) = await _db.GetGenerateVoucher(workCompCertificate, supplierInvoiceImage);
 
-      return View(certificateData);
+      if (pdfBytes == null || pdfBytes.Length == 0)
+      {
+        TempData["Error"] = "Failed to generate PDF voucher.";
+        return RedirectToAction("Certificate");
+      }
+
+      if (pdfBytes.Length == 0)
+      {
+        _logger.Error($"Failed to download PDF for report ID: {message}");
+        return NotFound("PDF not found.");
+      }
+
+      var fileName = $"{message}.pdf";
+
+
+      return File(pdfBytes, "application/pdf", fileName);
+    }
+
+    public async Task<IActionResult> ReadyPayments()
+    {
+      IEnumerable<PaymentsVM> trlist = await _db.GetPaymentReadyList();
+      _logger.Info("[ " + _iSessionHelper.GetShortName() + " ] - PAGE VISIT INDEX");
+
+      return View(trlist);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> GetInvoiceDetails(int id)
+    {
+      var result = await _db.GetCertificateData(id);
+      if (result == null)
+      {
+        _logger.Error($"No gatepass found with ID: {id}");
+        return NotFound("Gatepass not found.");
+      }
+      return PartialView("_InvoiceModal", result);
+    }
+
+    public async Task<IActionResult> StarApprovalProcess(int id)
+    {
+      // do your approval logic here
+      var result = await _db.StartStarApproval(id);
+
+      return Json(new { success = true, message = result });
+    }
+
+    public async Task<IActionResult> DownloadCertPdf(int id)
+    {
+      var pdfBytes = await _db.GetVoucherPdf(id);
+      if (pdfBytes == null) return NotFound();
+      return File(pdfBytes, "application/pdf");
+    }
+
+    public async Task<IActionResult> DownloadSupInvoicePdf(int id)
+    {
+      var pdfBytes = await _db.GetSupInvoicePdf(id);
+      if (pdfBytes == null) return NotFound();
+
+      return File(pdfBytes, "application/pdf");  
+
     }
 
   }

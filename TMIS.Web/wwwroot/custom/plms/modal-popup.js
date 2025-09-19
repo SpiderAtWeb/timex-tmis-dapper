@@ -5,24 +5,8 @@ $(document).ready(function () {
     ordering: true,
     info: true,
     autoWidth: false,
-    //columnDefs: [
-    //  {
-    //    targets: "_all",
-    //    render: function (data, type, row) {
-    //      if (type === 'display' && typeof data === 'string' && data.length > 20) {
-    //        const truncated = data.substr(0, 20) + '..';
-    //        return `<span title="${data.replace(/"/g, '&quot;')}">${truncated}</span>`;
-    //      }
-    //      return `<span title="${data.replace(/"/g, '&quot;')}">${data}</span>`;
-    //    },
-    //    className: 'dt-cell-padding dt-align-left' // apply padding and right alignment
-    //  }
-    //]
+    pageLength: 100
   });
-
-
-
-
 
   // Add double-click event to table rows
   $('#mainTable').on('dblclick', 'tr', function () {

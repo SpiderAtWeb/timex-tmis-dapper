@@ -49,6 +49,13 @@ namespace TMIS.Models.SMIS
         public bool RemoveImageFront { get; set; }
         public bool RemoveImageBack { get; set; }
 
+
+        public byte[]? DispatchImage { get; set; }
+        public byte[]? ReturnGPImage { get; set; }
+
+        public bool DispatchImageAv { get; set; }
+        public bool ReturnGPImageAv { get; set; }
+
         public int SupplierId { get; set; }
 
         public int CostMethodId { get; set; }

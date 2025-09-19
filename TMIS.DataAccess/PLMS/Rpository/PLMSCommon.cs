@@ -15,7 +15,7 @@ namespace TMIS.DataAccess.PLMS.Rpository
 
         public async Task<IEnumerable<ShowInquiryDataVM>> GetInquiriesAsync()
         {
-            string sql = @"SELECT Id, CONCAT(InquiryRef, '-', [CycleNo]) AS InquiryRef, [StyleNo], [StyleDesc], [ColorCode], 
+            string sql = @"SELECT Id, CONCAT(InquiryRef, '.v', [CycleNo]) AS InquiryRef, [StyleNo], [StyleDesc], [ColorCode], 
                           [InquiryType], [Customer], [SeasonName], [SampleType], [ArtWork], [Remarks]
                    FROM PLMS_VwInquiryListPending";
 
@@ -160,18 +160,12 @@ namespace TMIS.DataAccess.PLMS.Rpository
                 InquiryTypesList = await _userControls.LoadDropDownsAsync("PLMS_MasterTwoInquiryTypes"),
                 CustomersList = await _userControls.LoadDropDownsAsync("PLMS_MasterTwoCustomers"),
                 SampleTypesList = await _userControls.LoadDropDownsAsync("PLMS_MasterTwoSampleTypes"),
-                RoutingPresetsList = await LoadRouteDropAsync("PLMS_CPTemplateHeader"),
+                RoutingPresetsList = await _userControls.LoadRouteDropAsync("PLMS_CPTemplateHeader"),
             };
             return oInquiriesVM;
         }
 
-        private async Task<IEnumerable<SelectListItem>> LoadRouteDropAsync(string tableName)
-        {
-            string query = $@"SELECT CAST(Id AS NVARCHAR) AS Value, 
-            CpName AS Text FROM {tableName} ORDER BY Text";
-            var results = await _dbConnection.GetConnection().QueryAsync<SelectListItem>(query);
-            return results;
-        }
+      
 
     }
 }

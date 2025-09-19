@@ -6,6 +6,7 @@ $(document).ready(function () {
     "ordering": true,
     "info": true,
     "autoWidth": false,
+    pageLength: 100,
     "columnDefs": [
       {
         // Change '0' to your target column index

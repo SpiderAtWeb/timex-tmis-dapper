@@ -8,6 +8,6 @@ namespace TMIS.DataAccess.TGPS.IRpository
 {
     public interface IExportPDF
     {
-        public (byte[] PdfBytes, string Message) DownloadPdf(int reportId);
+        public Task<(byte[] PdfBytes, string Message)> DownloadPdf(int reportId);
     }
 }

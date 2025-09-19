@@ -11,7 +11,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
     {
         private readonly IDatabaseConnectionSys _dbConnection = dbConnection;
 
-        public (byte[] PdfBytes, string Message) DownloadPdf(int reportId) // Updated to match the interface
+        public async Task<(byte[] PdfBytes, string Message)> DownloadPdf(int reportId) // Updated to match the interface
         {
             byte[] pdfBytes = []; // Initialize with an empty array to avoid nullability issues
 
@@ -25,7 +25,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
                 report.Load(reportPath);
 
                 // Prepare data (example with DataSet)
-                var dataSet = GetReportData(reportId);
+                var dataSet = await GetReportData(reportId);
 
                 // Register whole DataSet (optional)
                 report.RegisterData(dataSet, "Data");
@@ -61,7 +61,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
             }
         }
 
-        private System.Data.DataSet GetReportData(int gatepassId)
+        private async Task<DataSet> GetReportData(int gatepassId)
         {
             var dataSet = new DataSet();
 
@@ -94,7 +94,7 @@ namespace TMIS.DataAccess.TGPS.Rpository
             }
 
             // Second query
-            using (var readerRoutes = connection.ExecuteReader(@"
+            using (var readerRoutes = await connection.ExecuteReaderAsync(@"
                  SELECT 
                      BusinessName, 
                      Address

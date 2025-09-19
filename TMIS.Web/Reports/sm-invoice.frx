@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Report ScriptLanguage="CSharp" ReportInfo.Created="06/06/2025 15:23:09" ReportInfo.Modified="09/10/2025 08:41:19" ReportInfo.CreatorVersion="2025.2.0.0">
+  <ScriptText>using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Windows.Forms;
+using System.Drawing;
+using System.Data;
+using FastReport;
+using FastReport.Data;
+using FastReport.Dialog;
+using FastReport.Barcode;
+using FastReport.Table;
+using FastReport.Utils;
+
+namespace FastReport
+{
+  public class ReportScript
+  {
+  }
+}
+</ScriptText>
+  <Dictionary>
+    <TableDataSource Name="InvoiceMasterData" ReferenceName="InvoiceMasterData" DataType="System.Int32" Enabled="true">
+      <Column Name="PreparedBy" DataType="System.String"/>
+      <Column Name="GeneratedOn" DataType="System.String"/>
+      <Column Name="AppLevelStat2" DataType="System.String"/>
+      <Column Name="AppLevelStat2On" DataType="System.String"/>
+      <Column Name="AppLevelStat3" DataType="System.String"/>
+      <Column Name="AppLevelStat3On" DataType="System.String"/>
+      <Column Name="AppLevelStat4" DataType="System.String"/>
+      <Column Name="AppLevelStat4On" DataType="System.String"/>
+      <Column Name="AppLevelStat5" DataType="System.String"/>
+      <Column Name="AppLevelStat5On" DataType="System.String"/>
+      <Column Name="AppLevelStat6" DataType="System.String"/>
+      <Column Name="AppLevelStat6On" DataType="System.String"/>
+      <Column Name="ApproveLevel1By" DataType="System.String"/>
+      <Column Name="ApproveLevel2By" DataType="System.String"/>
+      <Column Name="ApproveLevel3By" DataType="System.String"/>
+      <Column Name="ApproveLevel4By" DataType="System.String"/>
+      <Column Name="ApproveLevel5By" DataType="System.String"/>
+      <Column Name="ApproveLevel6By" DataType="System.String"/>
+      <Column Name="Supplier" DataType="System.String"/>
+      <Column Name="CertificateRemarks" DataType="System.String"/>
+      <Column Name="DaysCount" DataType="System.Int32"/>
+      <Column Name="Id" DataType="System.Int32"/>
+      <Column Name="InvoiceFromDate" DataType="System.DateTime"/>
+      <Column Name="InvoiceNo" DataType="System.String"/>
+      <Column Name="InvoiceToDate" DataType="System.DateTime"/>
+      <Column Name="Unit" DataType="System.String"/>
+      <Column Name="RaisedDate" DataType="System.DateTime"/>
+      <Column Name="SystemCalculatedSum" DataType="System.Decimal"/>
+      <Column Name="VendorAdvancePayment" DataType="System.Decimal"/>
+      <Column Name="VendorContractSum" DataType="System.Decimal"/>
+      <Column Name="VendorTotalAmount" DataType="System.Decimal"/>
+      <Column Name="QrCode" DataType="System.String"/>
+      <Column Name="SerialNo" DataType="System.String"/>
+      <Column Name="MachineType" DataType="System.String"/>
+      <Column Name="CostDisplay" DataType="System.String"/>
+      <Column Name="PerDayCost" DataType="System.Decimal"/>
+    </TableDataSource>
+  </Dictionary>
+  <ReportPage Name="Page1" Guides="18.9,56.7,340.2,396.9,697.32,510.28,699.3,189,359.1,529.2,113.4,207.9,510.3,604.8,141.75,406.35,548.1,170.1,245.7,519.75,718.2" Watermark.Font="Arial, 60pt">
+    <ReportTitleBand Name="ReportTitle1" Width="718.2" Height="75.6" Guides="9.45,66.15,64.27,36.86">
+      <PictureObject Name="Picture1" Left="18.9" Top="9.45" Width="37.8" Height="56.7" ImageFormat="Jpeg" Image="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"/>
+      <TextObject Name="Text1" Left="56.7" Top="9.45" Width="283.5" Height="56.7" Fill.Color="Black" Text="TIMEX GARMENTS (PVT) LTD" HorzAlign="Center" VertAlign="Center" Font="Calibri, 16pt, style=Bold, Italic" TextFill.Color="White"/>
+      <TableObject Name="Table1" Left="396.9" Top="9.45" Width="300.42" Height="54.82" Border.Lines="All">
+        <TableColumn Name="Column1" Width="113.38"/>
+        <TableColumn Name="Column2" Width="187.04"/>
+        <TableRow Name="Row1" Height="27.41">
+          <TableCell Name="Cell1" Border.Lines="Bottom" Fill.Color="Black" Text="WORK COMPLETION CERTIFICATE" HorzAlign="Center" VertAlign="Center" Font="Calibri, 13pt, style=Bold, Italic" TextFill.Color="White" ColSpan="2"/>
+          <TableCell Name="Cell2" Font="Arial, 10pt"/>
+        </TableRow>
+        <TableRow Name="Row5" Height="27.41">
+          <TableCell Name="Cell21" Border.Lines="Right" Text="Invoice #" HorzAlign="Right" VertAlign="Center" Font="Calibri, 10pt, style=Bold, Italic"/>
+          <TableCell Name="Cell22" Text="[InvoiceMasterData.InvoiceNo]" HorzAlign="Center" VertAlign="Center" Font="Arial, 9pt, style=Bold"/>
+        </TableRow>
+      </TableObject>
+    </ReportTitleBand>
+    <PageHeaderBand Name="PageHeader1" Top="77.89" Width="718.2" Height="103.95" Guides="0,75.59999,18.9,37.8,56.7,85.05,103.95">
+      <TableObject Name="Table2" Left="18.9" Width="680.4" Height="75.6" Border.Lines="All">
+        <TableColumn Name="Column3" Width="170.1"/>
+        <TableColumn Name="Column4" Width="170.1"/>
+        <TableColumn Name="Column5" Width="170.1"/>
+        <TableColumn Name="Column6" Width="170.1"/>
+        <TableRow Name="Row6">
+          <TableCell Name="Cell23" Border.Lines="All" Text="Unit /Plant" HorzAlign="Right" VertAlign="Center" Font="Calibri, 8pt, style=Bold, Italic"/>
+          <TableCell Name="Cell24" Border.Lines="All" Text="[InvoiceMasterData.Unit]" HorzAlign="Center" VertAlign="Center" Font="Calibri, 8pt"/>
+          <TableCell Name="Cell25" Border.Lines="Left, Bottom" Text="Generated Date" HorzAlign="Right" VertAlign="Center" Font="Calibri, 8pt, style=Bold, Italic"/>
+          <TableCell Name="Cell26" Border.Lines="All" Text="[InvoiceMasterData.RaisedDate]" Format="Date" Format.Format="MMMM dd, yyyy" HorzAlign="Center" VertAlign="Center" Font="Calibri, 8pt"/>
+        </TableRow>
+        <TableRow Name="Row7">
+          <TableCell Name="Cell28" Border.Lines="Left, Bottom" Text="Supplier Name" HorzAlign="Right" VertAlign="Center" Font="Calibri, 8pt, style=Bold, Italic"/>
+          <TableCell Name="Cell29" Border.Lines="Left, Bottom" Text="[InvoiceMasterData.Supplier]" VertAlign="Center" Font="Calibri, 8pt" ColSpan="3"/>
+          <TableCell Name="Cell30" Border.Lines="Left, Bottom" HorzAlign="Right" VertAlign="Center" Font="Calibri, 10pt, style=Bold, Italic"/>
+          <TableCell Name="Cell31" Border.Lines="Left, Bottom" VertAlign="Center" Font="Calibri, 10pt"/>
+        </TableRow>
+        <TableRow Name="Row8">
+          <TableCell Name="Cell33" Border.Lines="Left, Bottom" Text="Invoice Date From" HorzAlign="Right" VertAlign="Center" Font="Calibri, 8pt, style=Bold, Italic"/>
+          <TableCell Name="Cell34" Border.Lines="All" Text="[InvoiceMasterData.InvoiceFromDate]" Format="Date" Format.Format="MMMM dd, yyyy" HorzAlign="Center" VertAlign="Center" Font="Calibri, 8pt"/>
+          <TableCell Name="Cell35" Border.Lines="Left, Bottom" Text="Invoice Date To" HorzAlign="Right" VertAlign="Center" Font="Calibri, 8pt, style=Bold, Italic"/>
+          <TableCell Name="Cell36" Border.Lines="All" Text="[InvoiceMasterData.InvoiceToDate]" Format="Date" Format.Format="MMMM dd, yyyy" HorzAlign="Center" VertAlign="Center" Font="Calibri, 8pt"/>
+        </TableRow>
+        <TableRow Name="Row10">
+          <TableCell Name="Cell43" Border.Lines="Left, Bottom" Text="Remarks " HorzAlign="Right" VertAlign="Center" Font="Calibri, 8pt, style=Bold, Italic"/>
+          <TableCell Name="Cell44" Border.Lines="All" Text="[InvoiceMasterData.CertificateRemarks]" VertAlign="Center" Font="Calibri, 8pt" ColSpan="3"/>
+          <TableCell Name="Cell45" Border.Lines="Left, Bottom" Font="Arial, 10pt"/>
+          <TableCell Name="Cell46" Border.Lines="Left, Bottom" Font="Arial, 10pt"/>
+        </TableRow>
+      </TableObject>
+      <TextObject Name="Text31" Left="18.9" Top="85.05" Width="94.5" Height="18.9" Border.Lines="All" Text="QR Code" HorzAlign="Center" VertAlign="Center" Font="Calibri, 8pt, style=Bold, Italic"/>
+      <TextObject Name="Text32" Left="113.4" Top="85.05" Width="94.5" Height="18.9" Border.Lines="All" Text="Serial #" HorzAlign="Center" VertAlign="Center" Font="Calibri, 8pt, style=Bold, Italic"/>
+      <TextObject Name="Text33" Left="207.9" Top="85.05" Width="151.2" Height="18.9" Border.Lines="All" Text="Machine Type" HorzAlign="Center" VertAlign="Center" Font="Calibri, 8pt, style=Bold, Italic"/>
+      <TextObject Name="Text34" Left="359.1" Top="85.05" Width="151.2" Height="18.9" Border.Lines="All" Text="Cost Type" HorzAlign="Center" VertAlign="Center" Font="Calibri, 8pt, style=Bold, Italic"/>
+      <TextObject Name="Text35" Left="510.3" Top="85.05" Width="94.5" Height="18.9" Border.Lines="All" Text="Day Cost (Rs.)" HorzAlign="Center" VertAlign="Center" Font="Calibri, 8pt, style=Bold, Italic"/>
+      <TextObject Name="Text36" Left="604.8" Top="85.05" Width="94.5" Height="18.9" Border.Lines="All" Text="Cost (Rs.)" HorzAlign="Center" VertAlign="Center" Font="Calibri, 8pt, style=Bold, Italic"/>
+    </PageHeaderBand>
+    <DataBand Name="Data1" Top="184.12" Width="718.2" Height="18.9" Guides="0,18.89999" DataSource="InvoiceMasterData">
+      <TextObject Name="Text37" Left="18.9" Width="94.5" Height="18.9" Border.Lines="All" Text="[InvoiceMasterData.QrCode]" HorzAlign="Center" VertAlign="Center" Font="Calibri, 8pt, style=Italic"/>
+      <TextObject Name="Text38" Left="113.4" Width="94.5" Height="18.9" Border.Lines="All" Text="[InvoiceMasterData.SerialNo]" HorzAlign="Center" VertAlign="Center" Font="Calibri, 8pt, style=Italic"/>
+      <TextObject Name="Text39" Left="207.9" Width="151.2" Height="18.9" Border.Lines="All" Text="[InvoiceMasterData.MachineType]" HorzAlign="Center" VertAlign="Center" Font="Calibri, 8pt, style=Italic"/>
+      <TextObject Name="Text40" Left="359.1" Width="151.2" Height="18.9" Border.Lines="All" Text="[InvoiceMasterData.CostDisplay]" HorzAlign="Center" VertAlign="Center" Font="Calibri, 8pt, style=Italic"/>
+      <TextObject Name="Text41" Left="510.3" Width="94.5" Height="18.9" Border.Lines="All" Text="[InvoiceMasterData.PerDayCost] * [InvoiceMasterData.DaysCount]" HorzAlign="Center" VertAlign="Center" Font="Calibri, 8pt, style=Italic"/>
+      <TextObject Name="Text42" Left="604.8" Width="94.5" Height="18.9" Border.Lines="All" Text="[[InvoiceMasterData.PerDayCost] * [InvoiceMasterData.DaysCount]]" HorzAlign="Right" VertAlign="Center" Font="Calibri, 8pt, style=Italic"/>
+    </DataBand>
+    <ReportSummaryBand Name="ReportSummary1" Top="205.31" Width="718.2" Height="321.3" Guides="141.75,302.4,160.65,189,217.35,245.7,274.05,37.8,56.70001,58.70001,77.60001,79.60001,98.5,9.449997,28.34999,113.4,132.3">
+      <TableObject Name="Table6" Left="18.9" Top="141.75" Width="680.4" Height="160.65" Border.Lines="All">
+        <TableColumn Name="Column27" Width="122.85"/>
+        <TableColumn Name="Column28" Width="264.6"/>
+        <TableColumn Name="Column29" Width="103.95"/>
+        <TableColumn Name="Column31" Width="189"/>
+        <TableRow Name="Row24">
+          <TableCell Name="Cell139" Font="Arial, 10pt"/>
+          <TableCell Name="Cell140" Border.Lines="Bottom" Font="Arial, 10pt"/>
+          <TableCell Name="Cell141" Border.Lines="All" Text="Status" HorzAlign="Center" Font="Calibri, 8pt, style=Bold, Italic"/>
+          <TableCell Name="Cell142" Border.Lines="All" Text="Responded On" HorzAlign="Center" Font="Calibri, 8pt, style=Bold, Italic"/>
+        </TableRow>
+        <TableRow Name="Row18" Height="28.35">
+          <TableCell Name="Cell83" Border.Lines="All" Text="Checked By&#13;&#10;(Factory Accountant)" HorzAlign="Right" VertAlign="Center" Font="Calibri, 8.25pt, style=Bold, Italic"/>
+          <TableCell Name="Cell84" Border.Lines="All" Text="[InvoiceMasterData.ApproveLevel2By]" VertAlign="Center" Font="Calibri, 8pt, style=Italic"/>
+          <TableCell Name="Cell85" Border.Lines="All" Text="[InvoiceMasterData.AppLevelStat2]" HorzAlign="Center" VertAlign="Center" Font="Calibri, 8pt, style=Italic"/>
+          <TableCell Name="Cell103" Border.Lines="All" Text="[InvoiceMasterData.AppLevelStat2On]" HorzAlign="Center" VertAlign="Center" Font="Calibri, 8pt, style=Italic"/>
+        </TableRow>
+        <TableRow Name="Row19" Height="28.35">
+          <TableCell Name="Cell109" Border.Lines="All" Text="Recommended By&#13;&#10;(General Manager)" HorzAlign="Right" Font="Calibri, 8pt, style=Bold, Italic"/>
+          <TableCell Name="Cell110" Border.Lines="All" Text="[InvoiceMasterData.ApproveLevel3By]" VertAlign="Center" Font="Calibri, 8pt, style=Italic"/>
+          <TableCell Name="Cell111" Border.Lines="All" Text="[InvoiceMasterData.AppLevelStat3]" HorzAlign="Center" VertAlign="Center" Font="Calibri, 8pt, style=Italic"/>
+          <TableCell Name="Cell112" Border.Lines="All" Text="[InvoiceMasterData.AppLevelStat3On]" HorzAlign="Center" VertAlign="Center" Font="Calibri, 8pt, style=Italic"/>
+        </TableRow>
+        <TableRow Name="Row20" Height="28.35">
+          <TableCell Name="Cell115" Border.Lines="All" Text="Recommended By&#13;&#10;(General Manager)" HorzAlign="Right" Font="Calibri, 8pt, style=Bold, Italic"/>
+          <TableCell Name="Cell116" Border.Lines="All" Text="[InvoiceMasterData.ApproveLevel4By]" VertAlign="Center" Font="Calibri, 8pt, style=Italic"/>
+          <TableCell Name="Cell117" Border.Lines="All" Text="[InvoiceMasterData.AppLevelStat4]" HorzAlign="Center" VertAlign="Center" Font="Calibri, 8pt, style=Italic"/>
+          <TableCell Name="Cell118" Border.Lines="All" Text="[InvoiceMasterData.AppLevelStat4On]" HorzAlign="Center" VertAlign="Center" Font="Calibri, 8pt, style=Italic"/>
+        </TableRow>
+        <TableRow Name="Row21" Height="28.35">
+          <TableCell Name="Cell121" Border.Lines="All" Text="Approved By&#13;&#10;(CAO)" HorzAlign="Right" Font="Calibri, 8pt, style=Bold, Italic"/>
+          <TableCell Name="Cell122" Border.Lines="All" Text="[InvoiceMasterData.ApproveLevel5By]" VertAlign="Center" Font="Calibri, 8pt, style=Italic"/>
+          <TableCell Name="Cell123" Border.Lines="All" Text="[InvoiceMasterData.AppLevelStat5]" HorzAlign="Center" VertAlign="Center" Font="Calibri, 8pt, style=Italic"/>
+          <TableCell Name="Cell124" Border.Lines="All" Text="[InvoiceMasterData.AppLevelStat5On]" HorzAlign="Center" VertAlign="Center" Font="Calibri, 8pt, style=Italic"/>
+        </TableRow>
+        <TableRow Name="Row22" Height="28.35">
+          <TableCell Name="Cell127" Border.Lines="All" Text="Approved By&#13;&#10;(Director)" HorzAlign="Right" Font="Calibri, 8pt, style=Bold, Italic"/>
+          <TableCell Name="Cell128" Border.Lines="All" Text="[InvoiceMasterData.ApproveLevel6By]" VertAlign="Center" Font="Calibri, 8pt, style=Italic"/>
+          <TableCell Name="Cell129" Border.Lines="All" Text="[InvoiceMasterData.AppLevelStat6]" HorzAlign="Center" VertAlign="Center" Font="Calibri, 8pt, style=Italic"/>
+          <TableCell Name="Cell130" Border.Lines="All" Text="[InvoiceMasterData.AppLevelStat6On]" HorzAlign="Center" VertAlign="Center" Font="Calibri, 8pt, style=Italic"/>
+        </TableRow>
+      </TableObject>
+      <TextObject Name="Text43" Left="396.9" Top="37.8" Width="151.2" Height="18.9" Border.Lines="All" Fill.Color="Black" Text="Invoice Contract Sum" HorzAlign="Right" VertAlign="Center" Font="Calibri, 8pt, style=Bold, Italic" TextFill.Color="White"/>
+      <TextObject Name="Text44" Left="548.1" Top="37.8" Width="151.2" Height="18.9" Border.Lines="All" Text="[InvoiceMasterData.VendorContractSum]" Format="Number" Format.UseLocale="true" Format.DecimalDigits="2" HorzAlign="Right" VertAlign="Center" Font="Calibri, 8pt, style=Italic"/>
+      <TextObject Name="Text45" Left="396.9" Top="58.7" Width="151.2" Height="18.9" Border.Lines="All" Fill.Color="Black" Text="Invoice Advance Payments" HorzAlign="Right" VertAlign="Center" Font="Calibri, 8pt, style=Bold, Italic" TextFill.Color="White"/>
+      <TextObject Name="Text46" Left="548.1" Top="58.7" Width="151.2" Height="18.9" Border.Lines="All" Text="[InvoiceMasterData.VendorAdvancePayment]" Format="Number" Format.UseLocale="true" Format.DecimalDigits="2" HorzAlign="Right" VertAlign="Center" Font="Calibri, 8pt, style=Italic"/>
+      <TextObject Name="Text47" Left="396.9" Top="79.6" Width="151.2" Height="18.9" Border.Lines="All" Fill.Color="Black" Text="Invoice Total Amount" HorzAlign="Right" VertAlign="Center" Font="Calibri, 8pt, style=Bold, Italic" TextFill.Color="White"/>
+      <TextObject Name="Text48" Left="548.1" Top="79.6" Width="151.2" Height="18.9" Border.Lines="All" Text="[InvoiceMasterData.VendorTotalAmount]" Format="Number" Format.UseLocale="true" Format.DecimalDigits="2" HorzAlign="Right" VertAlign="Center" Font="Calibri, 8pt, style=Bold, Italic"/>
+      <TextObject Name="Text49" Left="396.9" Top="9.45" Width="151.2" Height="18.9" Border.Lines="All" Text="System Sum" HorzAlign="Right" VertAlign="Center" Font="Calibri, 8pt, style=Bold, Italic"/>
+      <TextObject Name="Text50" Left="548.1" Top="9.45" Width="151.2" Height="18.9" Border.Lines="All" Text="[InvoiceMasterData.SystemCalculatedSum]" Format="Number" Format.UseLocale="true" Format.DecimalDigits="2" HorzAlign="Right" VertAlign="Center" Font="Calibri, 8pt, style=Italic"/>
+      <TextObject Name="Text51" Left="18.9" Top="113.4" Width="151.2" Height="18.9" Border.Lines="All" Text="Amount to pay in letters" HorzAlign="Right" VertAlign="Center" Font="Calibri, 8pt, style=Bold, Italic"/>
+      <TextObject Name="Text52" Left="170.1" Top="113.4" Width="529.2" Height="18.9" Border.Lines="All" Text="[ToWords(Floor([InvoiceMasterData.VendorTotalAmount]), &quot;Rupees&quot;, &quot;&quot;)] Rupees and [ToWords(Round(([InvoiceMasterData.VendorTotalAmount] - Floor([InvoiceMasterData.VendorTotalAmount])) * 100), &quot;Cents&quot;, &quot;&quot;)] Cents Only" VertAlign="Center" Font="Calibri, 8pt, style=Bold, Italic"/>
+    </ReportSummaryBand>
+    <PageFooterBand Name="PageFooter1" Top="528.89" Width="718.2" Height="28.35" Guides="9.450012,28.35004,0">
+      <TextObject Name="Text24" Left="245.7" Top="9.45" Width="274.05" Height="18.9" Text="Timex Garments PVT (LTD)" HorzAlign="Center" Font="Cambria, 9pt, style=Bold, Italic"/>
+      <TextObject Name="Text29" Left="18.9" Top="9.45" Width="226.8" Height="18.9" Text="Do not print this document unless you really need to !!!" Font="Calibri, 7pt, style=Italic"/>
+      <TextObject Name="Text30" Left="529.2" Top="9.45" Width="168.12" Height="18.9" Text="[Date]" HorzAlign="Right" Font="Calibri, 7pt, style=Italic"/>
+      <LineObject Name="Line1" Left="18.9" Width="699.3" Diagonal="true"/>
+    </PageFooterBand>
+  </ReportPage>
+</Report>

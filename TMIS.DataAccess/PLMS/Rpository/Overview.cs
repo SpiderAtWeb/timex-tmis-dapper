@@ -13,7 +13,7 @@ namespace TMIS.DataAccess.PLMS.Rpository
         {
             string query = @"
               SELECT [Id]
-                  ,CONCAT(InquiryRef, '-', CycleNo) AS InquiryRef
+                  ,CONCAT(InquiryRef, '.v', CycleNo) AS InquiryRef
                   ,[Customer]
                   ,[CycleNo]
                   ,[StyleNo]

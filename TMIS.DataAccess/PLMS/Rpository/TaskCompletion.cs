@@ -1,6 +1,8 @@
 ﻿using Dapper;
 using System.Data;
+using System.Diagnostics;
 using System.Threading.Tasks;
+using System.Transactions;
 using TMIS.DataAccess.COMON.IRpository;
 using TMIS.DataAccess.PLMS.IRpository;
 using TMIS.Models.PLMS;
@@ -17,9 +19,10 @@ namespace TMIS.DataAccess.PLMS.Rpository
 
         private const long MaxZipSize = 5 * 1024 * 1024;
 
+        List<DateTime> companyDateList = [];
         public async Task<IEnumerable<ShowInquiryDataVM>> GetInquiriesUserIdAsync()
         {
-            string sql = @"SELECT DISTINCT Id, CONCAT(InquiryRef, '-', [CycleNo]) AS InquiryRef, [StyleNo], [StyleDesc], [ColorCode], 
+            string sql = @"SELECT DISTINCT Id, CONCAT(InquiryRef, '.v', [CycleNo]) AS InquiryRef, [StyleNo], [StyleDesc], [ColorCode], 
                           [InquiryType], [Customer], [SeasonName], [SampleType], [ArtWork], [Remarks]
                    FROM PLMS_VwInquiryListPendingUserId WHERE [UserId] = @Id";
 
@@ -34,10 +37,8 @@ namespace TMIS.DataAccess.PLMS.Rpository
                 try
                 {
                     // Get InquiryId
-                    string inquiryIdQuery = @"
-                SELECT TrInqDtId
-                FROM [dbo].[PLMS_TrInquiryActivityDetails]
-                WHERE Id = @Id";
+                    string inquiryIdQuery = @"SELECT TrInqDtId FROM [dbo].[PLMS_TrInquiryActivityDetails] WHERE Id = @Id";
+
                     int inquiryId = 0;
 
                     if (saveTasks.MainTasks == null || saveTasks.MainTasks.Count == 0)
@@ -90,13 +91,13 @@ namespace TMIS.DataAccess.PLMS.Rpository
 
                         // Update task with optional file path
                         string mainTaskQuery = @"
-                    UPDATE [dbo].[PLMS_TrInquiryActivityDetails]
-                    SET [IsCompleted] = 1,
-                        [ActualCompletedDate] = GETDATE(),
-                        [Remarks] = @Comment,
-                        [DoneBy] = @User,
-                        ZipFilePath = @FilePath
-                    WHERE Id = @Id";
+                        UPDATE [dbo].[PLMS_TrInquiryActivityDetails]
+                        SET [IsCompleted] = 1,
+                            [ActualCompletedDate] = GETDATE(),
+                            [Remarks] = @Comment,
+                            [DoneBy] = @User,
+                            ZipFilePath = @FilePath
+                        WHERE Id = @Id";
 
                         await connection.ExecuteAsync(mainTaskQuery, new
                         {
@@ -107,6 +108,8 @@ namespace TMIS.DataAccess.PLMS.Rpository
                         }, transaction);
 
                         await UpdateTaskLogAsync(connection, transaction, inquiryId, activity.TaskId, true);
+
+                        await UpdateXdays((activity.TaskId + 1), inquiryId, connection, transaction);
                     }
 
                     // 🟩 Handle Sub Tasks
@@ -132,13 +135,13 @@ namespace TMIS.DataAccess.PLMS.Rpository
                         }
 
                         string subTaskQuery = @"
-                    UPDATE [dbo].[PLMS_TrInquiryActivityDetailsSub]
-                    SET IsCompleted = 1,
-                        ActualCompletedDate = GETDATE(),
-                        Remarks = @Comment,
-                        DoneBy = @User,
-                        ZipFilePath = @FilePath
-                    WHERE Id = @Id";
+                        UPDATE [dbo].[PLMS_TrInquiryActivityDetailsSub]
+                        SET IsCompleted = 1,
+                            ActualCompletedDate = GETDATE(),
+                            Remarks = @Comment,
+                            DoneBy = @User,
+                            ZipFilePath = @FilePath
+                        WHERE Id = @Id";
 
                         await connection.ExecuteAsync(subTaskQuery, new
                         {
@@ -162,6 +165,61 @@ namespace TMIS.DataAccess.PLMS.Rpository
             }
         }
 
+        private async Task<int> GetSelectedDateIndexAsync(DateTime selectedDate, IDbConnection connection, IDbTransaction transaction)
+        {
+            companyDateList = (await connection.QueryAsync<DateTime>(
+                "SELECT CalendarDate FROM COMN_MasterCompCalendar",
+                transaction: transaction  // ✅ Important
+            )).ToList();
+
+            int selectedIndex = companyDateList.FindIndex(d => d == selectedDate);
+
+            if (selectedIndex == -1)
+            {
+                selectedIndex = companyDateList.FindIndex(d => d > selectedDate);
+            }
+
+            return selectedIndex;
+        }
+
+        private string GetDateFromCalander(int daysCount)
+        {
+            DateTime postionDate = companyDateList.ElementAtOrDefault(daysCount);
+            return postionDate.ToString("yyyy-MM-dd");
+        }
+
+        private async Task UpdateXdays(int inqId, int trINQDTId, IDbConnection connection, IDbTransaction transaction)
+        {
+            var sqlCheck = @"SELECT IsAwaitingTask FROM PLMS_TrInquiryActivityDetails WHERE Id = @Id";
+            var isAwait = await connection.QuerySingleAsync<bool>(sqlCheck, new { Id = inqId }, transaction);
+
+            if (!isAwait) return;
+
+            var parameters = new { TrINQDTId = trINQDTId, Id = inqId };
+            var result = (await connection.QueryAsync<OffsetDayResult>(
+                "GetOffsetDaysRange",
+                param: parameters,
+                transaction: transaction,
+                commandType: System.Data.CommandType.StoredProcedure
+            )).ToList();
+
+            if (result.Count == 0) return;
+
+            // Fetch startDateIndex first, do not call another query inside loop
+            int startDateIndex = await GetSelectedDateIndexAsync(DateTime.Now, connection, transaction) - 1;
+
+            foreach (var res in result)
+            {
+                string activityDate = GetDateFromCalander(startDateIndex + res.OffsetDays);
+
+                var updateQuery = @"
+                UPDATE PLMS_TrInquiryActivityDetails
+                SET RequiredDate = @RequiredDate
+                WHERE TrINQDTId = @TrINQDTId AND Id = @Id";
+
+                await connection.ExecuteAsync(updateQuery, new { RequiredDate = activityDate, TrINQDTId = trINQDTId, Id = res.Id }, transaction);
+            }
+        }
 
         public async Task<ModalShowVM> LoadModalDataUserIdAsync(string Id)
         {
@@ -294,7 +352,6 @@ namespace TMIS.DataAccess.PLMS.Rpository
             }
             return dynamicModel;
         }
-
 
         private async Task UpdateTaskLogAsync(IDbConnection connection, IDbTransaction transaction, int inquiryId, int taskId, bool isMain)
         {

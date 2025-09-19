@@ -6,6 +6,7 @@ namespace TMIS.DataAccess.COMON.IRpository
     public interface IUserControls
     {
         Task<IEnumerable<SelectListItem>> LoadDropDownsAsync(string tableName);
+        Task<IEnumerable<SelectListItem>> LoadRouteDropAsync(string tableName);
 
         public Task<string> GenerateRefAsync(IDbConnection connection, IDbTransaction transaction, string tableName, string gpType);
 

@@ -375,18 +375,15 @@ namespace TMIS.DataAccess.SMIM.Repository
             const string query = @"
         INSERT INTO SMIM_TrInventory 
         (QrCode, SerialNo, IsOwned, DateBorrow, DateDue,  ServiceSeq,
-         MachineBrandId, MachineTypeId, LocationId, OwnedUnitId, CurrentUnitId, CurrentStatusId, MachineModelId, Cost, ImageFR, ImageBK, DateCreate , IsDelete, SupplierId, CostMethodId, Comments, DispatchImageAv, DispatchImage, ReturnGPImageAv, ReturnGPImage ) OUTPUT INSERTED.Id
+         MachineBrandId, MachineTypeId, LocationId, OwnedUnitId, CurrentUnitId, CurrentStatusId, MachineModelId, Cost, ImageFR, ImageBK, DateCreate , IsDelete, SupplierId, CostMethodId, Comments, DispatchImageAv, DispatchImage, ReturnGPImageAv, ReturnGPImage, FinanceApprove ) OUTPUT INSERTED.Id
         VALUES 
         (@QrCode, @SerialNo, 0 , @DateBorrow, @DateDue, @ServiceSeq,
-         @MachineBrandId, @MachineTypeId, @LocationId, @OwnedUnitId, @OwnedUnitId, 1 , @MachineModelId, @Cost, @ImageFR, @ImageBK, @NowDT, 0, @SupplierId, @CostMethodId, @Comments, @DispatchImageAv, @DispatchImage, @ReturnGPImageAv, @ReturnGPImage )";
+         @MachineBrandId, @MachineTypeId, @LocationId, @OwnedUnitId, @OwnedUnitId, 1 , @MachineModelId, @Cost, @ImageFR, @ImageBK, @NowDT, 0, @SupplierId, @CostMethodId, @Comments, @DispatchImageAv, @DispatchImage, @ReturnGPImageAv, @ReturnGPImage, 0)";
 
             try
             {
                 byte[]? imageFrontBytes = null;
-                byte[]? imageBackBytes = null;
-
-                byte[]? dispatchNoteBytes = null;
-                byte[]? returnGatePassBytes = null;
+                byte[]? imageBackBytes = null;          
 
                 string docTypes =string.Empty; // Dispatch Note
 
@@ -407,6 +404,9 @@ namespace TMIS.DataAccess.SMIM.Repository
                         imageBackBytes = memoryStream.ToArray();
                     }
                 }
+
+                byte[]? dispatchNoteBytes = null;
+                byte[]? returnGatePassBytes = null;
 
                 if (dispatchNote != null && dispatchNote.Length > 0)
                 {
@@ -465,20 +465,18 @@ namespace TMIS.DataAccess.SMIM.Repository
             }
         }
 
-
-
         public async Task<McInventory?> GetRentMcInventoryByIdAsync(int? id)
         {
             const string query = @"
-            SELECT Id, QrCode, SerialNo, DateBorrow, DateDue, ServiceSeq,
+            SELECT Id, QrCode, SerialNo, DateBorrow, DateDue, ServiceSeq, ReturnGPImage, DispatchImage, 
             MachineBrandId, MachineTypeId, LocationId, OwnedUnitId,
-            CurrentUnitId, CurrentStatusId, MachineModelId, SupplierId, CostMethodId, Cost, ImageFR, ImageBK, Comments
+            CurrentUnitId, CurrentStatusId, MachineModelId, SupplierId, CostMethodId, Cost, ImageFR, ImageBK, Comments, DispatchImageAv, ReturnGPImageAv
             FROM SMIM_TrInventory WHERE Id = @Id AND IsDelete = 0";
 
             return await _dbConnection.GetConnection().QuerySingleOrDefaultAsync<McInventory>(query, new { Id = id });
         }
 
-        public async Task<int> UpdateRentMachineAsync(McInventory mcInventory, IFormFile? imageFront, IFormFile? imageBack)
+        public async Task<int> UpdateRentMachineAsync(McInventory mcInventory, IFormFile? imageFront, IFormFile? imageBack, IFormFile? dispatchNote, IFormFile? returnGatePass)
         {
             using var connection = _dbConnection.GetConnection();
             using var transaction = connection.BeginTransaction();
@@ -502,7 +500,7 @@ namespace TMIS.DataAccess.SMIM.Repository
             // Get current machine state
             var beforeUpdate = await connection.QueryFirstOrDefaultAsync(
                 @"SELECT Id, SerialNo, FarCode, DatePurchased, DateBorrow, DateDue, ServiceSeq, MachineBrandId, MachineBrand, 
-                     MachineTypeId, MachineType, MachineModelId, MachineModel, SupplierId, Supplier, CostMethodId, CostMethod, Cost 
+                     MachineTypeId, MachineType, MachineModelId, MachineModel, SupplierId, Supplier, CostMethodId, CostMethod, Cost, DispatchImageAv, ReturnGPImageAv 
               FROM SMIM_VwHelpEditLog WHERE Id = @Id",
                 new { mcInventory.Id }, transaction);
 
@@ -523,6 +521,10 @@ namespace TMIS.DataAccess.SMIM.Repository
                 "SupplierId = @SupplierId",
                 "CostMethodId = @CostMethodId",
                 "Cost = @Cost",
+                "DispatchImageAv = @DispatchImageAv",
+                "DispatchImage = @DispatchImage",
+                "ReturnGPImageAv = @ReturnGPImageAv",
+                "ReturnGPImage = @ReturnGPImage",
                 "DateUpdate = @NowDT"
             };
 
@@ -549,6 +551,21 @@ namespace TMIS.DataAccess.SMIM.Repository
                 updateFields.Add("ImageBK = @ImageBK");
             }
 
+            string docTypes = string.Empty;
+
+            byte[]? dispatchNoteBytes = null;
+            byte[]? returnGatePassBytes = null;
+
+            if (dispatchNote != null && dispatchNote.Length > 0)
+            {
+                dispatchNoteBytes = await PdfMaster.ImageToPdfAsync(dispatchNote);
+            }
+
+            if (returnGatePass != null && returnGatePass.Length > 0)
+            {
+                returnGatePassBytes = await PdfMaster.ImageToPdfAsync(returnGatePass);
+            }
+
             var query = $@"UPDATE SMIM_TrInventory SET {string.Join(", ", updateFields)} WHERE Id = @Id";
 
             try
@@ -569,6 +586,10 @@ namespace TMIS.DataAccess.SMIM.Repository
                     mcInventory.Cost,
                     ImageFR = imageFrontBytes,
                     ImageBK = imageBackBytes,
+                    DispatchImageAv = dispatchNoteBytes != null && dispatchNoteBytes.Length > 0 ? 1 : 0,
+                    DispatchImage = dispatchNoteBytes,
+                    ReturnGPImageAv = returnGatePassBytes != null && returnGatePassBytes.Length > 0 ? 1 : 0,
+                    ReturnGPImage = returnGatePassBytes,
                     NowDT = DateTime.Now
                 }, transaction);
 
@@ -581,7 +602,7 @@ namespace TMIS.DataAccess.SMIM.Repository
                 var afterUpdate = await connection.QueryFirstOrDefaultAsync(
                   @"SELECT Id, SerialNo, FarCode, DatePurchased, DateBorrow, DateDue, ServiceSeq, MachineBrandId, MachineBrand, MachineTypeId, MachineType, 
 					MachineModelId, MachineModel, SupplierId, Supplier, 
-					CostMethodId, CostMethod, Cost FROM  SMIM_VwHelpEditLog WHERE  (Id = @Id)",
+					CostMethodId, CostMethod, Cost, DispatchImageAv, ReturnGPImageAv FROM  SMIM_VwHelpEditLog WHERE  (Id = @Id)",
                   new { mcInventory.Id }, transaction);
 
                 var logChanges = new StringBuilder();
@@ -595,6 +616,8 @@ namespace TMIS.DataAccess.SMIM.Repository
                 LogFieldChanges(logChanges, "Supplier", beforeUpdate.SupplierId.ToString(), afterUpdate?.SupplierId.ToString(), beforeUpdate.Supplier, afterUpdate?.Supplier);
                 LogFieldChanges(logChanges, "CostMethod", beforeUpdate.CostMethodId.ToString(), afterUpdate?.CostMethodId.ToString(), beforeUpdate.CostMethod, afterUpdate?.CostMethod);
                 LogFieldChanges(logChanges, "Cost", beforeUpdate.Cost.ToString(), afterUpdate?.Cost.ToString(), beforeUpdate.Cost.ToString(), afterUpdate?.Cost.ToString());
+                LogFieldChanges(logChanges, "Dispatch Image", beforeUpdate.DispatchImageAv.ToString(), afterUpdate?.DispatchImageAv.ToString(), beforeUpdate.DispatchImageAv.ToString(), afterUpdate?.DispatchImageAv.ToString());
+                LogFieldChanges(logChanges, "Return GP Image", beforeUpdate.ReturnGPImageAv.ToString(), afterUpdate?.ReturnGPImageAv.ToString(), beforeUpdate.ReturnGPImageAv.ToString(), afterUpdate?.ReturnGPImageAv.ToString());
 
                 if (logChanges.Length > 0)
                 {

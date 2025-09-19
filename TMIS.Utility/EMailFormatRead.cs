@@ -108,6 +108,7 @@ namespace TMIS.Utility
 
             return htmlBody;
         }
+
         public static string GetApprovalThreeColumnsITISEmailBody(Dictionary<string, string> placeholders,
           List<(string ColA, string ColB)> headers,
           List<(string ColA, string ColB, string ColC, string ColD)> details)
@@ -175,6 +176,7 @@ namespace TMIS.Utility
             }
             return htmlBody;
         }
+       
         public static string GetITRequestHRRSEmailBody(Dictionary<string, string> placeholders)
         {
             string templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "EmailTemplates", "ITRequest-HRRS.htm");
@@ -186,6 +188,43 @@ namespace TMIS.Utility
             {
                 htmlBody = htmlBody.Replace($"{{{item.Key}}}", item.Value);
             }
+            return htmlBody;
+        }
+
+        public static string GetApprovalSMIMsEmailBody(Dictionary<string, string> placeholders, Dictionary<string, string> endPlaceholders, List<(string ColA, string ColB, string ColC, string ColD, string ColE, string ColF)> details)
+        {
+            string templatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "EmailTemplates", "SM-Invoice-Appoval.htm");
+
+            string htmlBody = File.ReadAllText(templatePath);
+
+            //Replace details
+            var sbD = new StringBuilder();
+            foreach (var (ColA, ColB, ColC, ColD, ColE, ColF) in details)
+            {
+                sbD.AppendLine(@$"<tr>
+                    <td style=""border: 1px solid #dee2e6; padding: 8px; text-align: center; font-size: 11px;"">{ColA}</td>
+                    <td style=""border: 1px solid #dee2e6; padding: 8px; text-align: center; font-size: 11px;"">{ColB}</td>
+                    <td style=""border: 1px solid #dee2e6; padding: 8px; text-align: center; font-size: 11px;"">{ColC}</td>
+                    <td style=""border: 1px solid #dee2e6; padding: 8px; text-align: center; font-size: 11px;"">{ColD}</td>
+                    <td style=""border: 1px solid #dee2e6; padding: 8px; text-align: center; font-size: 11px;"">{ColE}</td>
+                    <td style=""border: 1px solid #dee2e6; padding: 8px; text-align: right; font-size: 11px;"">{ColF}</td>
+                </tr>");
+            }
+
+            htmlBody = htmlBody.Replace("{DETAILS}", sbD.ToString());
+
+            // Replace placeholders
+            foreach (var item in placeholders)
+            {
+                htmlBody = htmlBody.Replace($"{{{item.Key}}}", item.Value);
+            }
+
+            // Replace placeholders
+            foreach (var item in endPlaceholders)
+            {
+                htmlBody = htmlBody.Replace($"{{{item.Key}}}", item.Value);
+            }
+
             return htmlBody;
         }
     }

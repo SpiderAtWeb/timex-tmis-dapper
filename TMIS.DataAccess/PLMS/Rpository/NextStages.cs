@@ -1,6 +1,5 @@
 ﻿using Dapper;
 using Microsoft.AspNetCore.Http;
-using System.Data;
 using TMIS.DataAccess.COMON.IRpository;
 using TMIS.DataAccess.PLMS.IRpository;
 using TMIS.Models.PLMS;
@@ -18,13 +17,12 @@ namespace TMIS.DataAccess.PLMS.Rpository
         {
             using (var connection = _dbConnection.GetConnection())
             {
-                string query = @"SELECT 
-                            [Id], [CustomerId], [InquiryTypeId], 
-                            CustomerName, InquiryType, StyleNo, StyleDesc, ColorCode 
+                string query = @"SELECT [TrINQId], [CustomerId], [InquiryTypeId], ColorCode, SeasonName,
+                            Customer, InquiryType, StyleNo, StyleDesc, ColorCode 
                          FROM  
-                            PLMS_VwInqHeader
+                            [PLMS_VwInquiryListPending]
                          WHERE     
-                            DtId = @InquiryId";
+                            Id = @InquiryId";
 
                 // Await the asynchronous database query to fetch the Inquiry
                 var inquiry = await connection.QueryFirstOrDefaultAsync<Inquiry>(query, new { InquiryId = id });
@@ -33,9 +31,9 @@ namespace TMIS.DataAccess.PLMS.Rpository
                 var oNextStageInquiryVM = new NextStageInquiryVM
                 {
                     InquiryTypesList = await _userControls.LoadDropDownsAsync("PLMS_MasterTwoInquiryTypes"),
-                    ResponseTypesList = await _userControls.LoadDropDownsAsync("PLMS_MdReponseTypes"),
                     SampleTypesList = await _userControls.LoadDropDownsAsync("PLMS_MasterTwoSampleTypes"),
-                    SampleStagesList = await _userControls.LoadDropDownsAsync("PLMS_MdExtend"),
+                    RoutingPresetsList = await _userControls.LoadRouteDropAsync("PLMS_CPTemplateHeader"),
+
                     Inquiry = inquiry
                 };
 
@@ -43,20 +41,37 @@ namespace TMIS.DataAccess.PLMS.Rpository
             }
         }
 
-        public async Task<string> SaveNextInquiryAsync(Models.PLMS.NewInquiryVM inquiryVM, IFormFile? artwork)
+        public async Task<string> SaveNextInquiryAsync(NextStageInquiryVM oNextInquiryVM, IFormFile? artwork)
         {
             var connection = _dbConnection.GetConnection();
             using (var transaction = connection.BeginTransaction())
             {
                 try
                 {
-                    if (inquiryVM == null)
+                    if (oNextInquiryVM == null)
                     {
-                        throw new ArgumentNullException(nameof(inquiryVM), "InquiryVM cannot be null.");
+                        throw new ArgumentNullException(nameof(oNextInquiryVM), "InquiryVM cannot be null.");
                     }
 
-                    var inquiryDtId = await InsertInquiryDetailsAsync(connection, transaction, inquiryVM, artwork);
-                    await InsertActivitiesAsync(connection, transaction, inquiryDtId, inquiryVM.ActivityList);
+                    var oNewInquiryVM = new NewInquiryVM
+                    {
+                        Id = oNextInquiryVM.Inquiry!.TrINQId,
+                        CustomerId = oNextInquiryVM.Inquiry.CustomerId,
+                        StyleNo = oNextInquiryVM.Inquiry.StyleNo,
+                        StyleDesc = oNextInquiryVM.Inquiry.StyleDesc,
+                        ColorCode = oNextInquiryVM.Inquiry.ColorCode,
+                        Remarks = oNextInquiryVM.Inquiry.InquiryComment,
+                        ReceivedDate = oNextInquiryVM.Inquiry.InquiryRecDate,
+                        Season = oNextInquiryVM.Inquiry.SeasonName,
+                        IsPriceStageAv = oNextInquiryVM.Inquiry.IsPriceStageAv,
+                        IsSMVStageAv = oNextInquiryVM.Inquiry.IsSMVStageAv,
+                        InquiryTypeId = oNextInquiryVM.Inquiry.InquiryTypeId,
+                        SampleTypeId = oNextInquiryVM.Inquiry.SampleTypeId,
+                        ActivityList = oNextInquiryVM.ActivityList
+                    };
+
+                    var inquiryDtId = await NewInquiry.InsertDetailsAsync(connection, transaction, oNewInquiryVM.Id, oNewInquiryVM, artwork);
+                    await NewInquiry.InsertActivitiesAsync(connection, transaction, inquiryDtId, oNewInquiryVM.ActivityList);
 
                     Logdb logdb = new()
                     {
@@ -69,8 +84,6 @@ namespace TMIS.DataAccess.PLMS.Rpository
                     // Commit the transaction if all operations are successful
                     transaction.Commit();
 
-
-
                     return "Success: Inquiry saved successfully.";
                 }
                 catch (Exception ex)
@@ -81,90 +94,5 @@ namespace TMIS.DataAccess.PLMS.Rpository
                 }
             }
         }
-
-        private static async Task<int> InsertInquiryDetailsAsync(IDbConnection connection, IDbTransaction transaction, Models.PLMS.NewInquiryVM inquiryVM, IFormFile? artwork)
-        {
-            byte[]? artworkBytes = null;
-
-            if (artwork != null && artwork.Length > 0)
-            {
-                using (var memoryStream = new MemoryStream())
-                {
-                    await artwork.CopyToAsync(memoryStream);
-                    artworkBytes = memoryStream.ToArray();
-                }
-            }
-
-            var query = @"SELECT ISNULL(MAX(CycleNo), 0) + 1 FROM PLMS_TrInqDetails WHERE TrInqId = @InquiryId";
-            var cycleNo = await connection.QuerySingleAsync<int>(query, new { InquiryId = inquiryVM.Id, }, transaction);
-
-            var sqlDetail = @"INSERT INTO [dbo].[PLMS_TrInqDetails]
-             ([TrInqId], [CycleNo], [ResponseTypeId], [Season], [SampleTypeId], [SampleStageId], [ColorCode], [ImageSketch],
-              [DateResponseReq], [IsPriceUpdate], [InquiryComment], [IsApproved])
-             VALUES
-             (@TrInqId, @CycleNo, @ResponseTypeId, @Season, @SampleTypeId, @SampleStageId, @ColorCode, @ImageSketch, @DateResponseReq, 0, @InquiryComment, -1)
-              SELECT CAST(SCOPE_IDENTITY() AS INT);";
-
-
-
-            return await connection.QuerySingleAsync<int>(sqlDetail, new
-            {
-                TrInqId = inquiryVM.Id,
-                CycleNo = cycleNo,
-                inquiryVM.Season,
-                inquiryVM.SampleTypeId,
-                inquiryVM.ColorCode,
-                ImageSketch = artworkBytes,
-                inquiryVM.Remarks
-            }, transaction);
-        }
-
-        private async Task InsertActivitiesAsync(IDbConnection connection, IDbTransaction transaction, int inquiryDtId, List<ActivityVM>? activityList)
-        {
-            foreach (var activity in activityList ?? [])
-            {
-                var activityId = await InsertActivityAsync(connection, transaction, inquiryDtId, activity);
-                await InsertSubActivitiesAsync(connection, transaction, activityId, activity.SubActivityList);
-            }
-        }
-
-        private static async Task<int> InsertActivityAsync(IDbConnection connection, IDbTransaction transaction, int inquiryDtId, ActivityVM activity)
-        {
-            var sqlActivity = @"INSERT INTO [dbo].[PLMS_TrInqDetailsActivity]
-                       ([TrInqDtId], [UserCategoryId], [ActivityId], [ActivityRequiredDate], [ActivityComment], [ActivityIsCompleted])
-                       VALUES
-                       (@TrInqDtId, @UserCategoryId, @ActivityId, @ActivityRequiredDate, @ActivityComment, 0);
-                        SELECT CAST(SCOPE_IDENTITY() AS INT);";
-
-            return await connection.QuerySingleAsync<int>(sqlActivity, new
-            {
-                TrInqDtId = inquiryDtId,
-                activity.UserCategoryId,
-                activity.ActivityId,
-                ActivityRequiredDate = activity.ActiviytValue,
-                activity.ActivityComment
-            }, transaction);
-        }
-
-        private static async Task InsertSubActivitiesAsync(IDbConnection connection, IDbTransaction transaction, int activityId, List<ActivityVM>? subActivityList)
-        {
-            foreach (var subActivity in subActivityList ?? [])
-            {
-                var sqlSubActivity = @"INSERT INTO [dbo].[PLMS_TrInqDetailsActivitySub]
-                               ([TrInqDtActId], [UserCategoryId], [SubActivityId], [SubActivityRequiredDate], [ActivityComment], [ActivityIsCompleted])
-                               VALUES
-                               (@TrInqDtActId,@UserCategoryId, @SubActivityId, @SubActivityRequiredDate, @ActivityComment, 0);";
-
-                await connection.ExecuteAsync(sqlSubActivity, new
-                {
-                    TrInqDtActId = activityId,
-                    subActivity.UserCategoryId,
-                    SubActivityId = subActivity.ActivityId,
-                    SubActivityRequiredDate = subActivity.ActiviytValue,
-                    subActivity.ActivityComment
-                }, transaction);
-            }
-        }
-
     }
 }

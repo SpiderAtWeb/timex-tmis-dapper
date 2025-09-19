@@ -15,6 +15,9 @@ namespace TMIS.Utility
         public void RequestToApprove(string mailTo, string[] myArray);
         public void ITRequestToApprove(HRRS_ITRequest hRRS_ITRequest);
         public void ITRequestToIT(HRRS_ITRequest hRRS_ITRequest);
+        public void SMInvoiceApproval(string ApproveById, string mailTo, int levelIndex, string[] myArray);
+
+
 
     }
 }

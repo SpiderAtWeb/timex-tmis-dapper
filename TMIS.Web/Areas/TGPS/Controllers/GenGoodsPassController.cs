@@ -177,9 +177,9 @@ public class GenGoodsPassController(IGoodsGatePass db, IExportPDF exportPDF) : B
   }
 
   [HttpGet]
-  public IActionResult DownloadPdf(int id)
+  public async Task<IActionResult> DownloadPdf(int id)
   {
-    var (PdfBytes, Message) = _exportPDF.DownloadPdf(id);
+    var (PdfBytes, Message) = await _exportPDF.DownloadPdf(id);
     byte[] pdfBytes = PdfBytes;
     string gpRef = Message;
     if (pdfBytes.Length == 0)

@@ -42,51 +42,46 @@
           });
 
            // Clear button
-          document.getElementById("addClear").addEventListener("click", function () {
+          document.getElementById("Clear").addEventListener("click", function () {
               document.querySelector("#selectedList tbody").innerHTML = "";
               document.querySelectorAll(".row-check").forEach(cb => cb.checked = false);
               document.getElementById("selectAll").checked = false;
           });
 
-             document.getElementById("addGenCertificate").addEventListener("click", function () {
-              let selectedIds = [];
+           // Generate button
+            document.getElementById("GenCertificate").addEventListener("click", function () {
+            let selectedIds = [];
 
-              // collect hidden IDs from preview table
-              document.querySelectorAll("#selectedList tbody tr").forEach(row => {
-                  let idCell = row.querySelector("td"); // first cell is hidden ID
-                  if (idCell) {
-                      selectedIds.push(parseInt(idCell.textContent));
-                  }
-              });
+            document.querySelectorAll("#selectedList tbody tr").forEach(row => {
+                let idCell = row.querySelector("td");
+                if (idCell) {
+                    selectedIds.push(parseInt(idCell.textContent));
+                }
+            });
 
-              if (selectedIds.length === 0) {
-                  alert("Please select at least one machine.");
-                  return;
-              }
+            if (selectedIds.length === 0) {
+                alert("Please select at least one machine.");
+                return;
+            }
 
-                fetch('/SMIS/Renting/GenerateCertificate', {
-                  method: 'POST',
-                  headers: {
-                      'Content-Type': 'application/json',
-                      'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
-                  },
-                  body: JSON.stringify({ selectedIds: selectedIds })
-              })
-              .then(response => {
-                  if (!response.ok) throw new Error("Error generating certificate");
-                  return response.text(); // HTML view from backend
-              })
-              .then(html => {
-                  // overwrite current page content with certificate HTML
-                  document.open();
-                  document.write(html);
-                  document.close();
-              })
-              .catch(error => {
-                  console.error(error);
-                  alert("Something went wrong while generating certificate");
-              });
-          });
+            let form = document.createElement("form");
+            form.method = "post";
+            form.action = "/SMIS/Renting/Certificate";
+
+            // antiforgery token
+            let token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+            form.innerHTML = `<input type="hidden" name="__RequestVerificationToken" value="${token}" />`;
+
+            // add each id
+            selectedIds.forEach(id => {
+                form.innerHTML += `<input type="hidden" name="SelectedIds" value="${id}" />`;
+            });
+
+            document.body.appendChild(form);
+            form.submit();
+        });
+
+
 
     </script>
 }
@@ -162,8 +157,8 @@
             <div class="row">
                 <div class="col-4">
                     <button type="button" class="btn btn-success mb-3" id="addToListBtn">Add to List</button>
-                    <button type="button" class="btn btn-primary mb-3" id="addClear">Clear</button>
-                    <button type="button" class="btn btn-primary mb-3" id="addGenCertificate">Generate Certificate</button>
+                    <button type="button" class="btn btn-primary mb-3" id="Clear">Clear</button>
+                    <button type="button" class="btn btn-primary mb-3" id="GenCertificate">Generate Certificate</button>
                 </div>
             </div>
         </div>

@@ -17,6 +17,14 @@ namespace TMIS.DataAccess.COMON.Rpository
             return results;
         }
 
+        public async Task<IEnumerable<SelectListItem>> LoadRouteDropAsync(string tableName)
+        {
+            string query = $@"SELECT CAST(Id AS NVARCHAR) AS Value, 
+            CpName AS Text FROM {tableName} ORDER BY Text";
+            var results = await _dbConnection.GetConnection().QueryAsync<SelectListItem>(query);
+            return results;
+        }
+
         public async Task<string> GenerateRefAsync(IDbConnection connection, IDbTransaction transaction, string tableName, string codeType)
         {
             int currentYear = DateTime.Now.Year;

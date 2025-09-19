@@ -14,7 +14,7 @@ namespace TMIS.DataAccess.PLMS.Rpository
 
         public async Task<IEnumerable<ShowInquiryDataVM>> GetInquiriesAsync()
         {
-            string sql = @"SELECT Id, CONCAT(InquiryRef, '-', CycleNo) AS InquiryRef, CycleNo, StyleNo, StyleDesc, ColorCode, 
+            string sql = @"SELECT Id, CONCAT(InquiryRef, '.v', CycleNo) AS InquiryRef, CycleNo, StyleNo, StyleDesc, ColorCode, 
                           InquiryType, ResponseType, Customer, Seasons, SampleType, SampleStage, InquiryComment
                  FROM PLMS_VwInqCostPending WHERE (IsSMVStageAv = 1) AND (IsSMVUpdate = 0) ";
 
