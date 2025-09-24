@@ -28,12 +28,12 @@ namespace TMIS.DataAccess.TPMS.Repository
             const string query = @"
             INSERT INTO TPMS_PurchaseRequests
             (
-                Description, SerialNumber, UserName, Requirement, Department, Designation, Unit, QTY, RequestDate, RequestBy,
+                Description, SerialNumber, UserName, Requirement, Department, Designation, Unit, QTY, RequestBy,
                 RequestStatus
             )
             VALUES
             (
-                @Description, @SerialNumber, @UserName, @Requirement, @Department, @Designation, @Unit, @QTY, @RequestDate,
+                @Description, @SerialNumber, @UserName, @Requirement, @Department, @Designation, @Unit, @QTY,
                 @RequestBy, @RequestStatus
             );
             SELECT CAST(SCOPE_IDENTITY() AS INT);";
@@ -77,6 +77,19 @@ namespace TMIS.DataAccess.TPMS.Repository
                             where r.IsDelete=0";
 
             return await _dbConnection.GetConnection().QueryAsync<PurchaseVM>(sql);
+        }
+        public async Task<CreateRequestVM?> LoadListItems()
+        {
+            CreateRequestVM createRequestVM = new()
+            {
+                DepartmentList = await _icommonList.LoadDepartmentsFromAD(),
+                DesignationList = await _icommonList.LoadDesignationsFromAD(),
+                UnitList = await _icommonList.LoadLocationsFromAD(),  
+                SerialNumberList = await _icommonList.LoadExistsSerialList(),
+                UserList = await _icommonList.LoadEmployeeListHRRS()
+
+            };
+            return createRequestVM;
         }
     }
 }

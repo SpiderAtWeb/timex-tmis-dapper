@@ -797,14 +797,14 @@
         {           
           <li class='menu-item@(currentPage.StartsWith("/TPMS") ? " active open" : "")'>
               <a href="javascript:void(0);" class="menu-link menu-toggle">
-                  <i class="menu-icon fa-solid fa-bus"></i>
+                  <i class="menu-icon fa-solid fa-cart-shopping"></i>
                   <div>Purchase</div>
               </a>
 
               <ul class="menu-sub">
                   <li class='menu-item@(currentPage == "/TPMS/Purchase" ? " active" : "")'>
                       <a asp-area="TPMS" asp-controller="Purchase" asp-action="Index" class="menu-link">
-                         <div>  <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Requests</div>
+                        <div>  <span>    <i class="menu-icon fa-solid fa-box"></i></span>Requests</div>
                       </a>
                   </li>
               </ul>

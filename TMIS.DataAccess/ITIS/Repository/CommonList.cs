@@ -143,6 +143,13 @@ namespace TMIS.DataAccess.ITIS.Repository
             var results = await _dbConnection.GetConnection().QueryAsync<SelectListItem>(query);
             return results;
         }
+        public async Task<IEnumerable<SelectListItem>> LoadExistsSerialList()
+        {
+            string query = @"select DeviceID as Value , SerialNumber as Text from ITIS_Devices";
+            //only get inuse devices
+            var results = await _dbConnection.GetConnection().QueryAsync<SelectListItem>(query);
+            return results;
+        }
 
         public async Task<IEnumerable<SelectListItem>> LoadLocationsFromAD()
         {

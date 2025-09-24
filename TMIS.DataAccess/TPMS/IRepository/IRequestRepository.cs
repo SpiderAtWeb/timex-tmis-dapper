@@ -14,5 +14,6 @@ namespace TMIS.DataAccess.TPMS.IRepository
     {
         Task<bool> AddAsync(TPMS_PurchaseRequests obj);
         Task<IEnumerable<PurchaseVM>> GetAllAsync();
+        Task<CreateRequestVM?> LoadListItems();
     }
 }
