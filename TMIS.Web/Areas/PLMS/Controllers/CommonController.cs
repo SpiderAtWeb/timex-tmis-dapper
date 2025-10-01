@@ -12,7 +12,7 @@ namespace TMIS.Areas.PLMS.Controllers
     private readonly ILog _logger = LogManager.GetLogger(typeof(CommonController));
     private readonly IPLMSCommon _common = common;
 
-    public async Task<IActionResult> LoadModal(string Id)
+    public async Task<IActionResult> LoadModal([FromQuery]string Id)
     {
       var dynamicModel = await _common.LoadModalDataAsync(Id);
       return Json(dynamicModel);

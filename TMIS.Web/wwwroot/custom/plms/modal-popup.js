@@ -81,7 +81,7 @@ $(document).ready(function () {
 
     $.ajax({
       url: '/PLMS/Common/LoadModal?Id=' + id,
-      type: 'POST',
+      type: 'GET',
       contentType: 'application/json',
       success: function (data) {
 
