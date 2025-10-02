@@ -236,7 +236,7 @@ namespace TMIS.Areas.HRRS.Controllers
     {
       try
       {
-        _iTRequestRepository.PrepairEmail(id);
+        _iTRequestRepository.PrepairEmail(id);       
         TempData["success"] = "Request Email Send Successful";
       }
       catch (Exception ex)
