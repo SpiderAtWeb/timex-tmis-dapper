@@ -39,12 +39,7 @@ namespace TMIS.Areas.TPMS.Controllers
       obj.UserList = lists?.UserList;      
       obj.DepartmentList = lists?.DepartmentList;
       obj.DesignationList = lists?.DesignationList;
-      obj.UnitList = lists?.UnitList;
-
-      //if (await .CheckDeviceTypeExist(obj.DeviceTypeName!))
-      //{
-      //  ModelState.AddModelError("DeviceTypeName", "Device Type Already Available !");
-      //}
+      obj.UnitList = lists?.UnitList;    
 
       // Check if the ModelState is valid
       if (!ModelState.IsValid)
@@ -54,6 +49,7 @@ namespace TMIS.Areas.TPMS.Controllers
       }
 
       // Insert  data if everything is valid
+      obj.TPMS_PurchaseRequests!.Description = "N/A"; // Set default value for Description
       await _requestRepository.AddAsync(obj.TPMS_PurchaseRequests!);
 
       // Show success message and redirect
@@ -75,10 +71,10 @@ namespace TMIS.Areas.TPMS.Controllers
       obj.DesignationList = lists?.DesignationList;
       obj.UnitList = lists?.UnitList;
 
-      //if (await .CheckDeviceTypeExist(obj.DeviceTypeName!))
-      //{
-      //  ModelState.AddModelError("DeviceTypeName", "Device Type Already Available !");
-      //}
+      if (string.IsNullOrEmpty(obj.TPMS_PurchaseRequests!.Description))
+      {
+        ModelState.AddModelError("Description", "Description Required!");
+      }
 
       // Check if the ModelState is valid
       if (!ModelState.IsValid)

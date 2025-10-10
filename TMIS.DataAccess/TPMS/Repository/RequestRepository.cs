@@ -43,7 +43,15 @@ namespace TMIS.DataAccess.TPMS.Repository
             try
             {
                 var insertedId = await _dbConnection.GetConnection().QuerySingleOrDefaultAsync<int?>(query, new
-                {                    
+                {
+                    obj.Description,
+                    obj.SerialNumber,
+                    obj.UserName,
+                    obj.Requirement,
+                    obj.Department,
+                    obj.Designation,
+                    obj.Unit,
+                    obj.QTY,
                     RequestBy = _iSessionHelper.GetShortName().ToUpper(),
                     RequestStatus = 1 // Default to 'Pending' or change based on logic
                 });
