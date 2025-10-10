@@ -12,7 +12,7 @@ namespace TMIS.DataAccess.HRRS.IRepository
     {
         Task<Create> LoadDropDowns();
         Task<bool> AddAsync(Create obj);
-        Task PrepairEmail(int? genId);
+        void PrepairEmail(int? genId);
         Task<IEnumerable<HRRS_ITRequest>> GetAllAsync();
         Task<HRRS_ITRequest?> LoadRequest(int id);
         Task<bool> UpdateAsync(HRRS_ITRequest obj);

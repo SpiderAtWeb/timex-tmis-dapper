@@ -116,7 +116,7 @@ namespace TMIS.DataAccess.HRRS.Repository
                 return false;
             }
         }
-        public async Task PrepairEmail(int? requestID)
+        public void PrepairEmail(int? requestID)
         {
             using var connection = _dbConnection.GetConnection();
 
@@ -124,16 +124,16 @@ namespace TMIS.DataAccess.HRRS.Repository
                 inner join HRRS_ITReqStatus as st on st.id=it.Status where it.RequestID=@RequestID";
 
             string sql = "UPDATE HRRS_ITRequests SET Status = 4 WHERE RequestID = @ID";
-            var result = await connection.ExecuteAsync(sql, new { ID = requestID });
+            var result = connection.Execute(sql, new { ID = requestID });
 
-            HRRS_ITRequest? header = await connection.QueryFirstOrDefaultAsync<HRRS_ITRequest>(headerQuery, new { RequestID = requestID });
+            HRRS_ITRequest? header = connection.Query<HRRS_ITRequest>(headerQuery, new { RequestID = requestID }).FirstOrDefault();
             if (header == null)
             {
                 throw new InvalidOperationException("No IT request found for the given RequestID.");
             }
         
             // Send email
-            await Task.Run(() => _gmailSender.ITRequestToApprove(header));
+            Task.Run(() => _gmailSender.ITRequestToApprove(header));
         }
         public async Task<IEnumerable<HRRS_ITRequest>> GetAllAsync()
         {
