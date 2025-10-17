@@ -75,14 +75,14 @@
                         </div>
                     </div>
                     <div class="card-datatable text-nowrap">
-                        <table class="datatables-ajax table table-bordered" id="dashboard">
+                        <table class="datatables-ajax table table-bordered" id="dashboard1">
                             <thead>
                                 <tr class="table-info">
                                     <th>Emp Name</th>
                                     <th>Designation</th>
                                     <th>Department</th>                                   
                                     <th>Location</th>                                    
-                                    <th>Due Start</th>                                 
+                                    <th>Request Date</th>                                 
                                     <th>Status</th>
                                     <th>Action</th>
                                 </tr>
@@ -95,7 +95,7 @@
                                     <td>@item.Designation</td>
                                     <td>@item.Department</td>
                                     <td>@item.Location</td>                                  
-                                    <td>@item.DueStartDate?.ToString("MM-dd-yyyy")</td>                             
+                                    <td>@item.RequestDate?.ToString("MM-dd-yyyy")</td>                             
                                     <td>@item.PropName</td>
                                     <td>
                                         <a class="btn btn-sm @(item.PropName == "Approved" ? "btn-secondary disabled" : "btn-primary") btn-edit"

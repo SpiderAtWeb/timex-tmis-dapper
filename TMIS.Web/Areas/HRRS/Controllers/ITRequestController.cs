@@ -24,7 +24,8 @@ namespace TMIS.Areas.HRRS.Controllers
     {
       _logger.Info("[" + _iSessionHelper.GetShortName() + "] - PAGE VISIT ITREQUEST INDEX");      
       var Obj = await _iTRequestRepository.GetAllAsync();
-      return View(Obj);
+      var objOrderByReqDate = Obj.OrderByDescending(x => x.RequestDate);
+      return View(objOrderByReqDate);
     }
     public async Task<IActionResult> Edit(int id)
     {
