@@ -6,8 +6,7 @@ using TMIS.Models.TPMS;
 
 namespace TMIS.DataAccess.TPMS.Repository
 {
-    public class TPMSLogdb(IHttpContextAccessor httpCtxtAcsor,
-        IDatabaseConnectionSys dbConnection,
+    public class TPMSLogdb(IDatabaseConnectionSys dbConnection,
         ISessionHelper sessionHelper) : ITPMSLogdb
     {
         private readonly IDatabaseConnectionSys _dbConnection = dbConnection;        
