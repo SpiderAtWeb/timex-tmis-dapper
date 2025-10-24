@@ -21,7 +21,7 @@ namespace TMIS.Areas.HRRS.Controllers
       _logger.Info("[" + _iSessionHelper.GetShortName() + "] - PAGE VISIT ITREQUEST INDEX");
       var Obj = await _iTRequestRepository.GetAllAsync();
 
-      var viewModel = Obj.Where(x => x.PropName == "Pending").ToList();
+      var viewModel = Obj.Where(x => x.PropName == "Mail Sent").ToList();
 
       return View(viewModel);
     }

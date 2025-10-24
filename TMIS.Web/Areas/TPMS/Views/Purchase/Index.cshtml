@@ -1,0 +1,82 @@
+@using TMIS.Models.TPMS.VM
+@model IEnumerable<PurchaseVM>
+
+@section VendorStyles {
+    <link rel="stylesheet" href="~/vendor/libs/datatables-bs5/datatables.bootstrap5.css">
+    <link href="~/vendor/libs/toastr/toastr.css" rel="stylesheet" />
+}
+
+@section PageScripts {
+    <script src="~/vendor/libs/toastr/toastr.js"></script>
+    <script src="~/custom/loading-hide.js"></script>
+    <script src="~/custom/plms/modal-popup.js"></script>
+
+    @if (TempData["success"] != null)
+    {
+        <script src="~/vendor/libs/toastr/toastr.js"></script>
+        <script type="text/javascript">
+            toastr.success('@TempData["success"]');
+        </script>
+        TempData.Clear();
+    }
+}
+
+@* ************** Content ************** *@
+
+<!-- Ajax Sourced Server-side -->
+<div class="panelDiv">
+    <div class="card mb-6">
+        <div>
+            <h5 class="card-header page-header">Running Inquiries</h5>
+        </div>
+
+        <div class="card-body">
+            <div class="row">
+                <div class="col text-end">
+                    <a asp-action="CreateRequest" class="btn btn-primary"> <i class="ri-add-line"></i> <span class="d-none d-sm-inline-block">Add New Request</span></a>
+                </div>
+
+                <div class="card-body">
+                    <div class="row" style="overflow-x:auto;">
+                        <table class="datatables-ajax table table-bordered dt-tbl" id="mainTable">
+                            <thead>
+                                <tr class="table-info">
+                                    <th class="d-none">Id</th>
+                                    <th>Date</th>
+                                    <th>Description</th>
+                                    <th>Serial No</th>
+                                    <th>User</th>
+                                    <th>Requirement</th>
+                                    <th>Department</th>
+                                    <th>Designation</th>
+                                    <th>Unit</th>
+                                    <th>Qty</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td class="d-none">@item.RequestID</td>
+                                        <td>@item.RequestDate</td>
+                                        <td>@item.Description</td>
+                                        <td>@item.SerialNumber</td>
+                                        <td>@item.UserName</td>
+                                        <td>@item.Requirement</td>
+                                        <td>@item.Department</td>
+                                        <td>@item.Designation</td>
+                                        <td>@item.Unit</td>
+                                        <td>@item.QTY</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+

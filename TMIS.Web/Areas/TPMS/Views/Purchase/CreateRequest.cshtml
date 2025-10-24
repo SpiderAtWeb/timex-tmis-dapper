@@ -1,0 +1,105 @@
+@using TMIS.Models.TPMS.VM
+@model CreateRequestVM;
+
+@section VendorStyles {
+    <link rel="stylesheet" href="~/vendor/libs/flatpickr/flatpickr.css" />
+    <link rel="stylesheet" href="~/vendor/libs/select2/select2.css" />
+    <link href="~/css/input-text-upper.css" rel="stylesheet" />
+}
+
+@section VendorScripts {
+    <script src="~/vendor/libs/flatpickr/flatpickr.js"></script>
+    <script src="~/vendor/libs/select2/select2.js"></script>
+}
+
+@section PageScripts {
+    <script src="~/js/form-layouts.js"></script>
+    <script src="~/custom/input-text-upper.js"></script>
+}
+
+@* ************** Content ************** *@
+
+  <div class="card mb-6">
+      <h5 class="card-header page-header">
+        Create Purchase Request
+    </h5>
+      <div class="card-body">
+          <div class="tab-content p-0">
+              <div class="tab-pane fade show active" id="existsItem" role="tabpanel">
+                  <form asp-action="CreateRequestExists" method="post" class="card-body" id="myForm1" enctype="multipart/form-data">
+                      <div class="row g-2">
+                          <div class="col-md-3">
+                              <div class="form-floating form-floating-outline">
+                                  <select asp-for="@Model.TPMS_PurchaseRequests!.SerialNumber" asp-items="@Model.SerialNumberList" class="select2 form-select" data-allow-clear="true">
+                                      <option value="" Disabled Selected>- Select Serial -</option>
+                                  </select>
+
+                                  <label asp-for="TPMS_PurchaseRequests!.SerialNumber"></label>
+                                  <span asp-validation-for="TPMS_PurchaseRequests!.SerialNumber" class="text-warning"></span>
+                              </div>
+                          </div>
+                          <div class="col-md-3">
+                              <div class="form-floating form-floating-outline">
+                                  <select asp-for="@Model.TPMS_PurchaseRequests!.UserName" asp-items="@Model.UserList" class="select2 form-select" data-allow-clear="true">
+                                      <option value="" Disabled Selected>- Select User -</option>
+                                  </select>
+
+                                  <label asp-for="TPMS_PurchaseRequests!.UserName"></label>
+                                  <span asp-validation-for="TPMS_PurchaseRequests!.UserName" class="text-warning"></span>
+                              </div>
+                          </div>
+                          <div class="col-md-3">
+                              <div class="form-floating form-floating-outline">
+                                  <select asp-for="@Model.TPMS_PurchaseRequests!.Designation" asp-items="@Model.DesignationList" class="select2 form-select" data-allow-clear="true">
+                                      <option value="" Disabled Selected>- Select Designation -</option>
+                                  </select>
+
+                                  <label asp-for="TPMS_PurchaseRequests!.Designation"></label>
+                                  <span asp-validation-for="TPMS_PurchaseRequests!.Designation" class="text-warning"></span>
+                              </div>
+                          </div>
+                          <div class="col-md-3">
+                              <div class="form-floating form-floating-outline">
+                                  <select asp-for="@Model.TPMS_PurchaseRequests!.Department" asp-items="@Model.DepartmentList" class="select2 form-select" data-allow-clear="true">
+                                      <option value="" Disabled Selected>- Select Department -</option>
+                                  </select>
+
+                                  <label asp-for="TPMS_PurchaseRequests!.Department"></label>
+                                  <span asp-validation-for="TPMS_PurchaseRequests!.Department" class="text-warning"></span>
+                              </div>
+                          </div>
+                          <div class="col-md-3">
+                              <div class="form-floating form-floating-outline">
+                                  <select asp-for="@Model.TPMS_PurchaseRequests!.Unit" asp-items="@Model.UnitList" class="select2 form-select" data-allow-clear="true">
+                                      <option value="" Disabled Selected>- Select Unit -</option>
+                                  </select>
+
+                                  <label asp-for="TPMS_PurchaseRequests!.Unit"></label>
+                                  <span asp-validation-for="TPMS_PurchaseRequests!.Unit" class="text-warning"></span>
+                              </div>
+                          </div>
+                          <div class="col-md-3">
+                              <div class="form-floating form-floating-outline">
+                                  <input asp-for="@Model.TPMS_PurchaseRequests!.Requirement" type="text" id="style-no" class="form-control" />
+                                  <label asp-for="@Model.TPMS_PurchaseRequests!.Requirement"></label>
+                                  <span asp-validation-for="@Model.TPMS_PurchaseRequests!.Requirement" class="customerError text-warning"></span>
+                              </div>
+                          </div>
+                          <div class="col-md-1">
+                              <div class="form-floating form-floating-outline">
+                                  <input asp-for="@Model.TPMS_PurchaseRequests!.QTY" type="number" id="style-no" class="form-control" />
+                                  <label asp-for="@Model.TPMS_PurchaseRequests!.QTY"></label>
+                                  <span asp-validation-for="@Model.TPMS_PurchaseRequests!.QTY" class="customerError text-warning"></span>
+                              </div>
+                          </div>
+                          <div class="pt-1">
+                              <button type="submit" class="btn btn-primary me-1">Submit</button>
+                              <button type="reset" class="btn btn-primary me-1">Clear</button>
+                              <a asp-controller="Purchase" asp-action="Index" class="btn btn-outline-secondary">Back to List</a>
+                          </div>
+                      </div>
+                  </form>
+              </div>             
+          </div>
+      </div>
+  </div>

@@ -18,6 +18,8 @@ using TMIS.DataAccess.TAPS.IRepository;
 using TMIS.DataAccess.TAPS.Repository;
 using TMIS.DataAccess.TGPS.IRpository;
 using TMIS.DataAccess.TGPS.Rpository;
+using TMIS.DataAccess.TPMS.IRepository;
+using TMIS.DataAccess.TPMS.Repository;
 using TMIS.Utility;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -133,6 +135,9 @@ builder.Services.AddScoped<ITAPSLogdbRepository, TAPSLogdbRepository>();
 builder.Services.AddScoped<IHRRSLogdb, HRRSLogdb>();
 builder.Services.AddScoped<IITRequestRepository, ITRequestRepository>();
 
+//TPMS
+builder.Services.AddScoped<ITPMSLogdb, TPMSLogdb>();
+builder.Services.AddScoped<IRequestRepository, RequestRepository>();
 
 builder.Services.AddScoped<ISessionHelper, SessionHelper>();
 

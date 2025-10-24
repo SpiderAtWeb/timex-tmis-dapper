@@ -1,4 +1,5 @@
-﻿using Dapper;
+﻿using Azure.Core;
+using Dapper;
 using Microsoft.Extensions.Configuration;
 using Org.BouncyCastle.Asn1.Ocsp;
 using System;
@@ -121,13 +122,16 @@ namespace TMIS.DataAccess.HRRS.Repository
 
             string headerQuery = @"select * from HRRS_ITRequests as it 
                 inner join HRRS_ITReqStatus as st on st.id=it.Status where it.RequestID=@RequestID";
-    
+
+            string sql = "UPDATE HRRS_ITRequests SET Status = 4 WHERE RequestID = @ID";
+            var result = connection.Execute(sql, new { ID = requestID });
+
             HRRS_ITRequest? header = connection.Query<HRRS_ITRequest>(headerQuery, new { RequestID = requestID }).FirstOrDefault();
             if (header == null)
             {
                 throw new InvalidOperationException("No IT request found for the given RequestID.");
             }
-             
+        
             // Send email
             Task.Run(() => _gmailSender.ITRequestToApprove(header));
         }
@@ -275,7 +279,7 @@ namespace TMIS.DataAccess.HRRS.Repository
                 }                
             }
             return result > 0;
-        }
+        }      
         public async Task<HRRS_ITRequest?> LoadRequestForEmail(int id)
         {
             string sql = @"select * from HRRS_ITRequests as it 

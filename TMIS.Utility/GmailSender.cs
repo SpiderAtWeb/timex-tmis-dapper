@@ -82,8 +82,8 @@ namespace TMIS.Utility
             string reqComment = myArray[10].ToString();
 
             //Prepair Two Button
-            string sApprove = "mailto:rasika.dalpathadu@timexsl.com?subject=Approved [" + qrCode + "] TMIS(" + entryNo + ")";
-            string sReject = "mailto:rasika.dalpathadu@timexsl.com?subject=Rejected [" + qrCode + "] TMIS(" + entryNo + ")";
+            string sApprove = "mailto:sujitha.costha@timexsl.com?subject=Approved [" + qrCode + "] TMIS(" + entryNo + ")";
+            string sReject = "mailto:sujitha.costha@timexsl.com?subject=Rejected [" + qrCode + "] TMIS(" + entryNo + ")";
 
             string sBody = "<!DOCTYPE html> " +
             "<html> " +
@@ -139,7 +139,7 @@ namespace TMIS.Utility
             "<hr><p><font size='1'><I>This is a Auto Generated Mail From Timex Mail System Developed By Timex IT Department [Generated Date " + DateTime.Now.ToString("yyyy-MM-dd") + " Time " + DateTime.Now.ToString("hh:mm:ss") + "- From Timex TMIS]</I></font></p></body>  " +
             "</hr></html></body></html>";
 
-            string recipientEmailTo = "rasika.dalpathadu@timexsl.com";
+            string recipientEmailTo = "sujitha.costha@timexsl.com";
             string recipientEmailCc = "";
             string recipientEmailBcc = "";
 
@@ -195,7 +195,7 @@ namespace TMIS.Utility
 
             string recipientEmailTo = mailTo;
             string recipientEmailCc = "";
-            string recipientEmailBcc = "rasika.dalpathadu@timexsl.com";
+            string recipientEmailBcc = "sujitha.costha@timexsl.com";
 
             SendMail(recipientEmailTo, recipientEmailCc, recipientEmailBcc, emailBody, subjectText);
         }
@@ -252,7 +252,7 @@ namespace TMIS.Utility
 
             string recipientEmailTo = mailTo;
             string recipientEmailCc = "";
-            string recipientEmailBcc = "rasika.dalpathadu@timexsl.com";
+            string recipientEmailBcc = "sujitha.costha@timexsl.com";
 
             SendMail(recipientEmailTo, recipientEmailCc, recipientEmailBcc, emailBody, subjectText);
         }
@@ -379,6 +379,9 @@ namespace TMIS.Utility
                 { "EmployeeNo", hRRS_ITRequest.EmployeeNo},
                 { "FirstName", hRRS_ITRequest.FirstName},
                 { "LastName", hRRS_ITRequest.LastName},
+                { "Nic", hRRS_ITRequest.NIC},
+                { "Location", hRRS_ITRequest.Location},
+                { "Company", hRRS_ITRequest.Company},
                 { "Designation" , hRRS_ITRequest.Designation},
                 { "Department" , hRRS_ITRequest.Department},
                 { "DueStartDate", hRRS_ITRequest.DueStartDate?.ToString("yyyy-MM-dd")},
@@ -428,6 +431,9 @@ namespace TMIS.Utility
                 { "EmployeeNo", hRRS_ITRequest.EmployeeNo},
                 { "FirstName", hRRS_ITRequest.FirstName},
                 { "LastName", hRRS_ITRequest.LastName},
+                { "Nic", hRRS_ITRequest.NIC},
+                { "Location", hRRS_ITRequest.Location},
+                { "Company", hRRS_ITRequest.Company},
                 { "Designation" , hRRS_ITRequest.Designation},
                 { "Department" , hRRS_ITRequest.Department},
                 { "DueStartDate", hRRS_ITRequest.DueStartDate?.ToString("yyyy-MM-dd")},
@@ -584,7 +590,7 @@ namespace TMIS.Utility
 
             string recipientEmailTo = mailTo;
             string recipientEmailCc = "";
-            string recipientEmailBcc = "rasika.dalpathadu@timexsl.com";
+            string recipientEmailBcc = "sujitha.costha@timexsl.com";
 
             SendMail(recipientEmailTo, recipientEmailCc, recipientEmailBcc, emailBody, subjectText);
         }

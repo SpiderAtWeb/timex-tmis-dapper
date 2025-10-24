@@ -18,7 +18,8 @@ namespace TMIS.Models.HRRS.VM
         public List<SelectListItem> EmailGroupList { get; set; } = new List<SelectListItem>
         {
             new SelectListItem { Text = "CHO_Group", Value = "CHO_Group" },
-            new SelectListItem { Text = "DPDC_Group", Value = "DPDC_Group" }
+            new SelectListItem { Text = "DPDC_Group", Value = "DPDC_Group" },
+            new SelectListItem { Text = "TIMEX_ALL_USERS", Value = "TIMEX_ALL_USERS" },
         };
         public List<SelectListItem> RecruitmentTypeList { get; set; } = new List<SelectListItem>
         {
@@ -28,7 +29,7 @@ namespace TMIS.Models.HRRS.VM
         public List<SelectListItem> ComputerList { get; set; } = new List<SelectListItem>
         {
             new SelectListItem { Text = "Desktop", Value = "Desktop" },
-            new SelectListItem { Text = "Laptop", Value = "Laptop" }
+            new SelectListItem { Text = "Laptop", Value = "Laptop" },
         };
         public IEnumerable<SelectListItem>? LocationList { get; set; }
         public IEnumerable<SelectListItem>? DepartmentList { get; set; }

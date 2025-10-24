@@ -121,7 +121,7 @@ namespace TMIS.Areas.ITIS.Controllers
         return View(obj);
       }
 
-      // Insert machine data if everything is valid
+      // Insert type data if everything is valid
       await _deviceTypeRepository.AddAsync(obj, image);
 
       // Show success message and redirect
