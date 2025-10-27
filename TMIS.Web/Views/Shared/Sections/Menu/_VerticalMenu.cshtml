@@ -822,20 +822,20 @@
                 </li>
 
                 <!-- Forms -->
-                <li class='menu-item@(currentPage.Contains("/TTMS/Tours") ||
-                                      currentPage.Contains("/TTMS/EmpVehicleAssign") ? " active open" : "")'>
+                <li class='menu-item@(currentPage.Contains("/TTMS/DailyTours") ||
+                                      currentPage.Contains("/TTMS/DailyTours/EmpVehicleAssign") ? " active open" : "")'>
                 <a href="javascript:void(0)" class="menu-link menu-toggle">
                     <i class="menu-icon fa-regular fa-hard-drive"></i>
                     <div>Tours</div>
                 </a>
                 <ul class="menu-sub">
-                        <li class='menu-item@(currentPage == "/TTMS/Tours" ? " active" : "")'>
-                            <a asp-area="TTMS" asp-controller="Tours" asp-action="Index" class="menu-link">
+                    <li class='menu-item@(currentPage == "/TTMS/DailyTours" ? " active" : "")'>
+                        <a asp-area="TTMS" asp-controller="DailyTours" asp-action="Index" class="menu-link">
                                 <div> <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Daily Tours</div>
                         </a>
                     </li>
-                    <li class='menu-item@(currentPage == "/TTMS/Tours/EmpVehicleAssign" ? " active" : "")'>
-                            <a asp-area="TTMS" asp-controller="Tours" asp-action="EmpVehicleAssign" class="menu-link">
+                    <li class='menu-item@(currentPage == "/TTMS/DailyTours/EmpVehicleAssign" ? " active" : "")'>
+                        <a asp-area="TTMS" asp-controller="DailyTours" asp-action="EmpVehicleAssign" class="menu-link">
                             <div> <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span>Employee Assign</div>
                             </a>
                         </li>

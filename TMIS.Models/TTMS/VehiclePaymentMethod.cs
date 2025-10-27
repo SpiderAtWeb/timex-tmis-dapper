@@ -1,29 +1,21 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace TMIS.Models.TTMS
 {
     public class VehiclePaymentMethod
     {
         public int VehiclePaymentId { get; set; }
-
-        [Required]
         public int VehicleId { get; set; }
-
-        [Required]
         public int PaymentMethodId { get; set; }
-
-        [Required]
-        [Range(0.01, double.MaxValue)]
         public decimal Cost { get; set; }
-
-        [Required]
         public DateTime EffectiveDate { get; set; }
-
         public bool IsActive { get; set; }
         public DateTime CreatedDate { get; set; }
-
-        // Navigation
-        public string? VehicleNumber { get; set; }
-        public string? PaymentMethodName { get; set; }
+        public string VehicleNumber { get; set; } = string.Empty;
+        public string PaymentMethodName { get; set; } = string.Empty;
     }
 }

@@ -20,6 +20,8 @@ using TMIS.DataAccess.TGPS.IRpository;
 using TMIS.DataAccess.TGPS.Rpository;
 using TMIS.DataAccess.TPMS.IRepository;
 using TMIS.DataAccess.TPMS.Repository;
+using TMIS.DataAccess.TTMS.IRepository;
+using TMIS.DataAccess.TTMS.Repository;
 using TMIS.Utility;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -138,6 +140,10 @@ builder.Services.AddScoped<IITRequestRepository, ITRequestRepository>();
 //TPMS
 builder.Services.AddScoped<ITPMSLogdb, TPMSLogdb>();
 builder.Services.AddScoped<IRequestRepository, RequestRepository>();
+
+//TTMS
+builder.Services.AddScoped<IDailyToursRepository, DailyToursRepository>();
+
 
 builder.Services.AddScoped<ISessionHelper, SessionHelper>();
 

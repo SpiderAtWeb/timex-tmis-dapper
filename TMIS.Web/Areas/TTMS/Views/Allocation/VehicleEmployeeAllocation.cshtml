@@ -1,0 +1,126 @@
+@model DailyTourViewModel
+
+@section VendorStyles {
+    <link rel="stylesheet" href="~/vendor/libs/datatables-bs5/datatables.bootstrap5.css">
+    <link rel="stylesheet" href="~/vendor/libs/select2/select2.css" />
+    <link href="~/vendor/libs/toastr/toastr.css" rel="stylesheet" />
+}
+
+@section VendorScripts {
+    <script src="~/custom/tables-datatables-autowidth-noorder.js"></script>
+    <script src="~/vendor/libs/select2/select2.js"></script>
+    <script src="~/custom/loading-hide.js"></script>
+    <script src="~/vendor/libs/toastr/toastr.js"></script>
+}
+
+@section PageScripts {
+    <script src="~/js/form-layouts.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Load modals
+            loadModal('employeeAllocationModal', '@Url.Action("VehicleEmployeeAllocation", "Allocation")');
+            loadModal('paymentAllocationModal', '@Url.Action("VehiclePaymentAllocation", "Allocation")');
+
+            // Handle vehicle selection change
+            $('#vehicleSelect, #monthSelect, #yearSelect').change(function() {
+                loadAttendanceData();
+            });
+
+            function loadModal(modalId, url) {
+                $.get(url, function(data) {
+                    $('#modalContainer').append(data);
+                });
+            }
+
+            function loadAttendanceData() {
+                var vehicleId = $('#vehicleSelect').val();
+                var month = $('#monthSelect').val();
+                var year = $('#yearSelect').val();
+
+                if (!vehicleId) {
+                    $('#attendanceSection').hide();
+                    return;
+                }
+
+                $.get('@Url.Action("GetEmployeesByVehicle", "Home")', {
+                    vehicleId: vehicleId,
+                    month: month,
+                    year: year
+                }, function(data) {
+                    renderAttendanceTable(data.employees, data.monthDays);
+                    $('#attendanceSection').show();
+                });
+            }
+
+            function renderAttendanceTable(employees, monthDays) {
+                var headerRow = '<tr><th class="employee-row">Employee</th>';
+                var dateFormat = { day: 'numeric' };
+
+                monthDays.forEach(function(day) {
+                    var date = new Date(day);
+                    headerRow += '<th class="day-header">' + date.toLocaleDateString('en-US', dateFormat) + '</th>';
+                });
+                headerRow += '</tr>';
+
+                $('.attendance-table thead').html(headerRow);
+
+                var tbody = '';
+                employees.forEach(function(employee) {
+                    var row = '<tr>';
+                    row += '<td class="employee-row">' + employee.employeeCode + ' - ' + employee.employeeName + '</td>';
+
+                    monthDays.forEach(function(day) {
+                        var date = new Date(day);
+                        var isChecked = employee.attendance[day] ? 'checked' : '';
+                        var inputName = 'Employees[' + employees.indexOf(employee) + '].Attendance[' + day + ']';
+                        var inputId = 'emp_' + employee.employeeId + '_' + date.toISOString().split('T')[0];
+
+                        row += '<td><input type="checkbox" class="form-check-input" ' +
+                               'name="' + inputName + '" id="' + inputId + '" ' + isChecked + '></td>';
+                    });
+
+                    row += '</tr>';
+                    tbody += row;
+                });
+
+                $('#attendanceBody').html(tbody);
+
+                // Add hidden fields for employee IDs
+                var hiddenFields = '';
+                employees.forEach(function(employee, index) {
+                    hiddenFields += '<input type="hidden" name="Employees[' + index + '].EmployeeId" value="' + employee.employeeId + '">';
+                    hiddenFields += '<input type="hidden" name="Employees[' + index + '].EmployeeCode" value="' + employee.employeeCode + '">';
+                    hiddenFields += '<input type="hidden" name="Employees[' + index + '].EmployeeName" value="' + employee.employeeName + '">';
+                });
+                $('#attendanceBody').append(hiddenFields);
+            }
+        });
+    </script>
+}
+
+@section PageStyles {
+
+}
+
+@* ************** Content ************** *@
+
+<!-- Modal -->
+@await Html.PartialAsync("_Loading")
+<div class="panelDiv">
+    <div class="card">
+        <h5 class="card-header page-header">Tours Transaction</h5>
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+
+
+                        <!-- Modals will be rendered here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

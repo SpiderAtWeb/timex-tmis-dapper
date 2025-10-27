@@ -1,0 +1,704 @@
+@model DailyTourViewModel
+
+@section VendorStyles {
+    <link rel="stylesheet" href="~/vendor/libs/datatables-bs5/datatables.bootstrap5.css">
+    <link rel="stylesheet" href="~/vendor/libs/select2/select2.css" />
+    <link href="~/vendor/libs/toastr/toastr.css" rel="stylesheet" />
+    <style>
+        .attendance-table { font-size: 0.8rem; }
+        .attendance-table th, .attendance-table td { padding: 0.2rem; text-align: center; }
+        .day-header { writing-mode: vertical-lr; transform: rotate(180deg); width: 25px; }
+        .employee-row { white-space: nowrap; }
+        .modal-xl { max-width: 95%; }
+    </style>
+}
+
+@section VendorScripts {
+    <script src="~/custom/tables-datatables-autowidth-noorder.js"></script>
+    <script src="~/vendor/libs/select2/select2.js"></script>
+    <script src="~/custom/loading-hide.js"></script>
+    <script src="~/vendor/libs/toastr/toastr.js"></script>
+}
+
+
+@section PageScripts {
+    <script src="~/js/form-layouts.js"></script>
+
+    <script>
+        // Loading functions
+        function showLoading(message = 'Loading...') {
+            $('#loadingOverlay').show();
+            $('.loading-text').text(message);
+            $('body').css('overflow', 'hidden');
+        }
+
+        function hideLoading() {
+            $('#loadingOverlay').hide();
+            $('body').css('overflow', 'auto');
+        }
+
+        $(document).ready(function() {
+
+          // Vehicle selection change in employee allocation modal - Enhanced version
+$('#vehicleSelectModal').change(function() {
+    var vehicleId = $(this).val();
+    var destinationId = $('#destinationSelect').val();
+    
+    if (vehicleId && destinationId) {
+        // Load employees with allocation status for this vehicle and destination
+        loadEmployeesWithAllocationStatus(destinationId, vehicleId);
+    } else if (vehicleId) {
+        // If vehicle selected but no destination, show warning
+        if (!$('#destinationSelect').val()) {
+            toastr.warning('Please select a destination first');
+            $('#vehicleSelectModal').val('');
+            return;
+        }
+    }
+});
+
+// Enhanced destination change handler
+$('#destinationSelect').change(function() {
+    var destinationId = $(this).val();
+    var vehicleId = $('#vehicleSelectModal').val();
+    
+    // Filter vehicles based on selected destination
+    filterVehiclesByDestination(destinationId);
+    
+    if (destinationId) {
+        if (vehicleId) {
+            // If both destination and vehicle are selected, load with allocation status
+            loadEmployeesWithAllocationStatus(destinationId, vehicleId);
+        } else {
+            // If only destination selected, load employees without allocation status
+            loadEmployeesByDestination(destinationId);
+        }
+    } else {
+        $('#employeesList').html('<div class="text-muted text-center">Please select a destination to view employees</div>');
+    }
+});
+
+function filterVehiclesByDestination(destinationId) {
+    $('#vehicleSelectModal option').show();
+    if (destinationId) {
+        $('#vehicleSelectModal option').hide();
+        $('#vehicleSelectModal option[value=""]').show();
+        $('#vehicleSelectModal option[data-destination="' + destinationId + '"]').show();
+    }
+    $('#vehicleSelectModal').val('');
+}
+
+function loadEmployeesByDestination(destinationId) {
+    showLoading('Loading employees...');
+    $.get('@Url.Action("GetEmployeesByDestination", "DailyTours")', { destinationId: destinationId }, function(data) {
+        renderEmployeesList(data, false);
+        hideLoading();
+    }).fail(function() {
+        hideLoading();
+        toastr.error('Error loading employees');
+    });
+}
+
+function loadEmployeesWithAllocationStatus(destinationId, vehicleId) {
+    showLoading('Loading employees with allocation status...');
+    $.get('@Url.Action("GetEmployeesWithAllocationStatus", "DailyTours")', { 
+        destinationId: destinationId,
+        vehicleId: vehicleId 
+    }, function(data) {
+        renderEmployeesListWithAllocation(data.employees);
+        hideLoading();
+    }).fail(function() {
+        hideLoading();
+        toastr.error('Error loading employee allocation data');
+    });
+}
+
+function renderEmployeesListWithAllocation(employees) {
+    var employeesHtml = '';
+    if (employees && employees.length > 0) {
+        var allocatedCount = 0;
+        
+        employees.forEach(function(employee) {
+            var isChecked = employee.isAllocated ? 'checked' : '';
+            var badge = employee.isAllocated ? '<span class="badge bg-success ms-2">Allocated</span>' : '';
+            
+            if (employee.isAllocated) allocatedCount++;
+            
+            employeesHtml += '<div class="form-check mb-2">';
+            employeesHtml += '<input class="form-check-input employee-checkbox" type="checkbox" ' +
+                'value="' + employee.employeeId + '" id="emp_' + employee.employeeId + '" ' + isChecked + '>';
+            employeesHtml += '<label class="form-check-label" for="emp_' + employee.employeeId + '">';
+            employeesHtml += employee.employeeCode + ' - ' + employee.employeeName + badge;
+            employeesHtml += '</label></div>';
+        });
+        
+        if (allocatedCount > 0) {
+            toastr.info(allocatedCount + ' employees are already allocated to this vehicle');
+        }
+    } else {
+        employeesHtml = '<div class="text-muted text-center">No employees found for this destination</div>';
+    }
+    $('#employeesList').html(employeesHtml);
+}
+
+function renderEmployeesList(employees, showAllocation = false) {
+    var employeesHtml = '';
+    if (employees && employees.length > 0) {
+        employees.forEach(function(employee) {
+            var badge = showAllocation && employee.isAllocated ? '<span class="badge bg-success ms-2">Allocated</span>' : '';
+            
+            employeesHtml += '<div class="form-check mb-2">';
+            employeesHtml += '<input class="form-check-input employee-checkbox" type="checkbox" ' +
+                'value="' + employee.employeeId + '" id="emp_' + employee.employeeId + '">';
+            employeesHtml += '<label class="form-check-label" for="emp_' + employee.employeeId + '">';
+            employeesHtml += employee.employeeCode + ' - ' + employee.employeeName + badge;
+            employeesHtml += '</label></div>';
+        });
+    } else {
+        employeesHtml = '<div class="text-muted text-center">No employees found for this destination</div>';
+    }
+    $('#employeesList').html(employeesHtml);
+}
+
+
+
+
+
+            // Initialize modals
+            initializeModals();
+
+            // Handle vehicle selection change
+            $('#vehicleSelect, #monthSelect, #yearSelect').change(function() {
+                loadAttendanceData();
+            });
+
+            // Employee Allocation Modal
+            $('#employeeAllocationBtn').click(function() {
+                $('#employeeAllocationModal').modal('show');
+                loadEmployeeAllocationData();
+            });
+
+            // Payment Allocation Modal
+            $('#paymentAllocationBtn').click(function() {
+                $('#paymentAllocationModal').modal('show');
+                loadPaymentAllocationData();
+            });
+
+            function initializeModals() {
+                // Modal initialization if needed
+            }
+
+            function loadEmployeeAllocationData() {
+                showLoading('Loading allocation data...');
+                $.get('@Url.Action("GetEmployeeAllocationData", "DailyTours")', function(data) {
+                    $('#destinationSelect').html('<option value="">-- Select Destination --</option>');
+                    data.destinations.forEach(function(dest) {
+                        $('#destinationSelect').append('<option value="' + dest.destinationId + '">' + dest.destinationName + '</option>');
+                    });
+                    
+                    $('#vehicleSelectModal').html('<option value="">-- Select Vehicle --</option>');
+                    data.vehicles.forEach(function(vehicle) {
+                        $('#vehicleSelectModal').append('<option value="' + vehicle.vehicleId + '" data-destination="' + vehicle.destinationId + '">' + 
+                            vehicle.vehicleNumber + ' - ' + vehicle.vehicleName + '</option>');
+                    });
+                    hideLoading();
+                }).fail(function() {
+                    hideLoading();
+                    toastr.error('Error loading allocation data');
+                });
+            }
+
+            function loadPaymentAllocationData() {
+                showLoading('Loading payment data...');
+                $.get('@Url.Action("GetPaymentAllocationData", "DailyTours")', function(data) {
+                    $('#paymentVehicleSelect').html('<option value="">-- Select Vehicle --</option>');
+                    data.vehicles.forEach(function(vehicle) {
+                        $('#paymentVehicleSelect').append('<option value="' + vehicle.vehicleId + '">' + 
+                            vehicle.vehicleNumber + ' - ' + vehicle.vehicleName + '</option>');
+                    });
+                    
+                    $('#paymentMethodSelect').html('<option value="">-- Select Payment Method --</option>');
+                    data.paymentMethods.forEach(function(method) {
+                        $('#paymentMethodSelect').append('<option value="' + method.paymentMethodId + '">' + 
+                            method.paymentMethodName + '</option>');
+                    });
+                    hideLoading();
+                }).fail(function() {
+                    hideLoading();
+                    toastr.error('Error loading payment data');
+                });
+            }
+
+            function loadAttendanceData() {
+                var vehicleId = $('#vehicleSelect').val();
+                var month = $('#monthSelect').val();
+                var year = $('#yearSelect').val();
+
+                if (!vehicleId) {
+                    $('#attendanceSection').hide();
+                    return;
+                }
+
+                showLoading('Loading attendance data...');
+                $.get('@Url.Action("GetEmployeesByVehicle", "DailyTours")', {
+                    vehicleId: vehicleId,
+                    month: month,
+                    year: year
+                }, function(data) {
+                    renderAttendanceTable(data.employees, data.monthDays);
+                    $('#attendanceSection').show();
+                    hideLoading();
+                }).fail(function() {
+                    hideLoading();
+                    toastr.error('Error loading attendance data');
+                });
+            }
+
+            function renderAttendanceTable(employees, monthDays) {
+                var headerRow = '<tr><th class="employee-row">Employee</th>';
+                var dateFormat = { day: 'numeric' };
+
+                monthDays.forEach(function(day) {
+                    var date = new Date(day);
+                    headerRow += '<th class="day-header">' + date.toLocaleDateString('en-US', dateFormat) + '</th>';
+                });
+                headerRow += '</tr>';
+
+                $('.attendance-table thead').html(headerRow);
+
+                var tbody = '';
+                if (employees && employees.length > 0) {
+                    employees.forEach(function(employee, index) {
+                        var row = '<tr>';
+                        row += '<td class="employee-row">' + employee.employeeCode + ' - ' + employee.employeeName + '</td>';
+
+                        monthDays.forEach(function(day) {
+                            var date = new Date(day);
+                            var isChecked = employee.attendance[day] ? 'checked' : '';
+                            var inputName = 'Employees[' + index + '].Attendance[' + day + ']';
+                            var inputId = 'emp_' + employee.employeeId + '_' + date.toISOString().split('T')[0];
+
+                            row += '<td><input type="checkbox" class="form-check-input attendance-checkbox" ' +
+                                   'name="' + inputName + '" id="' + inputId + '" ' + isChecked + '></td>';
+                        });
+
+                        row += '</tr>';
+                        tbody += row;
+                    });
+
+                    // Add hidden fields for employee IDs
+                    var hiddenFields = '';
+                    employees.forEach(function(employee, index) {
+                        hiddenFields += '<input type="hidden" name="Employees[' + index + '].EmployeeId" value="' + employee.employeeId + '">';
+                        hiddenFields += '<input type="hidden" name="Employees[' + index + '].EmployeeCode" value="' + employee.employeeCode + '">';
+                        hiddenFields += '<input type="hidden" name="Employees[' + index + '].EmployeeName" value="' + employee.employeeName + '">';
+                    });
+                    tbody += hiddenFields;
+                } else {
+                    tbody = '<tr><td colspan="' + (monthDays.length + 1) + '" class="text-center text-muted">No employees allocated to this vehicle</td></tr>';
+                }
+
+                $('#attendanceBody').html(tbody);
+            }
+
+// Employee Allocation Form Submission
+$('#employeeAllocationForm').submit(function(e) {
+    e.preventDefault();
+
+    var selectedEmployeeIds = [];
+    $('.employee-checkbox:checked').each(function() {
+        selectedEmployeeIds.push($(this).val());
+    });
+
+    var formData = {
+        VehicleId: $('#vehicleSelectModal').val(),
+        DestinationId: $('#destinationSelect').val(),
+        SelectedEmployeeIds: selectedEmployeeIds
+    };
+
+    if (!formData.VehicleId) {
+        toastr.warning('Please select a vehicle');
+        return;
+    }
+
+    if (!formData.DestinationId) {
+        toastr.warning('Please select a destination');
+        return;
+    }
+
+    if (selectedEmployeeIds.length === 0) {
+        toastr.warning('Please select at least one employee');
+        return;
+    }
+
+    showLoading('Saving employee allocation...');
+
+    $.ajax({
+        url: '@Url.Action("SaveVehicleEmployeeAllocation", "DailyTours")',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(formData),
+        success: function(response) {
+            hideLoading();
+            if (response.success) {
+                toastr.success(response.message);
+                $('#employeeAllocationModal').modal('hide');
+                // Reset form
+                $('#employeeAllocationForm')[0].reset();
+                $('#employeesList').html('<div class="text-muted text-center">Please select a destination to view employees</div>');
+            } else {
+                toastr.error(response.message);
+            }
+        },
+        error: function() {
+            hideLoading();
+            toastr.error('Error saving employee allocation');
+        }
+    });
+});
+
+
+            // Payment Allocation Form Submission
+            $('#paymentAllocationForm').submit(function(e) {
+                e.preventDefault();
+
+                var formData = {
+                    VehicleId: $('#paymentVehicleSelect').val(),
+                    PaymentMethodId: $('#paymentMethodSelect').val(),
+                    Cost: parseFloat($('#paymentCost').val()),
+                    EffectiveDate: $('#paymentEffectiveDate').val()
+                };
+
+                if (!formData.VehicleId) {
+                    toastr.warning('Please select a vehicle');
+                    return;
+                }
+
+                if (!formData.PaymentMethodId) {
+                    toastr.warning('Please select a payment method');
+                    return;
+                }
+
+                if (!formData.Cost || formData.Cost <= 0) {
+                    toastr.warning('Please enter a valid cost');
+                    return;
+                }
+
+                if (!formData.EffectiveDate) {
+                    toastr.warning('Please select an effective date');
+                    return;
+                }
+
+                showLoading('Saving payment allocation...');
+
+                $.ajax({
+                    url: '@Url.Action("SaveVehiclePaymentAllocation", "DailyTours")',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(formData),
+                    success: function(response) {
+                        hideLoading();
+                        if (response.success) {
+                            toastr.success(response.message);
+                            $('#paymentAllocationModal').modal('hide');
+                            // Reset form
+                            $('#paymentAllocationForm')[0].reset();
+                            $('#paymentEffectiveDate').val('@DateTime.Today.ToString("yyyy-MM-dd")');
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    error: function() {
+                        hideLoading();
+                        toastr.error('Error saving payment allocation');
+                    }
+                });
+            });
+
+
+            // Destination change for employee allocation
+            $('#destinationSelect').change(function() {
+                var destinationId = $(this).val();
+                
+                // Filter vehicles
+                $('#vehicleSelectModal option').show();
+                if (destinationId) {
+                    $('#vehicleSelectModal option').hide();
+                    $('#vehicleSelectModal option[value=""]').show();
+                    $('#vehicleSelectModal option[data-destination="' + destinationId + '"]').show();
+                    $('#vehicleSelectModal').val('');
+                }
+                
+                // Load employees
+                if (destinationId) {
+                    showLoading('Loading employees...');
+                    $.get('@Url.Action("GetEmployeesByDestination", "DailyTours")', { destinationId: destinationId }, function(data) {
+                        var employeesHtml = '';
+                        if (data.length > 0) {
+                            data.forEach(function(employee) {
+                                employeesHtml += '<div class="form-check mb-2">';
+                                employeesHtml += '<input class="form-check-input employee-checkbox" type="checkbox" ' +
+                                    'value="' + employee.employeeId + '" id="emp_' + employee.employeeId + '">';
+                                employeesHtml += '<label class="form-check-label" for="emp_' + employee.employeeId + '">';
+                                employeesHtml += employee.employeeCode + ' - ' + employee.employeeName;
+                                employeesHtml += '</label></div>';
+                            });
+                        } else {
+                            employeesHtml = '<div class="text-muted text-center">No employees found for this destination</div>';
+                        }
+                        $('#employeesList').html(employeesHtml);
+                        hideLoading();
+                    }).fail(function() {
+                        hideLoading();
+                        toastr.error('Error loading employees');
+                    });
+                } else {
+                    $('#employeesList').html('<div class="text-muted text-center">Please select a destination to view employees</div>');
+                }
+            });
+
+            // Main form submission
+            $('#dailyTourForm').submit(function(e) {
+                e.preventDefault();
+                
+                var vehicleId = $('#vehicleSelect').val();
+                if (!vehicleId) {
+                    toastr.warning('Please select a vehicle');
+                    return;
+                }
+
+                showLoading('Saving daily tours...');
+                var formData = $(this).serialize();
+                
+                $.post('@Url.Action("SaveDailyTours", "DailyTours")', formData, function(response) {
+                    hideLoading();
+                    if (response.success) {
+                        toastr.success(response.message);
+                    } else {
+                        toastr.error(response.message);
+                    }
+                }).fail(function() {
+                    hideLoading();
+                    toastr.error('Error saving daily tours');
+                });
+            });
+
+            // Close modal handlers
+            $('#employeeAllocationModal').on('hidden.bs.modal', function() {
+                $(this).find('form')[0].reset();
+                $('#employeesList').html('<div class="text-muted text-center">Please select a destination to view employees</div>');
+            });
+
+            $('#paymentAllocationModal').on('hidden.bs.modal', function() {
+                $(this).find('form')[0].reset();
+                $('#paymentEffectiveDate').val('@DateTime.Today.ToString("yyyy-MM-dd")');
+            });
+        });
+    </script>
+}
+
+@section PageStyles {
+    <style>
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loading-spinner {
+            text-align: center;
+        }
+
+        .loading-text {
+            color: #007bff;
+            font-weight: bold;
+        }
+    </style>
+}
+
+@* ************** Content ************** *@
+@await Html.PartialAsync("_Loading")
+<div class="panelDiv">
+    <div class="card">
+        <h5 class="card-header page-header">Daily Tours Management</h5>
+        <div class="card-body">
+
+            <form id="dailyTourForm" asp-action="SaveDailyTours" method="post">
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label asp-for="VehicleId" class="form-label">Select Vehicle</label>
+                        <select asp-for="VehicleId" 
+                                asp-items="@(new SelectList(Model.Vehicles.Select(v => new { 
+                                    Value = v.VehicleId.ToString(), 
+                                    Text = $"{v.VehicleNumber} - {v.VehicleName}" 
+                                }), "Value", "Text"))" 
+                                class="form-select" id="vehicleSelect">
+                            <option value="">-- Select Vehicle --</option>
+                        </select>
+                        <span asp-validation-for="VehicleId" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="Month" class="form-label">Month</label>
+                        <select asp-for="Month" class="form-select" id="monthSelect">
+                            @for (int i = 1; i <= 12; i++)
+                            {
+                                <option value="@i" selected="@(i == DateTime.Now.Month)">@System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(i)</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="Year" class="form-label">Year</label>
+                        <select asp-for="Year" class="form-select" id="yearSelect">
+                            @for (int i = DateTime.Now.Year - 1; i <= DateTime.Now.Year + 1; i++)
+                            {
+                                <option value="@i" selected="@(i == DateTime.Now.Year)">@i</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <div id="attendanceSection" style="display: none;">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-sm attendance-table">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="employee-row">Employee</th>
+                                    <!-- Day headers will be populated by JavaScript -->
+                                </tr>
+                            </thead>
+                            <tbody id="attendanceBody">
+                                <!-- Rows will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-save"></i> Save Attendance
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <div class="row mt-4">
+                <div class="col-md-6 mb-3">
+                    <button type="button" class="btn btn-info w-100" id="employeeAllocationBtn">
+                        <i class="fas fa-users"></i> Vehicle Employee Allocation
+                    </button>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <button type="button" class="btn btn-warning w-100" id="paymentAllocationBtn">
+                        <i class="fas fa-money-bill-wave"></i> Vehicle Payment Term Allocation
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Employee Allocation Modal -->
+<div class="modal fade" id="employeeAllocationModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-users"></i> Vehicle Employee Allocation
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="employeeAllocationForm">
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Destination</label>
+                            <select id="destinationSelect" class="form-select">
+                                <option value="">-- Select Destination --</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Vehicle</label>
+                            <select id="vehicleSelectModal" class="form-select">
+                                <option value="">-- Select Vehicle --</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <label class="form-label">Select Employees</label>
+                            <div id="employeesList" style="max-height: 300px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; border-radius: 5px;">
+                                <div class="text-muted text-center">Please select a destination to view employees</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save Allocation</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Payment Allocation Modal -->
+<div class="modal fade" id="paymentAllocationModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title">
+                    <i class="fas fa-money-bill-wave"></i> Vehicle Payment Term Allocation
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="paymentAllocationForm">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Vehicle</label>
+                        <select id="paymentVehicleSelect" class="form-select">
+                            <option value="">-- Select Vehicle --</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Payment Method</label>
+                        <select id="paymentMethodSelect" class="form-select">
+                            <option value="">-- Select Payment Method --</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Cost</label>
+                        <input id="paymentCost" type="number" step="0.01" class="form-control" placeholder="Enter cost" />
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Effective Date</label>
+                        <input id="paymentEffectiveDate" type="date" class="form-control" value="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save Allocation</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="loadingOverlay" class="loading-overlay" style="display: none;">
+    <div class="loading-spinner">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="loading-text mt-2">Loading...</p>
+    </div>
+</div>
