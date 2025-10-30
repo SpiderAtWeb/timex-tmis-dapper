@@ -12,6 +12,7 @@ namespace TMIS.DataAccess.COMON.Rpository
         public DatabaseConnectionSys(IConfiguration configuration)
         {
             _connection = new SqlConnection(configuration.GetConnectionString("DefaultConnection"));
+            _connection.Open();
         }
 
         public IDbConnection GetConnection() => _connection;
