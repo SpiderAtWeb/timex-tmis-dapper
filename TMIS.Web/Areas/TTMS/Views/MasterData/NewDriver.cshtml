@@ -1,0 +1,72 @@
+@model NewDriverViewModel
+
+@section VendorStyles {
+    <link rel="stylesheet" href="~/vendor/libs/flatpickr/flatpickr.css" />
+    <link rel="stylesheet" href="~/vendor/libs/select2/select2.css" />
+    <link href="~/css/input-text-upper.css" rel="stylesheet" />
+}
+
+@section VendorScripts {
+    <script src="~/vendor/libs/flatpickr/flatpickr.js"></script>
+    <script src="~/vendor/libs/select2/select2.js"></script>
+}
+
+@section PageScripts {
+    <script src="~/js/form-layouts.js"></script>
+    <script src="~/custom/input-text-upper.js"></script>
+}
+
+<!-- ************** New Driver Form ************** -->
+<div class="card mb-6">
+    <h5 class="card-header page-header">
+        New Driver
+    </h5>
+
+    <form asp-action="NewDriver" method="post" class="card-body" id="myForm" enctype="multipart/form-data">
+        <div class="row g-2">
+
+            <!-- NIC -->
+            <div class="col-md-3">
+                <div class="form-floating form-floating-outline">
+                    <input asp-for="@Model.Driver.NIC" type="text" class="form-control" />
+                    <label asp-for="@Model.Driver.NIC"></label>
+                    <span asp-validation-for="@Model.Driver.NIC" class="customerError text-warning"></span>
+                </div>
+            </div>
+
+            <!-- Driver Name -->
+            <div class="col-md-3">
+                <div class="form-floating form-floating-outline">
+                    <input asp-for="@Model.Driver.DriverName" type="text" class="form-control" />
+                    <label asp-for="@Model.Driver.DriverName"></label>
+                    <span asp-validation-for="@Model.Driver.DriverName" class="customerError text-warning"></span>
+                </div>
+            </div>
+
+            <!-- License No -->
+            <div class="col-md-3">
+                <div class="form-floating form-floating-outline">
+                    <input asp-for="@Model.Driver.LicenseNo" type="text" class="form-control" />
+                    <label asp-for="@Model.Driver.LicenseNo"></label>
+                    <span asp-validation-for="@Model.Driver.LicenseNo" class="customerError text-warning"></span>
+                </div>
+            </div>
+
+            <!-- Mobile No -->
+            <div class="col-md-3">
+                <div class="form-floating form-floating-outline">
+                    <input asp-for="@Model.Driver.PhoneMobile" type="text" class="form-control" />
+                    <label asp-for="@Model.Driver.PhoneMobile"></label>
+                    <span asp-validation-for="@Model.Driver.PhoneMobile" class="customerError text-warning"></span>
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="pt-1">
+                <button type="submit" class="btn btn-primary me-1">Submit</button>
+                <button type="reset" class="btn btn-primary me-1">Clear</button>
+                <a asp-controller="MasterData" asp-action="Drivers" class="btn btn-outline-secondary">Back to List</a>
+            </div>
+        </div>
+    </form>
+</div>

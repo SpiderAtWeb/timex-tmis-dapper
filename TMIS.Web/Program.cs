@@ -143,6 +143,8 @@ builder.Services.AddScoped<IRequestRepository, RequestRepository>();
 
 //TTMS
 builder.Services.AddScoped<IDailyToursRepository, DailyToursRepository>();
+builder.Services.AddScoped<IMasterDataRepository, MasterDataRepository>();
+builder.Services.AddScoped<ITTMSLogdbRepository, TTMSLogdbRepository>();
 
 
 builder.Services.AddScoped<ISessionHelper, SessionHelper>();

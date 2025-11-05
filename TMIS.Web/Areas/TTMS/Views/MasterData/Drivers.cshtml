@@ -1,0 +1,95 @@
+@model IEnumerable<DriverViewModel>
+
+@section VendorStyles {
+    <link rel="stylesheet" href="~/vendor/libs/datatables-bs5/datatables.bootstrap5.css">
+    <link href="~/vendor/libs/toastr/toastr.css" rel="stylesheet" />
+}
+
+@section PageStyles {
+    <style>
+        .table td {
+            max-width: 100px; /* Set a suitable width for your columns */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .dt-tbl {
+            font-size: 10px; /* Adjust this value to your preferred size */
+        }
+    </style>
+}
+
+@section PageScripts {
+    <script src="~/custom/tables-datatables-mc-request.js"></script>
+    <script src="~/custom/loading-hide.js"></script>
+
+    @if (TempData["success"] != null)
+    {
+        <script src="~/vendor/libs/toastr/toastr.js"></script>
+        <script type="text/javascript">
+            toastr.success('@TempData["success"]');
+        </script>
+        TempData.Clear();
+    }
+}
+
+@await Html.PartialAsync("_Loading")
+
+<!-- ************** Content ************** -->
+<div class="panelDiv">
+    <div class="card mb-6">
+        <h5 class="card-header page-header">Drivers</h5>
+        <div class="card-body">
+            <div class="tab-content p-0">
+                <div class="tab-pane fade show active" id="navs-top-home" role="tabpanel">
+                    <div class="row">
+                        <div class="col text-end">
+                            <a asp-action="NewDriver" asp-controller="MasterData" class="btn btn-primary">
+                                <i class="ri-add-line"></i>
+                                <span class="d-none d-sm-inline-block">Add New Driver</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="card-datatable text-nowrap">
+                        <table class="datatables-ajax table table-bordered" id="dashboard">
+                            <thead>
+                                <tr class="table-info">
+                                    <th class="d-none">Id</th>
+                                    <th>NIC</th>
+                                    <th>Driver Name</th>
+                                    <th>License No</th>
+                                    <th>Mobile</th>
+                                    <th>Created Date</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td class="d-none">@item.DriverId</td>
+                                        <td>@item.NIC</td>
+                                        <td>@item.DriverName</td>
+                                        <td>@item.LicenseNo</td>
+                                        <td>@item.PhoneMobile</td>
+                                        <td>@item.CreatedDate.ToString("yyyy-MM-dd")</td>
+                                        <td>
+                                            <a class="btn btn-primary btn-sm"
+                                               asp-controller="MasterData"
+                                               asp-action="EditDriver"
+                                               asp-route-driverId="@item.DriverId">
+                                                <i class="ri-pencil-fill"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div> <!-- /.card-datatable -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

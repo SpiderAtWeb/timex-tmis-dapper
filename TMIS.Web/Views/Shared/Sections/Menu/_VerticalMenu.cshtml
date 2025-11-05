@@ -846,29 +846,43 @@
                     <span class="menu-header-text">Master Data</span>
                 </li>
                 <!-- Forms -->
-                <li class='menu-item@(currentPage.StartsWith("/TTMS/MasterEmployee") ? " active open" : "")'>
+                <li class='menu-item@(currentPage.StartsWith("/TTMS/MasterData") ? " active open" : "")'>
                     <a href="javascript:void(0);" class="menu-link menu-toggle">
                         <i class="menu-icon fa-solid fa-fax"></i>
-                        <div>Employees</div>
+                        <div>Register</div>
                     </a>
                     <ul class="menu-sub">
-                        <li class='menu-item@(currentPage == "/TTMS/MasterEmployee/Employees" ? " active" : "")'>
-                            <a asp-area="TTMS" asp-controller="MasterEmployee" asp-action="Employees" class="menu-link">
-                                <div> <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span> Employees</div>
+                        <li class='menu-item@(currentPage == "/TTMS/MasterData/Employees" ? " active" : "")'>
+                            <a asp-area="TTMS" asp-controller="MasterData" asp-action="Employees" class="menu-link">
+                                <div> <span>    <i class="menu-icon fa-solid fa-users"></i></span> Employees</div>
                             </a>
                         </li>                       
                     </ul>
                     <ul class="menu-sub">
-                        <li class='menu-item@(currentPage == "/TTMS/MasterEmployee/Vehicles" ? " active" : "")'>
-                            <a asp-area="TTMS" asp-controller="MasterEmployee" asp-action="Vehicles" class="menu-link">
-                                <div> <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span> Vehicles</div>
+                        <li class='menu-item@(currentPage == "/TTMS/MasterData/Vehicles" ? " active" : "")'>
+                            <a asp-area="TTMS" asp-controller="MasterData" asp-action="Vehicles" class="menu-link">
+                                <div> <span>    <i class="menu-icon fa-solid fa-van-shuttle"></i></span> Vehicles</div>
                             </a>
                         </li>
                     </ul>
                     <ul class="menu-sub">
-                        <li class='menu-item@(currentPage == "/TTMS/MasterEmployee/PaymentTerms" ? " active" : "")'>
-                            <a asp-area="TTMS" asp-controller="MasterEmployee" asp-action="PaymentTerms" class="menu-link">
-                                <div> <span>    <i class="menu-icon fa-solid fa-angles-right"></i></span> Payment Terms</div>
+                        <li class='menu-item@(currentPage == "/TTMS/MasterData/Drivers" ? " active" : "")'>
+                            <a asp-area="TTMS" asp-controller="MasterData" asp-action="Drivers" class="menu-link">
+                                <div> <span>    <i class="menu-icon fa-solid fa-users"></i></span> Drivers</div>
+                            </a>
+                        </li>
+                    </ul>
+                    <ul class="menu-sub">
+                        <li class='menu-item@(currentPage == "/TTMS/MasterData/Owners" ? " active" : "")'>
+                            <a asp-area="TTMS" asp-controller="MasterData" asp-action="Owners" class="menu-link">
+                                <div> <span>    <i class="menu-icon fa-solid fa-users"></i></span> Owners</div>
+                            </a>
+                        </li>
+                    </ul>
+                    <ul class="menu-sub">
+                        <li class='menu-item@(currentPage == "/TTMS/MasterData/PaymentTerms" ? " active" : "")'>
+                            <a asp-area="TTMS" asp-controller="MasterData" asp-action="PaymentTerms" class="menu-link">
+                                <div> <span>    <i class="menu-icon fa-solid fa-money-check"></i></span> Payment Terms</div>
                             </a>
                         </li>
                     </ul>

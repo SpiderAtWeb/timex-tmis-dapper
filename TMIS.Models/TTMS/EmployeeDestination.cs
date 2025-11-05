@@ -9,6 +9,7 @@ namespace TMIS.Models.TTMS
     public class EmployeeDestination
     {
         public int DestinationId { get; set; }
+        public string DestinationCode { get; set; } = string.Empty;
         public string DestinationName { get; set; } = string.Empty;
         public bool IsActive { get; set; }
         public DateTime CreatedDate { get; set; }

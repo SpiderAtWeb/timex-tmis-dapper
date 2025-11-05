@@ -119,7 +119,7 @@ namespace TMIS.DataAccess.TTMS.Repository
                 transaction.Commit();
                 return result;
             }
-            catch(Exception e)
+            catch
             {
                 transaction.Rollback();
                 throw;
