@@ -26,6 +26,20 @@ namespace TMIS.DataAccess.TTMS.IRepository
         Task<bool> CheckDriverExist(string nic);
         Task<Driver?> LoadDriver(int driverId);
 
+        /// ------------------ PAYMENT TERM METHODS ------------------
+        Task<bool> AddPaymentTermAsync(PaymentTerm paymentTerm);
+        Task<IEnumerable<PaymentTermViewModel>> GetAllPaymentTerms();
+        Task<bool> UpdatePaymentTerm(PaymentTerm paymentTerm);
+        Task<bool> CheckPaymentTermExist(string paymentTermName);
+        Task<PaymentTerm?> LoadPaymentTerm(int paymentTermId);
+
+        /// ------------------ TRANSPORTER METHODS ------------------
+        Task<bool> AddTransporterAsync(Transporter transporter);
+        Task<IEnumerable<TransporterViewModel>> GetAllTransporters();
+        Task<bool> UpdateTransporter(Transporter transporter);
+        Task<bool> CheckTransporterExist(string nic);
+        Task<Transporter?> LoadTransporter(int transporterId);
+
         // ------------------ DROPDOWN METHODS ------------------
         Task<IEnumerable<SelectListItem>> LoadDestinations();
         Task<IEnumerable<SelectListItem>> LoadLoactions();

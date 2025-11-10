@@ -1,4 +1,4 @@
-@model IEnumerable<PaymentTermViewModel>
+@model IEnumerable<TransporterViewModel>
 
 @section VendorStyles {
     <link rel="stylesheet" href="~/vendor/libs/datatables-bs5/datatables.bootstrap5.css">
@@ -37,17 +37,18 @@
 @await Html.PartialAsync("_Loading")
 
 <!-- ************** Content ************** -->
+<!-- Ajax Sourced Server-side -->
 <div class="panelDiv">
     <div class="card mb-6">
-        <h5 class="card-header page-header">Payment Terms</h5>
+        <h5 class="card-header page-header">Transporters</h5>
         <div class="card-body">
             <div class="tab-content p-0">
                 <div class="tab-pane fade show active" id="navs-top-home" role="tabpanel">
                     <div class="row">
                         <div class="col text-end">
-                            <a asp-action="NewPaymentTerm" class="btn btn-primary">
+                            <a asp-action="NewTransporter" class="btn btn-primary">
                                 <i class="ri-add-line"></i>
-                                <span class="d-none d-sm-inline-block">Add New Payment Term</span>
+                                <span class="d-none d-sm-inline-block">Add New Transporter</span>
                             </a>
                         </div>
                     </div>
@@ -55,10 +56,12 @@
                         <table class="datatables-ajax table table-bordered" id="dashboard">
                             <thead>
                                 <tr class="table-info">
-                                    <th class="d-none">Id</th>
-                                    <th>Payment Term Name</th>
-                                    <th>Description</th>
-                                    <th>Created Date</th>
+                                    <th class="d-none">Id</th>                                    
+                                    <th>Transporter Name</th>
+                                    <th>Mobile</th>
+                                    <th>Bank</th>
+                                    <th>Branch</th>
+                                    <th>Account Holder</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -66,15 +69,17 @@
                                 @foreach (var item in Model)
                                 {
                                     <tr>
-                                        <td class="d-none">@item.PaymentTermId</td>
-                                        <td>@item.PaymentTermName</td>
-                                        <td>@item.Description</td>
-                                        <td>@item.CreatedDate?.ToString("yyyy-MM-dd")</td>
+                                        <td class="d-none">@item.TransporterId</td>                               
+                                        <td>@item.TransporterName</td>
+                                        <td>@item.PhoneMobile</td>
+                                        <td>@item.Bank</td>
+                                        <td>@item.Branch</td>
+                                        <td>@item.AccountHolderName</td>
                                         <td>
                                             <a class="btn btn-primary btn-sm"
                                                asp-controller="MasterData"
-                                               asp-action="EditPaymentTerm"
-                                               asp-route-paymentTermId="@item.PaymentTermId">
+                                               asp-action="EditTransporter"
+                                               asp-route-transporterId="@item.TransporterId">
                                                 <i class="ri-pencil-fill"></i>
                                             </a>
                                         </td>

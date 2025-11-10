@@ -293,6 +293,297 @@ namespace TMIS.DataAccess.TTMS.Repository
 
         #endregion
 
+        #region PaymentTerm Methods
+
+        public async Task<bool> AddPaymentTermAsync(PaymentTerm paymentTerm)
+        {
+            const string query = @"
+        INSERT INTO TTMS_PaymentTerms
+            (PaymentTermName, Description, IsActive)
+        VALUES
+            (@PaymentTermName, @Description, @IsActive);
+        SELECT CAST(SCOPE_IDENTITY() AS INT) AS InsertedId;";
+
+            try
+            {
+                var insertedId = await _dbConnection.GetConnection().QuerySingleOrDefaultAsync<int?>(query, new
+                {
+                    paymentTerm.PaymentTermName,
+                    paymentTerm.Description,
+                    paymentTerm.IsActive
+                });
+
+                if (insertedId.HasValue)
+                {
+                    LogdbTTMS logdb = new()
+                    {
+                        TrObjectId = insertedId.Value,
+                        TrLog = "PAYMENT TERM CREATED"
+                    };
+
+                    _iTTMSLogdbRepository.InsertLog(_dbConnection, logdb);
+                }
+
+                return insertedId > 0;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public async Task<IEnumerable<PaymentTermViewModel>> GetAllPaymentTerms()
+        {
+            const string sql = @"
+        SELECT 
+            PaymentTermId,
+            PaymentTermName,
+            Description,
+            IsActive,
+            CreatedDate
+        FROM TTMS_PaymentTerms
+        WHERE IsActive = 1;";
+
+            return await _dbConnection.GetConnection().QueryAsync<PaymentTermViewModel>(sql);
+        }
+
+        public async Task<bool> UpdatePaymentTerm(PaymentTerm paymentTerm)
+        {
+            const string query = @"
+        UPDATE TTMS_PaymentTerms SET
+            PaymentTermName = @PaymentTermName,
+            Description = @Description,
+            IsActive = @IsActive
+        WHERE PaymentTermId = @PaymentTermId;";
+
+            try
+            {
+                int rowsAffected = await _dbConnection.GetConnection().ExecuteAsync(query, new
+                {
+                    paymentTerm.PaymentTermName,
+                    paymentTerm.Description,
+                    paymentTerm.IsActive,
+                    paymentTerm.PaymentTermId
+                });
+
+                if (rowsAffected > 0)
+                {
+                    LogdbTTMS logdb = new()
+                    {
+                        TrObjectId = paymentTerm.PaymentTermId,
+                        TrLog = "PAYMENT TERM UPDATED"
+                    };
+
+                    _iTTMSLogdbRepository.InsertLog(_dbConnection, logdb);
+                }
+
+                return rowsAffected > 0;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> CheckPaymentTermExist(string paymentTermName)
+        {
+            const string query = @"
+        SELECT TOP 1 1
+        FROM TTMS_PaymentTerms
+        WHERE PaymentTermName = @PaymentTermName AND IsActive = 1;";
+
+            var result = await _dbConnection.GetConnection().QueryFirstOrDefaultAsync<int?>(query, new
+            {
+                PaymentTermName = paymentTermName
+            });
+
+            return result.HasValue;
+        }
+
+        public async Task<PaymentTerm?> LoadPaymentTerm(int paymentTermId)
+        {
+            const string query = @"
+        SELECT 
+            PaymentTermId,
+            PaymentTermName,
+            Description,
+            IsActive,
+            CreatedDate
+        FROM TTMS_PaymentTerms
+        WHERE PaymentTermId = @PaymentTermId;";
+
+            var paymentTerm = await _dbConnection.GetConnection().QueryFirstOrDefaultAsync<PaymentTerm>(query, new
+            {
+                PaymentTermId = paymentTermId
+            });
+
+            return paymentTerm;
+        }
+
+        #endregion
+
+        #region Transporter Methods
+
+        public async Task<bool> AddTransporterAsync(Transporter transporter)
+        {
+            const string query = @"
+        INSERT INTO TTMS_Transporters
+        (NIC, TransporterName, PhoneMobile, AccountNo, AccountHolderName, Bank, Branch, BankCode, BranchCode)
+        VALUES
+        (@NIC, @TransporterName, @PhoneMobile, @AccountNo, @AccountHolderName, @Bank, @Branch, @BankCode, @BranchCode);
+        SELECT CAST(SCOPE_IDENTITY() AS INT) AS InsertedId;";
+
+            try
+            {
+                var insertedId = await _dbConnection.GetConnection().QuerySingleOrDefaultAsync<int?>(query, new
+                {
+                    transporter.NIC,
+                    transporter.TransporterName,
+                    transporter.PhoneMobile,
+                    transporter.AccountNo,
+                    transporter.AccountHolderName,
+                    transporter.Bank,
+                    transporter.Branch,
+                    transporter.BankCode,
+                    transporter.BranchCode
+                });
+
+                if (insertedId.HasValue)
+                {
+                    LogdbTTMS logdb = new()
+                    {
+                        TrObjectId = insertedId.Value,
+                        TrLog = "TRANSPORTER CREATED"
+                    };
+
+                    _iTTMSLogdbRepository.InsertLog(_dbConnection, logdb);
+                }
+
+                return insertedId > 0;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public async Task<IEnumerable<TransporterViewModel>> GetAllTransporters()
+        {
+            const string sql = @"
+        SELECT 
+            T.TransporterId,
+            T.NIC,
+            T.TransporterName,
+            T.PhoneMobile,
+            T.AccountNo,
+            T.AccountHolderName,
+            T.Bank,
+            T.Branch,
+            T.BankCode,
+            T.BranchCode,
+            T.IsActive,
+            T.CreatedDate
+        FROM TTMS_Transporters T
+        WHERE T.IsActive = 1;";
+
+            return await _dbConnection.GetConnection().QueryAsync<TransporterViewModel>(sql);
+        }
+
+        public async Task<bool> UpdateTransporter(Transporter transporter)
+        {
+            const string query = @"
+        UPDATE TTMS_Transporters SET
+            NIC = @NIC,
+            TransporterName = @TransporterName,
+            PhoneMobile = @PhoneMobile,
+            AccountNo = @AccountNo,
+            AccountHolderName = @AccountHolderName,
+            Bank = @Bank,
+            Branch = @Branch,
+            BankCode = @BankCode,
+            BranchCode = @BranchCode,
+            IsActive = @IsActive
+        WHERE TransporterId = @TransporterId;";
+
+            try
+            {
+                int rowsAffected = await _dbConnection.GetConnection().ExecuteAsync(query, new
+                {
+                    transporter.NIC,
+                    transporter.TransporterName,
+                    transporter.PhoneMobile,
+                    transporter.AccountNo,
+                    transporter.AccountHolderName,
+                    transporter.Bank,
+                    transporter.Branch,
+                    transporter.BankCode,
+                    transporter.BranchCode,
+                    transporter.IsActive,
+                    transporter.TransporterId
+                });
+
+                if (rowsAffected > 0)
+                {
+                    LogdbTTMS logdb = new()
+                    {
+                        TrObjectId = transporter.TransporterId,
+                        TrLog = "TRANSPORTER UPDATED"
+                    };
+
+                    _iTTMSLogdbRepository.InsertLog(_dbConnection, logdb);
+                }
+
+                return rowsAffected > 0;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> CheckTransporterExist(string nic)
+        {
+            const string query = @"
+        SELECT TOP 1 1 
+        FROM TTMS_Transporters
+        WHERE TransporterName = @TransporterName AND IsActive = 1;";
+
+            var result = await _dbConnection.GetConnection().QueryFirstOrDefaultAsync<int?>(query, new
+            {
+                TransporterName = nic
+            });
+
+            return result.HasValue;
+        }
+
+        public async Task<Transporter?> LoadTransporter(int transporterId)
+        {
+            const string query = @"
+        SELECT 
+            T.TransporterId,
+            T.NIC,
+            T.TransporterName,
+            T.PhoneMobile,
+            T.AccountNo,
+            T.AccountHolderName,
+            T.Bank,
+            T.Branch,
+            T.BankCode,
+            T.BranchCode,
+            T.IsActive,
+            T.CreatedDate
+        FROM TTMS_Transporters T
+        WHERE T.TransporterId = @TransporterId;";
+
+            var transporter = await _dbConnection.GetConnection().QueryFirstOrDefaultAsync<Transporter>(query, new
+            {
+                TransporterId = transporterId
+            });
+
+            return transporter;
+        }
+
+        #endregion
 
         #region DropDown Methods
         public async Task<IEnumerable<SelectListItem>> LoadLoactions()
@@ -309,10 +600,10 @@ namespace TMIS.DataAccess.TTMS.Repository
             var results = await _dbConnection.GetConnection().QueryAsync<SelectListItem>(query);
             return results;
         }
-        public async Task<IEnumerable<SelectListItem>> LoadVehiclePaymentMethods()
+        public async Task<IEnumerable<SelectListItem>> LoadVehiclePaymentTerms()
         {
-            string query = @"SELECT PaymentMethodId AS Value, 
-            PaymentMethodName AS Text FROM TTMS_PaymentMethods where IsActive=1 ORDER BY Text";
+            string query = @"SELECT PaymentTermId AS Value, 
+            PaymentTermName AS Text FROM TTMS_PaymentTerms where IsActive=1 ORDER BY Text";
             var results = await _dbConnection.GetConnection().QueryAsync<SelectListItem>(query);
             return results;
         }
@@ -320,6 +611,13 @@ namespace TMIS.DataAccess.TTMS.Repository
         {
             string query = @"SELECT DriverId AS Value,
             DriverName + ' - ' + Nic AS Text FROM TTMS_Drivers WHERE IsActive = 1 ORDER BY DriverName, Nic;";
+            var results = await _dbConnection.GetConnection().QueryAsync<SelectListItem>(query);
+            return results;
+        }
+        public async Task<IEnumerable<SelectListItem>> LoadTransporters()
+        {
+            string query = @"SELECT TransporterId AS Value,
+            TransporterName + ' - ' + NIC AS Text FROM TTMS_Transporters WHERE IsActive = 1 ORDER BY TransporterName, NIC;";
             var results = await _dbConnection.GetConnection().QueryAsync<SelectListItem>(query);
             return results;
         }

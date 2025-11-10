@@ -17,6 +17,8 @@ namespace TMIS.Areas.TTMS.Controllers
     private readonly ILog _logger = LogManager.GetLogger(typeof(DeviceTypeController));
     private readonly IMasterDataRepository  _masterDataRepository = masterDataRepository;
     private readonly ISessionHelper _iSessionHelper = sessionHelper;
+
+    #region Main Views
     public async Task<IActionResult> Employees()
     {
       _logger.Info("[" + _iSessionHelper.GetShortName() + "] - PAGE VISIT Employees");
@@ -33,14 +35,19 @@ namespace TMIS.Areas.TTMS.Controllers
       var driverList = await _masterDataRepository.GetAllDrivers();
       return View(driverList);
     }
-    public IActionResult Owners()
+    public async Task<IActionResult> Transporters()
     {
-      return View();
+      _logger.Info("[" + _iSessionHelper.GetShortName() + "] - PAGE VISIT Transporters");
+      var transporterList = await _masterDataRepository.GetAllTransporters();
+      return View(transporterList);
     }
-    public IActionResult PaymentTerms()
+    public async Task<IActionResult> PaymentTerms()
     {
-      return View();
+      _logger.Info("[" + _iSessionHelper.GetShortName() + "] - PAGE VISIT Payment Terms");
+      var paymentTermList = await _masterDataRepository.GetAllPaymentTerms();
+      return View(paymentTermList);
     }
+    #endregion
 
     #region New Views
     public async Task<IActionResult> NewEmployee()
@@ -64,13 +71,20 @@ namespace TMIS.Areas.TTMS.Controllers
      
       return View(vm);
     }
-    public IActionResult NewOwner()
+    public IActionResult NewTransporter()
     {
-      return View();
+      _logger.Info("[" + _iSessionHelper.GetShortName() + "] - PAGE VISIT NewTransporter");
+      var vm = new NewTransporterViewModel();
+
+      return View(vm);
     }
     public IActionResult NewPaymentTerm()
     {
-      return View();
+      _logger.Info("[" + _iSessionHelper.GetShortName() + "] - PAGE VISIT NewPaymentTerm");
+
+      var vm = new NewPaymentTermViewModel();
+
+      return View(vm);
     }
     #endregion
 
@@ -115,13 +129,39 @@ namespace TMIS.Areas.TTMS.Controllers
 
       return View(vm);
     }
-    public IActionResult EditOwner()
+    public async Task<IActionResult> EditTransporter(int transporterID)
     {
-      return View();
+      var vm = new NewTransporterViewModel();
+
+      var transporter = await _masterDataRepository.LoadTransporter(transporterID);
+
+      if (transporter == null)
+      {
+        return NotFound();
+      }
+
+      vm.Transporter = transporter;
+
+      _logger.Info("[" + _iSessionHelper.GetShortName() + "] - PAGE VISIT Edit Transporter [" + vm.Transporter.TransporterId + "]");
+
+      return View(vm);
     }
-    public IActionResult EditPaymentTerm()
+    public async Task<IActionResult> EditPaymentTerm(int paymentTermId)
     {
-      return View();
+      var vm = new NewPaymentTermViewModel();
+
+      var paymentTerm = await _masterDataRepository.LoadPaymentTerm(paymentTermId);
+
+      if (paymentTerm == null)
+      {
+        return NotFound();
+      }
+
+      vm.PaymentTerm = paymentTerm;
+
+      _logger.Info("[" + _iSessionHelper.GetShortName() + "] - PAGE VISIT Edit Payment Term [" + vm.PaymentTerm.PaymentTermId + "]");
+
+      return View(vm);
     }
     #endregion
 
@@ -225,35 +265,61 @@ namespace TMIS.Areas.TTMS.Controllers
       return RedirectToAction("Drivers");
     }
     [HttpPost]
-    public async Task<IActionResult> NewOwner(NewEmployeeViewModel model)
+    public async Task<IActionResult> NewTransporter(NewTransporterViewModel model)
     {
-      if (await _masterDataRepository.CheckEmployeeExist(model.Employee.EmployeeCode))
+      // Check if transporter already exists (by Transporter Name)
+      if (await _masterDataRepository.CheckTransporterExist(model.Transporter.TransporterName))
       {
-        ModelState.AddModelError("EmployeeCode", "Employee Already Exists !");
+        ModelState.AddModelError("Transporter.TransporterName", "Transporter with this name already exists!");
       }
 
-      // Check if the ModelState is valid
+      // Validate required fields
+      if (string.IsNullOrWhiteSpace(model.Transporter.TransporterName))
+      {
+        ModelState.AddModelError("Transporter.TransporterName", "Transporter Name is required.");
+      }
+      if (string.IsNullOrWhiteSpace(model.Transporter.AccountNo))
+      {
+        ModelState.AddModelError("Transporter.AccountNo", "Account No Name is required.");
+      }
+      if (string.IsNullOrWhiteSpace(model.Transporter.Branch))
+      {
+        ModelState.AddModelError("Transporter.Branch", "Branch field is required.");
+      }
+      if (string.IsNullOrWhiteSpace(model.Transporter.Bank))
+      {
+        ModelState.AddModelError("Transporter.Bank", "Bank field is required.");
+      }
+
+      // Check if ModelState is valid
       if (!ModelState.IsValid)
       {
         return View(model);
       }
 
-      // Insert type data if everything is valid
-      await _masterDataRepository.AddEmployeeAsync(model.Employee);
+      // Insert transporter record
+      await _masterDataRepository.AddTransporterAsync(model.Transporter);
 
       // Show success message and redirect
       TempData["success"] = "Record Created Successfully";
 
-      _logger.Info("VEHICLE CREATED [" + model.Employee.EmployeeName + "] - [" + _iSessionHelper.GetShortName() + "]");
+      _logger.Info("TRANSPORTER CREATED [" + model.Transporter.TransporterName + "] - [" + _iSessionHelper.GetShortName() + "]");
 
-      return RedirectToAction("Vehicles");
+      return RedirectToAction("Transporters");
     }
     [HttpPost]
-    public async Task<IActionResult> NewPaymentTerm(NewEmployeeViewModel model)
+    public async Task<IActionResult> NewPaymentTerm(NewPaymentTermViewModel model)
     {
-      if (await _masterDataRepository.CheckEmployeeExist(model.Employee.EmployeeCode))
+      // Check if payment term code already exists
+      if (await _masterDataRepository.CheckPaymentTermExist(model.PaymentTerm.PaymentTermName))
       {
-        ModelState.AddModelError("EmployeeCode", "Employee Already Exists !");
+        ModelState.AddModelError("PaymentTerm.PaymentTermName", "Payment Term Already Exists !");
+      }
+
+      // Validate required fields     
+      if (string.IsNullOrWhiteSpace(model.PaymentTerm.PaymentTermName))
+      {
+        ModelState.AddModelError("PaymentTerm.PaymentTermName", "Payment Term Name field is required.");
       }
 
       // Check if the ModelState is valid
@@ -262,15 +328,15 @@ namespace TMIS.Areas.TTMS.Controllers
         return View(model);
       }
 
-      // Insert type data if everything is valid
-      await _masterDataRepository.AddEmployeeAsync(model.Employee);
+      // Insert data if everything is valid
+      await _masterDataRepository.AddPaymentTermAsync(model.PaymentTerm);
 
       // Show success message and redirect
       TempData["success"] = "Record Created Successfully";
 
-      _logger.Info("VEHICLE CREATED [" + model.Employee.EmployeeName + "] - [" + _iSessionHelper.GetShortName() + "]");
+      _logger.Info("PAYMENT TERM CREATED [" + model.PaymentTerm.PaymentTermName + "] - [" + _iSessionHelper.GetShortName() + "]");
 
-      return RedirectToAction("Vehicles");
+      return RedirectToAction("PaymentTerms");
     }
     #endregion
 
@@ -363,11 +429,32 @@ namespace TMIS.Areas.TTMS.Controllers
       return RedirectToAction("Drivers");
     }
     [HttpPost]
-    public async Task<IActionResult> EditOwner(NewEmployeeViewModel model)
+    public async Task<IActionResult> EditTransporter(NewTransporterViewModel model)
     {
-      if (await _masterDataRepository.CheckEmployeeExist(model.Employee.EmployeeCode))
+      // Validate required fields
+      if (string.IsNullOrWhiteSpace(model.Transporter.TransporterName))
       {
-        ModelState.AddModelError("EmployeeCode", "Employee Already Exists !");
+        ModelState.AddModelError("Transporter.TransporterName", "Transporter Name field is required.");
+      }
+      if (string.IsNullOrWhiteSpace(model.Transporter.NIC))
+      {
+        ModelState.AddModelError("Transporter.NIC", "NIC field is required.");
+      }
+      if (string.IsNullOrWhiteSpace(model.Transporter.PhoneMobile))
+      {
+        ModelState.AddModelError("Transporter.PhoneMobile", "Phone Number field is required.");
+      }
+      if (string.IsNullOrWhiteSpace(model.Transporter.AccountNo))
+      {
+        ModelState.AddModelError("Transporter.AccountNo", "Account No field is required.");
+      }
+      if (string.IsNullOrWhiteSpace(model.Transporter.Bank))
+      {
+        ModelState.AddModelError("Transporter.Bank", "Bank field is required.");
+      }
+      if (string.IsNullOrWhiteSpace(model.Transporter.Branch))
+      {
+        ModelState.AddModelError("Transporter.Branch", "Branch field is required.");
       }
 
       // Check if the ModelState is valid
@@ -376,22 +463,22 @@ namespace TMIS.Areas.TTMS.Controllers
         return View(model);
       }
 
-      // Insert type data if everything is valid
-      await _masterDataRepository.AddEmployeeAsync(model.Employee);
+      // Update transporter record if everything is valid
+      await _masterDataRepository.UpdateTransporter(model.Transporter);
 
       // Show success message and redirect
-      TempData["success"] = "Record Created Successfully";
+      TempData["success"] = "Record Updated Successfully";
 
-      _logger.Info("VEHICLE CREATED [" + model.Employee.EmployeeName + "] - [" + _iSessionHelper.GetShortName() + "]");
+      _logger.Info("TRANSPORTER EDIT [" + model.Transporter.TransporterId + "] - [" + _iSessionHelper.GetShortName() + "]");
 
-      return RedirectToAction("Vehicles");
+      return RedirectToAction("Transporters");
     }
     [HttpPost]
-    public async Task<IActionResult> EditPaymentTerm(NewEmployeeViewModel model)
+    public async Task<IActionResult> EditPaymentTerm(NewPaymentTermViewModel model)
     {
-      if (await _masterDataRepository.CheckEmployeeExist(model.Employee.EmployeeCode))
+      if (string.IsNullOrWhiteSpace(model.PaymentTerm.PaymentTermName))
       {
-        ModelState.AddModelError("EmployeeCode", "Employee Already Exists !");
+        ModelState.AddModelError("PaymentTerm.PaymentTermName", "Payment Term Name field is required.");
       }
 
       // Check if the ModelState is valid
@@ -400,15 +487,15 @@ namespace TMIS.Areas.TTMS.Controllers
         return View(model);
       }
 
-      // Insert type data if everything is valid
-      await _masterDataRepository.AddEmployeeAsync(model.Employee);
+      // Update payment term record if everything is valid
+      await _masterDataRepository.UpdatePaymentTerm(model.PaymentTerm);
 
       // Show success message and redirect
-      TempData["success"] = "Record Created Successfully";
+      TempData["success"] = "Record Updated Successfully";
 
-      _logger.Info("VEHICLE CREATED [" + model.Employee.EmployeeName + "] - [" + _iSessionHelper.GetShortName() + "]");
+      _logger.Info("PAYMENT TERM EDIT [" + model.PaymentTerm.PaymentTermId + "] - [" + _iSessionHelper.GetShortName() + "]");
 
-      return RedirectToAction("Vehicles");
+      return RedirectToAction("PaymentTerms");
     }
     #endregion  
   }
