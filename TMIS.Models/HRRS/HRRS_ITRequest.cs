@@ -107,6 +107,9 @@ namespace TMIS.Models.HRRS
 
         [Display(Name = "SIM")]
         public bool SIM { get; set; } = false;
+       
+        [Display(Name = "Dongle")]
+        public bool Dongle { get; set; } = false;
 
         [Display(Name = "Home Address")]
         [StringLength(500)]

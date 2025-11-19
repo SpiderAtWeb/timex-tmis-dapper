@@ -48,14 +48,14 @@ namespace TMIS.DataAccess.HRRS.Repository
             (
                 FirstName, LastName, EmployeeNo, Designation, Department, Location, Company, NIC, InterviewDate, DueStartDate,
                 IsReplacement, Replacement, Email, EmailGroup, Computer, ComputerLogin, SAP, WFX, NewLandline,
-                ExistingLandline, Extension, SmartPhone, BasicPhone, SIM, HomeAddress, RequestDate, RequestRemark,
+                ExistingLandline, Extension, SmartPhone, BasicPhone, SIM, HomeAddress, Dongle, RequestDate, RequestRemark,
                 Status, RequestBy
             )
             VALUES
             (
                 @FirstName, @LastName, @EmployeeNo, @Designation, @Department, @Location, @Company, @NIC, @InterviewDate, @DueStartDate,
                 @IsReplacement, @Replacement, @Email, @EmailGroup, @Computer, @ComputerLogin, @SAP, @WFX, @NewLandline,
-                @ExistingLandline, @Extension, @SmartPhone, @BasicPhone, @SIM, @HomeAddress, GETDATE(), @RequestRemark,
+                @ExistingLandline, @Extension, @SmartPhone, @BasicPhone, @SIM, @HomeAddress, @Dongle, GETDATE(), @RequestRemark,
                 @Status, @RequestBy
             );
             SELECT CAST(SCOPE_IDENTITY() AS INT);";
@@ -91,6 +91,7 @@ namespace TMIS.DataAccess.HRRS.Repository
                     obj.HRRS_ITRequest!.BasicPhone,
                     obj.HRRS_ITRequest!.SIM,
                     obj.HRRS_ITRequest!.HomeAddress,
+                    obj.HRRS_ITRequest!.Dongle,
                     obj.HRRS_ITRequest!.RequestRemark,
                     Status = 1, // Default to 'Pending' or change based on logic
                     RequestBy = _iSessionHelper.GetShortName().ToUpper()
@@ -179,6 +180,7 @@ namespace TMIS.DataAccess.HRRS.Repository
                 SmartPhone = @SmartPhone,
                 BasicPhone = @BasicPhone,
                 SIM = @SIM,
+                Dongle = @Dongle,
                 HomeAddress = @HomeAddress,
                 RequestRemark = @RequestRemark,
                 Status = @Status,
@@ -212,6 +214,7 @@ namespace TMIS.DataAccess.HRRS.Repository
                     obj.SmartPhone,
                     obj.BasicPhone,
                     obj.SIM,
+                    obj.Dongle,
                     obj.HomeAddress,
                     obj.RequestRemark,
                     Status = '1',
